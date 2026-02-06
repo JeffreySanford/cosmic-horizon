@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/vlass-web-e2e"
+    },
+    {
+      "path": "./apps/vlass-api-e2e"
+    },
+    {
+      "path": "./apps/vlass-api"
+    },
+    {
+      "path": "./libs/shared/models"
+    }
+  ]
+}

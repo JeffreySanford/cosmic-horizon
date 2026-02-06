@@ -1,0 +1,18 @@
+packages:
+  - packages/*
+  - apps/vlass-api
+  - apps/vlass-api-e2e
+  - libs/shared/*
+
+autoInstallPeers: true
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@parcel/watcher'
+  - '@swc/core'
+  - esbuild
+  - less
+  - lmdb
+  - msgpackr-extract
+  - nx
+  - unrs-resolver

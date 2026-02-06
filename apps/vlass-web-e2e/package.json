@@ -1,0 +1,8 @@
+{
+  "name": "@vlass-portal/vlass-web-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "vlass-web-e2e"
+  }
+}
