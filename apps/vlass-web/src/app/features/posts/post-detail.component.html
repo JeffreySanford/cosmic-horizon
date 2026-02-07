@@ -19,7 +19,25 @@
           </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <pre class="content">{{ post.content }}</pre>
+          <section class="share-panel">
+            <span class="share-url">{{ post.id }}</span>
+            <button mat-stroked-button type="button" (click)="copyShareLink()">Copy Share Link</button>
+          </section>
+
+          <section class="view-toggle">
+            <button mat-stroked-button type="button" [disabled]="viewMode === 'formatted'" (click)="viewMode = 'formatted'">
+              Formatted View
+            </button>
+            <button mat-stroked-button type="button" [disabled]="viewMode === 'raw'" (click)="viewMode = 'raw'">
+              Raw Markdown
+            </button>
+          </section>
+
+          @if (viewMode === 'raw') {
+            <pre class="content">{{ post.content }}</pre>
+          } @else {
+            <div class="content formatted" [innerHTML]="formattedContent"></div>
+          }
         </mat-card-content>
         <mat-card-actions>
           @if (post.status === 'draft') {

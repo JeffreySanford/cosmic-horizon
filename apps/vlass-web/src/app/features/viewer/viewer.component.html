@@ -18,7 +18,6 @@
           }
         </div>
       </div>
-      <p class="viewer-caption">Aladin Lite Mode A viewer with live RA/Dec/FOV sync.</p>
       @if (nativeResolutionHint) {
         <div class="resolution-hint">
           <span>{{ nativeResolutionHint }}</span>
@@ -31,121 +30,143 @@
 
     <mat-card class="viewer-state-card">
       <mat-card-header>
-        <h1>Viewer State</h1>
+        <div class="card-title-wrap">
+          <h1>Control Deck</h1>
+          <p>Coordinate controls, sharing, cutouts, and annotations.</p>
+        </div>
       </mat-card-header>
       <mat-card-content>
-        <form [formGroup]="stateForm" class="state-form">
-          <mat-form-field appearance="outline">
-            <mat-label>Right Ascension</mat-label>
-            <input matInput type="number" formControlName="ra" />
-          </mat-form-field>
+        <section class="panel-group">
+          <form [formGroup]="stateForm" class="state-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Right Ascension</mat-label>
+              <input matInput type="number" formControlName="ra" />
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Declination</mat-label>
-            <input matInput type="number" formControlName="dec" />
-          </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Declination</mat-label>
+              <input matInput type="number" formControlName="dec" />
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Field of View</mat-label>
-            <input matInput type="number" formControlName="fov" />
-          </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Field of View</mat-label>
+              <input matInput type="number" formControlName="fov" />
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Survey</mat-label>
-            <select matNativeControl formControlName="survey">
-              @for (option of surveyOptions; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
+            <mat-form-field appearance="outline">
+              <mat-label>Survey</mat-label>
+              <select matNativeControl formControlName="survey">
+                @for (option of surveyOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </mat-form-field>
+          </form>
+        </section>
+
+        <section class="panel-group">
+          <div class="actions">
+            <button mat-stroked-button type="button" (click)="applyStateToUrl()">Update URL State</button>
+            <button mat-stroked-button type="button" (click)="downloadScienceData()">Download FITS Cutout</button>
+            <button mat-stroked-button type="button" (click)="createPermalink()" [disabled]="loadingPermalink">
+              @if (loadingPermalink) {
+                Creating permalink...
+              } @else {
+                Create Permalink
               }
-            </select>
-          </mat-form-field>
-        </form>
-
-        <div class="actions">
-          <button mat-stroked-button type="button" (click)="applyStateToUrl()">Update URL State</button>
-          <button mat-stroked-button type="button" (click)="downloadScienceData()">Download FITS Cutout</button>
-          <button mat-stroked-button type="button" (click)="createPermalink()" [disabled]="loadingPermalink">
-            @if (loadingPermalink) {
-              Creating permalink...
-            } @else {
-              Create Permalink
-            }
-          </button>
-          <button mat-flat-button color="accent" type="button" (click)="saveSnapshot()" [disabled]="savingSnapshot">
-            @if (savingSnapshot) {
-              Saving snapshot...
-            } @else {
-              Save PNG Snapshot
-            }
-          </button>
-        </div>
-
-        <div class="cutout-controls">
-          <label class="cutout-label" for="cutout-detail">Cutout Detail</label>
-          <select id="cutout-detail" [(ngModel)]="cutoutDetail" [ngModelOptions]="{ standalone: true }">
-            <option value="standard">Standard (1024 px)</option>
-            <option value="high">High (2048 px)</option>
-            <option value="max">Max (3072 px)</option>
-          </select>
-        </div>
-
-        @if (cutoutTelemetry) {
-          <div class="telemetry-card">
-            <h3>Cutout Telemetry</h3>
-            <p>Success Rate: {{ cutoutSuccessRate }}</p>
-            <p>Requests: {{ cutoutTelemetry.requests_total }} | Failures: {{ cutoutTelemetry.failure_total }}</p>
-            <p>Fallbacks: res {{ cutoutTelemetry.resolution_fallback_total }} | survey {{ cutoutTelemetry.survey_fallback_total }}</p>
-            <p>Cache Hits: {{ cutoutTelemetry.cache_hits_total }} | Attempts: {{ cutoutTelemetry.provider_attempts_total }}</p>
-            @if (cutoutTelemetry.last_failure_reason) {
-              <p class="status">Last Failure: {{ cutoutTelemetry.last_failure_reason }}</p>
-            }
+            </button>
+            <button mat-flat-button color="accent" type="button" (click)="saveSnapshot()" [disabled]="savingSnapshot">
+              @if (savingSnapshot) {
+                Saving snapshot...
+              } @else {
+                Save PNG Snapshot
+              }
+            </button>
           </div>
-        }
+        </section>
 
-        <div class="label-tools">
-          <mat-form-field appearance="outline" class="label-name-field">
-            <mat-label>Center Label</mat-label>
-            <input matInput type="text" [(ngModel)]="labelDraft" [ngModelOptions]="{ standalone: true }" />
-          </mat-form-field>
-          <button mat-stroked-button type="button" (click)="addCenterLabel()">Label Center</button>
-        </div>
-
-        @if (catalogLabels.length > 0) {
-          <div class="catalog-labels">
-            <h3>Catalog Labels Near Center</h3>
-            @if (centerCatalogLabel) {
-              <button mat-stroked-button type="button" (click)="addCenterCatalogLabelAsAnnotation()">
-                Annotate Center Match
-              </button>
-            }
-            @for (label of catalogLabels; track label.name + label.ra + label.dec) {
-              <div class="catalog-row" (mouseenter)="logCatalogHover(label)">
-                <span>{{ label.name }} ({{ label.object_type }}) - {{ label.angular_distance_deg.toFixed(3) }} deg</span>
-                <button mat-button type="button" (click)="addCatalogLabelAsAnnotation(label)">Annotate</button>
-              </div>
-            }
+        <section class="panel-group">
+          <div class="label-tools">
+            <mat-form-field appearance="outline" class="label-name-field">
+              <mat-label>Center Label</mat-label>
+              <input matInput type="text" [(ngModel)]="labelDraft" [ngModelOptions]="{ standalone: true }" />
+            </mat-form-field>
+            <button mat-stroked-button type="button" (click)="addCenterLabel()">Label Center</button>
           </div>
-        }
+        </section>
 
-        @if (labels.length > 0) {
-          <div class="label-list">
-            <h3>Manual Annotations</h3>
-            @for (label of labels; track label.created_at + label.name) {
-              <div class="label-row">
-                <span>{{ label.name }} (RA {{ label.ra }}, Dec {{ label.dec }})</span>
-                <button mat-button type="button" (click)="removeLabel(label)">Remove</button>
-              </div>
-            }
-          </div>
-        }
-
-        <div class="meta">
-          <p><strong>Encoded:</strong> {{ encodedState || 'n/a' }}</p>
-          <p><strong>Short ID:</strong> {{ shortId || 'n/a' }}</p>
-          <p><strong>Permalink:</strong> {{ permalink || 'n/a' }}</p>
-          @if (statusMessage) {
-            <p class="status">{{ statusMessage }}</p>
+        <details class="details-panel" open>
+          <summary>Annotations</summary>
+          @if (catalogLabels.length > 0) {
+            <div class="catalog-labels">
+              <h3>Catalog Labels Near Center</h3>
+              @if (centerCatalogLabel) {
+                <button mat-stroked-button type="button" (click)="addCenterCatalogLabelAsAnnotation()">
+                  Annotate Center Match
+                </button>
+              }
+              @for (label of catalogLabels; track label.name + label.ra + label.dec) {
+                <div class="catalog-row" (mouseenter)="logCatalogHover(label)">
+                  <span>{{ label.name }} ({{ label.object_type }}) - {{ label.angular_distance_deg.toFixed(3) }} deg</span>
+                  <button mat-button type="button" (click)="addCatalogLabelAsAnnotation(label)">Annotate</button>
+                </div>
+              }
+            </div>
           }
-        </div>
+
+          @if (labels.length > 0) {
+            <div class="label-list">
+              <h3>Manual Annotations</h3>
+              @for (label of labels; track label.created_at + label.name) {
+                <div class="label-row">
+                  <span>{{ label.name }} (RA {{ label.ra }}, Dec {{ label.dec }})</span>
+                  <button mat-button type="button" (click)="removeLabel(label)">Remove</button>
+                </div>
+              }
+            </div>
+          }
+        </details>
+
+        <details class="details-panel">
+          <summary>Cutout Detail & Diagnostics</summary>
+          <div class="cutout-controls">
+            <label class="cutout-label" for="cutout-detail">Cutout Detail</label>
+            <select id="cutout-detail" [(ngModel)]="cutoutDetail" [ngModelOptions]="{ standalone: true }">
+              <option value="standard">Standard (1024 px)</option>
+              <option value="high">High (2048 px)</option>
+              <option value="max">Max (3072 px)</option>
+            </select>
+          </div>
+
+          @if (cutoutTelemetry) {
+            <div class="telemetry-card">
+              <h3>Cutout Telemetry</h3>
+              <p>Success Rate: {{ cutoutSuccessRate }}</p>
+              <p>Requests: {{ cutoutTelemetry.requests_total }} | Failures: {{ cutoutTelemetry.failure_total }}</p>
+              <p>
+                Fallbacks: res {{ cutoutTelemetry.resolution_fallback_total }} | survey
+                {{ cutoutTelemetry.survey_fallback_total }}
+              </p>
+              <p>Cache Hits: {{ cutoutTelemetry.cache_hits_total }} | Attempts: {{ cutoutTelemetry.provider_attempts_total }}</p>
+              @if (cutoutTelemetry.last_failure_reason) {
+                <p class="status">Last Failure: {{ cutoutTelemetry.last_failure_reason }}</p>
+              }
+            </div>
+          }
+        </details>
+
+        <details class="details-panel">
+          <summary>Encoded State & Link Metadata</summary>
+          <div class="meta">
+            <p><strong>Encoded:</strong> {{ encodedState || 'n/a' }}</p>
+            <p><strong>Short ID:</strong> {{ shortId || 'n/a' }}</p>
+            <p><strong>Permalink:</strong> {{ permalink || 'n/a' }}</p>
+          </div>
+        </details>
+
+        @if (statusMessage) {
+          <p class="status status-block">{{ statusMessage }}</p>
+        }
       </mat-card-content>
     </mat-card>
   </div>

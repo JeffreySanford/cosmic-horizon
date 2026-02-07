@@ -14,7 +14,7 @@
 }
 
 .editor-shell {
-  max-width: 980px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 1rem;
 }
@@ -30,14 +30,108 @@
   gap: 0.8rem;
 }
 
+.editor-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.editor-columns {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 0.8rem;
+  align-items: start;
+}
+
 .content-field {
   width: 100%;
+}
+
+.preview-pane {
+  border: 1px solid rgba(151, 224, 255, 0.3);
+  border-radius: 10px;
+  padding: 0.7rem;
+  background: rgba(7, 13, 26, 0.7);
+  min-height: 100%;
+}
+
+.preview-pane h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.88rem;
+}
+
+.preview-html {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.preview-html :where(h1, h2, h3) {
+  margin: 0.5rem 0;
+}
+
+.preview-html :where(p) {
+  margin: 0.35rem 0;
+}
+
+.preview-html :where(code) {
+  font-family: 'Source Code Pro', monospace;
+  background: rgba(18, 28, 45, 0.9);
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+}
+
+.preview-html :where(a) {
+  color: #9fe0ff;
+}
+
+.preview-html :where(.preview-viewer-block) {
+  margin: 0.45rem 0;
+  border: 1px solid rgba(238, 201, 118, 0.3);
+  border-radius: 8px;
+  padding: 0.45rem;
+  background: rgba(15, 22, 40, 0.7);
+}
+
+.preview-html :where(.preview-viewer-block.invalid) {
+  border-color: rgba(255, 128, 128, 0.4);
+  color: #ffb8b8;
 }
 
 .actions {
   display: flex;
   gap: 0.6rem;
   margin-top: 0.75rem;
+}
+
+.builder-panel {
+  margin-top: 0.75rem;
+  border: 1px solid rgba(238, 201, 118, 0.3);
+  border-radius: 10px;
+  padding: 0.7rem;
+  background: rgba(10, 17, 33, 0.75);
+}
+
+.builder-panel h3 {
+  margin: 0 0 0.55rem;
+  font-size: 0.9rem;
+}
+
+.builder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.builder-actions {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.stats {
+  margin-top: 0.65rem;
+  color: rgba(247, 232, 187, 0.8);
+  font-size: 0.82rem;
 }
 
 .viewer-blocks {
@@ -57,3 +151,12 @@
   color: #9fe0ff;
 }
 
+@media (max-width: 980px) {
+  .editor-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -17,11 +17,29 @@
             <input matInput formControlName="title" />
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="content-field">
-            <mat-label>Markdown Content</mat-label>
-            <textarea matInput rows="12" formControlName="content"></textarea>
-          </mat-form-field>
+          <div class="editor-toolbar-actions">
+            <button mat-stroked-button type="button" (click)="insertMarkdown('**bold**')">Bold</button>
+            <button mat-stroked-button type="button" (click)="insertMarkdown('*italic*')">Italic</button>
+            <button mat-stroked-button type="button" (click)="insertMarkdown('# Heading')">Header</button>
+            <button mat-stroked-button type="button" (click)="insertMarkdown('[link](https://)')">Link</button>
+            <button mat-stroked-button type="button" (click)="insertMarkdown('\n> quote')">Quote</button>
+            <button mat-stroked-button type="button" (click)="openBlockBuilder()">Embed Viewer Block</button>
+          </div>
+
+          <div class="editor-columns">
+            <mat-form-field appearance="outline" class="content-field">
+              <mat-label>Markdown Content</mat-label>
+              <textarea matInput rows="16" formControlName="content"></textarea>
+            </mat-form-field>
+
+            <section class="preview-pane">
+              <h3>Live Preview</h3>
+              <div class="preview-html" [innerHTML]="previewHtml"></div>
+            </section>
+          </div>
         </form>
+
+        <p class="stats">Characters: {{ characterCount }} | Estimated read: {{ estimatedReadMinutes }} min</p>
 
         <div class="actions">
           <button mat-stroked-button type="button" (click)="parseViewerBlocks()">Parse Viewer Blocks</button>
@@ -33,6 +51,42 @@
             }
           </button>
         </div>
+
+        @if (showBlockBuilder) {
+          <section class="builder-panel" [formGroup]="blockBuilderForm">
+            <h3>Embed Viewer Block</h3>
+            <div class="builder-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>RA</mat-label>
+                <input matInput type="number" formControlName="ra" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Dec</mat-label>
+                <input matInput type="number" formControlName="dec" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>FOV</mat-label>
+                <input matInput type="number" formControlName="fov" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Survey</mat-label>
+                <select matNativeControl formControlName="survey">
+                  @for (survey of surveyOptions; track survey) {
+                    <option [value]="survey">{{ survey }}</option>
+                  }
+                </select>
+              </mat-form-field>
+            </div>
+            <mat-form-field appearance="outline">
+              <mat-label>Label (optional)</mat-label>
+              <input matInput type="text" formControlName="label" />
+            </mat-form-field>
+            <div class="builder-actions">
+              <button mat-stroked-button type="button" (click)="closeBlockBuilder()">Cancel</button>
+              <button mat-flat-button color="accent" type="button" (click)="insertViewerBlock()">Insert Block</button>
+            </div>
+          </section>
+        }
 
         @if (viewerBlocks.length > 0) {
           <div class="viewer-blocks">
@@ -53,4 +107,3 @@
     </mat-card>
   </section>
 </div>
-
