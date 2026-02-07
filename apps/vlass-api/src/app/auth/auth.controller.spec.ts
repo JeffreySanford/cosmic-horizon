@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UnauthorizedException } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
@@ -57,6 +58,20 @@ describe('AuthController', () => {
           created_at: expect.any(Date),
         },
       });
+    });
+
+    it('propagates UnauthorizedException for invalid credentials', async () => {
+      authService.loginWithCredentials.mockRejectedValue(
+        new UnauthorizedException('Invalid email or password')
+      );
+
+      await expect(
+        controller.login({
+          email: 'bad@vlass.local',
+          password: 'wrong-password',
+        })
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+      expect(authService.signToken).not.toHaveBeenCalled();
     });
   });
 

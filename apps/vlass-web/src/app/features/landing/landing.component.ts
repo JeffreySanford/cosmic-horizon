@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthSessionService } from '../../services/auth-session.service';
 
 @Component({
   selector: 'app-landing',
@@ -36,9 +37,20 @@ export class LandingComponent {
   ];
 
   private router = inject(Router);
+  private authSessionService = inject(AuthSessionService);
 
-  logout() {
-    // TODO: Call logout API
+  constructor() {
+    const sessionUser = this.authSessionService.getUser();
+    if (sessionUser) {
+      this.user = {
+        name: sessionUser.display_name || sessionUser.username,
+        email: sessionUser.email || 'user@example.com',
+      };
+    }
+  }
+
+  logout(): void {
+    this.authSessionService.clearSession();
     this.router.navigate(['/auth/login']);
   }
 }

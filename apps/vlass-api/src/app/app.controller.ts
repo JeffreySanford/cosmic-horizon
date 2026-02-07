@@ -22,43 +22,43 @@ export class AppController {
   }
 
   // Users endpoints
-  @Get('api/users')
+  @Get('users')
   getAllUsers() {
     return this.appService.getAllUsers();
   }
 
-  @Post('api/users')
+  @Post('users')
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.appService.createUser(createUserDto);
   }
 
-  @Get('api/users/:id')
+  @Get('users/:id')
   getUserById(@Param('id') id: string) {
     return this.appService.getUserById(id);
   }
 
-  @Put('api/users/:id')
+  @Put('users/:id')
   updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.appService.updateUser(id, updateUserDto);
   }
 
-  @Delete('api/users/:id')
+  @Delete('users/:id')
   deleteUser(@Param('id') id: string) {
     return this.appService.deleteUser(id);
   }
 
   // Posts endpoints
-  @Get('api/posts')
+  @Get('posts')
   getAllPosts() {
     return this.appService.getAllPosts();
   }
 
-  @Get('api/posts/published')
+  @Get('posts/published')
   getPublishedPosts() {
     return this.appService.getPublishedPosts();
   }
 
-  @Post('api/posts')
+  @Post('posts')
   @UseGuards(AuthenticatedGuard)
   createPost(@Request() req: RequestWithUser, @Body() createPostDto: CreatePostDto) {
     return this.appService.createPost({
@@ -67,36 +67,36 @@ export class AppController {
     });
   }
 
-  @Get('api/posts/:id')
+  @Get('posts/:id')
   getPostById(@Param('id') id: string) {
     return this.appService.getPostById(id);
   }
 
-  @Put('api/posts/:id')
+  @Put('posts/:id')
   @UseGuards(AuthenticatedGuard)
   updatePost(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.appService.updatePost(id, updatePostDto);
   }
 
-  @Post('api/posts/:id/publish')
+  @Post('posts/:id/publish')
   @UseGuards(AuthenticatedGuard)
   publishPost(@Param('id') id: string) {
     return this.appService.publishPost(id);
   }
 
-  @Post('api/posts/:id/unpublish')
+  @Post('posts/:id/unpublish')
   @UseGuards(AuthenticatedGuard)
   unpublishPost(@Param('id') id: string) {
     return this.appService.unpublishPost(id);
   }
 
-  @Delete('api/posts/:id')
+  @Delete('posts/:id')
   @UseGuards(AuthenticatedGuard)
   deletePost(@Param('id') id: string) {
     return this.appService.deletePost(id);
   }
 
-  @Get('api/users/:userId/posts')
+  @Get('users/:userId/posts')
   getPostsByUser(@Param('userId') userId: string) {
     return this.appService.getPostsByUser(userId);
   }

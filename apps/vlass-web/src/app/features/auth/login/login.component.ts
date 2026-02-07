@@ -1,9 +1,9 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthApiService } from '../auth-api.service';
+import { AuthSessionService } from '../../../services/auth-session.service';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +21,7 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authApiService = inject(AuthApiService);
-  private platformId = inject(PLATFORM_ID);
+  private authSessionService = inject(AuthSessionService);
 
   constructor() {
     this.loginForm = this.formBuilder.group({
@@ -49,10 +49,7 @@ export class LoginComponent {
 
     this.authApiService.login({ email, password }).subscribe({
       next: (response) => {
-        if (isPlatformBrowser(this.platformId)) {
-          sessionStorage.setItem('auth_token', response.access_token);
-          sessionStorage.setItem('auth_user', JSON.stringify(response.user));
-        }
+        this.authSessionService.setSession(response);
 
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/landing';
         this.loading = false;

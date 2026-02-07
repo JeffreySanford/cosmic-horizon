@@ -7,16 +7,21 @@ Canonical scope:
 
 ## MVP Priorities
 
-- [ ] Keep baseline green:
-  `pnpm nx run-many --target=test --all`
-- [ ] Keep MVP e2e gate green:
-  `pnpm nx run mvp-gates:e2e`
 - [ ] Validate SSR performance targets (FCP/LCP)
 - [ ] Validate permalink reliability and snapshot retention
 - [ ] Complete post and revision workflows
 - [ ] Complete post moderation path (hide/lock)
 - [ ] Verify audit and rate limiting behavior
 - [ ] Keep docs aligned with source-of-truth models
+
+## Archived Completed Items
+
+Completed on 2026-02-07:
+
+- [x] Keep baseline green:
+  `pnpm nx run-many --target=test --all`
+- [x] Keep MVP e2e gate green:
+  `pnpm nx run mvp-gates:e2e`
 
 ## Deferred Backlog
 
