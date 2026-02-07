@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  vlass-postgres:
+    image: postgres:16-alpine
+    container_name: vlass-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-vlass_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vlass_password_dev}
+      POSTGRES_DB: ${DB_NAME:-vlass_portal}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "${DB_PORT:-15432}:5432"
+    volumes:
+      - vlass-postgres-data:/var/lib/postgresql/data
+      - ./docs/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-vlass_user} -d ${DB_NAME:-vlass_portal}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vlass-network
+    restart: unless-stopped
+
+  vlass-redis:
+    image: redis:7-alpine
+    container_name: vlass-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - vlass-redis-data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-vlass_redis_dev}
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vlass-network
+    restart: unless-stopped
+
+volumes:
+  vlass-postgres-data:
+    driver: local
+  vlass-redis-data:
+    driver: local
+
+networks:
+  vlass-network:
+    driver: bridge
