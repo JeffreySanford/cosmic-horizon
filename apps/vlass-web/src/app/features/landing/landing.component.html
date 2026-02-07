@@ -1,0 +1,48 @@
+<div class="landing-container">
+  <mat-toolbar color="primary" class="app-toolbar">
+    <span>VLASS Portal</span>
+    <span class="spacer"></span>
+    <button mat-button (click)="logout()">Logout</button>
+  </mat-toolbar>
+
+  <div class="content-wrapper">
+    <mat-card class="welcome-card">
+      <mat-card-header>
+        <h1>Welcome to VLASS Portal</h1>
+      </mat-card-header>
+      <mat-card-content>
+        <p>
+          Hello <strong>{{ user.name }}</strong
+          >! Welcome to the VLASS Portal. This is your landing page after
+          authentication.
+        </p>
+        <p>
+          You can start using the application to manage your posts, comments,
+          and collaboration.
+        </p>
+
+        <mat-divider></mat-divider>
+
+        <div class="features">
+          <h2>Features</h2>
+          <mat-list>
+            <mat-list-item
+              ><mat-icon>check_circle</mat-icon> Create and manage posts</mat-list-item
+            >
+            <mat-list-item
+              ><mat-icon>check_circle</mat-icon> Add comments and
+              collaborations</mat-list-item
+            >
+            <mat-list-item
+              ><mat-icon>check_circle</mat-icon> Track document
+              revisions</mat-list-item
+            >
+            <mat-list-item
+              ><mat-icon>check_circle</mat-icon> Real-time updates</mat-list-item
+            >
+          </mat-list>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

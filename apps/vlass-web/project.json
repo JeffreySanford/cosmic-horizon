@@ -71,6 +71,13 @@
       "executor": "@angular/build:unit-test",
       "options": {}
     },
+    "lighthouse": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node scripts/run-lighthouse-ssr.mjs",
+        "cwd": "."
+      }
+    },
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",

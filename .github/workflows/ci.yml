@@ -43,6 +43,8 @@ jobs:
 
       - run: pnpm nx run docs-policy:check
       - run: pnpm nx run-many --target=test --all
+      - run: pnpm nx run mvp-gates:e2e
+      - run: pnpm nx run vlass-web:lighthouse
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
       - run: pnpm exec nx fix-ci
         if: always()

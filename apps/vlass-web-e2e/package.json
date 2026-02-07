@@ -3,6 +3,15 @@
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "name": "vlass-web-e2e"
+    "name": "vlass-web-e2e",
+    "targets": {
+      "e2e-mvp": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "apps/vlass-web-e2e",
+          "command": "playwright test src/example.spec.ts --project=chromium"
+        }
+      }
+    }
   }
 }

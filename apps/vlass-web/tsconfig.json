@@ -4,10 +4,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
-    "module": "preserve",
-    "composite": false,
-    "declaration": false,
-    "emitDeclarationOnly": false
+    "module": "preserve"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

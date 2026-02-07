@@ -17,3 +17,8 @@ When conflicts exist:
 - Active MVP docs: implementation guidance for current scope.
 - Deferred docs: future v1.1/v2 scope, not actionable for MVP.
 - Archived docs: historical context only.
+
+## Success Threshold
+
+Project documentation/quality governance target is >= 95 on the status scorecard
+defined in `documentation/STATUS.md`.

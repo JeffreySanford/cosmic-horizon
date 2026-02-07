@@ -1,0 +1,36 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:4200/"
+      ],
+      "startServerCommand": "pnpm nx serve vlass-web --configuration=development",
+      "startServerReadyPattern": "Local:",
+      "startServerReadyTimeout": 180000,
+      "numberOfRuns": 1,
+      "settings": {
+        "chromeFlags": "--headless=new --no-sandbox --disable-dev-shm-usage"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "first-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 4000
+          }
+        ],
+        "largest-contentful-paint": [
+          "warn",
+          {
+            "maxNumericValue": 6000
+          }
+        ]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": "test-output/lighthouse"
+    }
+  }
+}

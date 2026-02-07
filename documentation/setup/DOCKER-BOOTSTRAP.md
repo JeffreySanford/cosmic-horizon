@@ -16,4 +16,5 @@ Status date: 2026-02-07
 
 ## Notes
 
-If a future v1.1/v2 feature introduces new services, update `PRODUCT-CHARTER.md` and `SCOPE-LOCK.md` first.
+If a future v1.1 or v2 feature introduces new services, update
+`PRODUCT-CHARTER.md` and `SCOPE-LOCK.md` first.
