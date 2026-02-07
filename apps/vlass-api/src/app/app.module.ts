@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database.module';
 import { AuthModule } from './auth/auth.module';
+import { RateLimitGuard } from './guards/rate-limit.guard';
 
 const envCandidates = [
   resolve(process.cwd(), '.env.local'),
@@ -26,6 +27,6 @@ const envCandidates = [
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, RateLimitGuard],
 })
 export class AppModule {}

@@ -3,6 +3,7 @@ import type { Request as ExpressRequest } from 'express';
 import { AppService } from './app.service';
 import { CreateUserDto, UpdateUserDto, CreatePostDto, UpdatePostDto } from './dto';
 import { AuthenticatedGuard } from './auth/guards/authenticated.guard';
+import { RateLimitGuard } from './guards/rate-limit.guard';
 import { User } from './entities';
 
 type RequestWithUser = ExpressRequest & { user: User };
@@ -28,6 +29,7 @@ export class AppController {
   }
 
   @Post('users')
+  @UseGuards(RateLimitGuard)
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.appService.createUser(createUserDto);
   }
@@ -38,11 +40,13 @@ export class AppController {
   }
 
   @Put('users/:id')
+  @UseGuards(RateLimitGuard)
   updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.appService.updateUser(id, updateUserDto);
   }
 
   @Delete('users/:id')
+  @UseGuards(RateLimitGuard)
   deleteUser(@Param('id') id: string) {
     return this.appService.deleteUser(id);
   }
@@ -59,7 +63,7 @@ export class AppController {
   }
 
   @Post('posts')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard, RateLimitGuard)
   createPost(@Request() req: RequestWithUser, @Body() createPostDto: CreatePostDto) {
     return this.appService.createPost({
       ...createPostDto,
@@ -73,25 +77,25 @@ export class AppController {
   }
 
   @Put('posts/:id')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard, RateLimitGuard)
   updatePost(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.appService.updatePost(id, updatePostDto);
   }
 
   @Post('posts/:id/publish')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard, RateLimitGuard)
   publishPost(@Param('id') id: string) {
     return this.appService.publishPost(id);
   }
 
   @Post('posts/:id/unpublish')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard, RateLimitGuard)
   unpublishPost(@Param('id') id: string) {
     return this.appService.unpublishPost(id);
   }
 
   @Delete('posts/:id')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard, RateLimitGuard)
   deletePost(@Param('id') id: string) {
     return this.appService.deletePost(id);
   }

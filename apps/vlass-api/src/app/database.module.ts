@@ -10,7 +10,7 @@ import {
   AuditLog,
   VlassTileCache,
 } from './entities';
-import { UserRepository, PostRepository } from './repositories';
+import { UserRepository, PostRepository, AuditLogRepository } from './repositories';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { UserRepository, PostRepository } from './repositories';
       VlassTileCache,
     ]),
   ],
-  providers: [UserRepository, PostRepository],
-  exports: [TypeOrmModule, UserRepository, PostRepository],
+  providers: [UserRepository, PostRepository, AuditLogRepository],
+  exports: [TypeOrmModule, UserRepository, PostRepository, AuditLogRepository],
 })
 export class DatabaseModule {}

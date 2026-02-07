@@ -1,8 +1,8 @@
 import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CreateUserDto, UpdateUserDto, CreatePostDto, UpdatePostDto } from './dto';
-import { User, Post } from './entities';
-import { UserRepository, PostRepository } from './repositories';
+import { User, Post, AuditAction, AuditEntityType } from './entities';
+import { UserRepository, PostRepository, AuditLogRepository } from './repositories';
 
 @Injectable()
 export class AppService {
@@ -12,6 +12,7 @@ export class AppService {
     private readonly dataSource: DataSource,
     private readonly userRepository: UserRepository,
     private readonly postRepository: PostRepository,
+    private readonly auditLogRepository: AuditLogRepository,
   ) {}
 
   getData(): { message: string } {
@@ -70,7 +71,15 @@ export class AppService {
     if (existingUser) {
       throw new BadRequestException(`Username ${createUserDto.username} already exists`);
     }
-    return this.userRepository.create(createUserDto);
+    const user = await this.userRepository.create(createUserDto);
+    await this.auditLogRepository.createAuditLog({
+      user_id: user.id,
+      action: AuditAction.CREATE,
+      entity_type: AuditEntityType.USER,
+      entity_id: user.id,
+      changes: { after: { username: user.username, email: user.email } },
+    });
+    return user;
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -82,6 +91,16 @@ export class AppService {
     if (!updatedUser) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
+    await this.auditLogRepository.createAuditLog({
+      user_id: id,
+      action: AuditAction.UPDATE,
+      entity_type: AuditEntityType.USER,
+      entity_id: id,
+      changes: {
+        before: { username: user.username, email: user.email },
+        after: { username: updatedUser.username, email: updatedUser.email },
+      },
+    });
     return updatedUser;
   }
 
@@ -90,7 +109,17 @@ export class AppService {
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    return this.userRepository.softDelete(id);
+    const deleted = await this.userRepository.softDelete(id);
+    if (deleted) {
+      await this.auditLogRepository.createAuditLog({
+        user_id: id,
+        action: AuditAction.DELETE,
+        entity_type: AuditEntityType.USER,
+        entity_id: id,
+        changes: { before: { username: user.username, email: user.email } },
+      });
+    }
+    return deleted;
   }
 
   // Post endpoints
@@ -119,7 +148,15 @@ export class AppService {
   async createPost(createPostDto: CreatePostDto): Promise<Post> {
     // Verify user exists
     await this.getUserById(createPostDto.user_id);
-    return this.postRepository.create(createPostDto);
+    const post = await this.postRepository.create(createPostDto);
+    await this.auditLogRepository.createAuditLog({
+      user_id: createPostDto.user_id,
+      action: AuditAction.CREATE,
+      entity_type: AuditEntityType.POST,
+      entity_id: post.id,
+      changes: { after: { title: post.title, status: post.status } },
+    });
+    return post;
   }
 
   async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
@@ -131,6 +168,16 @@ export class AppService {
     if (!updatedPost) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
+    await this.auditLogRepository.createAuditLog({
+      user_id: post.user_id,
+      action: AuditAction.UPDATE,
+      entity_type: AuditEntityType.POST,
+      entity_id: id,
+      changes: {
+        before: { title: post.title, status: post.status },
+        after: { title: updatedPost.title, status: updatedPost.status },
+      },
+    });
     return updatedPost;
   }
 
@@ -143,6 +190,16 @@ export class AppService {
     if (!publishedPost) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
+    await this.auditLogRepository.createAuditLog({
+      user_id: post.user_id,
+      action: AuditAction.PUBLISH,
+      entity_type: AuditEntityType.POST,
+      entity_id: id,
+      changes: {
+        before: { status: post.status },
+        after: { status: publishedPost.status },
+      },
+    });
     return publishedPost;
   }
 
@@ -155,6 +212,16 @@ export class AppService {
     if (!unpublishedPost) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
+    await this.auditLogRepository.createAuditLog({
+      user_id: post.user_id,
+      action: AuditAction.UNPUBLISH,
+      entity_type: AuditEntityType.POST,
+      entity_id: id,
+      changes: {
+        before: { status: post.status },
+        after: { status: unpublishedPost.status },
+      },
+    });
     return unpublishedPost;
   }
 
@@ -163,6 +230,16 @@ export class AppService {
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
-    return this.postRepository.softDelete(id);
+    const deleted = await this.postRepository.softDelete(id);
+    if (deleted) {
+      await this.auditLogRepository.createAuditLog({
+        user_id: post.user_id,
+        action: AuditAction.DELETE,
+        entity_type: AuditEntityType.POST,
+        entity_id: id,
+        changes: { before: { title: post.title, status: post.status } },
+      });
+    }
+    return deleted;
   }
 }

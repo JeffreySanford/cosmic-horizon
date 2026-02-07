@@ -2,7 +2,7 @@ import { AppService } from './app.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { User, Post, PostStatus } from './entities';
-import { UserRepository, PostRepository } from './repositories';
+import { UserRepository, PostRepository, AuditLogRepository } from './repositories';
 import { CreateUserDto, CreatePostDto, UpdateUserDto } from './dto';
 
 describe('AppService', () => {
@@ -10,6 +10,7 @@ describe('AppService', () => {
   let mockDataSource: Pick<DataSource, 'isInitialized'>;
   let mockUserRepository: jest.Mocked<UserRepository>;
   let mockPostRepository: jest.Mocked<PostRepository>;
+  let mockAuditLogRepository: jest.Mocked<AuditLogRepository>;
 
   const mockUser: User = {
     id: '1',
@@ -78,11 +79,16 @@ describe('AppService', () => {
       hardDelete: jest.fn(),
     };
 
+    mockAuditLogRepository = {
+      createAuditLog: jest.fn().mockResolvedValue(undefined),
+    } as jest.Mocked<AuditLogRepository>;
+
     // Manually instantiate service to avoid circular dependency in NestJS module system
     service = new AppService(
       mockDataSource as DataSource,
       mockUserRepository,
       mockPostRepository,
+      mockAuditLogRepository,
     );
   });
 
@@ -136,6 +142,7 @@ describe('AppService', () => {
         const createUserDto = { username: 'testuser', email: 'test@example.com' };
         const result = await service.createUser(createUserDto as CreateUserDto);
         expect(result).toEqual(mockUser);
+        expect(mockAuditLogRepository.createAuditLog).toHaveBeenCalled();
       });
 
       it('should throw BadRequestException when username exists', async () => {
@@ -167,6 +174,7 @@ describe('AppService', () => {
       it('should soft delete a user', async () => {
         const result = await service.deleteUser('1');
         expect(result).toBe(true);
+        expect(mockAuditLogRepository.createAuditLog).toHaveBeenCalled();
       });
 
       it('should throw NotFoundException when user not found', async () => {
@@ -208,6 +216,7 @@ describe('AppService', () => {
         const createPostDto = { title: 'Test', content: 'Test content', user_id: '1' };
         const result = await service.createPost(createPostDto as CreatePostDto);
         expect(result).toEqual(mockPost);
+        expect(mockAuditLogRepository.createAuditLog).toHaveBeenCalled();
       });
     });
 
@@ -215,6 +224,7 @@ describe('AppService', () => {
       it('should publish a post', async () => {
         const result = await service.publishPost('1');
         expect(result.status).toBe(PostStatus.PUBLISHED);
+        expect(mockAuditLogRepository.createAuditLog).toHaveBeenCalled();
       });
 
       it('should throw NotFoundException when post not found', async () => {
@@ -227,6 +237,7 @@ describe('AppService', () => {
       it('should soft delete a post', async () => {
         const result = await service.deletePost('1');
         expect(result).toBe(true);
+        expect(mockAuditLogRepository.createAuditLog).toHaveBeenCalled();
       });
 
       it('should throw NotFoundException when post not found', async () => {

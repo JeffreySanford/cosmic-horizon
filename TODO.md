@@ -7,11 +7,9 @@ Canonical scope:
 
 ## MVP Priorities
 
-- [ ] Validate SSR performance targets (FCP/LCP)
 - [ ] Validate permalink reliability and snapshot retention
 - [ ] Complete post and revision workflows
 - [ ] Complete post moderation path (hide/lock)
-- [ ] Verify audit and rate limiting behavior
 - [ ] Keep docs aligned with source-of-truth models
 
 ## Archived Completed Items
@@ -22,6 +20,12 @@ Completed on 2026-02-07:
   `pnpm nx run-many --target=test --all`
 - [x] Keep MVP e2e gate green:
   `pnpm nx run mvp-gates:e2e`
+- [x] Complete JWT auth foundation (seeded credential login, token guard, logout/session cleanup)
+- [x] Add auth-focused e2e coverage (unauthenticated redirect, invalid login, successful login/logout)
+- [x] Add API auth unit coverage for login edge cases and JWT strategy validation
+- [x] Normalize API route prefixes from `/api/api/*` to `/api/*`
+- [x] Validate SSR performance targets (FCP/LCP) with Playwright perf gate
+- [x] Verify audit and rate limiting behavior on critical write paths
 
 ## Deferred Backlog
 
