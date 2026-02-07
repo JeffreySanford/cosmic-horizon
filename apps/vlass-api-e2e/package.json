@@ -19,7 +19,7 @@
         },
         "dependsOn": [
           "vlass-api:build",
-          "vlass-api:serve"
+          "vlass-api:serve-e2e"
         ]
       }
     }

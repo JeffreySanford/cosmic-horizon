@@ -18,15 +18,21 @@ function executionContextFromRequest(request: TestRequest): ExecutionContext {
 describe('RateLimitGuard', () => {
   const originalWindow = process.env['RATE_LIMIT_WINDOW_MS'];
   const originalMax = process.env['RATE_LIMIT_MAX_WRITES'];
+  const originalSnapshotMax = process.env['RATE_LIMIT_MAX_SNAPSHOTS'];
+  const originalCutoutMax = process.env['RATE_LIMIT_MAX_CUTOUTS'];
 
   beforeEach(() => {
     process.env['RATE_LIMIT_WINDOW_MS'] = '10000';
     process.env['RATE_LIMIT_MAX_WRITES'] = '2';
+    process.env['RATE_LIMIT_MAX_SNAPSHOTS'] = '3';
+    process.env['RATE_LIMIT_MAX_CUTOUTS'] = '1';
   });
 
   afterEach(() => {
     process.env['RATE_LIMIT_WINDOW_MS'] = originalWindow;
     process.env['RATE_LIMIT_MAX_WRITES'] = originalMax;
+    process.env['RATE_LIMIT_MAX_SNAPSHOTS'] = originalSnapshotMax;
+    process.env['RATE_LIMIT_MAX_CUTOUTS'] = originalCutoutMax;
   });
 
   it('allows requests under the write limit', () => {
@@ -76,5 +82,17 @@ describe('RateLimitGuard', () => {
     expect(guard.canActivate(postsContext)).toBe(true);
     expect(guard.canActivate(postsContext)).toBe(true);
     expect(guard.canActivate(usersContext)).toBe(true);
+  });
+
+  it('applies stricter cutout path limits', () => {
+    const guard = new RateLimitGuard();
+    const cutoutContext = executionContextFromRequest({
+      ip: '127.0.0.1',
+      path: '/api/view/cutout',
+      headers: {},
+    });
+
+    expect(guard.canActivate(cutoutContext)).toBe(true);
+    expect(() => guard.canActivate(cutoutContext)).toThrow(HttpException);
   });
 });

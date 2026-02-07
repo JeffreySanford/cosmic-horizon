@@ -21,6 +21,8 @@ export class RateLimitGuard implements CanActivate {
   private readonly windows = new Map<string, RequestWindow>();
   private readonly windowMs = Number(process.env['RATE_LIMIT_WINDOW_MS'] || 60_000);
   private readonly maxRequests = Number(process.env['RATE_LIMIT_MAX_WRITES'] || 30);
+  private readonly maxSnapshotRequests = Number(process.env['RATE_LIMIT_MAX_SNAPSHOTS'] || 20);
+  private readonly maxCutoutRequests = Number(process.env['RATE_LIMIT_MAX_CUTOUTS'] || 12);
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<HttpRequestLike>();
@@ -31,9 +33,10 @@ export class RateLimitGuard implements CanActivate {
     const current = this.windows.get(key) ?? { timestamps: [] };
     current.timestamps = current.timestamps.filter((timestamp) => timestamp > cutoff);
 
-    if (current.timestamps.length >= this.maxRequests) {
+    const maxRequestsForPath = this.limitForPath(request.path);
+    if (current.timestamps.length >= maxRequestsForPath) {
       throw new HttpException(
-        `Rate limit exceeded: max ${this.maxRequests} write requests per ${this.windowMs / 1000}s window.`,
+        `Rate limit exceeded: max ${maxRequestsForPath} write requests per ${this.windowMs / 1000}s window.`,
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
@@ -48,5 +51,16 @@ export class RateLimitGuard implements CanActivate {
     const headerIp = Array.isArray(forwarded) ? forwarded[0] : forwarded;
     const ip = headerIp?.split(',')[0].trim() || request.ip || 'unknown-ip';
     return `${ip}:${request.path}`;
+  }
+
+  private limitForPath(path: string): number {
+    if (path.includes('/view/cutout')) {
+      return this.maxCutoutRequests;
+    }
+    if (path.includes('/view/snapshot')) {
+      return this.maxSnapshotRequests;
+    }
+
+    return this.maxRequests;
   }
 }

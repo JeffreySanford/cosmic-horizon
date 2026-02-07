@@ -65,6 +65,7 @@
         ],
         "options": {
           "buildTarget": "vlass-api:build",
+          "inspect": false,
           "runBuildTargetDependencies": false
         },
         "configurations": {
@@ -74,6 +75,19 @@
           "production": {
             "buildTarget": "vlass-api:build:production"
           }
+        }
+      },
+      "serve-e2e": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "vlass-api:build:development",
+          "inspect": false,
+          "watch": false,
+          "runBuildTargetDependencies": false
         }
       },
       "test": {

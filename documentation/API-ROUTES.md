@@ -15,9 +15,10 @@ Canonical scope: `documentation/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md`.
 
 ### Viewer (Mode A / Aladin)
 - `POST /api/view/state` (persist encoded viewer state + short permalink ID)
-- `GET /api/view/:shortId` (resolve permalink state)
-- `POST /api/view/snapshot` (store PNG snapshot metadata + artifact file)
+- `GET /api/view/:shortId` (resolve permalink state, including center labels)
+- `POST /api/view/snapshot` (store PNG snapshot metadata + artifact file; write-path rate limited + audited)
 - `GET /api/view/snapshots/:fileName` (static snapshot artifact path)
+- `GET /api/view/cutout?ra&dec&fov&survey[&label]` (stream FITS science cutout attachment with provider retries/fallbacks, rate limit, and audit event)
 
 ### Community Posts
 - `GET /api/posts`
@@ -47,7 +48,7 @@ Canonical scope: `documentation/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md`.
 - Email verification endpoint (`/api/auth/verify-email`) - deferred
 - Comment endpoints (`/community/posts/:id/comments`) - v1.1
 - Mode B/manifest routes - v2
-- FITS proxy routes - v2
+- Advanced FITS proxy/caching routes - v2
 
 ## Source of Truth Models
 API payloads must align with DTOs defined in `libs/shared/models`.

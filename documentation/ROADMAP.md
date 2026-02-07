@@ -15,7 +15,15 @@ Canonical scope: `documentation/PRODUCT-CHARTER.md` and `SCOPE-LOCK.md`.
 - Viewer state encoding/decoding
 - Persistent permalink resolution
 - PNG snapshot workflow
-- Status: in progress (state encode/decode, `/view` route, permalink API, and snapshot metadata/storage shipped; Aladin Lite integration still pending)
+- Labeling centered targets in viewer state
+- FITS science cutout download path
+- Status: in progress (Aladin Mode A + state/permalink/snapshot + center labels + FITS cutout endpoint shipped; remaining items listed below)
+
+Pillar 2 remaining:
+- FITS provider hardening (fallback survey mapping, retries, and provider outage messaging) - complete
+- Survey-aware UX polish (native-resolution indicator at deep zoom) - complete
+- Snapshot/cutout observability + policy tuning (audit entries and path-specific rate limits) - complete
+- Remaining: production-level telemetry dashboards for cutout provider reliability
 
 3. Pillar 3: Community notebooks
 - Post create/edit/read
@@ -36,11 +44,11 @@ Canonical scope: `documentation/PRODUCT-CHARTER.md` and `SCOPE-LOCK.md`.
 
 ## v2
 - Mode B canvas viewer
-- FITS proxy/pass-through (policy approved)
+- FITS proxy/caching and advanced download controls
 - Optional Rust render tier for heavy compute paths
 
 ## Out of Scope for MVP
 - Go microservice
 - Mode B implementation
 - Comments/replies
-- FITS proxy/caching
+- Full FITS proxy/caching tier (simple cutout passthrough is now available)

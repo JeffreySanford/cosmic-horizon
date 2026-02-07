@@ -7,8 +7,7 @@ Canonical scope:
 
 ## MVP Priorities
 
-- [ ] Complete Aladin Lite integration in `/view` (replace interim canvas renderer)
-- [ ] Validate permalink reliability and snapshot retention (currently implemented with API + e2e coverage)
+- [ ] Complete Pillar 2 operational telemetry dashboarding for cutout provider reliability
 - [ ] Complete post and revision workflows
 - [ ] Complete post moderation path (hide/lock)
 - [ ] Keep docs aligned with source-of-truth models
@@ -30,6 +29,13 @@ Completed on 2026-02-07:
 - [x] Ship Pillar 2 vertical slice:
   `/view` route, viewer state encoding, permalink creation/resolution,
   PNG snapshot API + filesystem artifact write, and matching web/api e2e tests
+- [x] Replace interim viewer renderer with Aladin Lite Mode A and bind RA/Dec/FOV sync
+- [x] Add viewer center labeling persisted inside encoded/permalink state
+- [x] Add FITS cutout download path (`GET /api/view/cutout`) for science data export
+- [x] Add unit + e2e coverage for viewer sync, survey switching, labels, and cutout validation
+- [x] Harden FITS cutout path with fallback surveys, retries, and outage messaging
+- [x] Add deep-zoom native-resolution UX indicator in viewer
+- [x] Add snapshot/cutout rate-limit tuning and audit entries
 
 ## Deferred Backlog
 

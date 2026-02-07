@@ -156,5 +156,17 @@ describe('vlass-api e2e', () => {
       expect(response.data.image_url).toMatch(/^\/api\/view\/snapshots\/.+\.png$/);
       expect(response.data.size_bytes).toBeGreaterThan(0);
     });
+
+    it('GET /api/view/cutout validates required query params', async () => {
+      try {
+        await axios.get('/api/view/cutout?ra=10&dec=5&fov=0&survey=VLASS', {
+          responseType: 'arraybuffer',
+        });
+        throw new Error('Expected cutout request to fail with 400');
+      } catch (error) {
+        const axiosError = error as AxiosError<{ message?: string }>;
+        expect(axiosError.response?.status).toBe(400);
+      }
+    });
   });
 });

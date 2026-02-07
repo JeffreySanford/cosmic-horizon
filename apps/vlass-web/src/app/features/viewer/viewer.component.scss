@@ -48,6 +48,16 @@
   opacity: 0.75;
 }
 
+.resolution-hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.82rem;
+  color: #ffd782;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .viewer-state-card {
   background: rgba(8, 12, 25, 0.88);
   color: #f7e8bb;
@@ -65,6 +75,53 @@
   flex-wrap: wrap;
   gap: 0.65rem;
   margin-top: 1rem;
+}
+
+.label-tools {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.cutout-controls {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.cutout-label {
+  font-size: 0.78rem;
+  color: rgba(247, 232, 187, 0.85);
+}
+
+#cutout-detail {
+  background: rgba(8, 12, 25, 0.9);
+  color: #f7e8bb;
+  border: 1px solid rgba(238, 201, 118, 0.35);
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+}
+
+.label-name-field {
+  flex: 1;
+}
+
+.label-list {
+  margin-top: 0.5rem;
+  border: 1px solid rgba(238, 201, 118, 0.22);
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0.1rem;
+  font-size: 0.83rem;
 }
 
 .meta {

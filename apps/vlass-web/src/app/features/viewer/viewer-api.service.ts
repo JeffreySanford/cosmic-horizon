@@ -7,6 +7,14 @@ export interface ViewerStateModel {
   dec: number;
   fov: number;
   survey: string;
+  labels?: ViewerLabelModel[];
+}
+
+export interface ViewerLabelModel {
+  name: string;
+  ra: number;
+  dec: number;
+  created_at: string;
 }
 
 export interface ViewerStateResponse {
@@ -47,5 +55,21 @@ export class ViewerApiService {
     state?: ViewerStateModel;
   }): Observable<ViewerSnapshotResponse> {
     return this.http.post<ViewerSnapshotResponse>(`${this.apiBaseUrl}/api/view/snapshot`, payload);
+  }
+
+  scienceDataUrl(state: ViewerStateModel, label?: string, detail: 'standard' | 'high' | 'max' = 'standard'): string {
+    const params = new URLSearchParams({
+      ra: state.ra.toString(),
+      dec: state.dec.toString(),
+      fov: state.fov.toString(),
+      survey: state.survey,
+    });
+
+    if (label && label.trim().length > 0) {
+      params.set('label', label.trim());
+    }
+    params.set('detail', detail);
+
+    return `${this.apiBaseUrl}/api/view/cutout?${params.toString()}`;
   }
 }

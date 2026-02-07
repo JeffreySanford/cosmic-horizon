@@ -10,7 +10,7 @@
 ### ✅ Removed
 
 - **Go microservice** (`apps/vlass-go/`): Deleted entirely
-- **FITS proxy architecture**: Switched to link-out only (Option A, ADR-002)
+- **Full FITS proxy/caching architecture**: Deferred; MVP allows only constrained cutout passthrough + link-out
 - **Two-tier audit retention**: Simplified to 90-day hot only (ADR-001)
 - **Mode B (Canvas viewer)**: Deferred; Aladin only for MVP (ADR-004 simplified)
 - **Scope creep risks**: Locked 3-pillar MVP with PRODUCT-CHARTER.md
@@ -35,7 +35,7 @@
 
 ### 🚫 Not in MVP
 
-- FITS proxy / caching
+- Full FITS proxy / caching
 - Mode B (Canvas) viewer
 - Comments / replies
 - User profiles
@@ -51,7 +51,7 @@
 
 - ✅ What "done" means (3 pillars complete, metrics met)
 - ✅ What "not done" means (deferred to v1.1/v2)
-- ✅ No NRAO approval dependency
+- ✅ No mirror/proxy archive dependency
 - ✅ No Go knowledge required
 - ✅ Technology: Angular + NestJS only for MVP
 

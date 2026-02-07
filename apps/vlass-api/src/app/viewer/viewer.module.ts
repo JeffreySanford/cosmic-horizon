@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DatabaseModule } from '../database.module';
 import { ViewerState } from '../entities/viewer-state.entity';
 import { ViewerSnapshot } from '../entities/viewer-snapshot.entity';
+import { RateLimitGuard } from '../guards/rate-limit.guard';
 import { ViewerController } from './viewer.controller';
 import { ViewerService } from './viewer.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ViewerState, ViewerSnapshot])],
+  imports: [DatabaseModule, TypeOrmModule.forFeature([ViewerState, ViewerSnapshot])],
   controllers: [ViewerController],
-  providers: [ViewerService],
+  providers: [ViewerService, RateLimitGuard],
   exports: [ViewerService],
 })
 export class ViewerModule {}

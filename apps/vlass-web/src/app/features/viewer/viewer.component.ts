@@ -14,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { from, merge } from 'rxjs';
-import { ViewerApiService, ViewerStateModel } from './viewer-api.service';
+import { ViewerApiService, ViewerLabelModel, ViewerStateModel } from './viewer-api.service';
 
 type AladinEvent = 'positionChanged' | 'zoomChanged';
 
@@ -64,6 +64,9 @@ export class ViewerComponent implements OnInit, AfterViewInit {
   statusMessage = '';
   loadingPermalink = false;
   savingSnapshot = false;
+  labelDraft = '';
+  labels: ViewerLabelModel[] = [];
+  cutoutDetail: 'standard' | 'high' | 'max' = 'high';
 
   private aladinView: AladinView | null = null;
   private syncingFromViewer = false;
@@ -76,12 +79,13 @@ export class ViewerComponent implements OnInit, AfterViewInit {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewerApi = inject(ViewerApiService);
+  private readonly labelsStorageKey = 'vlass.viewer.labels.v1';
 
   constructor() {
     this.stateForm = this.fb.group({
       ra: [187.25, [Validators.required, Validators.min(-360), Validators.max(360)]],
       dec: [2.05, [Validators.required, Validators.min(-90), Validators.max(90)]],
-      fov: [1.5, [Validators.required, Validators.min(0.1), Validators.max(180)]],
+      fov: [1.5, [Validators.required, Validators.min(0.001), Validators.max(180)]],
       survey: ['VLASS', [Validators.required, Validators.minLength(2)]],
     });
   }
@@ -94,7 +98,51 @@ export class ViewerComponent implements OnInit, AfterViewInit {
     return this.encodeState(this.currentState());
   }
 
+  get nativeResolutionHint(): string {
+    if (!this.stateForm.valid) {
+      return '';
+    }
+
+    const state = this.currentState();
+    const effectiveSurvey = this.resolveEffectiveSurvey(state);
+    const minFov = this.minNativeFovForSurvey(effectiveSurvey);
+
+    if (state.fov <= minFov) {
+      return `Near native resolution for ${effectiveSurvey}. Further zoom mostly enlarges pixels.`;
+    }
+
+    if (state.survey.toUpperCase() === 'VLASS' && effectiveSurvey !== 'P/VLASS/QL') {
+      return `Auto-switched to ${effectiveSurvey} for sharper deep-zoom detail.`;
+    }
+
+    return '';
+  }
+
+  get suggestedSharperSurvey(): string | null {
+    if (!this.stateForm.valid) {
+      return null;
+    }
+
+    const state = this.currentState();
+    const selectedSurvey = this.resolveSurvey(state.survey);
+    if (selectedSurvey !== 'P/VLASS/QL') {
+      return null;
+    }
+
+    if (state.fov <= 0.35) {
+      return 'P/PanSTARRS/DR1/color-z-zg-g';
+    }
+
+    if (state.fov <= 1) {
+      return 'P/DSS2/color';
+    }
+
+    return null;
+  }
+
   ngOnInit(): void {
+    this.loadLocalLabels();
+
     merge(this.route.paramMap, this.route.queryParamMap)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -212,6 +260,53 @@ export class ViewerComponent implements OnInit, AfterViewInit {
       });
   }
 
+  addCenterLabel(): void {
+    const name = this.labelDraft.trim();
+    if (!name || !this.stateForm.valid) {
+      this.statusMessage = 'Enter a label name before tagging the centered item.';
+      return;
+    }
+
+    const state = this.currentState();
+    const label: ViewerLabelModel = {
+      name,
+      ra: Number(state.ra.toFixed(5)),
+      dec: Number(state.dec.toFixed(5)),
+      created_at: new Date().toISOString(),
+    };
+
+    this.labels = [label, ...this.labels].slice(0, 100);
+    this.saveLocalLabels();
+    this.labelDraft = '';
+    this.statusMessage = `Labeled center as "${label.name}".`;
+  }
+
+  removeLabel(label: ViewerLabelModel): void {
+    this.labels = this.labels.filter((entry) => entry !== label);
+    this.saveLocalLabels();
+  }
+
+  downloadScienceData(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.stateForm.valid) {
+      return;
+    }
+
+    const state = this.currentState();
+    const centerLabel = this.labels[0]?.name;
+    const cutoutUrl = this.viewerApi.scienceDataUrl(state, centerLabel, this.cutoutDetail);
+    window.open(cutoutUrl, '_blank', 'noopener');
+  }
+
+  applySuggestedSurvey(): void {
+    const survey = this.suggestedSharperSurvey;
+    if (!survey) {
+      return;
+    }
+
+    this.stateForm.patchValue({ survey }, { emitEvent: true });
+    this.statusMessage = `Switched to ${survey} for sharper detail at this zoom.`;
+  }
+
   private hydrateStateFromRoute(): void {
     const shortId = this.route.snapshot.paramMap.get('shortId');
     if (shortId) {
@@ -221,6 +316,9 @@ export class ViewerComponent implements OnInit, AfterViewInit {
 
     const encoded = this.route.snapshot.queryParamMap.get('state');
     if (!encoded) {
+      if (this.labels.length === 0) {
+        this.loadLocalLabels();
+      }
       this.syncAladinFromForm();
       return;
     }
@@ -228,6 +326,8 @@ export class ViewerComponent implements OnInit, AfterViewInit {
     try {
       const decoded = this.decodeState(encoded);
       this.stateForm.patchValue(decoded, { emitEvent: false });
+      this.labels = decoded.labels ?? [];
+      this.saveLocalLabels();
       this.shortId = '';
       this.permalink = '';
       this.syncAladinFromForm();
@@ -241,6 +341,8 @@ export class ViewerComponent implements OnInit, AfterViewInit {
     this.viewerApi.resolveState(shortId).subscribe({
       next: (response) => {
         this.stateForm.patchValue(response.state, { emitEvent: false });
+        this.labels = response.state.labels ?? [];
+        this.saveLocalLabels();
         this.shortId = response.short_id;
         this.permalink = `${this.originPrefix()}/view/${response.short_id}`;
         this.statusMessage = `Loaded permalink ${response.short_id}.`;
@@ -259,7 +361,42 @@ export class ViewerComponent implements OnInit, AfterViewInit {
       dec: Number(this.stateForm.value.dec),
       fov: Number(this.stateForm.value.fov),
       survey: String(this.stateForm.value.survey),
+      labels: this.labels,
     };
+  }
+
+  private loadLocalLabels(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const raw = window.localStorage.getItem(this.labelsStorageKey);
+    if (!raw) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as ViewerLabelModel[];
+      if (Array.isArray(parsed)) {
+        this.labels = parsed.filter(
+          (label) =>
+            typeof label?.name === 'string' &&
+            Number.isFinite(label?.ra) &&
+            Number.isFinite(label?.dec) &&
+            typeof label?.created_at === 'string',
+        );
+      }
+    } catch {
+      this.labels = [];
+    }
+  }
+
+  private saveLocalLabels(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    window.localStorage.setItem(this.labelsStorageKey, JSON.stringify(this.labels.slice(0, 100)));
   }
 
   private encodeState(state: ViewerStateModel): string {
@@ -290,7 +427,7 @@ export class ViewerComponent implements OnInit, AfterViewInit {
     this.aladinView = aladinFactory.aladin(host, {
       target: `${this.stateForm.value.ra} ${this.stateForm.value.dec}`,
       fov: Number(this.stateForm.value.fov),
-      survey: this.resolveSurvey(this.stateForm.value.survey),
+      survey: this.resolveEffectiveSurvey(this.currentState()),
       showCooGrid: true,
       showFullscreenControl: false,
       showLayersControl: true,
@@ -303,7 +440,7 @@ export class ViewerComponent implements OnInit, AfterViewInit {
       this.syncFormFromAladin();
     });
 
-    this.applySurveyToAladin(this.resolveSurvey(this.stateForm.value.survey));
+    this.applySurveyToAladin(this.resolveEffectiveSurvey(this.currentState()));
   }
 
   private async loadAladinFactory(): Promise<AladinFactory | null> {
@@ -361,7 +498,7 @@ export class ViewerComponent implements OnInit, AfterViewInit {
     const state = this.currentState();
     this.aladinView.gotoRaDec(state.ra, state.dec);
     this.aladinView.setFoV(state.fov);
-    this.applySurveyToAladin(this.resolveSurvey(state.survey));
+    this.applySurveyToAladin(this.resolveEffectiveSurvey(state));
     this.syncingFromForm = false;
   }
 
@@ -413,6 +550,35 @@ export class ViewerComponent implements OnInit, AfterViewInit {
     }
 
     return survey;
+  }
+
+  private resolveEffectiveSurvey(state: ViewerStateModel): string {
+    const selectedSurvey = this.resolveSurvey(state.survey);
+
+    if (selectedSurvey === 'P/VLASS/QL') {
+      if (state.fov <= 0.35) {
+        return 'P/PanSTARRS/DR1/color-z-zg-g';
+      }
+      if (state.fov <= 1) {
+        return 'P/DSS2/color';
+      }
+    }
+
+    return selectedSurvey;
+  }
+
+  private minNativeFovForSurvey(survey: string): number {
+    if (survey.includes('PanSTARRS')) {
+      return 0.01;
+    }
+    if (survey.includes('DSS2')) {
+      return 0.03;
+    }
+    if (survey.includes('VLASS')) {
+      return 0.07;
+    }
+
+    return 0.05;
   }
 
   private applySurveyToAladin(survey: string): void {

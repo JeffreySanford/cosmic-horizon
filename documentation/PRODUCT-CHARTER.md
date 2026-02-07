@@ -9,7 +9,7 @@
 
 ## One-Line Product Definition
 
-> **Fast VLASS sky browser + shareable permalinks + research notebook posts + snapshots.**
+> **Fast VLASS sky browser + shareable permalinks + research notebook posts + snapshots (+ constrained FITS cutout download).**
 
 It's a **collaboration + publishing layer** on top of VLASS data, not an archive tool or FITS redistribution service.
 
@@ -34,7 +34,7 @@ It's a **collaboration + publishing layer** on top of VLASS data, not an archive
 
 - Mode B (Canvas viewer) — deferred; Aladin only for MVP
 - WCS reprojection — deferred
-- FITS in-app download — link-out only
+- Full FITS proxy/caching — deferred
 
 ---
 
@@ -48,6 +48,7 @@ It's a **collaboration + publishing layer** on top of VLASS data, not an archive
 - ViewerState as a first-class object: `/view?state=<encoded>` or `/view/<shortid>`
 - Snapshot button: "Save PNG" → stores artifact (filesystem for MVP)
 - Full viewer state serializable + deserializable
+- Constrained FITS cutout passthrough endpoint for centered state export (rate-limited, audited, no mirror caching)
 
 **Success Metric:** Permalink works 100% of time; snapshot artifact persists >7 days
 
@@ -56,6 +57,7 @@ It's a **collaboration + publishing layer** on top of VLASS data, not an archive
 - Mode B fallback — Aladin is primary and only for MVP
 - Server-side snapshot rendering — client-side PNG download only
 - Dynamic rendering (GIF, video) — PNG snapshots only
+- Full FITS proxy/caching, arbitrary upstream mirroring, or archive behavior
 
 ---
 
@@ -89,7 +91,7 @@ It's a **collaboration + publishing layer** on top of VLASS data, not an archive
 
 | Feature               | Reason                                                  | When?                |
 | --------------------- | ------------------------------------------------------- | -------------------- |
-| **FITS Proxy**        | Link-out only; no NRAO approval complexity              | v2 (if users demand) |
+| **FITS Proxy/Caching Tier** | Full proxy/cache/mirroring is deferred; constrained cutout passthrough only in MVP | v2 (if users demand) |
 | **Mode B Viewer**     | Canvas/Paper.js is v2; Aladin is plenty for MVP         | v2 (if Aladin fails) |
 | **WCS Reprojection**  | Compute-heavy; clients can download + reproject locally | v2+                  |
 | **FITS Generation**   | (same as proxy; out of scope)                           | v2+                  |
@@ -160,7 +162,7 @@ It's a **collaboration + publishing layer** on top of VLASS data, not an archive
 These are **final for MVP**. Do not reopen unless extraordinary circumstance.
 
 ✅ **Viewer:** Mode A (Aladin) only  
-✅ **FITS:** Link-out only (Option A)  
+✅ **FITS:** Constrained cutout passthrough + link-out; no full proxy/caching tier  
 ✅ **Retention:** 90 days hot, no cold archive  
 ✅ **Compute:** Rust for rendering; NestJS for indexing  
 ✅ **Scope:** 3 pillars (SSR + viewer + community)
