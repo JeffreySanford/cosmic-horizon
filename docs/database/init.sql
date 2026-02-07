@@ -69,6 +69,32 @@ CREATE TABLE IF NOT EXISTS snapshots (
 
 CREATE INDEX IF NOT EXISTS idx_snapshots_post_id ON snapshots(post_id);
 
+-- Viewer state table (permalink state objects)
+CREATE TABLE IF NOT EXISTS viewer_states (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  short_id VARCHAR(16) UNIQUE NOT NULL,
+  encoded_state TEXT NOT NULL,
+  state_json JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_viewer_states_short_id ON viewer_states(short_id);
+
+-- Viewer snapshots table (artifact metadata)
+CREATE TABLE IF NOT EXISTS viewer_snapshots (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  file_name VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(64) NOT NULL DEFAULT 'image/png',
+  size_bytes INTEGER NOT NULL,
+  short_id VARCHAR(16) NULL,
+  state_json JSONB NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_viewer_snapshots_short_id ON viewer_snapshots(short_id);
+
 -- Comments table (basic)
 CREATE TABLE IF NOT EXISTS comments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -139,6 +165,18 @@ EXECUTE FUNCTION update_timestamp();
 -- Apply trigger to comments
 CREATE TRIGGER comments_update_timestamp
 BEFORE UPDATE ON comments
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
+
+-- Apply trigger to viewer_states
+CREATE TRIGGER viewer_states_update_timestamp
+BEFORE UPDATE ON viewer_states
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
+
+-- Apply trigger to viewer_snapshots
+CREATE TRIGGER viewer_snapshots_update_timestamp
+BEFORE UPDATE ON viewer_snapshots
 FOR EACH ROW
 EXECUTE FUNCTION update_timestamp();
 

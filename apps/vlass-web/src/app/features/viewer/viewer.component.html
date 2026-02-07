@@ -1,0 +1,70 @@
+<div class="viewer-container">
+  <mat-toolbar color="primary" class="viewer-toolbar">
+    <span class="brand">Mode A Viewer</span>
+    <span class="spacer"></span>
+    <a mat-flat-button routerLink="/landing">Back to landing</a>
+  </mat-toolbar>
+
+  <div class="viewer-shell">
+    <section class="viewer-canvas-panel">
+      <div #aladinHost class="aladin-host" aria-label="Aladin sky viewer"></div>
+      <p class="viewer-caption">Aladin Lite Mode A viewer with live RA/Dec/FOV sync.</p>
+    </section>
+
+    <mat-card class="viewer-state-card">
+      <mat-card-header>
+        <h1>Viewer State</h1>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="stateForm" class="state-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Right Ascension</mat-label>
+            <input matInput type="number" formControlName="ra" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Declination</mat-label>
+            <input matInput type="number" formControlName="dec" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Field of View</mat-label>
+            <input matInput type="number" formControlName="fov" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Survey</mat-label>
+            <input matInput type="text" formControlName="survey" />
+          </mat-form-field>
+        </form>
+
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="applyStateToUrl()">Update URL State</button>
+          <button mat-stroked-button type="button" (click)="createPermalink()" [disabled]="loadingPermalink">
+            @if (loadingPermalink) {
+              Creating permalink...
+            } @else {
+              Create Permalink
+            }
+          </button>
+          <button mat-flat-button color="accent" type="button" (click)="saveSnapshot()" [disabled]="savingSnapshot">
+            @if (savingSnapshot) {
+              Saving snapshot...
+            } @else {
+              Save PNG Snapshot
+            }
+          </button>
+        </div>
+
+        <div class="meta">
+          <p><strong>Encoded:</strong> {{ encodedState || 'n/a' }}</p>
+          <p><strong>Short ID:</strong> {{ shortId || 'n/a' }}</p>
+          <p><strong>Permalink:</strong> {{ permalink || 'n/a' }}</p>
+          @if (statusMessage) {
+            <p class="status">{{ statusMessage }}</p>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

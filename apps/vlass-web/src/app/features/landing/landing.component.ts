@@ -9,6 +9,7 @@ import { SkyPreview, SkyPreviewService } from '../../services/sky-preview.servic
 interface LandingPillar {
   icon: string;
   title: string;
+  route: string;
 }
 
 @Component({
@@ -26,14 +27,17 @@ export class LandingComponent {
     {
       icon: 'speed',
       title: 'Instant SSR First Paint',
+      route: '/landing',
     },
     {
       icon: 'travel_explore',
       title: 'Viewer, Permalinks, and Snapshots',
+      route: '/view',
     },
     {
       icon: 'menu_book',
       title: 'Community Research Notebook',
+      route: '/landing',
     },
   ];
   preview: SkyPreview;
@@ -70,6 +74,10 @@ export class LandingComponent {
   logout(): void {
     this.authSessionService.clearSession();
     this.router.navigate(['/auth/login']);
+  }
+
+  openPillar(pillar: LandingPillar): void {
+    this.router.navigateByUrl(pillar.route);
   }
 
   toggleTelemetryCompact(): void {

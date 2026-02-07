@@ -7,6 +7,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import express from 'express';
 import { AppModule } from './app/app.module';
 import session from 'express-session';
 import * as passportImport from 'passport';
@@ -45,6 +46,8 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);
+    const snapshotDir = resolve(process.cwd(), 'apps', 'vlass-api', 'storage', 'snapshots');
+    app.use(`/${globalPrefix}/view/snapshots`, express.static(snapshotDir));
 
     // Setup CORS to allow credentials
     const corsOrigin = process.env['FRONTEND_URL'] || 'http://localhost:4200';

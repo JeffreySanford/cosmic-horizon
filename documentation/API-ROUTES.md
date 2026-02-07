@@ -14,8 +14,10 @@ Canonical scope: `documentation/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md`.
 - `POST /api/auth/logout`
 
 ### Viewer (Mode A / Aladin)
-- Planned for MVP pillar 2
-- Not yet implemented in the current API module
+- `POST /api/view/state` (persist encoded viewer state + short permalink ID)
+- `GET /api/view/:shortId` (resolve permalink state)
+- `POST /api/view/snapshot` (store PNG snapshot metadata + artifact file)
+- `GET /api/view/snapshots/:fileName` (static snapshot artifact path)
 
 ### Community Posts
 - `GET /api/posts`

@@ -1,0 +1,88 @@
+.viewer-container {
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 10%, #0c1326 0%, #050814 55%, #03050d 100%);
+  color: #f7e8bb;
+}
+
+.viewer-toolbar {
+  background: rgba(12, 18, 34, 0.88);
+  border-bottom: 1px solid rgba(238, 201, 118, 0.35);
+}
+
+.brand {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.viewer-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.25rem;
+}
+
+.viewer-canvas-panel {
+  background: rgba(4, 8, 18, 0.78);
+  border: 1px solid rgba(238, 201, 118, 0.35);
+  border-radius: 16px;
+  padding: 0.8rem;
+}
+
+.aladin-host {
+  width: 100%;
+  min-height: 560px;
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.viewer-caption {
+  margin: 0.65rem 0 0;
+  font-size: 0.84rem;
+  opacity: 0.75;
+}
+
+.viewer-state-card {
+  background: rgba(8, 12, 25, 0.88);
+  color: #f7e8bb;
+  border: 1px solid rgba(238, 201, 118, 0.35);
+}
+
+.state-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.meta {
+  margin-top: 1rem;
+  font-size: 0.86rem;
+  word-break: break-all;
+}
+
+.status {
+  color: #9fe0ff;
+}
+
+@media (max-width: 980px) {
+  .viewer-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .state-form {
+    grid-template-columns: 1fr;
+  }
+}

@@ -42,7 +42,14 @@
       <mat-card-content>
         <div class="feature-grid">
           @for (pillar of pillars; track pillar.title) {
-            <article class="feature-card">
+            <article
+              class="feature-card"
+              role="button"
+              tabindex="0"
+              (click)="openPillar(pillar)"
+              (keydown.enter)="openPillar(pillar)"
+              (keydown.space)="openPillar(pillar)"
+            >
               <mat-icon>{{ pillar.icon }}</mat-icon>
               <h2>{{ pillar.title }}</h2>
             </article>

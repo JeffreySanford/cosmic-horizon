@@ -19,6 +19,11 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'view',
+    loadChildren: () =>
+      import('./features/viewer/viewer.module').then((m) => m.ViewerModule),
+  },
+  {
     path: '**',
     redirectTo: 'landing',
   },

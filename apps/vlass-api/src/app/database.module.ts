@@ -7,6 +7,8 @@ import {
   Revision,
   Comment,
   Snapshot,
+  ViewerState,
+  ViewerSnapshot,
   AuditLog,
   VlassTileCache,
 } from './entities';
@@ -21,6 +23,8 @@ import { UserRepository, PostRepository, AuditLogRepository } from './repositori
       Revision,
       Comment,
       Snapshot,
+      ViewerState,
+      ViewerSnapshot,
       AuditLog,
       VlassTileCache,
     ]),

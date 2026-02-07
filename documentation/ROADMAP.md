@@ -15,6 +15,7 @@ Canonical scope: `documentation/PRODUCT-CHARTER.md` and `SCOPE-LOCK.md`.
 - Viewer state encoding/decoding
 - Persistent permalink resolution
 - PNG snapshot workflow
+- Status: in progress (state encode/decode, `/view` route, permalink API, and snapshot metadata/storage shipped; Aladin Lite integration still pending)
 
 3. Pillar 3: Community notebooks
 - Post create/edit/read

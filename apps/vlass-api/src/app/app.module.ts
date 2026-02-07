@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database.module';
 import { AuthModule } from './auth/auth.module';
+import { ViewerModule } from './viewer/viewer.module';
 import { RateLimitGuard } from './guards/rate-limit.guard';
 
 const envCandidates = [
@@ -25,6 +26,7 @@ const envCandidates = [
     }),
     DatabaseModule,
     AuthModule,
+    ViewerModule,
   ],
   controllers: [AppController],
   providers: [AppService, RateLimitGuard],

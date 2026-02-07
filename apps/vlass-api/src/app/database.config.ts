@@ -7,6 +7,8 @@ import {
   Revision,
   Comment,
   Snapshot,
+  ViewerState,
+  ViewerSnapshot,
   AuditLog,
   VlassTileCache,
 } from './entities';
@@ -61,7 +63,7 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   username: envValue('DB_USER', 'vlass_user'),
   password: envValue('DB_PASSWORD', 'vlass_password_dev'),
   database: envValue('DB_NAME', 'vlass_portal'),
-  entities: [User, Post, Revision, Comment, Snapshot, AuditLog, VlassTileCache],
+  entities: [User, Post, Revision, Comment, Snapshot, ViewerState, ViewerSnapshot, AuditLog, VlassTileCache],
   synchronize: false,
   logging: envFlag('DB_LOGGING', false),
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,

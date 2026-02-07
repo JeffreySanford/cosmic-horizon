@@ -87,4 +87,74 @@ describe('vlass-api e2e', () => {
       }
     });
   });
+
+  describe('viewer permalink and snapshot', () => {
+    it('POST /api/view/state creates and GET /api/view/:shortId resolves state', async () => {
+      const createResponse = await axios.post('/api/view/state', {
+        state: {
+          ra: 187.25,
+          dec: 2.05,
+          fov: 1.5,
+          survey: 'VLASS',
+        },
+      });
+
+      expect(createResponse.status).toBe(201);
+      expect(createResponse.data).toHaveProperty('short_id');
+      expect(createResponse.data).toHaveProperty('encoded_state');
+
+      const resolveResponse = await axios.get(`/api/view/${createResponse.data.short_id as string}`);
+      expect(resolveResponse.status).toBe(200);
+      expect(resolveResponse.data.state).toMatchObject({
+        ra: 187.25,
+        dec: 2.05,
+        fov: 1.5,
+        survey: 'VLASS',
+      });
+    });
+
+    it('round-trips a non-default survey in permalink state', async () => {
+      const createResponse = await axios.post('/api/view/state', {
+        state: {
+          ra: 12.3456,
+          dec: -45.6789,
+          fov: 0.75,
+          survey: 'P/DSS2/color',
+        },
+      });
+
+      expect(createResponse.status).toBe(201);
+      const shortId = createResponse.data.short_id as string;
+      expect(shortId.length).toBeGreaterThan(0);
+
+      const resolveResponse = await axios.get(`/api/view/${shortId}`);
+      expect(resolveResponse.status).toBe(200);
+      expect(resolveResponse.data.state).toMatchObject({
+        ra: 12.3456,
+        dec: -45.6789,
+        fov: 0.75,
+        survey: 'P/DSS2/color',
+      });
+    });
+
+    it('POST /api/view/snapshot stores snapshot metadata', async () => {
+      const onePixelPngBase64 =
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO1N7nQAAAAASUVORK5CYII=';
+
+      const response = await axios.post('/api/view/snapshot', {
+        image_data_url: `data:image/png;base64,${onePixelPngBase64}`,
+        state: {
+          ra: 200.1,
+          dec: -20.2,
+          fov: 2.5,
+          survey: 'VLASS',
+        },
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.data).toHaveProperty('id');
+      expect(response.data.image_url).toMatch(/^\/api\/view\/snapshots\/.+\.png$/);
+      expect(response.data.size_bytes).toBeGreaterThan(0);
+    });
+  });
 });

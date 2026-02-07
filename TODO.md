@@ -7,7 +7,8 @@ Canonical scope:
 
 ## MVP Priorities
 
-- [ ] Validate permalink reliability and snapshot retention
+- [ ] Complete Aladin Lite integration in `/view` (replace interim canvas renderer)
+- [ ] Validate permalink reliability and snapshot retention (currently implemented with API + e2e coverage)
 - [ ] Complete post and revision workflows
 - [ ] Complete post moderation path (hide/lock)
 - [ ] Keep docs aligned with source-of-truth models
@@ -26,6 +27,9 @@ Completed on 2026-02-07:
 - [x] Normalize API route prefixes from `/api/api/*` to `/api/*`
 - [x] Validate SSR performance targets (FCP/LCP) with Playwright perf gate
 - [x] Verify audit and rate limiting behavior on critical write paths
+- [x] Ship Pillar 2 vertical slice:
+  `/view` route, viewer state encoding, permalink creation/resolution,
+  PNG snapshot API + filesystem artifact write, and matching web/api e2e tests
 
 ## Deferred Backlog
 
