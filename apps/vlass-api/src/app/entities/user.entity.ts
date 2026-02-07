@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   Unique,
+  Relation,
 } from 'typeorm';
 import { Post } from './post.entity';
 import { Revision } from './revision.entity';
@@ -50,14 +51,14 @@ export class User {
   deleted_at: Date | null = null;
 
   @OneToMany(() => Post, (post: Post) => post.user, { cascade: ['remove'] })
-  posts!: Post[];
+  posts!: Relation<Post[]>;
 
   @OneToMany(() => Revision, (revision: Revision) => revision.user, { cascade: ['remove'] })
-  revisions!: Revision[];
+  revisions!: Relation<Revision[]>;
 
   @OneToMany(() => Comment, (comment: Comment) => comment.user, { cascade: ['remove'] })
-  comments!: Comment[];
+  comments!: Relation<Comment[]>;
 
   @OneToMany(() => AuditLog, (auditLog: AuditLog) => auditLog.user, { cascade: ['remove'] })
-  auditLogs!: AuditLog[];
+  auditLogs!: Relation<AuditLog[]>;
 }

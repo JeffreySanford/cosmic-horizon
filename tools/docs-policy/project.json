@@ -1,0 +1,15 @@
+{
+  "name": "docs-policy",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "root": "tools/docs-policy",
+  "sourceRoot": "tools/docs-policy",
+  "targets": {
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm docs:check"
+      }
+    }
+  }
+}

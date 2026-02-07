@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
   Index,
+  Relation,
 } from 'typeorm';
 import { User } from './user.entity';
 
@@ -72,5 +73,5 @@ export class AuditLog {
     onDelete: 'SET NULL',
     eager: false,
   })
-  user!: User;
+  user!: Relation<User>;
 }

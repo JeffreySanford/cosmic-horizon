@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   Index,
+  Relation,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Revision } from './revision.entity';
@@ -61,14 +62,14 @@ export class Post {
     onDelete: 'CASCADE',
     eager: false,
   })
-  user!: User;
+  user!: Relation<User>;
 
   @OneToMany(() => Revision, (revision: Revision) => revision.post, { cascade: ['remove'] })
-  revisions!: Revision[];
+  revisions!: Relation<Revision[]>;
 
   @OneToMany(() => Comment, (comment: Comment) => comment.post, { cascade: ['remove'] })
-  comments!: Comment[];
+  comments!: Relation<Comment[]>;
 
   @OneToMany(() => Snapshot, (snapshot: Snapshot) => snapshot.post, { cascade: ['remove'] })
-  snapshots!: Snapshot[];
+  snapshots!: Relation<Snapshot[]>;
 }

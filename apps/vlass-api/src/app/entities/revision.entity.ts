@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
   Index,
+  Relation,
 } from 'typeorm';
 import { Post } from './post.entity';
 import { User } from './user.entity';
@@ -41,11 +42,11 @@ export class Revision {
     onDelete: 'CASCADE',
     eager: false,
   })
-  post!: Post;
+  post!: Relation<Post>;
 
   @ManyToOne(() => User, (user: User) => user.revisions, {
     onDelete: 'SET NULL',
     eager: false,
   })
-  user!: User;
+  user!: Relation<User>;
 }

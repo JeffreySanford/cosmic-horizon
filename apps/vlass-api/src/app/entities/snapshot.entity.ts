@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
   Index,
+  Relation,
 } from 'typeorm';
 import { Post } from './post.entity';
 
@@ -35,5 +36,5 @@ export class Snapshot {
     onDelete: 'CASCADE',
     eager: false,
   })
-  post!: Post;
+  post!: Relation<Post>;
 }

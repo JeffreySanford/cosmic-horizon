@@ -2,7 +2,17 @@
   "name": "@vlass-portal/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev:web": "nx serve vlass-web",
+    "dev:api": "nx serve vlass-api",
+    "dev": "pnpm dev:web",
+    "test": "nx run-many --target=test --all",
+    "test:web": "nx test vlass-web",
+    "test:api": "nx test vlass-api",
+    "build": "nx run-many --target=build --all",
+    "lint": "nx run-many --target=lint --all",
+    "docs:check": "node scripts/check-doc-consistency.mjs"
+  },
   "private": true,
   "devDependencies": {
     "@angular-devkit/core": "~21.1.0",

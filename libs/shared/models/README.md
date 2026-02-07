@@ -1,7 +1,15 @@
 # shared-models
 
-This library was generated with [Nx](https://nx.dev).
+Status date: 2026-02-07
+
+This library is the source-of-truth contract model for shared API/data shapes.
+
+## Role
+- Defines shared DTO/types used across web and API layers.
+- Documentation and route definitions should not diverge from these contracts.
+
+## Precedence
+If docs conflict with model contracts, update docs to match `libs/shared/models`.
 
 ## Running unit tests
-
-Run `nx test shared-models` to execute the unit tests via [Vitest](https://vitest.dev/).
+Run `nx test shared-models`.

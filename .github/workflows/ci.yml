@@ -41,10 +41,8 @@ jobs:
       - run: pnpm exec playwright install --with-deps
       - uses: nrwl/nx-set-shas@v4
 
-      # Prepend any command with "nx record --" to record its logs to Nx Cloud
-      # - run: pnpm exec nx record -- echo Hello World
-      # When you enable task distribution, run the e2e-ci task instead of e2e
-      - run: pnpm exec nx affected -t lint test build typecheck e2e
+      - run: pnpm nx run docs-policy:check
+      - run: pnpm nx run-many --target=test --all
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
       - run: pnpm exec nx fix-ci
         if: always()
