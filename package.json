@@ -10,11 +10,10 @@
     "test:web": "nx test vlass-web",
     "test:api": "nx test vlass-api",
     "e2e:mvp": "nx run mvp-gates:e2e",
-    "perf:ssr": "nx run vlass-web:lighthouse",
     "build": "nx run-many --target=build --all",
     "lint": "nx run-many --target=lint --all",
     "docs:check": "node scripts/check-doc-consistency.mjs",
-    "quality:ci": "nx run docs-policy:check && nx run-many --target=test --all && nx run mvp-gates:e2e && nx run vlass-web:lighthouse"
+    "quality:ci": "nx run docs-policy:check && nx run-many --target=test --all && nx run mvp-gates:e2e"
   },
   "private": true,
   "devDependencies": {

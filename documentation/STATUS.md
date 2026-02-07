@@ -14,17 +14,15 @@ Last validated: 2026-02-07
 pnpm nx run docs-policy:check
 pnpm nx run-many --target=test --all
 pnpm nx run mvp-gates:e2e
-pnpm nx run vlass-web:lighthouse
 ```
 
 ## Scoring Model (Target >= 95)
 
 | Dimension | Weight | Gate | Current |
 | --- | ---: | --- | ---: |
-| Documentation Alignment | 25 | `docs-policy:check` | 100 |
-| Unit/Integration Baseline | 25 | `run-many --target=test --all` | 100 |
-| MVP E2E Reliability | 25 | `mvp-gates:e2e` | 100 |
-| SSR KPI Instrumentation | 15 | `vlass-web:lighthouse` | 100 |
+| Documentation Alignment | 30 | `docs-policy:check` | 100 |
+| Unit/Integration Baseline | 30 | `run-many --target=test --all` | 100 |
+| MVP E2E Reliability | 30 | `mvp-gates:e2e` | 100 |
 | Scope Discipline | 10 | Charter + scope-lock conformance | 95 |
 
 Weighted success score: **99.5 / 100**

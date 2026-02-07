@@ -4,6 +4,7 @@
       <h1>Create Account</h1>
     </mat-card-header>
     <mat-card-content>
+      <p class="subtitle">Set up your VLASS account in a minute.</p>
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Username</mat-label>
@@ -13,12 +14,12 @@
             formControlName="username"
             placeholder="Username"
           />
-          <mat-error *ngIf="f['username'].hasError('required')">
-            Username is required
-          </mat-error>
-          <mat-error *ngIf="f['username'].hasError('minlength')">
-            Username must be at least 3 characters
-          </mat-error>
+          @if (f['username'].hasError('required')) {
+            <mat-error>Username is required</mat-error>
+          }
+          @if (f['username'].hasError('minlength')) {
+            <mat-error>Username must be at least 3 characters</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -29,12 +30,12 @@
             formControlName="email"
             placeholder="your@email.com"
           />
-          <mat-error *ngIf="f['email'].hasError('required')">
-            Email is required
-          </mat-error>
-          <mat-error *ngIf="f['email'].hasError('email')">
-            Invalid email format
-          </mat-error>
+          @if (f['email'].hasError('required')) {
+            <mat-error>Email is required</mat-error>
+          }
+          @if (f['email'].hasError('email')) {
+            <mat-error>Invalid email format</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -45,12 +46,12 @@
             formControlName="password"
             placeholder="Password"
           />
-          <mat-error *ngIf="f['password'].hasError('required')">
-            Password is required
-          </mat-error>
-          <mat-error *ngIf="f['password'].hasError('minlength')">
-            Password must be at least 6 characters
-          </mat-error>
+          @if (f['password'].hasError('required')) {
+            <mat-error>Password is required</mat-error>
+          }
+          @if (f['password'].hasError('minlength')) {
+            <mat-error>Password must be at least 6 characters</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -61,14 +62,16 @@
             formControlName="confirmPassword"
             placeholder="Confirm Password"
           />
-          <mat-error *ngIf="f['confirmPassword'].hasError('required')">
-            Confirm password is required
-          </mat-error>
+          @if (f['confirmPassword'].hasError('required')) {
+            <mat-error>Confirm password is required</mat-error>
+          }
         </mat-form-field>
 
-        <div *ngIf="error" class="error-message">
-          {{ error }}
-        </div>
+        @if (error) {
+          <div class="error-message">
+            {{ error }}
+          </div>
+        }
 
         <button
           mat-raised-button
@@ -77,8 +80,12 @@
           [disabled]="loading"
           class="full-width submit-button"
         >
-          <span *ngIf="!loading">Create Account</span>
-          <span *ngIf="loading">Creating...</span>
+          @if (!loading) {
+            <span>Create Account</span>
+          }
+          @if (loading) {
+            <span>Creating...</span>
+          }
         </button>
       </form>
 

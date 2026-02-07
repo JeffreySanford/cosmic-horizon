@@ -146,7 +146,7 @@ It's a **collaboration + publishing layer** on top of VLASS data, not an archive
 
 | Metric                  | Target             | How We Measure             |
 | ----------------------- | ------------------ | -------------------------- |
-| **First Paint**         | <1s on mobile 4G   | WebPageTest / Lighthouse   |
+| **First Paint**         | <1s on mobile 4G   | WebPageTest / RUM          |
 | **Viewer Load**         | <2s                | RUM (real user monitoring) |
 | **Post Creation**       | 3+ posts published | Database count             |
 | **Verified Users**      | 10+                | Auth audit log             |

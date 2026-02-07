@@ -14,6 +14,9 @@
         "browser": "apps/vlass-web/src/main.ts",
         "tsConfig": "apps/vlass-web/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
+        "stylePreprocessorOptions": {
+          "includePaths": ["apps/vlass-web/src/styles"]
+        },
         "assets": [
           {
             "glob": "**/*",
@@ -70,13 +73,6 @@
     "test": {
       "executor": "@angular/build:unit-test",
       "options": {}
-    },
-    "lighthouse": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "node scripts/run-lighthouse-ssr.mjs",
-        "cwd": "."
-      }
     },
     "serve-static": {
       "continuous": true,

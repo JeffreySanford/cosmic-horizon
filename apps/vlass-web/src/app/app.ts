@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
-  standalone: false,
+  standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class App {
   protected title = 'vlass-web';

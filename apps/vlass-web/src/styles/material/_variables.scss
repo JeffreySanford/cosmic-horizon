@@ -1,0 +1,241 @@
+// Material Design 3 Design Tokens and Variables
+
+// Import color system
+@use 'colors' as *;
+@use 'elevation' as *;
+@use 'typography' as *;
+
+// ============================================================================
+// Spacing System (8px base grid)
+// ============================================================================
+
+$md3-space-0: 0px;
+$md3-space-1: 4px;
+$md3-space-2: 8px;
+$md3-space-3: 12px;
+$md3-space-4: 16px;
+$md3-space-5: 20px;
+$md3-space-6: 24px;
+$md3-space-7: 28px;
+$md3-space-8: 32px;
+$md3-space-9: 36px;
+$md3-space-10: 40px;
+$md3-space-11: 44px;
+$md3-space-12: 48px;
+$md3-space-13: 52px;
+$md3-space-14: 56px;
+$md3-space-15: 60px;
+$md3-space-16: 64px;
+
+$md3-spacing: (
+  0: $md3-space-0,
+  1: $md3-space-1,
+  2: $md3-space-2,
+  3: $md3-space-3,
+  4: $md3-space-4,
+  5: $md3-space-5,
+  6: $md3-space-6,
+  7: $md3-space-7,
+  8: $md3-space-8,
+  9: $md3-space-9,
+  10: $md3-space-10,
+  11: $md3-space-11,
+  12: $md3-space-12,
+  13: $md3-space-13,
+  14: $md3-space-14,
+  15: $md3-space-15,
+  16: $md3-space-16,
+);
+
+// ============================================================================
+// Shape System (Border Radius)
+// ============================================================================
+
+$md3-shape-corner-none: 0px;
+$md3-shape-corner-xs: 4px;
+$md3-shape-corner-sm: 8px;
+$md3-shape-corner-md: 12px;
+$md3-shape-corner-lg: 16px;
+$md3-shape-corner-xl: 28px;
+$md3-shape-corner-full: 50%;
+
+$md3-shape: (
+  'none': $md3-shape-corner-none,
+  'xs': $md3-shape-corner-xs,
+  'sm': $md3-shape-corner-sm,
+  'md': $md3-shape-corner-md,
+  'lg': $md3-shape-corner-lg,
+  'xl': $md3-shape-corner-xl,
+  'full': $md3-shape-corner-full,
+);
+
+// ============================================================================
+// Breakpoints (Responsive Design)
+// ============================================================================
+
+$md3-breakpoint-xs: 320px;
+$md3-breakpoint-sm: 480px;
+$md3-breakpoint-md: 600px;
+$md3-breakpoint-lg: 840px;
+$md3-breakpoint-xl: 1200px;
+$md3-breakpoint-xxl: 1600px;
+
+$md3-breakpoints: (
+  'xs': $md3-breakpoint-xs,
+  'sm': $md3-breakpoint-sm,
+  'md': $md3-breakpoint-md,
+  'lg': $md3-breakpoint-lg,
+  'xl': $md3-breakpoint-xl,
+  'xxl': $md3-breakpoint-xxl,
+);
+
+// ============================================================================
+// Font System
+// ============================================================================
+
+$md3-font-family-base: 'Roboto, sans-serif';
+$md3-font-family-display: 'Roboto, sans-serif';
+$md3-font-family-monospace: 'Roboto Mono, monospace';
+
+// ============================================================================
+// Line Heights
+// ============================================================================
+
+$md3-line-height-dense: 1.25;
+$md3-line-height-normal: 1.5;
+$md3-line-height-relaxed: 1.75;
+$md3-line-height-loose: 2;
+
+// ============================================================================
+// Transitions (Motion)
+// ============================================================================
+
+$md3-transition-duration-short: 100ms;
+$md3-transition-duration-standard: 200ms;
+$md3-transition-duration-long: 300ms;
+$md3-transition-duration-extra-long: 500ms;
+
+$md3-transition-easing-standard: cubic-bezier(0.2, 0, 0.38, 0.9);
+$md3-transition-easing-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+$md3-transition-easing-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+$md3-transition-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+// ============================================================================
+// Opacity System
+// ============================================================================
+
+$md3-opacity-disabled: 0.38;
+$md3-opacity-hover: 0.08;
+$md3-opacity-focus: 0.12;
+$md3-opacity-pressed: 0.12;
+$md3-opacity-dragged: 0.16;
+
+// ============================================================================
+// Component-specific Variables
+// ============================================================================
+
+// Button
+$md3-button-height: 40px;
+$md3-button-padding: 24px;
+$md3-button-border-radius: $md3-shape-corner-full;
+
+// Card
+$md3-card-border-radius: $md3-shape-corner-md;
+$md3-card-padding: $md3-space-4;
+$md3-card-elevation: $md3-elevation-1;
+
+// Dialog/Modal
+$md3-dialog-border-radius: $md3-shape-corner-lg;
+$md3-dialog-min-width: 280px;
+$md3-dialog-max-width: 560px;
+$md3-dialog-elevation: $md3-elevation-5;
+
+// TextField
+$md3-text-field-height: 56px;
+$md3-text-field-padding: $md3-space-4;
+$md3-text-field-border-radius: $md3-shape-corner-xs;
+
+// Chips
+$md3-chip-height: 32px;
+$md3-chip-padding: 8px 12px;
+$md3-chip-border-radius: $md3-shape-corner-full;
+
+// FAB (Floating Action Button)
+$md3-fab-size-small: 40px;
+$md3-fab-size-regular: 56px;
+$md3-fab-size-large: 96px;
+$md3-fab-border-radius: $md3-shape-corner-full;
+
+// Navigation
+$md3-nav-drawer-width: 256px;
+$md3-nav-rail-width: 80px;
+$md3-nav-bar-height: 80px;
+
+// App Bar
+$md3-app-bar-height: 64px;
+$md3-app-bar-elevation: $md3-elevation-2;
+
+// ============================================================================
+// Z-Index Scale
+// ============================================================================
+
+$md3-z-index: (
+  'hide': -1,
+  'base': 0,
+  'dropdown': 100,
+  'sticky': 200,
+  'fixed': 300,
+  'modal-backdrop': 400,
+  'modal': 500,
+  'popover': 600,
+  'tooltip': 700,
+  'notification': 800,
+);
+
+// ============================================================================
+// Default Theme Tokens
+// ============================================================================
+
+$md3-theme: (
+  // Primary
+  'primary': $md3-primary,
+  'on-primary': $md3-on-primary,
+  'primary-container': $md3-primary-container,
+  'on-primary-container': $md3-on-primary-container,
+
+  // Secondary
+  'secondary': $md3-secondary,
+  'on-secondary': $md3-on-secondary,
+  'secondary-container': $md3-secondary-container,
+  'on-secondary-container': $md3-on-secondary-container,
+
+  // Tertiary
+  'tertiary': $md3-tertiary,
+  'on-tertiary': $md3-on-tertiary,
+  'tertiary-container': $md3-tertiary-container,
+  'on-tertiary-container': $md3-on-tertiary-container,
+
+  // Neutral
+  'background': $md3-neutral-99,
+  'on-background': $md3-neutral-10,
+  'surface': $md3-neutral-99,
+  'on-surface': $md3-neutral-10,
+  'surface-variant': $md3-neutral-variant-90,
+  'on-surface-variant': $md3-neutral-variant-30,
+
+  // Error
+  'error': $md3-error,
+  'on-error': $md3-on-error,
+  'error-container': $md3-error-container,
+  'on-error-container': $md3-on-error-container,
+
+  // Outline
+  'outline': $md3-neutral-variant-50,
+  'outline-variant': $md3-neutral-variant-80,
+
+  // Scrim
+  'scrim': #000000,
+  'inverse-surface': $md3-neutral-20,
+  'inverse-on-surface': $md3-neutral-95,
+  'inverse-primary': $md3-primary-80,
+);

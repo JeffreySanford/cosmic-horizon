@@ -1,0 +1,321 @@
+// Material Design 3 Mixins and Utilities
+
+@use 'sass:map';
+@use 'sass:meta';
+@use '../material/variables' as *;
+
+// ============================================================================
+// Responsive Design Mixins
+// ============================================================================
+
+/// Mixin for mobile-first responsive design
+/// @param {String} $breakpoint - Breakpoint key or value
+@mixin md3-respond-to($breakpoint) {
+  @if map.has-key($md3-breakpoints, $breakpoint) {
+    $breakpoint-value: map.get($md3-breakpoints, $breakpoint);
+    @media (min-width: $breakpoint-value) {
+      @content;
+    }
+  } @else if meta.type-of($breakpoint) == 'number' {
+    @media (min-width: $breakpoint) {
+      @content;
+    }
+  } @else {
+    @warn "Invalid breakpoint: #{$breakpoint}";
+  }
+}
+
+// ============================================================================
+// Spacing Mixins
+// ============================================================================
+
+/// Apply padding from spacing scale
+/// @param {Number} $key - Spacing key
+@mixin md3-padding($key) {
+  @if map.has-key($md3-spacing, $key) {
+    padding: map.get($md3-spacing, $key);
+  } @else {
+    @warn "Invalid spacing key: #{$key}";
+  }
+}
+
+/// Apply margin from spacing scale
+/// @param {Number} $key - Spacing key
+@mixin md3-margin($key) {
+  @if map.has-key($md3-spacing, $key) {
+    margin: map.get($md3-spacing, $key);
+  } @else {
+    @warn "Invalid spacing key: #{$key}";
+  }
+}
+
+/// Apply gap from spacing scale (flexbox/grid)
+/// @param {Number} $key - Spacing key
+@mixin md3-gap($key) {
+  @if map.has-key($md3-spacing, $key) {
+    gap: map.get($md3-spacing, $key);
+  } @else {
+    @warn "Invalid spacing key: #{$key}";
+  }
+}
+
+// ============================================================================
+// Shape Mixins
+// ============================================================================
+
+/// Apply border radius from shape scale
+/// @param {String} $shape - Shape key
+@mixin md3-border-radius($shape: 'md') {
+  @if map.has-key($md3-shape, $shape) {
+    border-radius: map.get($md3-shape, $shape);
+  } @else {
+    @warn "Invalid shape: #{$shape}";
+  }
+}
+
+// ============================================================================
+// Elevation Mixins
+// ============================================================================
+
+/// Already defined in _elevation.scss
+/// @see _elevation.scss
+
+// ============================================================================
+// Color and Theme Mixins
+// ============================================================================
+
+/// Get color from theme
+/// @param {String} $color-key - Color token key
+@function md3-color($color-key) {
+  @if map.has-key($md3-theme, $color-key) {
+    @return map.get($md3-theme, $color-key);
+  } @else {
+    @warn "Invalid color key: #{$color-key}";
+    @return inherit;
+  }
+}
+
+/// Apply color from theme
+/// @param {String} $color-key - Color token key
+@mixin md3-color($color-key) {
+  color: md3-color($color-key);
+}
+
+/// Apply background color from theme
+/// @param {String} $color-key - Color token key
+@mixin md3-background-color($color-key) {
+  background-color: md3-color($color-key);
+}
+
+// ============================================================================
+// Flex Utilities
+// ============================================================================
+
+/// Flexbox center (both horizontal and vertical)
+@mixin md3-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/// Flexbox row with gap
+/// @param {Number} $gap-key - Spacing key from $md3-spacing
+@mixin md3-flex-row($gap-key: 4) {
+  display: flex;
+  flex-direction: row;
+  @include md3-gap($gap-key);
+}
+
+/// Flexbox column with gap
+/// @param {Number} $gap-key - Spacing key from $md3-spacing
+@mixin md3-flex-column($gap-key: 4) {
+  display: flex;
+  flex-direction: column;
+  @include md3-gap($gap-key);
+}
+
+// ============================================================================
+// Typography Mixins
+// ============================================================================
+
+/// Already defined in _typography.scss
+/// @see _typography.scss
+
+// ============================================================================
+// State Mixins
+// ============================================================================
+
+/// Disabled state styling
+@mixin md3-disabled {
+  opacity: $md3-opacity-disabled;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/// Hover state styling
+@mixin md3-hover {
+  transition: background-color $md3-transition-duration-short $md3-transition-easing-standard;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, $md3-opacity-hover);
+    @content;
+  }
+}
+
+/// Focus state styling
+@mixin md3-focus {
+  &:focus,
+  &:focus-visible {
+    outline: 2px solid md3-color('primary');
+    outline-offset: 2px;
+    @content;
+  }
+}
+
+/// Active/Pressed state styling
+@mixin md3-active {
+  &:active {
+    background-color: rgba(0, 0, 0, $md3-opacity-pressed);
+    @content;
+  }
+}
+
+// ============================================================================
+// Text and Font Utilities
+// ============================================================================
+
+/// Truncate single line text with ellipsis
+@mixin md3-truncate-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/// Truncate multi-line text with ellipsis
+/// @param {Number} $lines - Number of lines to show
+@mixin md3-truncate-lines($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/// Remove default text selection color
+@mixin md3-no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+// ============================================================================
+// Transition Mixins
+// ============================================================================
+
+/// Apply standard transition
+/// @param {String} $properties - Properties to transition
+@mixin md3-transition($properties: all) {
+  transition: $properties $md3-transition-duration-standard $md3-transition-easing-standard;
+}
+
+/// Apply emphasized transition
+/// @param {String} $properties - Properties to transition
+@mixin md3-transition-emphasized($properties: all) {
+  transition: $properties $md3-transition-duration-long $md3-transition-easing-emphasized;
+}
+
+// ============================================================================
+// Layout Utilities
+// ============================================================================
+
+/// Full width and height
+@mixin md3-full-size {
+  width: 100%;
+  height: 100%;
+}
+
+/// Absolute center positioning
+@mixin md3-absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/// Gradient background (primary to secondary)
+@mixin md3-gradient-primary-secondary {
+  background: linear-gradient(
+    135deg,
+    md3-color('primary') 0%,
+    md3-color('secondary') 100%
+  );
+}
+
+// ============================================================================
+// Glass Morphism (Modern MD3 effect)
+// ============================================================================
+
+/// Glass morphism effect
+@mixin md3-glass-morphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+// ============================================================================
+// Utility Classes
+// ============================================================================
+
+// Display utilities
+.md3-flex {
+  display: flex;
+}
+
+.md3-flex-center {
+  @include md3-flex-center;
+}
+
+.md3-flex-row {
+  @include md3-flex-row();
+}
+
+.md3-flex-column {
+  @include md3-flex-column();
+}
+
+// Spacing utilities
+@for $i from 0 through 16 {
+  .md3-p-#{$i} {
+    padding: map.get($md3-spacing, $i);
+  }
+
+  .md3-m-#{$i} {
+    margin: map.get($md3-spacing, $i);
+  }
+
+  .md3-gap-#{$i} {
+    gap: map.get($md3-spacing, $i);
+  }
+}
+
+// Text utilities
+.md3-truncate {
+  @include md3-truncate-line;
+}
+
+.md3-no-select {
+  @include md3-no-select;
+}
+
+// Width utilities
+.md3-full-width {
+  width: 100%;
+}
+
+.md3-full-height {
+  height: 100%;
+}
+
+.md3-full-size {
+  @include md3-full-size;
+}

@@ -11,8 +11,6 @@ Canonical scope:
   `pnpm nx run-many --target=test --all`
 - [ ] Keep MVP e2e gate green:
   `pnpm nx run mvp-gates:e2e`
-- [ ] Keep SSR Lighthouse gate green:
-  `pnpm nx run vlass-web:lighthouse`
 - [ ] Validate SSR performance targets (FCP/LCP)
 - [ ] Validate permalink reliability and snapshot retention
 - [ ] Complete post and revision workflows

@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router) {}
+  private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   canActivate(
     route: ActivatedRouteSnapshot,
@@ -28,6 +30,11 @@ export class AuthGuard implements CanActivate {
 
   private checkAuthentication(): boolean {
     // TODO: Implement actual authentication check
+    // SSR-safe: browser session storage is unavailable on the server.
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+
     // For now, assume authenticated if we have a session
     return !!sessionStorage.getItem('auth_token');
   }

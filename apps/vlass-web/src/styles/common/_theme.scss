@@ -1,0 +1,193 @@
+// Material Design 3 Theme Configuration
+
+@use '../material/variables' as *;
+@use '../material/colors' as *;
+@use 'mixins' as *;
+
+// ============================================================================
+// Light Theme (Default)
+// ============================================================================
+
+:root {
+  // Primary colors
+  --md3-color-primary: #{$md3-primary};
+  --md3-color-on-primary: #{$md3-on-primary};
+  --md3-color-primary-container: #{$md3-primary-container};
+  --md3-color-on-primary-container: #{$md3-on-primary-container};
+
+  // Secondary colors
+  --md3-color-secondary: #{$md3-secondary};
+  --md3-color-on-secondary: #{$md3-on-secondary};
+  --md3-color-secondary-container: #{$md3-secondary-container};
+  --md3-color-on-secondary-container: #{$md3-on-secondary-container};
+
+  // Tertiary colors
+  --md3-color-tertiary: #{$md3-tertiary};
+  --md3-color-on-tertiary: #{$md3-on-tertiary};
+  --md3-color-tertiary-container: #{$md3-tertiary-container};
+  --md3-color-on-tertiary-container: #{$md3-on-tertiary-container};
+
+  // Error colors
+  --md3-color-error: #{$md3-error};
+  --md3-color-on-error: #{$md3-on-error};
+  --md3-color-error-container: #{$md3-error-container};
+  --md3-color-on-error-container: #{$md3-on-error-container};
+
+  // Background and Surface
+  --md3-color-background: #{$md3-neutral-99};
+  --md3-color-on-background: #{$md3-neutral-10};
+  --md3-color-surface: #{$md3-neutral-99};
+  --md3-color-on-surface: #{$md3-neutral-10};
+  --md3-color-surface-variant: #{$md3-neutral-variant-90};
+  --md3-color-on-surface-variant: #{$md3-neutral-variant-30};
+
+  // Outline
+  --md3-color-outline: #{$md3-neutral-variant-50};
+  --md3-color-outline-variant: #{$md3-neutral-variant-80};
+
+  // Success (custom)
+  --md3-color-success: #{$md3-success};
+  --md3-color-on-success: #{$md3-on-success};
+
+  // Warning (custom)
+  --md3-color-warning: #{$md3-warning};
+  --md3-color-on-warning: #{$md3-on-warning};
+
+  // Info (custom)
+  --md3-color-info: #{$md3-info};
+  --md3-color-on-info: #{$md3-on-info};
+
+  // Spacing
+  --md3-spacing-xs: #{$md3-space-1};
+  --md3-spacing-sm: #{$md3-space-2};
+  --md3-spacing-md: #{$md3-space-4};
+  --md3-spacing-lg: #{$md3-space-6};
+  --md3-spacing-xl: #{$md3-space-8};
+
+  // Shape
+  --md3-shape-xs: #{$md3-shape-corner-xs};
+  --md3-shape-sm: #{$md3-shape-corner-sm};
+  --md3-shape-md: #{$md3-shape-corner-md};
+  --md3-shape-lg: #{$md3-shape-corner-lg};
+
+  // Transitions
+  --md3-transition-duration-short: #{$md3-transition-duration-short};
+  --md3-transition-duration-standard: #{$md3-transition-duration-standard};
+  --md3-transition-duration-long: #{$md3-transition-duration-long};
+}
+
+// ============================================================================
+// Dark Theme
+// ============================================================================
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Primary colors (adjusted for dark theme)
+    --md3-color-primary: #{$md3-primary-80};
+    --md3-color-on-primary: #{$md3-primary-20};
+    --md3-color-primary-container: #{$md3-primary-30};
+    --md3-color-on-primary-container: #{$md3-primary-90};
+
+    // Secondary colors
+    --md3-color-secondary: #{$md3-secondary-80};
+    --md3-color-on-secondary: #{$md3-secondary-20};
+    --md3-color-secondary-container: #{$md3-secondary-30};
+    --md3-color-on-secondary-container: #{$md3-secondary-90};
+
+    // Tertiary colors
+    --md3-color-tertiary: #{$md3-tertiary-80};
+    --md3-color-on-tertiary: #{$md3-tertiary-20};
+    --md3-color-tertiary-container: #{$md3-tertiary-30};
+    --md3-color-on-tertiary-container: #{$md3-tertiary-90};
+
+    // Error colors
+    --md3-color-error: #{$md3-error-80};
+    --md3-color-on-error: #{$md3-error-20};
+    --md3-color-error-container: #{$md3-error-30};
+    --md3-color-on-error-container: #{$md3-error-90};
+
+    // Background and Surface (dark theme)
+    --md3-color-background: #{$md3-neutral-10};
+    --md3-color-on-background: #{$md3-neutral-90};
+    --md3-color-surface: #{$md3-neutral-10};
+    --md3-color-on-surface: #{$md3-neutral-90};
+    --md3-color-surface-variant: #{$md3-neutral-variant-30};
+    --md3-color-on-surface-variant: #{$md3-neutral-variant-80};
+
+    // Outline
+    --md3-color-outline: #{$md3-neutral-variant-60};
+    --md3-color-outline-variant: #{$md3-neutral-variant-30};
+  }
+}
+
+// ============================================================================
+// Force Dark Mode (if user/app prefers)
+// ============================================================================
+
+[data-theme='dark'] {
+  --md3-color-primary: #{$md3-primary-80};
+  --md3-color-on-primary: #{$md3-primary-20};
+  --md3-color-primary-container: #{$md3-primary-30};
+  --md3-color-on-primary-container: #{$md3-primary-90};
+
+  --md3-color-secondary: #{$md3-secondary-80};
+  --md3-color-on-secondary: #{$md3-secondary-20};
+  --md3-color-secondary-container: #{$md3-secondary-30};
+  --md3-color-on-secondary-container: #{$md3-secondary-90};
+
+  --md3-color-tertiary: #{$md3-tertiary-80};
+  --md3-color-on-tertiary: #{$md3-tertiary-20};
+  --md3-color-tertiary-container: #{$md3-tertiary-30};
+  --md3-color-on-tertiary-container: #{$md3-tertiary-90};
+
+  --md3-color-error: #{$md3-error-80};
+  --md3-color-on-error: #{$md3-error-20};
+  --md3-color-error-container: #{$md3-error-30};
+  --md3-color-on-error-container: #{$md3-error-90};
+
+  --md3-color-background: #{$md3-neutral-10};
+  --md3-color-on-background: #{$md3-neutral-90};
+  --md3-color-surface: #{$md3-neutral-10};
+  --md3-color-on-surface: #{$md3-neutral-90};
+  --md3-color-surface-variant: #{$md3-neutral-variant-30};
+  --md3-color-on-surface-variant: #{$md3-neutral-variant-80};
+
+  --md3-color-outline: #{$md3-neutral-variant-60};
+  --md3-color-outline-variant: #{$md3-neutral-variant-30};
+}
+
+// ============================================================================
+// Force Light Mode (if user/app prefers)
+// ============================================================================
+
+[data-theme='light'] {
+  --md3-color-primary: #{$md3-primary};
+  --md3-color-on-primary: #{$md3-on-primary};
+  --md3-color-primary-container: #{$md3-primary-container};
+  --md3-color-on-primary-container: #{$md3-on-primary-container};
+
+  --md3-color-secondary: #{$md3-secondary};
+  --md3-color-on-secondary: #{$md3-on-secondary};
+  --md3-color-secondary-container: #{$md3-secondary-container};
+  --md3-color-on-secondary-container: #{$md3-on-secondary-container};
+
+  --md3-color-tertiary: #{$md3-tertiary};
+  --md3-color-on-tertiary: #{$md3-on-tertiary};
+  --md3-color-tertiary-container: #{$md3-tertiary-container};
+  --md3-color-on-tertiary-container: #{$md3-on-tertiary-container};
+
+  --md3-color-error: #{$md3-error};
+  --md3-color-on-error: #{$md3-on-error};
+  --md3-color-error-container: #{$md3-error-container};
+  --md3-color-on-error-container: #{$md3-on-error-container};
+
+  --md3-color-background: #{$md3-neutral-99};
+  --md3-color-on-background: #{$md3-neutral-10};
+  --md3-color-surface: #{$md3-neutral-99};
+  --md3-color-on-surface: #{$md3-neutral-10};
+  --md3-color-surface-variant: #{$md3-neutral-variant-90};
+  --md3-color-on-surface-variant: #{$md3-neutral-variant-30};
+
+  --md3-color-outline: #{$md3-neutral-variant-50};
+  --md3-color-outline-variant: #{$md3-neutral-variant-80};
+}

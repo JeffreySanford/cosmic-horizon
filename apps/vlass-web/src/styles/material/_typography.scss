@@ -1,0 +1,198 @@
+// Material Design 3 Typography Scale
+// Reference: https://m3.material.io/styles/typography/applying-the-type-scale
+@use 'sass:map';
+
+// Display Scale - Large, bold text for marketing/hero sections
+$md3-typography-display-large: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 57px,
+  'font-weight': 400,
+  'line-height': 64px,
+  'letter-spacing': -0.25px,
+);
+
+$md3-typography-display-medium: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 45px,
+  'font-weight': 400,
+  'line-height': 52px,
+  'letter-spacing': 0px,
+);
+
+$md3-typography-display-small: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 36px,
+  'font-weight': 400,
+  'line-height': 44px,
+  'letter-spacing': 0px,
+);
+
+// Headline Scale - Page and section titles
+$md3-typography-headline-large: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 32px,
+  'font-weight': 400,
+  'line-height': 40px,
+  'letter-spacing': 0px,
+);
+
+$md3-typography-headline-medium: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 28px,
+  'font-weight': 400,
+  'line-height': 36px,
+  'letter-spacing': 0px,
+);
+
+$md3-typography-headline-small: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 24px,
+  'font-weight': 400,
+  'line-height': 32px,
+  'letter-spacing': 0px,
+);
+
+// Title Scale - Card and modal titles
+$md3-typography-title-large: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 22px,
+  'font-weight': 500,
+  'line-height': 28px,
+  'letter-spacing': 0px,
+);
+
+$md3-typography-title-medium: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 16px,
+  'font-weight': 500,
+  'line-height': 24px,
+  'letter-spacing': 0.15px,
+);
+
+$md3-typography-title-small: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 14px,
+  'font-weight': 500,
+  'line-height': 20px,
+  'letter-spacing': 0.1px,
+);
+
+// Body Scale - Body text and paragraphs
+$md3-typography-body-large: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 16px,
+  'font-weight': 400,
+  'line-height': 24px,
+  'letter-spacing': 0.15px,
+);
+
+$md3-typography-body-medium: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 14px,
+  'font-weight': 400,
+  'line-height': 20px,
+  'letter-spacing': 0.25px,
+);
+
+$md3-typography-body-small: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 12px,
+  'font-weight': 400,
+  'line-height': 16px,
+  'letter-spacing': 0.4px,
+);
+
+// Label Scale - Button labels, tags, helper text
+$md3-typography-label-large: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 14px,
+  'font-weight': 500,
+  'line-height': 20px,
+  'letter-spacing': 0.1px,
+);
+
+$md3-typography-label-medium: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 12px,
+  'font-weight': 500,
+  'line-height': 16px,
+  'letter-spacing': 0.5px,
+);
+
+$md3-typography-label-small: (
+  'font-family': 'Roboto, sans-serif',
+  'font-size': 11px,
+  'font-weight': 500,
+  'line-height': 16px,
+  'letter-spacing': 0.5px,
+);
+
+// Mixin to apply typography styles
+@mixin md3-typography-style($typography-map) {
+  font-family: map.get($typography-map, 'font-family');
+  font-size: map.get($typography-map, 'font-size');
+  font-weight: map.get($typography-map, 'font-weight');
+  line-height: map.get($typography-map, 'line-height');
+  letter-spacing: map.get($typography-map, 'letter-spacing');
+}
+
+// Typography utility classes
+.md3-display-large {
+  @include md3-typography-style($md3-typography-display-large);
+}
+
+.md3-display-medium {
+  @include md3-typography-style($md3-typography-display-medium);
+}
+
+.md3-display-small {
+  @include md3-typography-style($md3-typography-display-small);
+}
+
+.md3-headline-large {
+  @include md3-typography-style($md3-typography-headline-large);
+}
+
+.md3-headline-medium {
+  @include md3-typography-style($md3-typography-headline-medium);
+}
+
+.md3-headline-small {
+  @include md3-typography-style($md3-typography-headline-small);
+}
+
+.md3-title-large {
+  @include md3-typography-style($md3-typography-title-large);
+}
+
+.md3-title-medium {
+  @include md3-typography-style($md3-typography-title-medium);
+}
+
+.md3-title-small {
+  @include md3-typography-style($md3-typography-title-small);
+}
+
+.md3-body-large {
+  @include md3-typography-style($md3-typography-body-large);
+}
+
+.md3-body-medium {
+  @include md3-typography-style($md3-typography-body-medium);
+}
+
+.md3-body-small {
+  @include md3-typography-style($md3-typography-body-small);
+}
+
+.md3-label-large {
+  @include md3-typography-style($md3-typography-label-large);
+}
+
+.md3-label-medium {
+  @include md3-typography-style($md3-typography-label-medium);
+}
+
+.md3-label-small {
+  @include md3-typography-style($md3-typography-label-small);
+}

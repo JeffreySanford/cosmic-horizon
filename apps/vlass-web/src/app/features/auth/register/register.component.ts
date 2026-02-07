@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
-  standalone: false,
+  standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class RegisterComponent {
   registerForm: FormGroup;
@@ -14,10 +14,10 @@ export class RegisterComponent {
   submitted = false;
   error = '';
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router
-  ) {
+  private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
+
+  constructor() {
     this.registerForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],

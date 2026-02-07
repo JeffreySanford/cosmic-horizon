@@ -1,0 +1,152 @@
+// Material Design 3 Color Palette
+// Reference: https://m3.material.io/styles/color/the-color-system/color-roles
+
+// Primary Color - #667eea (Indigo)
+$md3-primary: #667eea;
+$md3-on-primary: #ffffff;
+$md3-primary-container: #eaddff;
+$md3-on-primary-container: #21005e;
+
+// Primary variants for different tones
+$md3-primary-0: #000000;
+$md3-primary-10: #21005e;
+$md3-primary-20: #3d0076;
+$md3-primary-25: #4a0080;
+$md3-primary-30: #5a189a;
+$md3-primary-35: #6930c3;
+$md3-primary-40: #7c3aed;
+$md3-primary-50: #a78bfa;
+$md3-primary-60: #c4b5fd;
+$md3-primary-70: #ddd6fe;
+$md3-primary-80: #ede9fe;
+$md3-primary-90: #f3e8ff;
+$md3-primary-95: #faf5ff;
+$md3-primary-99: #fffbfe;
+$md3-primary-100: #ffffff;
+
+// Secondary Color - #764ba2 (Purple)
+$md3-secondary: #764ba2;
+$md3-on-secondary: #ffffff;
+$md3-secondary-container: #f8daff;
+$md3-on-secondary-container: #290e5e;
+
+// Secondary variants for different tones
+$md3-secondary-0: #000000;
+$md3-secondary-10: #290e5e;
+$md3-secondary-20: #412577;
+$md3-secondary-25: #4a2c82;
+$md3-secondary-30: #55378d;
+$md3-secondary-35: #624698;
+$md3-secondary-40: #7055a3;
+$md3-secondary-50: #8f73ba;
+$md3-secondary-60: #ad8fd1;
+$md3-secondary-70: #ccabe8;
+$md3-secondary-80: #eac7ff;
+$md3-secondary-90: #f8daff;
+$md3-secondary-95: #fde7ff;
+$md3-secondary-99: #fffbfe;
+$md3-secondary-100: #ffffff;
+
+// Tertiary Color - #00bcd4 (Cyan)
+$md3-tertiary: #00bcd4;
+$md3-on-tertiary: #ffffff;
+$md3-tertiary-container: #b0e9f0;
+$md3-on-tertiary-container: #001f23;
+
+$md3-tertiary-0: #000000;
+$md3-tertiary-10: #001f23;
+$md3-tertiary-20: #003638;
+$md3-tertiary-25: #004d51;
+$md3-tertiary-30: #00656c;
+$md3-tertiary-35: #007c84;
+$md3-tertiary-40: #0094a0;
+$md3-tertiary-50: #00adc0;
+$md3-tertiary-60: #00c7d5;
+$md3-tertiary-70: #2fe0e9;
+$md3-tertiary-80: #65faf6;
+$md3-tertiary-90: #b0e9f0;
+$md3-tertiary-95: #d4f8f6;
+$md3-tertiary-99: #f0fffe;
+$md3-tertiary-100: #ffffff;
+
+// Neutral Colors (Grays)
+$md3-neutral: #79747e;
+$md3-on-neutral: #ffffff;
+$md3-neutral-variant: #79747e;
+$md3-on-neutral-variant: #ffffff;
+
+$md3-neutral-0: #000000;
+$md3-neutral-10: #1c1b1f;
+$md3-neutral-20: #313033;
+$md3-neutral-25: #3f3d42;
+$md3-neutral-30: #49474e;
+$md3-neutral-35: #54525a;
+$md3-neutral-40: #605d66;
+$md3-neutral-50: #79747e;
+$md3-neutral-60: #938f99;
+$md3-neutral-70: #aca9b3;
+$md3-neutral-80: #c6c0ca;
+$md3-neutral-90: #e1dee2;
+$md3-neutral-95: #ede9ed;
+$md3-neutral-99: #fffbfe;
+$md3-neutral-100: #ffffff;
+
+// Neutral Variant Colors
+$md3-neutral-variant-0: #000000;
+$md3-neutral-variant-10: #1f1a24;
+$md3-neutral-variant-20: #322f37;
+$md3-neutral-variant-25: #3f3a44;
+$md3-neutral-variant-30: #4b464f;
+$md3-neutral-variant-35: #57525c;
+$md3-neutral-variant-40: #635d68;
+$md3-neutral-variant-50: #7d7681;
+$md3-neutral-variant-60: #99919a;
+$md3-neutral-variant-70: #b6adb5;
+$md3-neutral-variant-80: #d3c9d1;
+$md3-neutral-variant-90: #ebe7f0;
+$md3-neutral-variant-95: #f7f2fa;
+$md3-neutral-variant-99: #fffbfe;
+$md3-neutral-variant-100: #ffffff;
+
+// Error/Status Colors
+$md3-error: #f44336;
+$md3-on-error: #ffffff;
+$md3-error-container: #f9dedc;
+$md3-on-error-container: #410e0b;
+
+$md3-error-0: #000000;
+$md3-error-10: #410e0b;
+$md3-error-20: #601410;
+$md3-error-25: #71201c;
+$md3-error-30: #842029;
+$md3-error-35: #992a33;
+$md3-error-40: #b3261e;
+$md3-error-50: #f1918e;
+$md3-error-60: #f2b8b5;
+$md3-error-70: #f9dedc;
+$md3-error-80: #fed8d3;
+$md3-error-90: #fde7df;
+$md3-error-95: #fceeee;
+$md3-error-99: #fffbf9;
+$md3-error-100: #ffffff;
+
+// Success Color
+$md3-success: #4caf50;
+$md3-on-success: #ffffff;
+$md3-success-container: #c8e6c9;
+$md3-on-success-container: #1b5e20;
+
+// Warning Color
+$md3-warning: #ff9800;
+$md3-on-warning: #ffffff;
+$md3-warning-container: #ffe0b2;
+$md3-on-warning-container: #e65100;
+
+// Info Color
+$md3-info: #2196f3;
+$md3-on-info: #ffffff;
+$md3-info-container: #bbdefb;
+$md3-on-info-container: #0d47a1;
+
+// Shadow base color (for use in elevation system)
+$md3-shadow-color: #000000;

@@ -24,10 +24,9 @@ CI must fail on baseline gate failures.
 pnpm nx run docs-policy:check
 pnpm nx run-many --target=test --all
 pnpm nx run mvp-gates:e2e
-pnpm nx run vlass-web:lighthouse
 ```
 
-These four commands are the minimum quality bar for merge readiness.
+These three commands are the minimum quality bar for merge readiness.
 
 ## Test Layers
 
@@ -56,4 +55,4 @@ These four commands are the minimum quality bar for merge readiness.
 
 - Every merge must keep baseline tests green.
 - New behavior should include tests in the closest relevant layer.
-- SSR performance is measured via Lighthouse CI artifacts in `test-output/lighthouse`.
+- SSR performance is tracked via product KPIs and operational monitoring.

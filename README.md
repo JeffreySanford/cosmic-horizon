@@ -35,7 +35,6 @@ pnpm test           # nx run-many --target=test --all
 pnpm test:web       # nx test vlass-web
 pnpm test:api       # nx test vlass-api
 pnpm e2e:mvp        # nx run mvp-gates:e2e
-pnpm perf:ssr       # nx run vlass-web:lighthouse
 pnpm build          # nx run-many --target=build --all
 pnpm lint           # nx run-many --target=lint --all
 ```
@@ -60,7 +59,6 @@ pnpm nx run-many --target=test --all
 pnpm nx run docs-policy:check
 pnpm nx run-many --target=test --all
 pnpm nx run mvp-gates:e2e
-pnpm nx run vlass-web:lighthouse
 ```
 
 ## Key Docs

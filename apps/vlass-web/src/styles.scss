@@ -1,1 +1,8 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================================
+   VLASS Portal Global Styles
+   ============================================================================
+   This file imports all Material Design 3 design system styles
+   ============================================================================ */
+
+// Import Global Styles (includes all MD3 design tokens, colors, typography, mixins)
+@use 'styles/global' as *;

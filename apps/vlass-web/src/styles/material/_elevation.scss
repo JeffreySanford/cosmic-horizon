@@ -1,0 +1,88 @@
+// Material Design 3 Elevation System
+// Reference: https://m3.material.io/styles/elevation/overview
+
+// Elevation levels (0-5)
+// Level 0: No elevation (flat)
+// Level 1: Minimal elevation
+// Level 2: Subtle elevation
+// Level 3: Moderate elevation
+// Level 4: Elevated
+// Level 5: Highly elevated
+
+$md3-elevation-0: none;
+
+$md3-elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+                  0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+
+$md3-elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15),
+                  0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+
+$md3-elevation-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15),
+                  0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+
+$md3-elevation-4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15),
+                  0px 2px 3px 0px rgba(0, 0, 0, 0.30);
+
+$md3-elevation-5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15),
+                  0px 4px 8px 0px rgba(0, 0, 0, 0.30);
+
+// Additional elevation levels for extended use
+$md3-elevation-6: 0px 10px 15px 8px rgba(0, 0, 0, 0.15),
+                  0px 6px 10px 0px rgba(0, 0, 0, 0.30);
+
+$md3-elevation-8: 0px 12px 18px 10px rgba(0, 0, 0, 0.15),
+                  0px 8px 12px 0px rgba(0, 0, 0, 0.30);
+
+// Mixin for applying elevation
+@mixin md3-elevation($level) {
+  @if $level == 0 {
+    box-shadow: $md3-elevation-0;
+  } @else if $level == 1 {
+    box-shadow: $md3-elevation-1;
+  } @else if $level == 2 {
+    box-shadow: $md3-elevation-2;
+  } @else if $level == 3 {
+    box-shadow: $md3-elevation-3;
+  } @else if $level == 4 {
+    box-shadow: $md3-elevation-4;
+  } @else if $level == 5 {
+    box-shadow: $md3-elevation-5;
+  } @else if $level == 6 {
+    box-shadow: $md3-elevation-6;
+  } @else if $level == 8 {
+    box-shadow: $md3-elevation-8;
+  }
+}
+
+// Utility classes for elevation
+.md3-elevation-0 {
+  @include md3-elevation(0);
+}
+
+.md3-elevation-1 {
+  @include md3-elevation(1);
+}
+
+.md3-elevation-2 {
+  @include md3-elevation(2);
+}
+
+.md3-elevation-3 {
+  @include md3-elevation(3);
+}
+
+.md3-elevation-4 {
+  @include md3-elevation(4);
+}
+
+.md3-elevation-5 {
+  @include md3-elevation(5);
+}
+
+.md3-elevation-6 {
+  @include md3-elevation(6);
+}
+
+.md3-elevation-8 {
+  @include md3-elevation(8);
+}
