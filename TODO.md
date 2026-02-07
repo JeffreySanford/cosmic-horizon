@@ -7,6 +7,18 @@
 
 ---
 
+## 📊 Current Phase Status
+
+| Phase | Component | Status | Notes |
+|-------|-----------|--------|-------|
+| **PI-1: Weeks 1-4** | Foundation | ✅ COMPLETE | Dev env, Docker, API scaffold, DB (commit ca9b418) |
+| **Phase 7** | OAuth | ✅ **COMPLETE** | GitHub OAuth 2.0, Session mgmt, Auth guards (commit 91394e9) |
+| **Phase 8** | Landing Page | 🔄 IN PROGRESS | SSR, Geolocation, Caching |
+| **Phase 9** | Viewer | ⏳ READY | Aladin integration queued |
+| **Phase 10** | Notebook UI | ⏳ READY | Post editor, markdown preview |
+
+---
+
 ## 📋 Program Vision
 
 **MVP Goal:** Ship a delightful VLASS explorer with community research notebooks in 12 weeks.
