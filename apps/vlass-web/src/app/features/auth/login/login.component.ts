@@ -1,8 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, interval } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { AuthApiService } from '../auth-api.service';
 import { AuthSessionService } from '../../../services/auth-session.service';
 import { SkyPreview, SkyPreviewService } from '../../../services/sky-preview.service';
@@ -13,7 +15,7 @@ import { SkyPreview, SkyPreviewService } from '../../../services/sky-preview.ser
   styleUrl: './login.component.scss',
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   submitted = false;
@@ -21,12 +23,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   preview: SkyPreview;
   locating = false;
   locationMessage = '';
-  localTime = '--:--:--';
-  zuluTime = '--:--:--';
   locationLabel = '';
   latLonLabel = 'Lat --.---- | Lon --.----';
   showTelemetryOverlay = false;
-  private clockIntervalId: ReturnType<typeof setInterval> | null = null;
+  readonly clockLine$: Observable<string> = interval(1000).pipe(
+    startWith(0),
+    map(() => this.buildClockLine()),
+  );
 
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
@@ -37,31 +40,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   private skyPreviewService = inject(SkyPreviewService);
 
   constructor() {
+    this.showTelemetryOverlay = isPlatformBrowser(this.platformId);
     this.preview = this.skyPreviewService.getInitialPreview();
     this.syncTelemetryFromPreview();
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
-  }
-
-  ngOnInit(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    this.showTelemetryOverlay = true;
-    this.updateClock();
-    this.clockIntervalId = setInterval(() => {
-      this.updateClock();
-    }, 1000);
-  }
-
-  ngOnDestroy(): void {
-    if (this.clockIntervalId) {
-      clearInterval(this.clockIntervalId);
-      this.clockIntervalId = null;
-    }
   }
 
   get f() {
@@ -101,30 +86,28 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.router.navigate(['/auth/register']);
   }
 
-  async personalizePreview(): Promise<void> {
+  personalizePreview(): void {
     this.locating = true;
     this.locationMessage = '';
 
-    try {
-      const preview = await this.skyPreviewService.personalizeFromBrowserLocation();
-      if (preview) {
-        this.preview = preview;
-        this.syncTelemetryFromPreview();
-        this.locationMessage = `Preview personalized for region ${preview.geohash.toUpperCase()}.`;
-      } else {
-        this.locationMessage = 'Location services are unavailable in this browser.';
-      }
-    } catch {
-      this.locationMessage = 'Location permission denied. Continuing with default preview.';
-    } finally {
-      this.locating = false;
-    }
-  }
-
-  private updateClock(): void {
-    const now = new Date();
-    this.localTime = now.toLocaleTimeString('en-US', { hour12: false });
-    this.zuluTime = now.toUTCString().slice(17, 25);
+    this.skyPreviewService.personalizeFromBrowserLocation().subscribe({
+      next: (preview) => {
+        if (preview) {
+          this.preview = preview;
+          this.syncTelemetryFromPreview();
+          this.locationMessage = `Preview personalized for region ${preview.geohash.toUpperCase()}.`;
+        } else {
+          this.locationMessage = 'Location services are unavailable in this browser.';
+        }
+      },
+      error: () => {
+        this.locating = false;
+        this.locationMessage = 'Location permission denied. Continuing with default preview.';
+      },
+      complete: () => {
+        this.locating = false;
+      },
+    });
   }
 
   private syncTelemetryFromPreview(): void {
@@ -136,5 +119,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     this.latLonLabel = `Lat ${this.preview.latitude.toFixed(4)} | Lon ${this.preview.longitude.toFixed(4)}`;
+  }
+
+  private buildClockLine(): string {
+    const now = new Date();
+    const localTime = now.toLocaleTimeString('en-US', { hour12: false });
+    const zuluTime = now.toUTCString().slice(17, 25);
+    return `Local ${localTime} | Zulu ${zuluTime}`;
   }
 }

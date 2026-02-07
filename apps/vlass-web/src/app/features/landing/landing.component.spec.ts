@@ -4,6 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Observable, of } from 'rxjs';
 import { AuthSessionService } from '../../services/auth-session.service';
 import { SkyPreviewService } from '../../services/sky-preview.service';
 import { LandingComponent } from './landing.component';
@@ -29,7 +30,7 @@ describe('LandingComponent', () => {
       latitude: number | null;
       longitude: number | null;
     };
-    personalizeFromBrowserLocation: () => Promise<{
+    personalizeFromBrowserLocation: () => Observable<{
       geohash: string;
       imageUrl: string;
       personalized: boolean;
@@ -62,7 +63,7 @@ describe('LandingComponent', () => {
         longitude: null,
       }),
       personalizeFromBrowserLocation: () =>
-        Promise.resolve({
+        of({
           geohash: 'u09t',
           imageUrl: '/previews/region-2.png',
           personalized: true,
@@ -118,8 +119,8 @@ describe('LandingComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/auth/login']);
   });
 
-  it('personalizes preview and shows region notice', async () => {
-    await component.personalizePreview();
+  it('personalizes preview and shows region notice', () => {
+    component.personalizePreview();
 
     expect(component.preview.personalized).toBe(true);
     expect(component.preview.geohash).toBe('u09t');

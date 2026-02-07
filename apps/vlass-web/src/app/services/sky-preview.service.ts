@@ -1,5 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID, REQUEST } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface SkyPreview {
   geohash: string;
@@ -36,15 +38,18 @@ export class SkyPreviewService {
     return this.buildPreview(this.fallbackRegionSeed(), 'default', null, null);
   }
 
-  async personalizeFromBrowserLocation(): Promise<SkyPreview | null> {
+  personalizeFromBrowserLocation(): Observable<SkyPreview | null> {
     if (!isPlatformBrowser(this.platformId) || !('geolocation' in navigator)) {
-      return null;
+      return of(null);
     }
 
-    const coordinates = await this.requestBrowserCoordinates();
-    const geohash = this.toGeohash(coordinates.latitude, coordinates.longitude);
-    this.setRegionCookie(geohash);
-    return this.buildPreview(geohash, 'browser', coordinates.latitude, coordinates.longitude);
+    return this.requestBrowserCoordinates().pipe(
+      map((coordinates) => {
+        const geohash = this.toGeohash(coordinates.latitude, coordinates.longitude);
+        this.setRegionCookie(geohash);
+        return this.buildPreview(geohash, 'browser', coordinates.latitude, coordinates.longitude);
+      }),
+    );
   }
 
   toGeohash(latitude: number, longitude: number, precision = GEOHASH_PRECISION): string {
@@ -170,17 +175,18 @@ export class SkyPreviewService {
     )}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax`;
   }
 
-  private requestBrowserCoordinates(): Promise<GeolocationCoordinatesLike> {
-    return new Promise((resolve, reject) => {
+  private requestBrowserCoordinates(): Observable<GeolocationCoordinatesLike> {
+    return new Observable((observer) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          resolve({
+          observer.next({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
+          observer.complete();
         },
         (error) => {
-          reject(new Error(error.message));
+          observer.error(new Error(error.message));
         },
         {
           enableHighAccuracy: false,

@@ -1,6 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
+import { Observable, interval } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { AuthSessionService } from '../../services/auth-session.service';
 import { SkyPreview, SkyPreviewService } from '../../services/sky-preview.service';
 
@@ -15,7 +17,7 @@ interface LandingPillar {
   styleUrl: './landing.component.scss',
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
-export class LandingComponent implements OnInit, OnDestroy {
+export class LandingComponent {
   user = {
     name: 'User',
     email: 'user@example.com',
@@ -37,12 +39,13 @@ export class LandingComponent implements OnInit, OnDestroy {
   preview: SkyPreview;
   locating = false;
   locationMessage = '';
-  localTime = '--:--:--';
-  zuluTime = '--:--:--';
   locationLabel = '';
   latLonLabel = 'Lat --.---- | Lon --.----';
   showTelemetryOverlay = false;
-  private clockIntervalId: ReturnType<typeof setInterval> | null = null;
+  readonly clockLine$: Observable<string> = interval(1000).pipe(
+    startWith(0),
+    map(() => this.buildClockLine()),
+  );
 
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
@@ -50,6 +53,7 @@ export class LandingComponent implements OnInit, OnDestroy {
   private skyPreviewService = inject(SkyPreviewService);
 
   constructor() {
+    this.showTelemetryOverlay = isPlatformBrowser(this.platformId);
     this.preview = this.skyPreviewService.getInitialPreview();
     this.syncTelemetryFromPreview();
 
@@ -62,54 +66,33 @@ export class LandingComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    this.showTelemetryOverlay = true;
-    this.updateClock();
-    this.clockIntervalId = setInterval(() => {
-      this.updateClock();
-    }, 1000);
-  }
-
-  ngOnDestroy(): void {
-    if (this.clockIntervalId) {
-      clearInterval(this.clockIntervalId);
-      this.clockIntervalId = null;
-    }
-  }
-
   logout(): void {
     this.authSessionService.clearSession();
     this.router.navigate(['/auth/login']);
   }
 
-  async personalizePreview(): Promise<void> {
+  personalizePreview(): void {
     this.locating = true;
     this.locationMessage = '';
 
-    try {
-      const preview = await this.skyPreviewService.personalizeFromBrowserLocation();
-      if (preview) {
-        this.preview = preview;
-        this.syncTelemetryFromPreview();
-        this.locationMessage = `Sky preview personalized for region ${preview.geohash.toUpperCase()}.`;
-      } else {
-        this.locationMessage = 'Location services are unavailable in this environment.';
-      }
-    } catch {
-      this.locationMessage = 'Location permission was denied. Using default preview.';
-    } finally {
-      this.locating = false;
-    }
-  }
-
-  private updateClock(): void {
-    const now = new Date();
-    this.localTime = now.toLocaleTimeString('en-US', { hour12: false });
-    this.zuluTime = now.toUTCString().slice(17, 25);
+    this.skyPreviewService.personalizeFromBrowserLocation().subscribe({
+      next: (preview) => {
+        if (preview) {
+          this.preview = preview;
+          this.syncTelemetryFromPreview();
+          this.locationMessage = `Sky preview personalized for region ${preview.geohash.toUpperCase()}.`;
+        } else {
+          this.locationMessage = 'Location services are unavailable in this environment.';
+        }
+      },
+      error: () => {
+        this.locating = false;
+        this.locationMessage = 'Location permission was denied. Using default preview.';
+      },
+      complete: () => {
+        this.locating = false;
+      },
+    });
   }
 
   private syncTelemetryFromPreview(): void {
@@ -121,6 +104,13 @@ export class LandingComponent implements OnInit, OnDestroy {
     }
 
     this.latLonLabel = `Lat ${this.preview.latitude.toFixed(4)} | Lon ${this.preview.longitude.toFixed(4)}`;
+  }
+
+  private buildClockLine(): string {
+    const now = new Date();
+    const localTime = now.toLocaleTimeString('en-US', { hour12: false });
+    const zuluTime = now.toUTCString().slice(17, 25);
+    return `Local ${localTime} | Zulu ${zuluTime}`;
   }
 
 }

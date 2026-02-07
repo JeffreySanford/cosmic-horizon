@@ -19,7 +19,12 @@ test('redirects unauthenticated users to login', async ({ page }) => {
 });
 
 test('shows error for invalid credentials', async ({ page }) => {
-  await page.route('**/api/**/auth/login*', async (route) => {
+  await page.route('**/*', async (route) => {
+    if (!isLoginEndpoint(route.request().url())) {
+      await route.continue();
+      return;
+    }
+
     if (route.request().method() === 'OPTIONS') {
       await route.fulfill({
         status: 204,
@@ -59,7 +64,12 @@ test('shows error for invalid credentials', async ({ page }) => {
 test('logs in and allows logout', async ({ page }) => {
   const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
 
-  await page.route('**/api/**/auth/login*', async (route) => {
+  await page.route('**/*', async (route) => {
+    if (!isLoginEndpoint(route.request().url())) {
+      await route.continue();
+      return;
+    }
+
     if (route.request().method() === 'OPTIONS') {
       await route.fulfill({
         status: 204,

@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID, REQUEST } from '@angular/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { firstValueFrom } from 'rxjs';
 import { SkyPreviewService } from './sky-preview.service';
 
 describe('SkyPreviewService', () => {
@@ -91,7 +92,7 @@ describe('SkyPreviewService', () => {
     });
 
     const service = TestBed.inject(SkyPreviewService);
-    const preview = await service.personalizeFromBrowserLocation();
+    const preview = await firstValueFrom(service.personalizeFromBrowserLocation());
 
     expect(preview).not.toBeNull();
     expect(preview?.source).toBe('browser');

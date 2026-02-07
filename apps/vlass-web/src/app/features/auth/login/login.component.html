@@ -1,7 +1,7 @@
 <div class="login-container" [style.--sky-preview-url]="'url(' + preview.imageUrl + ')'">
   @if (showTelemetryOverlay) {
     <aside class="sky-meta-panel" aria-label="Sky background telemetry">
-      <p>Local {{ localTime }} | Zulu {{ zuluTime }}</p>
+      <p>{{ clockLine$ | async }}</p>
       <p>{{ locationLabel }}</p>
       <p>{{ latLonLabel }}</p>
     </aside>
