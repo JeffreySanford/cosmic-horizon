@@ -9,7 +9,14 @@
         "executor": "nx:run-commands",
         "options": {
           "cwd": "apps/vlass-web-e2e",
-          "command": "playwright test src/example.spec.ts --project=chromium"
+          "command": "playwright test src/example.spec.ts src/ssr.spec.ts --project=chromium"
+        }
+      },
+      "e2e-ssr": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "apps/vlass-web-e2e",
+          "command": "playwright test src/ssr.spec.ts --project=chromium"
         }
       }
     }

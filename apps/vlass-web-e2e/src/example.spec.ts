@@ -7,14 +7,19 @@ function createFakeJwt(exp: number): string {
   return `${header}.${payload}.${signature}`;
 }
 
+function isLoginEndpoint(url: string): boolean {
+  return /\/api(?:\/api)?\/auth\/login(?:\?|$)/.test(url);
+}
+
 test('redirects unauthenticated users to login', async ({ page }) => {
   await page.goto('/landing');
   await expect(page).toHaveURL(/\/auth\/login/);
   await expect(page.locator('h1')).toContainText('Login');
+  await expect(page.getByRole('button', { name: 'Personalize background' })).toBeVisible();
 });
 
 test('shows error for invalid credentials', async ({ page }) => {
-  await page.route('**/api/auth/login', async (route) => {
+  await page.route('**/api/**/auth/login*', async (route) => {
     if (route.request().method() === 'OPTIONS') {
       await route.fulfill({
         status: 204,
@@ -39,9 +44,7 @@ test('shows error for invalid credentials', async ({ page }) => {
 
   await page.goto('/auth/login');
   const loginResponse = page.waitForResponse(
-    (response) =>
-      response.url().includes('/api/auth/login') &&
-      response.request().method() === 'POST'
+    (response) => isLoginEndpoint(response.url()) && response.request().method() === 'POST'
   );
 
   await page.getByLabel('Email').fill('test@vlass.local');
@@ -56,7 +59,7 @@ test('shows error for invalid credentials', async ({ page }) => {
 test('logs in and allows logout', async ({ page }) => {
   const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
 
-  await page.route('**/api/auth/login', async (route) => {
+  await page.route('**/api/**/auth/login*', async (route) => {
     if (route.request().method() === 'OPTIONS') {
       await route.fulfill({
         status: 204,
@@ -96,6 +99,11 @@ test('logs in and allows logout', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/landing/);
   await expect(page.locator('h1')).toContainText('Welcome back, Test User');
+  await expect(page.getByRole('heading', { name: 'Instant SSR First Paint', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Viewer, Permalinks, and Snapshots', exact: true })
+  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Community Research Notebook', exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: 'Logout' }).click();
   await expect(page).toHaveURL(/\/auth\/login/);

@@ -1,10 +1,29 @@
-<div class="register-container">
+<div class="register-container" [style.--sky-preview-url]="'url(' + preview.imageUrl + ')'">
+  @if (showTelemetryOverlay) {
+    <aside class="sky-meta-panel" aria-label="Sky background telemetry">
+      <p>Local {{ localTime }} | Zulu {{ zuluTime }}</p>
+      <p>{{ locationLabel }}</p>
+      <p>{{ latLonLabel }}</p>
+    </aside>
+  }
   <mat-card class="register-card">
     <mat-card-header>
       <h1>Create Account</h1>
     </mat-card-header>
     <mat-card-content>
       <p class="subtitle">Set up your VLASS account in a minute.</p>
+      <div class="preview-controls">
+        <button mat-stroked-button type="button" (click)="personalizePreview()" [disabled]="locating">
+          @if (locating) {
+            Detecting location...
+          } @else {
+            Personalize background
+          }
+        </button>
+        @if (locationMessage) {
+          <p class="preview-note">{{ locationMessage }}</p>
+        }
+      </div>
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" autocomplete="on">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Username</mat-label>

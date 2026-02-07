@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
   Index,
   Relation,
 } from 'typeorm';
@@ -73,5 +74,6 @@ export class AuditLog {
     onDelete: 'SET NULL',
     eager: false,
   })
+  @JoinColumn({ name: 'user_id' })
   user!: Relation<User>;
 }

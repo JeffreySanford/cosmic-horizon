@@ -49,6 +49,10 @@ const envValue = (key: string, fallback: string): string => {
   }
   return process.env[key] || fallback;
 };
+const envFlag = (key: string, fallback: boolean): boolean => {
+  const raw = envValue(key, fallback ? 'true' : 'false').trim().toLowerCase();
+  return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
+};
 
 export const databaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -59,7 +63,7 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   database: envValue('DB_NAME', 'vlass_portal'),
   entities: [User, Post, Revision, Comment, Snapshot, AuditLog, VlassTileCache],
   synchronize: false,
-  logging: process.env.NODE_ENV === 'development',
+  logging: envFlag('DB_LOGGING', false),
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   extra: {
     max: 20,

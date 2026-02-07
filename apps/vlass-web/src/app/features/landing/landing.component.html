@@ -1,4 +1,11 @@
-<div class="landing-container">
+<div class="landing-container" [style.--sky-preview-url]="'url(' + preview.imageUrl + ')'">
+  @if (showTelemetryOverlay) {
+    <aside class="sky-meta-panel" aria-label="Sky background telemetry">
+      <p>Local {{ localTime }} | Zulu {{ zuluTime }}</p>
+      <p>{{ locationLabel }}</p>
+      <p>{{ latLonLabel }}</p>
+    </aside>
+  }
   <mat-toolbar color="primary" class="app-toolbar">
     <span class="brand">VLASS Portal</span>
     <span class="spacer"></span>
@@ -10,19 +17,31 @@
       <p class="eyebrow">Mission Control</p>
       <h1>Welcome back, {{ user.name }}</h1>
       <p class="subtitle">
-        Build, review, and publish with a streamlined workspace designed for
-        velocity.
+        Build the VLASS MVP around three locked pillars: fast SSR landing,
+        viewer state sharing, and research notebook publishing.
       </p>
+    </section>
+
+    <section class="preview-controls">
+      <button mat-stroked-button type="button" (click)="personalizePreview()" [disabled]="locating">
+        @if (locating) {
+          Detecting location...
+        } @else {
+          Personalize background
+        }
+      </button>
+      @if (locationMessage) {
+        <p class="location-note">{{ locationMessage }}</p>
+      }
     </section>
 
     <mat-card class="welcome-card">
       <mat-card-content>
         <div class="feature-grid">
-          @for (feature of features; track feature.title) {
+          @for (pillar of pillars; track pillar.title) {
             <article class="feature-card">
-              <mat-icon>{{ feature.icon }}</mat-icon>
-              <h2>{{ feature.title }}</h2>
-              <p>{{ feature.description }}</p>
+              <mat-icon>{{ pillar.icon }}</mat-icon>
+              <h2>{{ pillar.title }}</h2>
             </article>
           }
         </div>

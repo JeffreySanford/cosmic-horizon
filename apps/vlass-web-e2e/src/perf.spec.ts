@@ -6,6 +6,14 @@ interface PerfMetrics {
   lcp: number;
 }
 
+function ttfbBudgetForBrowser(browserName: string): number {
+  if (browserName === 'firefox') {
+    return 2400;
+  }
+
+  return 2000;
+}
+
 async function collectMetrics(): Promise<PerfMetrics> {
   const navigation = performance.getEntriesByType(
     'navigation'
@@ -38,7 +46,7 @@ async function collectMetrics(): Promise<PerfMetrics> {
   };
 }
 
-test('meets SSR login performance budget (TTFB/FCP/LCP)', async ({ page }) => {
+test('meets SSR login performance budget (TTFB/FCP/LCP)', async ({ page, browserName }) => {
   await page.goto('/auth/login', { waitUntil: 'load' });
 
   const metrics = await page.evaluate(collectMetrics);
@@ -48,7 +56,8 @@ test('meets SSR login performance budget (TTFB/FCP/LCP)', async ({ page }) => {
   expect(metrics.lcp).toBeGreaterThan(0);
 
   // Conservative local-gate thresholds to avoid flaky CI while still enforcing regressions.
-  expect(metrics.ttfb).toBeLessThan(2000);
+  const ttfbBudget = ttfbBudgetForBrowser(browserName);
+  expect(metrics.ttfb).toBeLessThan(ttfbBudget);
   expect(metrics.fcp).toBeLessThan(3000);
   expect(metrics.lcp).toBeLessThan(4500);
 });

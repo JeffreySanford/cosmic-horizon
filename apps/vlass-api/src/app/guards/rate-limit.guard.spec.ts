@@ -1,8 +1,13 @@
-import { ExecutionContext, TooManyRequestsException } from '@nestjs/common';
-import type { Request } from 'express';
+import { ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
 import { RateLimitGuard } from './rate-limit.guard';
 
-function executionContextFromRequest(request: Partial<Request>): ExecutionContext {
+interface TestRequest {
+  headers: Record<string, string | string[] | undefined>;
+  ip?: string;
+  path: string;
+}
+
+function executionContextFromRequest(request: TestRequest): ExecutionContext {
   return {
     switchToHttp: () => ({
       getRequest: () => request,
@@ -46,7 +51,13 @@ describe('RateLimitGuard', () => {
 
     expect(guard.canActivate(context)).toBe(true);
     expect(guard.canActivate(context)).toBe(true);
-    expect(() => guard.canActivate(context)).toThrow(TooManyRequestsException);
+    try {
+      guard.canActivate(context);
+      throw new Error('Expected rate limit guard to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(HttpException);
+      expect((error as HttpException).getStatus()).toBe(HttpStatus.TOO_MANY_REQUESTS);
+    }
   });
 
   it('scopes limits by path', () => {
