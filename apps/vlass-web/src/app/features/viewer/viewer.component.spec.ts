@@ -303,7 +303,7 @@ describe('ViewerComponent', () => {
     const resolveSpy = vi
       .spyOn(
         component as unknown as {
-          resolveWithSkybot$: (name: string) => typeof import('rxjs').Observable<{ ra: number; dec: number } | null>;
+          resolveWithSkybot$: (name: string) => import('rxjs').Observable<{ ra: number; dec: number } | null>;
         },
         'resolveWithSkybot$',
       )
