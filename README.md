@@ -1,5 +1,11 @@
 # VLASS Portal
 
+[![Build](https://github.com/JeffreySanford/vlass-portal/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/vlass-portal/actions/workflows/build.yml)
+[![Unit Tests](https://github.com/JeffreySanford/vlass-portal/actions/workflows/unit-tests.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/vlass-portal/actions/workflows/unit-tests.yml)
+[![E2E](https://github.com/JeffreySanford/vlass-portal/actions/workflows/e2e.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/vlass-portal/actions/workflows/e2e.yml)
+[![Lint](https://github.com/JeffreySanford/vlass-portal/actions/workflows/lint.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/vlass-portal/actions/workflows/lint.yml)
+[![CodeQL](https://github.com/JeffreySanford/vlass-portal/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/vlass-portal/actions/workflows/codeql.yml)
+
 Canonical MVP docs:
 
 - `documentation/PRODUCT-CHARTER.md`
@@ -67,6 +73,8 @@ pnpm nx run mvp-gates:e2e
 - `documentation/PRODUCT-CHARTER.md`
 - `SCOPE-LOCK.md`
 - `documentation/STATUS.md`
+- `documentation/ENV.md`
+- `documentation/DEMO.md`
 - `documentation/TESTING-STRATEGY.md`
 - `documentation/ROADMAP.md`
 - `TODO.md`

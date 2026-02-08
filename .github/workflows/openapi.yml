@@ -1,0 +1,34 @@
+name: OpenAPI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  openapi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.8.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run start:infra
+      - run: pnpm nx run vlass-api:openapi
+      - name: Upload OpenAPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: documentation/api/openapi.json
+      - name: Stop infra
+        if: always()
+        run: docker compose down --remove-orphans --volumes

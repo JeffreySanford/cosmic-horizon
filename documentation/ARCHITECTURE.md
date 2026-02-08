@@ -11,6 +11,16 @@ Canonical scope is defined by:
 - Backend: `apps/vlass-api` (NestJS + Postgres/Redis)
 - Shared models: `libs/shared/models`
 
+```mermaid
+flowchart LR
+    U[Browser Client] --> W[Angular SSR Web<br/>apps/vlass-web]
+    W --> A[NestJS API<br/>apps/vlass-api]
+    A --> P[(PostgreSQL)]
+    A --> R[(Redis)]
+    W --> V[Aladin HiPS Viewer]
+    V --> E[External VLASS/HiPS Sources]
+```
+
 Frontend runtime note:
 - Mode A viewer includes short-lived client-side HiPS tile prefetch/cache (window-scoped, TTL/LRU bounded) for UX performance only.
 
@@ -18,6 +28,7 @@ Frontend runtime note:
 - Browser does not directly own policy decisions.
 - NestJS enforces auth, RBAC, auditing, and rate limits.
 - Viewer is Mode A only (Aladin) for MVP.
+- SSR is the user entry path; API remains the policy and data control plane.
 
 ## Data Policy
 - Public VLASS usage only.

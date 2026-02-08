@@ -138,20 +138,33 @@ form {
   --mdc-outlined-text-field-hover-outline-color: rgba(245, 250, 255, 0.92);
   --mdc-outlined-text-field-focus-outline-color: #ffd166;
   --mdc-outlined-text-field-label-text-color: rgba(228, 240, 255, 0.94);
-  --mdc-outlined-text-field-input-text-color: #f6fbff;
+  --mdc-outlined-text-field-input-text-color: #0e274d;
   --mat-form-field-focus-state-layer-opacity: 0;
 }
 
 :host ::ng-deep .login-card .mat-mdc-form-field .mat-mdc-input-element {
-  color: #f6fbff;
+  color: #0e274d;
+  caret-color: #0e274d;
 
   &::placeholder {
-    color: rgba(226, 238, 255, 0.82);
+    color: rgba(14, 39, 77, 0.6);
   }
 }
 
 :host ::ng-deep .login-card .mdc-text-field--outlined:not(.mdc-text-field--focused) {
-  background: rgba(240, 248, 255, 0.08);
+  background: rgba(249, 252, 255, 0.92);
+}
+
+:host ::ng-deep .login-card .mdc-text-field--outlined.mdc-text-field--focused {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+:host ::ng-deep .login-card input.mat-mdc-input-element:-webkit-autofill,
+:host ::ng-deep .login-card input.mat-mdc-input-element:-webkit-autofill:hover,
+:host ::ng-deep .login-card input.mat-mdc-input-element:-webkit-autofill:focus {
+  -webkit-text-fill-color: #0e274d;
+  transition: background-color 5000s ease-in-out 0s;
+  box-shadow: 0 0 0 1000px rgba(249, 252, 255, 0.98) inset;
 }
 
 :host ::ng-deep .login-card .mat-mdc-form-field.mat-focused .mdc-floating-label {

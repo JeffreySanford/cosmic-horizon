@@ -85,6 +85,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   cutoutTelemetry: CutoutTelemetryModel | null = null;
   cutoutDetail: 'standard' | 'high' | 'max' = 'max';
   gridOverlayEnabled = false;
+  labelsOverlayEnabled = true;
+  pdssColorEnabled = false;
+  private previousSurvey = 'VLASS'; // Track survey when disabling P/DSS
   readonly surveyOptions = [
     { label: 'VLASS', value: 'VLASS' },
     { label: 'DSS2', value: 'DSS2' },
@@ -97,6 +100,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   private syncingFromForm = false;
   private lastAppliedSurvey = '';
   private nearbyLookupTimer: ReturnType<typeof setTimeout> | null = null;
+  private cursorLookupTimer: ReturnType<typeof setTimeout> | null = null;
   private viewerSyncTimer: ReturnType<typeof setTimeout> | null = null;
   private lastNearbyLookupKey = '';
   private initialFovForLabels: number | null = null;
@@ -184,7 +188,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get centerCatalogLabel(): NearbyCatalogLabelModel | null {
-    if (this.catalogLabels.length === 0 || !this.stateForm.valid) {
+    if (!this.labelsOverlayEnabled || this.catalogLabels.length === 0 || !this.stateForm.valid) {
       return null;
     }
 
@@ -222,9 +226,15 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.stateForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
+      .subscribe((value) => {
         if (this.stateForm.valid) {
           this.syncAladinFromForm();
+        }
+        // Sync P/DSS toggle with survey selection
+        if (value.survey === 'DSS2') {
+          this.pdssColorEnabled = true;
+        } else if (this.pdssColorEnabled && value.survey !== 'DSS2') {
+          this.pdssColorEnabled = false;
         }
       });
   }
@@ -242,6 +252,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.logViewerEvent('viewer_load_complete', {
             duration_ms: Math.round(performance.now() - startAt),
             grid_enabled: this.gridOverlayEnabled,
+            pdss_enabled: this.pdssColorEnabled,
           });
           this.schedulePrefetchActivation();
           this.scheduleNearbyLabelLookup(this.currentState());
@@ -259,6 +270,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.nearbyLookupTimer) {
       clearTimeout(this.nearbyLookupTimer);
       this.nearbyLookupTimer = null;
+    }
+
+    if (this.cursorLookupTimer) {
+      clearTimeout(this.cursorLookupTimer);
+      this.cursorLookupTimer = null;
     }
 
     if (this.viewerSyncTimer) {
@@ -458,13 +474,113 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     void this.reinitializeAladinView();
   }
 
-  onGridOverlayToggle(event: Event): void {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) {
+  toggleLabelsOverlay(enabled: boolean): void {
+    const previous = this.labelsOverlayEnabled;
+    this.labelsOverlayEnabled = enabled;
+    this.logViewerEvent('labels_toggle_requested', {
+      previous_enabled: previous,
+      next_enabled: enabled,
+    });
+
+    if (!enabled) {
+      this.catalogLabels = [];
+      this.lastNearbyLookupKey = '';
       return;
     }
 
-    this.toggleGridOverlay(target.checked);
+    this.scheduleNearbyLabelLookup(this.currentState(), { force: true });
+  }
+
+  togglePdssColor(enabled: boolean): void {
+    const previous = this.pdssColorEnabled;
+    this.pdssColorEnabled = enabled;
+    
+    if (enabled) {
+      // Save current survey before switching to DSS2
+      this.previousSurvey = this.stateForm.value.survey || 'VLASS';
+      this.stateForm.patchValue({ survey: 'DSS2' }, { emitEvent: true });
+    } else {
+      // Switch back to previous survey when disabling P/DSS
+      this.stateForm.patchValue({ survey: this.previousSurvey }, { emitEvent: true });
+    }
+    
+    this.logViewerEvent('pdss_toggle_requested', {
+      previous_enabled: previous,
+      next_enabled: enabled,
+      target_survey: enabled ? 'DSS2' : this.previousSurvey,
+    });
+  }
+
+  onCanvasMouseMove(event: MouseEvent): void {
+    if (!this.labelsOverlayEnabled || !this.aladinView || !this.stateForm.valid) {
+      return;
+    }
+
+    const canvas = event.currentTarget as HTMLElement;
+    if (!canvas) {
+      return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    // Convert pixel coordinates to world coordinates
+    // Aladin.js uses pixel2world(x, y) to convert screen to sky coords
+    const globalAladin = (window as unknown as { A?: { pix2world?: (x: number, y: number) => [number, number] } }).A;
+    if (!globalAladin || !globalAladin.pix2world) {
+      return;
+    }
+
+    try {
+      const skyCoords = globalAladin.pix2world(x, y);
+      if (!skyCoords || skyCoords.length < 2) {
+        return;
+      }
+
+      const ra = skyCoords[0];
+      const dec = skyCoords[1];
+
+      // Trigger label lookup at cursor position
+
+      // Create a state with the cursor's coordinates
+      const state = this.currentState();
+      const cursorState: ViewerStateModel = {
+        ra,
+        dec,
+        fov: state.fov,
+        survey: state.survey,
+      };
+
+      // Schedule a nearby lookup at the cursor position
+      this.scheduleNearbyLabelLookupAtCursor(cursorState);
+    } catch {
+      // Silently ignore conversion errors
+    }
+  }
+
+  private scheduleNearbyLabelLookupAtCursor(state: ViewerStateModel): void {
+    if (!isPlatformBrowser(this.platformId) || !this.stateForm.valid || !this.labelsOverlayEnabled) {
+      return;
+    }
+
+    // Debounce cursor lookups with a shorter timer
+    if (this.cursorLookupTimer) {
+      clearTimeout(this.cursorLookupTimer);
+    }
+
+    this.cursorLookupTimer = setTimeout(() => {
+      const radius = this.lookupRadiusForState(state);
+      this.viewerApi.getNearbyLabels(state.ra, state.dec, radius, 16).subscribe({
+        next: (labels) => {
+          this.catalogLabels = this.selectNearbyLabels(labels);
+        },
+        error: () => {
+          // Silently ignore errors for cursor lookups
+          this.catalogLabels = [];
+        },
+      });
+    }, 300); // Shorter debounce for responsive cursor tracking
   }
 
   private hydrateStateFromRoute(): void {
@@ -612,6 +728,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.logViewerEvent('aladin_initialized', {
         duration_ms: Math.round(performance.now() - startedAt),
         grid_enabled: this.gridOverlayEnabled,
+        pdss_enabled: this.pdssColorEnabled,
       });
     }
   }
@@ -701,9 +818,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (
       this.initialFovForLabels !== null &&
-      this.zoomEventCount > 1 &&
       fov <= this.initialFovForLabels * 0.98 &&
-      this.initialFovForLabels - fov >= 0.01
+      this.initialFovForLabels - fov > 0
     ) {
       this.hasUserZoomedIn = true;
     }
@@ -727,14 +843,20 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }, this.viewerSyncDebounceMs);
   }
 
-  private scheduleNearbyLabelLookup(state: ViewerStateModel): void {
+  private scheduleNearbyLabelLookup(state: ViewerStateModel, options?: { force?: boolean }): void {
     if (!isPlatformBrowser(this.platformId) || !this.stateForm.valid) {
       return;
     }
 
+    if (!this.labelsOverlayEnabled) {
+      this.catalogLabels = [];
+      this.lastNearbyLookupKey = '';
+      return;
+    }
+
     const radius = this.lookupRadiusForState(state);
-    const lookupKey = `${state.ra.toFixed(3)}|${state.dec.toFixed(3)}|${radius.toFixed(3)}`;
-    if (lookupKey === this.lastNearbyLookupKey) {
+    const lookupKey = `${state.ra.toFixed(4)}|${state.dec.toFixed(4)}|${radius.toFixed(4)}`;
+    if (!options?.force && lookupKey === this.lastNearbyLookupKey) {
       return;
     }
 
@@ -751,12 +873,14 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.nearbyLookupTimer = setTimeout(() => {
-      this.lastNearbyLookupKey = lookupKey;
       this.viewerApi.getNearbyLabels(state.ra, state.dec, radius, 16).subscribe({
         next: (labels) => {
+          this.lastNearbyLookupKey = lookupKey;
           this.catalogLabels = this.selectNearbyLabels(labels);
         },
         error: () => {
+          // Keep retries available when provider/network is temporarily unavailable.
+          this.lastNearbyLookupKey = '';
           this.catalogLabels = [];
         },
       });
@@ -767,8 +891,15 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     return Number(Math.max(0.02, Math.min(0.2, state.fov * 0.15)).toFixed(4));
   }
 
-  private selectNearbyLabels(labels: NearbyCatalogLabelModel[]): NearbyCatalogLabelModel[] {
-    const highConfidence = labels
+  private selectNearbyLabels(labels: NearbyCatalogLabelModel[] | { data?: NearbyCatalogLabelModel[] } | null | undefined): NearbyCatalogLabelModel[] {
+    // Ensure labels is an array (API may return {data: [...]} or direct array)
+    const labelsArray = Array.isArray(labels) ? labels : (labels?.data ?? []);
+    
+    if (!Array.isArray(labelsArray)) {
+      return [];
+    }
+
+    const highConfidence = labelsArray
       .filter((label) => label.confidence >= 0.5 && Number.isFinite(label.angular_distance_deg))
       .sort((a, b) => a.angular_distance_deg - b.angular_distance_deg);
 
@@ -776,7 +907,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       return highConfidence.slice(0, 8);
     }
 
-    return labels
+    return labelsArray
       .filter((label) => Number.isFinite(label.angular_distance_deg))
       .sort((a, b) => a.angular_distance_deg - b.angular_distance_deg)
       .slice(0, 5);
@@ -882,6 +1013,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.zoomEventCount = 0;
     await this.initializeAladin();
     this.syncAladinFromForm();
+    this.scheduleNearbyLabelLookup(this.currentState(), { force: true });
     if (this.gridToggleStartedAt !== null && isPlatformBrowser(this.platformId)) {
       this.logViewerEvent('grid_toggle_applied', {
         enabled: this.gridOverlayEnabled,
@@ -892,8 +1024,13 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private resetLabelLookupGate(): void {
-    this.hasUserZoomedIn = false;
-    this.initialFovForLabels = Number(this.stateForm.value.fov);
+    // Preserve zoom flag if it's already been set (don't reset on toolbar actions)
+    const preserveZoom = this.hasUserZoomedIn;
+    this.hasUserZoomedIn = preserveZoom;
+    // Only reset initialFov if we're not preserving zoom state
+    if (!preserveZoom) {
+      this.initialFovForLabels = Number(this.stateForm.value.fov);
+    }
     this.catalogLabels = [];
     this.lastNearbyLookupKey = '';
     this.zoomEventCount = 0;

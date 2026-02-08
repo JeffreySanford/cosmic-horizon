@@ -261,6 +261,47 @@ describe('ViewerComponent', () => {
     expect(component.labels[0]?.name).toBe('Center Match');
   });
 
+  it('hides center label when overlay is toggled off and restores it after lookup when toggled on', async () => {
+    vi.useFakeTimers();
+    component.stateForm.patchValue({ ra: 219.91, dec: -60.84, fov: 0.5 });
+    (component as unknown as { hasUserZoomedIn: boolean }).hasUserZoomedIn = true;
+    viewerApiService.getNearbyLabels.mockReturnValue(
+      of([
+        {
+          name: 'Center Match',
+          ra: 219.91,
+          dec: -60.84,
+          object_type: 'Star',
+          angular_distance_deg: 0.01,
+          confidence: 0.92,
+        },
+      ]),
+    );
+
+    component.catalogLabels = [
+      {
+        name: 'Center Match',
+        ra: 219.91,
+        dec: -60.84,
+        object_type: 'Star',
+        angular_distance_deg: 0.01,
+        confidence: 0.92,
+      },
+    ];
+    expect(component.centerCatalogLabel?.name).toBe('Center Match');
+
+    component.toggleLabelsOverlay(false);
+    expect(component.centerCatalogLabel).toBeNull();
+    expect(component.catalogLabels).toEqual([]);
+
+    component.toggleLabelsOverlay(true);
+    await vi.advanceTimersByTimeAsync(1000);
+    await fixture.whenStable();
+
+    expect(viewerApiService.getNearbyLabels).toHaveBeenCalled();
+    expect(component.centerCatalogLabel?.name).toBe('Center Match');
+  });
+
   it('clears stale catalog labels immediately when center moves', () => {
     component.catalogLabels = [
       {

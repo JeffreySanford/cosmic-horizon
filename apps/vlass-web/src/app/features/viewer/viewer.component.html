@@ -8,7 +8,7 @@
   <div class="viewer-shell">
     <section class="viewer-canvas-panel">
       <div class="aladin-stage">
-        <div #aladinHost class="aladin-host" aria-label="Aladin sky viewer"></div>
+        <div #aladinHost class="aladin-host" aria-label="Aladin sky viewer" (mousemove)="onCanvasMouseMove($event)"></div>
         <div class="center-indicator" aria-hidden="true">
           <span class="crosshair"></span>
           @if (centerCatalogLabel) {
@@ -18,15 +18,24 @@
           }
         </div>
         <div class="viewer-overlay-controls">
-          <label class="viewer-toggle" for="grid-overlay-toggle">
-            <input
-              id="grid-overlay-toggle"
-              type="checkbox"
-              [checked]="gridOverlayEnabled"
-              (change)="onGridOverlayToggle($event)"
-            />
-            <span>Grid</span>
-          </label>
+          <mat-slide-toggle
+            [checked]="gridOverlayEnabled"
+            (change)="toggleGridOverlay($any($event).checked)"
+            color="primary">
+            Grid
+          </mat-slide-toggle>
+          <mat-slide-toggle
+            [checked]="labelsOverlayEnabled"
+            (change)="toggleLabelsOverlay($any($event).checked)"
+            color="primary">
+            Labels
+          </mat-slide-toggle>
+          <mat-slide-toggle
+            [checked]="pdssColorEnabled"
+            (change)="togglePdssColor($any($event).checked)"
+            color="accent">
+            P/DSS2 Color
+          </mat-slide-toggle>
         </div>
       </div>
       @if (nativeResolutionHint) {

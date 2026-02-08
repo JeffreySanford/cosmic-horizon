@@ -5,9 +5,10 @@
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import express from 'express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 import session from 'express-session';
 import * as passportImport from 'passport';
@@ -48,6 +49,25 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);
+    const openApiConfig = new DocumentBuilder()
+      .setTitle('VLASS Portal API')
+      .setDescription('VLASS browsing and community portal API')
+      .setVersion('1.0.0')
+      .addBearerAuth()
+      .build();
+    const openApiDocument = SwaggerModule.createDocument(app, openApiConfig);
+    if (process.env['GENERATE_OPENAPI_SPEC'] === 'true') {
+      const outputPath = resolve(process.cwd(), 'documentation', 'api', 'openapi.json');
+      mkdirSync(resolve(process.cwd(), 'documentation', 'api'), { recursive: true });
+      writeFileSync(outputPath, JSON.stringify(openApiDocument, null, 2), 'utf8');
+      await app.close();
+      Logger.log(`OpenAPI spec generated at ${outputPath}`);
+      return;
+    }
+    SwaggerModule.setup(`${globalPrefix}/docs`, app, openApiDocument);
+    app.getHttpAdapter().get(`/${globalPrefix}/openapi.json`, (_req: unknown, res: { json: (body: unknown) => void }) => {
+      res.json(openApiDocument);
+    });
     const snapshotDir = resolveApiRootDir('storage', 'snapshots');
     app.use(`/${globalPrefix}/view/snapshots`, express.static(snapshotDir));
     app.use(

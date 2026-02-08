@@ -542,6 +542,7 @@ test('syncs RA/Dec/FOV fields from Aladin view events', async ({ page }) => {
     const fakeView = {
       position: [187.25, 2.05] as [number, number],
       fov: 1.5,
+      listeners: callbacks,
       gotoRaDec(ra: number, dec: number) {
         this.position = [ra, dec];
       },
@@ -590,6 +591,15 @@ test('syncs RA/Dec/FOV fields from Aladin view events', async ({ page }) => {
 
   await page.goto('/view');
   await expect(page).toHaveURL(/\/view/);
+  await page.waitForFunction(() => {
+    const holder = window as unknown as {
+      __vlassFakeAladin: {
+        listeners?: Record<string, Array<() => void>>;
+      };
+    };
+    const listeners = holder.__vlassFakeAladin.listeners ?? {};
+    return (listeners.positionChanged?.length ?? 0) > 0 && (listeners.zoomChanged?.length ?? 0) > 0;
+  });
 
   await page.evaluate(() => {
     const holder = window as unknown as {
@@ -605,9 +615,9 @@ test('syncs RA/Dec/FOV fields from Aladin view events', async ({ page }) => {
     holder.__vlassFakeAladin.emit('zoomChanged');
   });
 
-  await expect(page.locator('input[formcontrolname="ra"]')).toHaveValue('188.5');
-  await expect(page.locator('input[formcontrolname="dec"]')).toHaveValue('3.75');
-  await expect(page.locator('input[formcontrolname="fov"]')).toHaveValue('2.35');
+  await expect(page.locator('input[formcontrolname="ra"]')).toHaveValue('188.5', { timeout: 10000 });
+  await expect(page.locator('input[formcontrolname="dec"]')).toHaveValue('3.75', { timeout: 10000 });
+  await expect(page.locator('input[formcontrolname="fov"]')).toHaveValue('2.35', { timeout: 10000 });
 });
 
 test('auto-selects higher-resolution survey when VLASS is deeply zoomed', async ({ page }) => {

@@ -48,3 +48,9 @@ __screenshots__/
 test-output
 
 vitest.config.*.timestamp*
+
+# local env files (keep examples only)
+.env*.local
+
+# logs
+*.log

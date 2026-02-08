@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 const MATERIAL_MODULES = [
   MatToolbarModule,
@@ -23,6 +24,7 @@ const MATERIAL_MODULES = [
   MatSnackBarModule,
   MatDividerModule,
   MatListModule,
+  MatSlideToggleModule,
 ];
 
 @NgModule({

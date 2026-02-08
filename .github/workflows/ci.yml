@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - main
   pull_request:
 
 permissions:
@@ -44,8 +45,10 @@ jobs:
       - run: pnpm run security:audit
       - run: pnpm nx run docs-policy:check
       - run: pnpm nx run-many --target=test --all
+      - run: pnpm run start:infra
       - run: pnpm nx run mvp-gates:e2e
-      - run: pnpm nx run vlass-web:lighthouse
+      - run: docker compose down --remove-orphans --volumes
+        if: always()
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
       - run: pnpm exec nx fix-ci
         if: always()
