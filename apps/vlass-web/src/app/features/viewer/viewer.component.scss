@@ -20,14 +20,14 @@
   max-width: 360px;
   margin-top: 0.25em;
   margin-bottom: 0.25em;
-  height: 30px;
+  height: 33px;
 }
 
 :host ::ng-deep .target-search .mat-mdc-text-field-wrapper {
   background: transparent !important;
   box-shadow: none;
   border: 1px solid rgba(238, 201, 118, 0.45);
-  height: 30px;
+  height: 33px;
   --mdc-outlined-text-field-input-text-color: #f7e8bb;
   --mdc-outlined-text-field-caret-color: #ffd166;
   --mdc-outlined-text-field-label-text-color: rgba(238, 201, 118, 0.9);
@@ -50,24 +50,25 @@
 
 :host ::ng-deep .target-search .mat-mdc-form-field-flex {
   align-items: center;
-  min-height: 30px;
+  min-height: 33px;
 }
 
 :host ::ng-deep .target-search .mat-mdc-form-field-infix {
-  padding-top: 2px;
-  padding-bottom: 2px;
-  min-height: 30px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  min-height: 33px;
 }
 
 :host ::ng-deep .target-search .mdc-text-field {
   background: transparent !important;
-  min-height: 30px;
+  min-height: 33px;
 }
 
 :host ::ng-deep .target-search .mdc-text-field__input {
   background: transparent !important;
   color: #f7e8bb !important;
   caret-color: #ffd166 !important;
+  font-size: 0.93rem;
 }
 
 :host ::ng-deep .target-search .mdc-text-field--focused .mdc-notched-outline__leading,
