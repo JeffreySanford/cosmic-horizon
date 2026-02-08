@@ -10,6 +10,46 @@
 .viewer-toolbar {
   background: rgba(12, 18, 34, 0.88);
   border-bottom: 1px solid rgba(238, 201, 118, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.target-search {
+  min-width: 260px;
+  max-width: 360px;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  height: 32px;
+}
+
+:host ::ng-deep .target-search .mat-mdc-text-field-wrapper {
+  background: transparent !important;
+  box-shadow: none;
+  border: 1px solid rgba(238, 201, 118, 0.45);
+}
+
+:host ::ng-deep .target-search .mdc-notched-outline__leading,
+:host ::ng-deep .target-search .mdc-notched-outline__notch,
+:host ::ng-deep .target-search .mdc-notched-outline__trailing {
+  border-color: rgba(238, 201, 118, 0.45) !important;
+}
+
+:host ::ng-deep .target-search .mat-mdc-form-field-focus-overlay {
+  background: transparent !important;
+}
+
+:host ::ng-deep .target-search .mdc-text-field--focused .mdc-notched-outline__leading,
+:host ::ng-deep .target-search .mdc-text-field--focused .mdc-notched-outline__notch,
+:host ::ng-deep .target-search .mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: rgba(238, 201, 118, 0.9) !important;
+  box-shadow: none;
+}
+
+:host ::ng-deep .target-search .mdc-text-field__input {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  height: 22px;
 }
 
 .brand {

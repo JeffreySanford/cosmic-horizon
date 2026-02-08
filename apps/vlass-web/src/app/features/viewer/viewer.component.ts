@@ -13,9 +13,9 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, from, interval, merge, of, startWith, switchMap } from 'rxjs';
+import { catchError, defer, from, interval, map, merge, of, startWith, switchMap, tap } from 'rxjs';
 import {
   CutoutTelemetryModel,
   NearbyCatalogLabelModel,
@@ -45,6 +45,7 @@ interface AladinListenerPayload {
 
 interface AladinView {
   gotoRaDec(ra: number, dec: number): void;
+  gotoObject?(objectName: string): Promise<void> | void;
   setFoV(fov: number): void;
   setImageSurvey?(survey: string): void;
   setBaseImageLayer?(survey: string): void;
@@ -77,6 +78,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   shortId = '';
   permalink = '';
   statusMessage = '';
+  targetQuery = '';
   loadingPermalink = false;
   savingSnapshot = false;
   labelDraft = '';
@@ -126,6 +128,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly tilePrefetch = inject(HipsTilePrefetchService);
   private readonly appLogger = inject(AppLoggerService);
   private readonly authSessionService = inject(AuthSessionService);
+  private readonly http = inject(HttpClient);
   private readonly labelsStorageKey = 'vlass.viewer.labels.v1';
 
   constructor() {
@@ -420,6 +423,118 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.addCatalogLabelAsAnnotation(centerLabel);
+  }
+
+  searchTarget(): void {
+    const query = this.targetQuery.trim();
+    if (!query) {
+      this.statusMessage = 'Enter a target name to center the view.';
+      return;
+    }
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.statusMessage = `Resolving "${query}"...`;
+    this.appLogger.info('viewer', 'target_search_requested', { query });
+
+    of(query)
+      .pipe(
+        switchMap((target) => this.tryGotoWithAladin$(target)),
+        switchMap((aladinSuccess) =>
+          aladinSuccess
+            ? of<'aladin' | { ra: number; dec: number }>('aladin')
+            : this.resolveWithSkybot$(query),
+        ),
+        tap((result) => {
+          if (result === 'aladin') {
+            this.statusMessage = `Centered on "${query}".`;
+            this.appLogger.info('viewer', 'target_search_resolved_aladin', { query });
+          } else if (result && typeof result === 'object') {
+            this.stateForm.patchValue(
+              { ra: Number(result.ra.toFixed(4)), dec: Number(result.dec.toFixed(4)) },
+              { emitEvent: true },
+            );
+            this.statusMessage = `Centered on "${query}" via SkyBot.`;
+            this.appLogger.info('viewer', 'target_search_resolved_skybot', { query, ...result });
+          } else {
+            this.statusMessage = `Could not resolve "${query}".`;
+            this.appLogger.warn('viewer', 'target_search_failed', { query });
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  private tryGotoWithAladin$(query: string) {
+    if (!this.aladinView || typeof this.aladinView.gotoObject !== 'function') {
+      return of(false);
+    }
+
+    return defer(() => {
+      try {
+        const maybe = this.aladinView?.gotoObject?.(query);
+        const finish = () => {
+          const aladin = this.aladinView;
+          if (!aladin) {
+            return false;
+          }
+          const [ra, dec] = aladin.getRaDec();
+          this.stateForm.patchValue(
+            { ra: Number(ra.toFixed(4)), dec: Number(dec.toFixed(4)) },
+            { emitEvent: true },
+          );
+          return true;
+        };
+        if (maybe && typeof (maybe as Promise<unknown>).then === 'function') {
+          return from(maybe as Promise<unknown>).pipe(
+            map(() => finish()),
+            catchError(() => of(false)),
+          );
+        }
+        return of(finish());
+      } catch {
+        return of(false);
+      }
+    });
+  }
+
+  private resolveWithSkybot$(name: string) {
+    const url = `https://ssp.imcce.fr/webservices/ssodnet/api/ephem?name=${encodeURIComponent(
+      name,
+    )}&type=EQ&epoch=now&output=json`;
+    type SkybotResponse = {
+      result?: {
+        ra?: number;
+        dec?: number;
+        RA?: number;
+        DEC?: number;
+      };
+      ra?: number;
+      dec?: number;
+      RA?: number;
+      DEC?: number;
+    };
+
+    return this.http.get<SkybotResponse>(url).pipe(
+      map((response) => {
+        if (!response) {
+          return null;
+        }
+        const ra = Number(response.result?.ra ?? response.result?.RA ?? response.ra ?? response.RA);
+        const dec = Number(response.result?.dec ?? response.result?.DEC ?? response.dec ?? response.DEC);
+        if (Number.isFinite(ra) && Number.isFinite(dec)) {
+          if (this.aladinView?.gotoRaDec) {
+            this.aladinView.gotoRaDec(ra, dec);
+          }
+          return { ra, dec };
+        }
+        return null;
+      }),
+      catchError(() => of(null)),
+    );
   }
 
   logCatalogHover(label: NearbyCatalogLabelModel): void {

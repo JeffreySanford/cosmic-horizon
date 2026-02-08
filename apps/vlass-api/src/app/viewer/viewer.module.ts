@@ -6,9 +6,10 @@ import { ViewerSnapshot } from '../entities/viewer-snapshot.entity';
 import { RateLimitGuard } from '../guards/rate-limit.guard';
 import { ViewerController } from './viewer.controller';
 import { ViewerService } from './viewer.service';
+import { LoggingModule } from '../logging/logging.module';
 
 @Module({
-  imports: [DatabaseModule, TypeOrmModule.forFeature([ViewerState, ViewerSnapshot])],
+  imports: [DatabaseModule, LoggingModule, TypeOrmModule.forFeature([ViewerState, ViewerSnapshot])],
   controllers: [ViewerController],
   providers: [ViewerService, RateLimitGuard],
   exports: [ViewerService],

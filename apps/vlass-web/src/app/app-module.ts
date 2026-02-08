@@ -11,6 +11,7 @@ import { App } from './app';
 import { appRoutes } from './app.routes';
 import { MaterialModule } from './shared/material/material.module';
 import { AuthTokenInterceptor } from './interceptors/auth-token.interceptor';
+import { HttpLoggerInterceptor } from './interceptors/http-logger.interceptor';
 
 @NgModule({
   declarations: [App],
@@ -27,6 +28,11 @@ import { AuthTokenInterceptor } from './interceptors/auth-token.interceptor';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthTokenInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpLoggerInterceptor,
       multi: true,
     },
   ],

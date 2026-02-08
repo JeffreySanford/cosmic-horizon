@@ -6,12 +6,14 @@ import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ViewerApiService, ViewerStateModel } from './viewer-api.service';
 import { ViewerComponent } from './viewer.component';
 import { AuthSessionService } from '../../services/auth-session.service';
 
 interface MockAladinView {
   gotoRaDec: ReturnType<typeof vi.fn>;
+  gotoObject?: ReturnType<typeof vi.fn>;
   setFoV: ReturnType<typeof vi.fn>;
   setImageSurvey: ReturnType<typeof vi.fn>;
   getFov: ReturnType<typeof vi.fn>;
@@ -88,7 +90,7 @@ describe('ViewerComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [ViewerComponent],
-      imports: [FormsModule, ReactiveFormsModule, RouterTestingModule, NoopAnimationsModule],
+      imports: [FormsModule, ReactiveFormsModule, RouterTestingModule, NoopAnimationsModule, HttpClientTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         {
@@ -259,6 +261,61 @@ describe('ViewerComponent', () => {
     expect(component.centerCatalogLabel?.name).toBe('Center Match');
     component.addCenterCatalogLabelAsAnnotation();
     expect(component.labels[0]?.name).toBe('Center Match');
+  });
+
+  it('searchTarget uses Aladin gotoObject when available', async () => {
+    const viewerWithAladin = component as unknown as { aladinView: MockAladinView | null };
+    const originalAladin = viewerWithAladin.aladinView;
+    viewerWithAladin.aladinView = {
+      gotoObject: vi.fn().mockResolvedValue(void 0),
+      getRaDec: vi.fn().mockReturnValue([42.1234, -12.5678]),
+      gotoRaDec: vi.fn(),
+      setFoV: vi.fn(),
+      setImageSurvey: vi.fn(),
+      getFov: vi.fn().mockReturnValue(1.5),
+      getViewDataURL: vi.fn(),
+      on: vi.fn(),
+    };
+    component.targetQuery = 'M31';
+
+    await component.searchTarget();
+
+    const view = viewerWithAladin.aladinView as MockAladinView;
+    expect(view.gotoObject).toHaveBeenCalledWith('M31');
+    expect(component.stateForm.value.ra).toBeCloseTo(42.1234, 3);
+    expect(component.stateForm.value.dec).toBeCloseTo(-12.5678, 3);
+    viewerWithAladin.aladinView = originalAladin;
+  });
+
+  it('searchTarget falls back to SkyBot when Aladin resolver fails', async () => {
+    const viewerWithAladin = component as unknown as { aladinView: MockAladinView | null };
+    const originalAladin = viewerWithAladin.aladinView;
+    viewerWithAladin.aladinView = {
+      gotoObject: vi.fn().mockRejectedValue(new Error('fail')),
+      getRaDec: vi.fn().mockReturnValue([0, 0]),
+      gotoRaDec: vi.fn(),
+      setFoV: vi.fn(),
+      setImageSurvey: vi.fn(),
+      getFov: vi.fn().mockReturnValue(1.5),
+      getViewDataURL: vi.fn(),
+      on: vi.fn(),
+    };
+    const resolveSpy = vi
+      .spyOn(
+        component as unknown as {
+          resolveWithSkybot$: (name: string) => typeof import('rxjs').Observable<{ ra: number; dec: number } | null>;
+        },
+        'resolveWithSkybot$',
+      )
+      .mockReturnValue(of({ ra: 100.1234, dec: -5.6789 }));
+    component.targetQuery = 'Venus';
+
+    await component.searchTarget();
+
+    expect(resolveSpy).toHaveBeenCalledWith('Venus');
+    expect(component.stateForm.value.ra).toBeCloseTo(100.1234, 3);
+    expect(component.stateForm.value.dec).toBeCloseTo(-5.6789, 3);
+    viewerWithAladin.aladinView = originalAladin;
   });
 
   it('hides center label when overlay is toggled off and restores it after lookup when toggled on', async () => {

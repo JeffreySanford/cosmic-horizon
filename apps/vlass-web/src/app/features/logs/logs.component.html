@@ -1,36 +1,86 @@
 <section class="logs-page">
   <mat-toolbar color="primary" class="logs-toolbar">
-    <span>Logger</span>
+    <button mat-icon-button class="home-button" aria-label="Home" [routerLink]="['/']">
+      <mat-icon>home</mat-icon>
+    </button>
+    <span class="toolbar-title">Logger</span>
     <span class="spacer"></span>
-    <button mat-stroked-button type="button" (click)="refresh()">Refresh</button>
+    <span class="entry-count">{{ filteredEntries }} / {{ totalEntries }}</span>
   </mat-toolbar>
 
   <mat-card class="logs-card">
-    <mat-card-header>
-      <mat-card-title>Recent App Events</mat-card-title>
-      <mat-card-subtitle>{{ entries.length }} entries in local runtime buffer</mat-card-subtitle>
-    </mat-card-header>
-
+    <h2 class="sr-only">Logger</h2>
     <mat-card-content>
-      @if (entries.length === 0) {
+      <div class="level-tiles">
+        @for (tile of tiles; track tile.id) {
+          <button
+            mat-stroked-button
+            type="button"
+            class="level-tile"
+            [class.active]="selectedFilter === tile.id"
+            [class.tile-debug]="tile.id === 'verbose'"
+            [class.tile-info]="tile.id === 'info'"
+            [class.tile-warn]="tile.id === 'warnings'"
+            [class.tile-error]="tile.id === 'errors'"
+            (click)="setFilter(tile.id)"
+          >
+            <span class="tile-label">{{ tile.label }}</span>
+            <span class="tile-count">{{ tile.count }}</span>
+          </button>
+        }
+      </div>
+
+      @if (filteredEntries === 0) {
         <p class="empty-state">No events captured yet.</p>
       } @else {
-        <mat-list>
-          @for (entry of entries; track trackByEntry($index, entry)) {
-            <mat-list-item>
-              <div class="entry-row">
-                <span class="entry-ts">{{ entry.at }}</span>
-                <span class="entry-level">{{ entry.level.toUpperCase() }}</span>
-                <span class="entry-area">{{ entry.area }}</span>
-                <span class="entry-event">{{ entry.event }}</span>
-              </div>
-              @if (entry.details) {
-                <pre class="entry-details">{{ entry.details | json }}</pre>
-              }
-            </mat-list-item>
-            <mat-divider></mat-divider>
-          }
-        </mat-list>
+        <div class="table-shell">
+          <table mat-table [dataSource]="dataSource" matSort matSortActive="at" matSortDirection="desc" class="logs-table">
+            <ng-container matColumnDef="at">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Timestamp</th>
+              <td mat-cell *matCellDef="let row">{{ row.at | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="level">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Level</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="level-badge" [class]="'level-badge ' + row.level">{{ levelLabel(row.level) }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="area">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Area</th>
+              <td mat-cell *matCellDef="let row">{{ row.area }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="event">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Event</th>
+              <td mat-cell *matCellDef="let row">{{ row.event }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="message">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Message</th>
+              <td mat-cell *matCellDef="let row">{{ row.message }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+              <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="user">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>User</th>
+              <td mat-cell *matCellDef="let row">{{ row.user }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="context">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Context</th>
+              <td mat-cell *matCellDef="let row">{{ row.context }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" [class]="'level-' + row.level"></tr>
+          </table>
+        </div>
       }
     </mat-card-content>
   </mat-card>

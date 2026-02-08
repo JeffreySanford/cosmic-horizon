@@ -8,7 +8,7 @@
     "start:ports:free": "node scripts/ensure-ports-free.mjs",
     "start:infra:check": "node scripts/ensure-docker-ready.mjs",
     "start:infra": "pnpm run start:infra:check && docker compose down --remove-orphans --volumes && docker compose build --pull && docker compose up -d --wait",
-    "start:all": "pnpm run start:ports:free && pnpm run start:infra && pnpm run start:ports:free && nx run-many --target=serve --projects=vlass-web,vlass-api --parallel=2",
+    "start:all": "pnpm run start:ports:free && pnpm run start:infra && pnpm run start:ports:free && nx run-many --target=serve --projects=vlass-web,vlass-api --parallel=2 --skip-nx-cache",
     "start": "pnpm start:web",
     "test": "nx run-many --target=test --all",
     "test:web": "nx test vlass-web",

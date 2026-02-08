@@ -13,3 +13,6 @@ This file mirrors `documentation/CODING-STANDARDS.md`.
 ## Note
 
 Any contradictory standards in historical docs are superseded by the files above.
+
+## RxJS Preference
+- Favor observables (hot/live where practical) instead of ad-hoc Promises for UI and service flows; keep stream lifecycles explicit.

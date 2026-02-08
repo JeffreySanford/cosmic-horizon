@@ -12,6 +12,7 @@ Canonical MVP docs:
 
 - `documentation/PRODUCT-CHARTER.md`
 - `SCOPE-LOCK.md`
+- `documentation/OVERVIEW-V2.md`
 
 If any other doc conflicts, treat those two as source of truth.
 
@@ -80,6 +81,7 @@ pnpm nx run mvp-gates:e2e
 - `documentation/AFFILIATION.md`
 - `documentation/ENV.md`
 - `documentation/DEMO.md`
+- `documentation/OVERVIEW-V2.md`
 - `documentation/TESTING-STRATEGY.md`
 - `documentation/ROADMAP.md`
 - `TODO.md`

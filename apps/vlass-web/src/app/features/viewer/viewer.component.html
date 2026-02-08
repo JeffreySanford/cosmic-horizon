@@ -2,6 +2,18 @@
   <mat-toolbar color="primary" class="viewer-toolbar">
     <span class="brand">Mode A Viewer</span>
     <span class="spacer"></span>
+    <mat-form-field appearance="outline" class="target-search">
+      <mat-label>Search target</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="targetQuery"
+        [ngModelOptions]="{ standalone: true }"
+        (keyup.enter)="searchTarget()" />
+      <button mat-icon-button matSuffix type="button" aria-label="Search" (click)="searchTarget()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
     <a mat-flat-button routerLink="/landing">Back to landing</a>
   </mat-toolbar>
 

@@ -8,6 +8,7 @@ Canonical scope: `documentation/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md`.
 - Keep TypeScript strict and testable
 - Prefer simple module boundaries
 - Keep docs consistent with `libs/shared/models` contracts
+- Favor RxJS observables (hot/live streams) over ad-hoc Promises for UI + service flows; keep request/stream lifecycles explicit.
 
 ## MVP Boundaries in Code
 - Viewer Mode A only

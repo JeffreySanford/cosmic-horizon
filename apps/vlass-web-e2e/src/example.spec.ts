@@ -278,7 +278,7 @@ test('allows admin user to open logs when backend confirms admin role', async ({
 
   await page.getByRole('button', { name: 'Logs' }).click();
   await expect(page).toHaveURL(/\/logs/);
-  await expect(page.getByText('Recent App Events')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Logger' })).toBeVisible();
 });
 
 test('creates viewer permalink and snapshot from pillar 2 flow', async ({ page }) => {

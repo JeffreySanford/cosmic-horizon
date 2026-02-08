@@ -20,6 +20,7 @@ import { AuditLogRepository } from '../repositories';
 import { CreateViewerSnapshotDto } from './dto/create-viewer-snapshot.dto';
 import { ViewerStatePayload } from './dto/create-viewer-state.dto';
 import { ViewerCutoutRequest } from './dto/viewer-cutout.dto';
+import { LoggingService } from '../logging/logging.service';
 
 const BASE62_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
@@ -131,6 +132,7 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     @InjectRepository(ViewerSnapshot)
     private readonly viewerSnapshotRepository: Repository<ViewerSnapshot>,
     private readonly auditLogRepository: AuditLogRepository,
+    private readonly loggingService: LoggingService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -1030,9 +1032,17 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
 
     try {
       const value = await this.redisClient.getBuffer(this.redisKey(rawKey));
-      return value ?? null;
-    } catch {
+      if (!value) {
+        this.logRedis('redis_miss', { key: rawKey });
+        return null;
+      }
+      this.logRedis('redis_hit', { key: rawKey, bytes: value.length });
+      return value;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(`Redis buffer get failed (${message}); disabling redis cache.`);
       this.redisEnabled = false;
+      this.logRedis('redis_error', { key: rawKey, message });
       return null;
     }
   }
@@ -1044,8 +1054,12 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
 
     try {
       await this.redisClient.set(this.redisKey(rawKey), value, 'PX', ttlMs);
-    } catch {
+      this.logRedis('redis_set', { key: rawKey, bytes: value.length, ttl_ms: ttlMs });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(`Redis buffer set failed (${message}); disabling redis cache.`);
       this.redisEnabled = false;
+      this.logRedis('redis_error', { key: rawKey, message });
     }
   }
 
@@ -1057,11 +1071,16 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     try {
       const raw = await this.redisClient.get(this.redisKey(rawKey));
       if (!raw) {
+        this.logRedis('redis_miss', { key: rawKey });
         return null;
       }
+      this.logRedis('redis_hit', { key: rawKey, bytes: raw.length });
       return JSON.parse(raw) as T;
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(`Redis json get failed (${message}); disabling redis cache.`);
       this.redisEnabled = false;
+      this.logRedis('redis_error', { key: rawKey, message });
       return null;
     }
   }
@@ -1073,9 +1092,24 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
 
     try {
       await this.redisClient.set(this.redisKey(rawKey), JSON.stringify(value), 'PX', ttlMs);
-    } catch {
+      this.logRedis('redis_set', { key: rawKey, ttl_ms: ttlMs });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(`Redis json set failed (${message}); disabling redis cache.`);
       this.redisEnabled = false;
+      this.logRedis('redis_error', { key: rawKey, message });
     }
+  }
+
+  private logRedis(event: string, details: Record<string, string | number | boolean | null>): void {
+    const payload = { event, correlation_id: '272762e810cea2de53a2f', ...details };
+    this.logger.log(JSON.stringify(payload));
+    void this.loggingService.add({
+      type: 'redis',
+      severity: event === 'redis_error' ? 'warn' : 'info',
+      message: event,
+      data: payload,
+    });
   }
 
   private markCutoutSuccess(provider: 'primary' | 'secondary'): void {

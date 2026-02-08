@@ -8,6 +8,10 @@ import { DatabaseModule } from './database.module';
 import { AuthModule } from './auth/auth.module';
 import { ViewerModule } from './viewer/viewer.module';
 import { RateLimitGuard } from './guards/rate-limit.guard';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { RequestLoggerInterceptor } from './interceptors/request-logger.interceptor';
+import { AdminLogsController } from './controllers/admin-logs.controller';
+import { LoggingModule } from './logging/logging.module';
 
 const envCandidates = [
   resolve(process.cwd(), '.env.local'),
@@ -27,8 +31,16 @@ const envCandidates = [
     DatabaseModule,
     AuthModule,
     ViewerModule,
+    LoggingModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, RateLimitGuard],
+  controllers: [AppController, AdminLogsController],
+  providers: [
+    AppService,
+    RateLimitGuard,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RequestLoggerInterceptor,
+    },
+  ],
 })
 export class AppModule {}
