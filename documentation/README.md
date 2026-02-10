@@ -1,13 +1,41 @@
 # Documentation Map
 
-Status date: 2026-02-08
+Status date: 2026-02-10
 
-- Charter & scope: `documentation/PRODUCT-CHARTER.md`, `SCOPE-LOCK.md`
-- Current overview (V2): `documentation/OVERVIEW-V2.md`
-- Architecture snapshot: `documentation/ARCHITECTURE.md`
-- Environment contract: `documentation/ENV.md`
-- Demo flow: `documentation/DEMO.md`
-- Testing & quality gates: `documentation/TESTING-STRATEGY.md`, `documentation/ROADMAP.md`, `TODO.md`
-- Observability: `documentation/LOGGING.md`
-- Affiliation: `documentation/AFFILIATION.md`
-- Security: `SECURITY.md`
+## Entry Points
+
+- Repository overview: `README.md`
+- Docs overview (current architecture and status): `documentation/index/OVERVIEW-V2.md`
+- Product charter and scope lock: `documentation/product/PRODUCT-CHARTER.md`, `SCOPE-LOCK.md`
+
+## Folder Layout
+
+- `documentation/index/` - high-level overview docs
+- `documentation/product/` - charter and project identity
+- `documentation/architecture/` - runtime architecture, viewer strategy, protocol notes
+- `documentation/frontend/` - frontend architecture, controls, styling, error handling
+- `documentation/backend/` - API/auth/rbac/rate-limit/cache/backend design
+- `documentation/database/` - schema, migrations, TypeORM setup, SQL bootstrap/seed
+- `documentation/security/` - hardening, guardrails, audits, privacy/retention
+- `documentation/community/` - community moderation and collaboration model
+- `documentation/operations/` - environment config, quick start, demo, runtime logging
+- `documentation/quality/` - coding standards, testing strategy, test matrix
+- `documentation/governance/` - source-of-truth policy and status scorecard
+- `documentation/planning/roadmap/` - roadmap timeline
+- `documentation/planning/phases/` - Phase 2/3 planning docs
+- `documentation/planning/funding/` - funding and cost model
+- `documentation/planning/releases/` - release notes
+- `documentation/marketing/` - abstracts, outreach letters, and proposal scope docs
+- `documentation/reference/` - datasets and OpenAPI artifacts
+- `documentation/adr/` - architecture decision records
+- `documentation/setup/` - local docker/bootstrap setup
+
+## Fast Path
+
+- Start environment: `documentation/operations/QUICK-START.md`
+- Configure runtime: `documentation/operations/ENVIRONMENT-CONFIG.md`
+- Review architecture (technical): `documentation/architecture/TECHNICAL-ARCHITECTURE.md`
+- Review architecture (deep dive): `documentation/architecture/ARCHITECTURE.md`
+- Review auth and roles: `documentation/backend/AUTH-VERIFICATION.md`, `documentation/backend/RBAC-ROLES.md`
+- Review seeding behavior: `documentation/database/SEEDING-OPERATIONS.md`
+- Start conference/proposal materials: `documentation/marketing/README.md`

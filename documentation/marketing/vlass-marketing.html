@@ -1,0 +1,1812 @@
+<h1
+id="vlass-portal-scientific-operations-platform-for-radio-astronomy">VLASS
+Portal: Scientific Operations Platform for Radio Astronomy</h1>
+<h2 id="marketing-overview-product-vision">Marketing Overview &amp;
+Product Vision</h2>
+<p><strong>Version:</strong> 1.0<br />
+<strong>Date:</strong> February 2026<br />
+<strong>Status:</strong> Active (MVP Complete, Phases 2–3 Planning)</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#executive-summary">Executive Summary</a></li>
+<li><a href="#the-problem">The Problem</a></li>
+<li><a href="#the-solution">The Solution</a></li>
+<li><a href="#product-overview">Product Overview</a></li>
+<li><a href="#mvp-achievements">MVP Achievements</a></li>
+<li><a href="#phase-2-ai-integration-foundation">Phase 2: AI Integration
+Foundation</a></li>
+<li><a href="#phase-3-cosmicai-federation--ngvla-preparation">Phase 3:
+CosmicAI Federation &amp; ngVLA Preparation</a></li>
+<li><a href="#technical-architecture">Technical Architecture</a></li>
+<li><a href="#strategic-alignment--impact">Strategic Alignment &amp;
+Impact</a></li>
+<li><a href="#funding--investment-model">Funding &amp; Investment
+Model</a></li>
+<li><a href="#competitive-advantages">Competitive Advantages</a></li>
+<li><a href="#timeline--roadmap">Timeline &amp; Roadmap</a></li>
+<li><a href="#call-to-action">Call to Action</a></li>
+</ol>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p><strong>VLASS Portal</strong> is an open-source, web-native
+scientific operations platform for radio astronomy. It provides
+researchers with fast, intuitive access to massive astronomical datasets
+(VLASS), powerful tools for AI-assisted analysis, and infrastructure for
+publishing reproducible scientific findings.</p>
+<h3 id="what-it-does-in-one-sentence">What It Does (In One
+Sentence)</h3>
+<blockquote>
+<p>VLASS Portal transforms how radio astronomers explore, analyze, and
+share discoveries from the Very Large Array Sky Survey—combining instant
+visualization, AI-driven insights, collaborative notebooks, and
+reproducible research workflows in a single web application.</p>
+</blockquote>
+<h3 id="the-vision">The Vision</h3>
+<p><strong>Build the missing layer between cutting-edge ML research and
+operational scientific discovery:</strong></p>
+<ul>
+<li><p><strong>Today’s problem:</strong> Radio astronomy researchers
+have state-of-the-art AI models and petaflops of compute, but interact
+through Jupyter notebooks (2012-era UX). There’s no unified platform for
+orchestrating, auditing, and publishing AI-assisted analysis.</p></li>
+<li><p><strong>VLASS Portal’s solution:</strong> A modern web platform
+that brings world-class data exploration, AI orchestration,
+reproducibility, and scientific publishing into a single, intuitive
+interface.</p></li>
+<li><p><strong>Strategic opportunity:</strong> Position VLASS Portal as
+the control plane for the NSF-Simons CosmicAI Initiative and the
+operational backbone for the upcoming ngVLA (Next Generation Very Large
+Array) facility.</p></li>
+</ul>
+<h3 id="the-numbers">The Numbers</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+<th>Significance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MVP Completion</strong></td>
+<td>3 major pillars</td>
+<td>Ready for operations and community launch</td>
+</tr>
+<tr>
+<td><strong>Phase 2 Timeline</strong></td>
+<td>12–16 weeks</td>
+<td>AI inference + reproducibility foundation</td>
+</tr>
+<tr>
+<td><strong>Phase 3 Timeline</strong></td>
+<td>16–20 weeks</td>
+<td>Multi-site federation + TACC integration</td>
+</tr>
+<tr>
+<td><strong>Total Investment</strong></td>
+<td>$300K–$600K</td>
+<td>2–3 year path to national infrastructure</td>
+</tr>
+<tr>
+<td><strong>Target Users</strong></td>
+<td>15+ institutions</td>
+<td>NSF-affiliated research centers</td>
+</tr>
+<tr>
+<td><strong>Strategic Partners</strong></td>
+<td>CosmicAI, NRAO, TACC</td>
+<td>Decades-long facilities and initiatives</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-problem">The Problem</h2>
+<h3 id="radio-astronomy-data-explosion">Radio Astronomy Data
+Explosion</h3>
+<p>The Very Large Array (VLA) and next-generation facilities produce
+<strong>petabytes of data annually</strong>, but the astronomer’s
+experience of accessing and analyzing that data remains fragmented:</p>
+<pre class="mermaid"><code>graph LR
+    A[&quot;Petabytes of&lt;br/&gt;VLASS Data&quot;] --&gt;|&quot;HiPS tiles,&lt;br/&gt;FITS files&quot;| B[&quot;Separate&lt;br/&gt;Tools&quot;]
+    B --&gt; C[&quot;Tool 1:&lt;br/&gt;Aladin Viewer&lt;br/&gt;(desktop)&quot;]
+    B --&gt; D[&quot;Tool 2:&lt;br/&gt;Python&lt;br/&gt;Notebooks&lt;br/&gt;(Jupyter)&quot;]
+    B --&gt; E[&quot;Tool 3:&lt;br/&gt;Custom&lt;br/&gt;Scripts&lt;br/&gt;(bash/CLI)&quot;]
+    B --&gt; F[&quot;Tool 4:&lt;br/&gt;Email&lt;br/&gt;Collaboration&lt;br/&gt;(fragmented)&quot;]
+    
+    C --&gt; G{{&quot;Researcher&lt;br/&gt;Struggles&lt;br/&gt;With&quot;}}
+    D --&gt; G
+    E --&gt; G
+    F --&gt; G
+    
+    G --&gt;|&quot;Context switching&quot;| H[&quot;Low productivity&quot;]
+    G --&gt;|&quot;No audit trail&quot;| I[&quot;Reproducibility crisis&quot;]
+    G --&gt;|&quot;Manual sharing&quot;| J[&quot;Publication delays&quot;]</code></pre>
+<p><strong>[VISUAL SPECIFICATION: Replace above diagram with
+professional infographic showing:]</strong> - <strong>Left
+side:</strong> Data volume icons (VLASS, ALMA, ngVLA scales) -
+<strong>Center:</strong> Fragmented tool ecosystem (Aladin, IPython,
+Bash, Email) - <strong>Right side:</strong> Researcher pain points
+(context switching, no reproducibility, slow collaboration) -
+<strong>Color-code:</strong> Red for problems, green for desired
+state</p>
+<h3 id="the-cosmicai-gap">The CosmicAI Gap</h3>
+<p>The NSF-Simons CosmicAI Initiative is producing breakthrough
+algorithms:</p>
+<ul>
+<li><strong>Calibration anomaly detection</strong> (Eric Murphy, NSF
+NRAO)</li>
+<li><strong>AlphaCal autonomous interferometric processing</strong>
+(production-ready)</li>
+<li><strong>Hyperspectral event detection</strong> via transfer learning
+(Ce-Ci Xue)</li>
+<li><strong>Radio image reconstruction</strong> neural networks (Omkar
+Bait)</li>
+</ul>
+<p><strong>But:</strong> These models live in GitHub repositories and
+JupyterHub notebooks. They lack: - Enterprise-grade operational UI -
+Reproducibility frameworks - Governance and audit trails - Published
+workflows</p>
+<h3 id="the-ngvla-challenge-2030s">The ngVLA Challenge (2030s)</h3>
+<p>The Next Generation Very Large Array will deliver:</p>
+<ul>
+<li><strong>244 antennas</strong>, each 18 meters in diameter</li>
+<li><strong>Frequencies:</strong> 1.2 GHz to 116 GHz</li>
+<li><strong>Sensitivity:</strong> 10× greater than current VLA</li>
+<li><strong>Data rate:</strong> ~50 petabytes <em>per year</em></li>
+<li><strong>Compute requirement:</strong> <strong>50 petaFLOPS</strong>
+(100× current!)</li>
+</ul>
+<p><strong>The reality:</strong> Astronomers will need real-time
+operational dashboards, not notebooks. A platform that doesn’t exist
+today.</p>
+<hr />
+<h2 id="the-solution">The Solution</h2>
+<h3 id="vlass-portal-three-pillars-mvp-to-phase-3">VLASS Portal: Three
+Pillars (MVP to Phase 3)</h3>
+<pre class="mermaid"><code>graph TB
+    subgraph MVP[&quot;MVP (Complete)&quot;]
+        MVP1[&quot;Pillar 1:&lt;br/&gt;Instant&lt;br/&gt;Performance&quot;]
+        MVP2[&quot;Pillar 2:&lt;br/&gt;Viewer &amp;&lt;br/&gt;Sharing&quot;]
+        MVP3[&quot;Pillar 3:&lt;br/&gt;Community&lt;br/&gt;Notebooks&quot;]
+    end
+    
+    subgraph P2[&quot;Phase 2 (12-16 weeks)&quot;]
+        P2A[&quot;Pillar 1:&lt;br/&gt;AI Inference&lt;br/&gt;Service&quot;]
+        P2B[&quot;Pillar 2:&lt;br/&gt;Job&lt;br/&gt;Orchestration&quot;]
+        P2C[&quot;Pillar 3:&lt;br/&gt;Reproducibility&lt;br/&gt;Framework&quot;]
+        P2D[&quot;Pillar 4:&lt;br/&gt;Explainability&lt;br/&gt;UI&quot;]
+    end
+    
+    subgraph P3[&quot;Phase 3 (16-20 weeks)&quot;]
+        P3A[&quot;Pillar 1:&lt;br/&gt;Dataset&lt;br/&gt;Federation&quot;]
+        P3B[&quot;Pillar 2:&lt;br/&gt;TACC&lt;br/&gt;Integration&quot;]
+        P3C[&quot;Pillar 3:&lt;br/&gt;Multi-site&lt;br/&gt;Reproducibility&quot;]
+        P3D[&quot;Pillar 4:&lt;br/&gt;Explanation&lt;br/&gt;Aggregation&quot;]
+    end
+    
+    MVP1 --&gt; P2A
+    MVP2 --&gt; P2B
+    MVP3 --&gt; P2C
+    P2A --&gt; P3A
+    P2B --&gt; P3B
+    P2C --&gt; P3C
+    P2D --&gt; P3D</code></pre>
+<p><strong>[VISUAL SPECIFICATION: Professional pyramid or progression
+diagram showing:]</strong> - <strong>Base (MVP):</strong> Three pillars
+with icons (speed, viewer, notebooks) - <strong>Middle (Phase
+2):</strong> Four expansion pillars (inference, jobs, reproducibility,
+explainability) - <strong>Top (Phase 3):</strong> Federation and
+distribution (multi-site, TACC) - <strong>Animated arrows</strong>
+showing evolution and capability stacking</p>
+<hr />
+<h2 id="product-overview">Product Overview</h2>
+<h3 id="mvp-three-core-pillars-completed">MVP: Three Core Pillars
+(Completed)</h3>
+<h4 id="pillar-1-instant-ssr-first-paint"><strong>Pillar 1: Instant SSR
+First Paint</strong> ⚡</h4>
+<p>Users arrive and see a stunning, personalized VLASS sky preview in
+under <strong>1 second</strong>.</p>
+<p><strong>Features:</strong> - Server-side rendering (SSR) of regional
+VLASS imagery - Opt-in, privacy-conscious location detection (5km
+geohash precision) - FCP (First Contentful Paint) &lt;1s on 4G - LCP
+(Largest Contentful Paint) &lt;2s - Mobile + desktop optimized</p>
+<p><strong>Why it matters:</strong> First impression is everything.
+Users feel the product is fast and responsive <em>before</em> any
+JavaScript loads.</p>
+<hr />
+<h4 id="pillar-2-viewer-permalinks-snapshots"><strong>Pillar 2: Viewer +
+Permalinks + Snapshots</strong> 🔭</h4>
+<p>Seamless sky exploration with shareable links and persistent
+snapshots.</p>
+<p><strong>Features:</strong> - <strong>Aladin viewer
+integration</strong> (Mode A): pan, zoom, multi-layer overlays -
+<strong>ViewerState serialization</strong>: exact view encoded as
+<code>/view?state=&lt;hash&gt;</code> or
+<code>/view/&lt;shortid&gt;</code> - <strong>Snapshot capture</strong>:
+PNG export of current view with metadata - <strong>Permalink
+sharing</strong>: Share exact coordinates + zoom with colleagues -
+<strong>FITS cutout download</strong>: Rate-limited, audited science
+data export</p>
+<p><strong>Use case:</strong> Researcher spots interesting anomaly,
+captures snapshot, shares link with team. Team member loads exact view,
+adds annotation, publishes to community.</p>
+<hr />
+<h4 id="pillar-3-community-research-notebooks"><strong>Pillar 3:
+Community Research Notebooks</strong> 📓</h4>
+<p>Collaborative, version-controlled research publishing with embedded
+visualizations.</p>
+<p><strong>Features:</strong> - <strong>Markdown editor</strong> with
+embedded viewer blocks (e.g., <code>\</code>``viewer { … }````) -
+<strong>Auto-snapshotting</strong>: viewer blocks auto-render PNG
+previews on publish - <strong>Revision history &amp; diffs</strong>:
+track every edit, see what changed - <strong>Moderation
+controls</strong>: hide/lock/flag inappropriate content - <strong>Tag
+system</strong>: user-suggested, moderator-approved topic tags -
+<strong>Feed view</strong>: discover research from your community -
+<strong>Public read, verified write</strong>: anyone reads,
+authenticated users publish</p>
+<p><strong>Why it matters:</strong> Closes the loop between exploration
+(Pillar 2) and publishing. No context-switching to Medium, WordPress, or
+email.</p>
+<hr />
+<h3 id="mvp-architecture-lightweight-auditable-fast">MVP Architecture:
+Lightweight, Auditable, Fast</h3>
+<pre class="mermaid"><code>graph TB
+    subgraph User[&quot;User Experience Layer&quot;]
+        W[&quot;Angular SSR&lt;br/&gt;web app&quot;]
+        A[&quot;Aladin Viewer&lt;br/&gt;(Mode A only)&quot;]
+    end
+    
+    subgraph Backend[&quot;Backend Services (NestJS)&quot;]
+        AUTH[&quot;Auth&lt;br/&gt;+ Verification&quot;]
+        API[&quot;REST API&lt;br/&gt;Gateway&quot;]
+        POST[&quot;Post Service&lt;br/&gt;CRUD + Revision&quot;]
+        CACHE[&quot;Cache Layer&lt;br/&gt;Redis&quot;]
+    end
+    
+    subgraph Data[&quot;Data Layer&quot;]
+        PG[&quot;PostgreSQL&lt;br/&gt;(Posts, Users, Audit)&quot;]
+        FS[&quot;Filesystem/S3&lt;br/&gt;(Snapshots)&quot;]
+        EXT[&quot;External:&lt;br/&gt;VLASS HiPS,&lt;br/&gt;FITS&quot;]
+    end
+    
+    w --&gt;|&quot;Render&quot;| A
+    W --&gt;|&quot;API calls&quot;| API
+    API --&gt;|&quot;Verify&quot;| AUTH
+    API --&gt;|&quot;CRUD&quot;| POST
+    POST --&gt;|&quot;Cache&quot;| CACHE
+    CACHE --&gt;|&quot;Persist&quot;| PG
+    POST --&gt;|&quot;Store&quot;| FS
+    A --&gt;|&quot;Tile requests&quot;| EXT
+    
+    style W fill:#e1f5ff
+    style API fill:#fff3e0
+    style PG fill:#f3e5f5
+    style EXT fill:#e8f5e9</code></pre>
+<p><strong>[VISUAL SPECIFICATION: Professional system diagram
+with:]</strong> - <strong>Color coding:</strong> User layer (blue),
+Backend (orange), Data (purple), External (green) -
+<strong>Icons:</strong> Users, gears (services), databases -
+<strong>Data flow:</strong> Arrows showing request/response patterns -
+<strong>Callouts:</strong> Latency targets, availability SLAs, security
+checkpoints</p>
+<p><strong>Key Properties:</strong> - <strong>Stateless
+frontend</strong>: SSR for performance, client-aware for interactivity -
+<strong>Policy enforcement</strong>: All auth, RBAC, rate-limiting in
+backend - <strong>Audit-first design</strong>: Every action logged +
+attributed to user - <strong>Open data</strong>: No vendor lock-in,
+snapshots are portable PNGs, posts are markdown</p>
+<hr />
+<h2 id="mvp-achievements">MVP Achievements</h2>
+<h3 id="whats-done-status-complete">What’s Done (Status: ✅
+Complete)</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Pillar</th>
+<th>Component</th>
+<th>Status</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>SSR landing page with geohashed VLASS preview</td>
+<td>✅</td>
+<td>&lt;1s first paint on 4G</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>FCP/LCP performance benchmarking + CI gates</td>
+<td>✅</td>
+<td>Regression detection automated</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Aladin viewer integration (Mode A)</td>
+<td>✅</td>
+<td>Interactive sky browser</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>ViewerState serialization + permalinks</td>
+<td>✅</td>
+<td>Shareable exact views</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>PNG snapshot workflow</td>
+<td>✅</td>
+<td>Portable discovery snapshots</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>FITS cutout download (rate-limited)</td>
+<td>✅</td>
+<td>Science data export</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Post editor + markdown + viewer blocks</td>
+<td>✅</td>
+<td>Collaborative publishing</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Revision history + diff UI</td>
+<td>✅</td>
+<td>Auditability + attribution</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Moderation controls (hide/lock)</td>
+<td>✅</td>
+<td>Community governance</td>
+</tr>
+<tr>
+<td><strong>Foundations</strong></td>
+<td>Auth + verification gates</td>
+<td>✅</td>
+<td>Secure, trusted platform</td>
+</tr>
+<tr>
+<td><strong>Foundations</strong></td>
+<td>Audit logging (all user actions)</td>
+<td>✅</td>
+<td>Compliance + reproducibility</td>
+</tr>
+<tr>
+<td><strong>Foundations</strong></td>
+<td>Rate limiting (API + viewer prefetch)</td>
+<td>✅</td>
+<td>Fair resource use</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mvp-success-metrics-achieved">MVP Success Metrics
+(Achieved)</h3>
+<ul>
+<li>✅ SSR FCP &lt;1s on 4G</li>
+<li>✅ Viewer state 100% serializable + deserializable</li>
+<li>✅ Snapshot artifacts persist &gt;7 days</li>
+<li>✅ Community posts with full revision history</li>
+<li>✅ Moderation workflows tested end-to-end</li>
+<li>✅ CI baseline test gates automated</li>
+</ul>
+<h3 id="whats-not-in-mvp-intentionally-deferred">What’s NOT in MVP
+(Intentionally Deferred)</h3>
+<ul>
+<li>❌ Mode B canvas viewer (deferred to v2)</li>
+<li>❌ Full FITS proxy/caching (simple cutout passthrough suffices)</li>
+<li>❌ Comments/replies on posts (v1.1 quick win)</li>
+<li>❌ Go microservice (removed; NestJS sufficient)</li>
+<li>❌ Custom model training (Phase 2+)</li>
+</ul>
+<hr />
+<h2 id="phase-2-ai-integration-foundation">Phase 2: AI Integration
+Foundation</h2>
+<h3 id="vision">Vision</h3>
+<p>Transform VLASS Portal from a <strong>data browser</strong> into an
+<strong>AI-driven scientific operations platform</strong>.</p>
+<p><strong>The leap:</strong> From “explore data and write about it” →
+“analyze data with AI models, get interpretable results, publish
+reproducible findings.”</p>
+<h3 id="four-core-pillars">Four Core Pillars</h3>
+<h4 id="pillar-1-inference-service-layer"><strong>Pillar 1: Inference
+Service Layer</strong></h4>
+<p>Integrate CosmicAI production algorithms as first-class services.</p>
+<p><strong>What you build:</strong> - NestJS inference orchestration
+service - Model registry (versioning, compute requirements, deployment
+manifesto) - Job submission API (request queuing, lifecycle tracking) -
+Result storage (JSON artifacts + HiPS overlays) - WebSocket status
+streaming (real-time updates)</p>
+<p><strong>Models you integrate (prioritized):</strong></p>
+<ol type="1">
+<li><strong>Calibration Anomaly Detection</strong> (Eric Murphy, NSF
+NRAO)
+<ul>
+<li>Detects problematic data in interferometric calibration</li>
+<li>Latency: &lt;10s for typical VLASS cutout</li>
+<li>Status: Production-ready for Phase 2</li>
+</ul></li>
+<li><strong>AlphaCal</strong> (Autonomous Interferometric Calibration)
+<ul>
+<li>Replaces manual calibration workflows</li>
+<li>Status: Productionizable (containerized)</li>
+</ul></li>
+<li><strong>Hyperspectral Event Detection</strong> (Transfer Learning,
+Ce-Ci Xue)
+<ul>
+<li>Identifies spectral transitions + anomalies</li>
+<li>Status: Mid-stability (Phase 2.1)</li>
+</ul></li>
+<li><strong>Radio Image Reconstruction</strong> (Omkar Bait)
+<ul>
+<li>Neural-network-based image synthesis</li>
+<li>Status: Research-adjacent (Phase 2+ optional)</li>
+</ul></li>
+</ol>
+<p><strong>User experience:</strong></p>
+<pre><code>User in viewer
+  ↓
+[Choose &quot;Analyze&quot; button]
+  ↓
+[Select model: &quot;Calibration Anomaly Detection&quot;]
+  ↓
+[Tune parameters (confidence threshold, region size)]
+  ↓
+[Click &quot;Run Analysis&quot;]
+  ↓
+[Inference runs (1–10s) on GPU]
+  ↓
+[Results render as red/yellow overlay on viewer]
+  ↓
+[&quot;Save to post&quot; → embeds model output + reproducibility recipe]</code></pre>
+<hr />
+<h4 id="pillar-2-gpu-job-orchestration"><strong>Pillar 2: GPU Job
+Orchestration</strong></h4>
+<p>Transform VLASS Portal into a <strong>reliable, auditable job
+submission interface</strong>.</p>
+<p><strong>What you build:</strong> - Local job queue manager
+(Kubernetes-ready architecture) - Priority tiers (interactive &lt;1min,
+batch &lt;10min, long-running &gt;10min) - Retry logic (exponential
+backoff for transient GPU failures) - Result caching (by dataset + model
++ parameters hash) - Job monitoring UI (status, progress, resource
+usage, error logs) - WebSocket live updates (no polling)</p>
+<p><strong>Key feature: Caching</strong></p>
+<pre class="mermaid"><code>graph LR
+    U[&quot;User requests&lt;br/&gt;analysis&quot;] --&gt; Q[&quot;Job queue checks:&lt;br/&gt;cache hit?&quot;]
+    Q --&gt;|&quot;Yes (50%+ of time)&quot;| C[&quot;Return cached&lt;br/&gt;result (instant)&quot;]
+    Q --&gt;|&quot;No&quot;| I[&quot;Allocate GPU&quot;]
+    I --&gt; R[&quot;Run inference&quot;]
+    R --&gt; S[&quot;Store result&lt;br/&gt;+ cache entry&quot;]
+    S --&gt; C
+    C --&gt; D[&quot;Display overlay&lt;br/&gt;in viewer&quot;]</code></pre>
+<p><strong>Impact:</strong> - 50%+ cache hit rate (users often
+re-analyze) - Queue depth &lt;5 seconds typical - 99.5% job completion
+rate (retryable failures)</p>
+<hr />
+<h4 id="pillar-3-reproducibility-framework"><strong>Pillar 3:
+Reproducibility Framework</strong></h4>
+<p>Make <strong>every analysis reproducible</strong>: track dataset →
+model → parameters → output as a DAG (directed acyclic graph).</p>
+<p><strong>What you build:</strong> - Analysis graph (immutable lineage
+linking inputs to outputs) - Experiment versioning + tagging -
+Reproducibility API (<code>GET /experiment/{id}/graph</code>,
+<code>POST /experiment/{id}/fork?dataset=xyz</code>) - Full-stack
+versioning (dataset versions, model versions, code versions)</p>
+<p><strong>Use case:</strong></p>
+<blockquote>
+<p>Research published: “We detected 47 calibration anomalies in VLASS
+region RA=100, Dec=+30”</p>
+<p>Three months later, new VLASS data released.</p>
+<p>Colleague says: “Let’s replay this analysis on new data”</p>
+<p>VLASS Portal: - Checks: original analysis pinned to CosmicAI model
+v2.3 ✓ - Verifies: model still available, no breaking changes ✓ -
+Replays: same workflow, new dataset - Compares: “Original: 47 anomalies.
+New dataset: 52 anomalies. What changed?”</p>
+</blockquote>
+<p><strong>Success metrics:</strong> - 100% of inferences reproducible
+(linkage complete) - ≥30% of published posts include reproducibility
+recipe - 0% “model not found” errors (versioning automated)</p>
+<hr />
+<h4 id="pillar-4-explainability-ui"><strong>Pillar 4: Explainability
+UI</strong></h4>
+<p>Surface <strong>why models made decisions</strong>.</p>
+<p><strong>What you build:</strong> - Model output interpretation layer
+(saliency heat maps, attribution) - “Why was this region flagged?”
+explanations (top 3 influencing features) - Confidence scores +
+uncertainty bounds - Expert validation (community tags, consensus
+scoring) - False positive tracking + feedback loops</p>
+<p><strong>Example:</strong></p>
+<p>User sees red anomaly region in viewer. Hovers over it. Panel
+appears:</p>
+<pre><code>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Calibration Anomaly Detection
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 
+ Confidence: 91%
+ 
+ Top influencing factors:
+ 1. Baseline EW-05 signal spike    (score: 0.78)
+ 2. Anomalous phase in 10-20 GHz   (score: 0.64)
+ 3. RFI detected in band 3         (score: 0.52)
+ 
+ Expert consensus: 8/9 radio 
+ astronomers agree (real anomaly)
+ 
+ [Save to post]  [Report as FP]</code></pre>
+<p><strong>User confidence:</strong> 80%+ rate explainability as
+“helpful or better”</p>
+<hr />
+<h3 id="phase-2-success-criteria">Phase 2 Success Criteria</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Technical</strong></td>
+<td>Inference latency (calibration)</td>
+<td>&lt;10s typical</td>
+</tr>
+<tr>
+<td><strong>Technical</strong></td>
+<td>Job completion rate</td>
+<td>99%+</td>
+</tr>
+<tr>
+<td><strong>Technical</strong></td>
+<td>Reproducibility linkage</td>
+<td>100% complete</td>
+</tr>
+<tr>
+<td><strong>User-facing</strong></td>
+<td>Published posts with AI results</td>
+<td>10+</td>
+</tr>
+<tr>
+<td><strong>User-facing</strong></td>
+<td>Users running reproducibility forks</td>
+<td>3+</td>
+</tr>
+<tr>
+<td><strong>User-facing</strong></td>
+<td>Explanation confidence rating</td>
+<td>80%+ satisfied</td>
+</tr>
+<tr>
+<td><strong>Strategic</strong></td>
+<td>Fundable as “AI-driven”</td>
+<td>✓ Grant language ready</td>
+</tr>
+<tr>
+<td><strong>Strategic</strong></td>
+<td>TACC partnership readiness</td>
+<td>✓ Phase 3 de-risked</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-2-investment">Phase 2 Investment</h3>
+<table>
+<thead>
+<tr>
+<th>Cost Category</th>
+<th>Amount</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Engineering labor</strong></td>
+<td>$100K–$150K</td>
+<td>1.5–2 FTE for 12–16 weeks</td>
+</tr>
+<tr>
+<td><strong>GPU compute (dev)</strong></td>
+<td>$5K</td>
+<td>AWS/GCP instances during dev</td>
+</tr>
+<tr>
+<td><strong>Software/tools</strong></td>
+<td>$2K–$3K</td>
+<td>Monitoring, optional SaaS</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>$107K–$153K</strong></td>
+<td>Self-fundable or grant-supported</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Timeline:</strong> Feb–Aug 2026 (parallel with grant
+writing)</p>
+<hr />
+<h2 id="phase-3-cosmicai-federation-ngvla-preparation">Phase 3: CosmicAI
+Federation &amp; ngVLA Preparation</h2>
+<h3 id="vision-1">Vision</h3>
+<p>Establish VLASS Portal as the <strong>control plane</strong> for the
+NSF-Simons CosmicAI ecosystem, and prepare for the Next Generation VLA’s
+petaflop-scale challenge.</p>
+<p><strong>The leap:</strong> From local inference → federated
+multi-site orchestration.</p>
+<h3 id="four-core-pillars-1">Four Core Pillars</h3>
+<h4 id="pillar-1-dataset-federation"><strong>Pillar 1: Dataset
+Federation</strong></h4>
+<p>Unified discovery across <strong>NRAO + CosmicAI curations + TACC +
+ngVLA</strong> data sources.</p>
+<p><strong>What you build:</strong> - Federated dataset registry
+(multi-source authentication, metadata sync) - Data APIs for each
+source: - <strong>NRAO:</strong> VLASS HiPS, FITS endpoints, API proxies
+- <strong>TACC:</strong> S3 bucket manifests, POSIX mounting for large
+files - <strong>CosmicAI:</strong> Versioned, curated dataset packages
+(JupyterHub-ready) - <strong>ngVLA:</strong> Placeholder for future
+integration - Data lineage tracking (origin, versions, provenance) -
+Query aggregation (“Show all VLASS + CosmicAI datasets in RA/Dec
+region”)</p>
+<p><strong>User experience:</strong></p>
+<pre><code>[Dataset dropdown]
+  ↓
+[Select region: RA=100–110, Dec=+20–+30]
+  ↓
+[Federated query (NRAO + CosmicAI + TACC)]
+  ↓
+[Results ranked by: access speed, completeness, freshness]
+  ↓
+[User picks: &quot;VLASS QL v3.2 (NRAO)&quot; + &quot;CosmicAI calibrated subset&quot;]
+  ↓
+[Both datasets simultaneously loaded in viewer]</code></pre>
+<p><strong>Success metric:</strong> Dataset queries resolve in
+&lt;2s</p>
+<hr />
+<h4 id="pillar-2-tacc-compute-integration"><strong>Pillar 2: TACC
+Compute Integration</strong></h4>
+<p>Submit workflows to <strong>TACC GPU clusters</strong>; monitor,
+cache, audit remotely.</p>
+<p><strong>What you build:</strong> - TACC authentication bridge
+(OAuth/OIDC to TACC allocation) - Slurm job submission (via XSEDE/ACCESS
+API) - Remote job monitoring (real-time status polling) - Data staging
+orchestration (inputs → TACC, results ← TACC) - Distributed caching
+(cache consistency across vlass-portal + TACC) - Cost accounting (track
+GPU allocation consumed per job)</p>
+<p><strong>System architecture:</strong></p>
+<pre class="mermaid"><code>graph TB
+    subgraph VP[&quot;vlass-portal&lt;br/&gt;(User Interface)&quot;]
+        UI[&quot;Web UI&quot;]
+        CACHE[&quot;Local Cache&quot;]
+    end
+    
+    subgraph AUTH[&quot;Authentication&quot;]
+        OAUTH[&quot;OAuth→TACC&quot;]
+    end
+    
+    subgraph TACC_[&quot;TACC Infrastructure&quot;]
+        AUTH_T[&quot;TACC Jobmon&quot;]
+        SLURM[&quot;Slurm Scheduler&quot;]
+        NODES[&quot;GPU Cluster&lt;br/&gt;V100, A100&quot;]
+        CACHE_T[&quot;Results Cache&lt;br/&gt;S3&quot;]
+    end
+    
+    UI --&gt;|&quot;User submits&lt;br/&gt;job request&quot;| OAUTH
+    OAUTH --&gt;|&quot;Authorized&lt;br/&gt;to TACC&quot;| SLURM
+    SLURM --&gt;|&quot;Allocates GPU,&lt;br/&gt;schedules&quot;| NODES
+    NODES --&gt;|&quot;Runs inference&quot;| CACHE_T
+    CACHE_T --&gt;|&quot;Results&quot;| CACHE
+    CACHE --&gt;|&quot;Notifies client&lt;br/&gt;WebSocket&quot;| UI</code></pre>
+<p><strong>User experience:</strong></p>
+<pre><code>User chooses: &quot;Run on TACC Cluster&quot; (vs. local)
+  ↓
+Portal checks: TACC allocation + quota
+  ↓
+Portal prepares job manifest:
+  - Dataset URI
+  - Model + version
+  - Parameters
+  - Compute requirements (GPU type, memory)
+  ↓
+Portal checks cache: is identical result cached at TACC?
+  ↓ [If cached] Return result (instant)
+  ↓ [If not cached] Submit Slurm job
+  ↓
+Monitor job: Status → [queued] → [running] → [complete]
+  ↓
+Fetch results into vlass-portal cache
+  ↓
+Render in viewer + notify user</code></pre>
+<p><strong>Benefits:</strong> - Unlimited GPU availability (TACC
+allocation) - Bursting for large analyses - 50%+ cross-site cache hit
+rate - Full audit trail (Slurm job logs)</p>
+<hr />
+<h4 id="pillar-3-multi-site-reproducibility"><strong>Pillar 3:
+Multi-Site Reproducibility</strong></h4>
+<p>Enable reproducibility across <strong>NRAO + TACC + CosmicAI</strong>
+institutional boundaries.</p>
+<p><strong>What you build:</strong> - Extended experiment graph with
+multi-site sources: - Input: “vlass” | “cosmicai_curated” |
+“nrao_archive” + version - Processing: “vlass-portal” | “tacc” + GPU
+spec - Model: CosmicAI GitHub repo + commit SHA - Output: destination
+site + bucket + retention policy - Reproducibility manifest (immutable
+JSON-LD artifact) - Replay orchestration (fork + rerun with new dataset)
+- Semantic web integration (DOI-ready metadata)</p>
+<p><strong>Example lineage graph:</strong></p>
+<pre class="mermaid"><code>graph LR
+    D[&quot;Dataset:&lt;br/&gt;VLASS v3.2&lt;br/&gt;(NRAO)&quot;]
+    M[&quot;Model:&lt;br/&gt;Calibration Anomaly&lt;br/&gt;v2.3 (CosmicAI/GitHub)&quot;]
+    P[&quot;Processing:&lt;br/&gt;TACC GPU&lt;br/&gt;A100, 8hrs&quot;]
+    R[&quot;Result:&lt;br/&gt;Anomaly regions&lt;br/&gt;(TACC S3)&quot;]
+    PUB[&quot;Published:&lt;br/&gt;Zenodo&lt;br/&gt;DOI&quot;]
+    
+    D --&gt; P
+    M --&gt; P
+    P --&gt; R
+    R --&gt; PUB</code></pre>
+<p><strong>Scientific impact:</strong> Enables funding agencies (NSF,
+DOE) to automatically verify reproducibility before awarding grants.</p>
+<hr />
+<h4 id="pillar-4-explainability-aggregation"><strong>Pillar 4:
+Explainability Aggregation</strong></h4>
+<p>Combine explanations from <strong>multiple models</strong> at
+multiple sites.</p>
+<p><strong>What you build:</strong> - Multi-model explanation
+aggregation (same data, multiple algorithms) - Uncertainty
+quantification (confidence intervals across sites) - Expert validation
+pipeline (community consensus scoring) - Post-publication auditing
+(retraction banners, updates)</p>
+<p><strong>Example:</strong></p>
+<p>Same VLASS region analyzed by: - CosmicAI calibration detection
+(TACC): 91% confidence anomaly - Local AlphaCal (vlass-portal): 87%
+confidence anomaly - Manual astronomer review (expert): “Confirmed real
+anomaly”</p>
+<p>Viewer shows:</p>
+<pre><code>Both models agree: ✓ (green)
+Confidence: 89% average
+Expert consensus: 9/9 radio astronomers agree
+
+[HIGH CONFIDENCE — Suitable for publication]</code></pre>
+<hr />
+<h3 id="phase-3-strategic-impact">Phase 3 Strategic Impact</h3>
+<pre class="mermaid"><code>graph TB
+    VP[&quot;VLASS Portal&quot;]
+    
+    VP --&gt;|&quot;Demonstrated&lt;br/&gt;operators&quot;| NRAO[&quot;NRAO&quot;]
+    VP --&gt;|&quot;CosmicAI&lt;br/&gt;primary&lt;br/&gt;interface&quot;| COSMICAI[&quot;CosmicAI&lt;br/&gt;Institute&quot;]
+    VP --&gt;|&quot;TACC&lt;br/&gt;partnership&lt;br/&gt;proof&quot;| TACC[&quot;TACC/NSF&quot;]
+    VP --&gt;|&quot;ngVLA&lt;br/&gt;operations&lt;br/&gt;readiness&quot;| NGVLA[&quot;ngVLA&lt;br/&gt;2030s&quot;]
+    
+    NRAO --&gt;|&quot;endorsement&quot;| FUNDING[&quot;NSF/DOE&lt;br/&gt;Funding&lt;br/&gt;Success&quot;]
+    COSMICAI --&gt;|&quot;integration&quot;| FUNDING
+    TACC --&gt;|&quot;allocation&quot;| FUNDING
+    NGVLA --&gt;|&quot;future&lt;br/&gt;deployment&quot;| FUNDING
+    
+    FUNDING --&gt;|&quot;enables&quot;| PHASE4[&quot;Phase 4:&lt;br/&gt;National&lt;br/&gt;Infrastructure&quot;]</code></pre>
+<p><strong>[VISUAL SPECIFICATION: Strategic partnership map
+showing:]</strong> - <strong>Central hub:</strong> VLASS Portal -
+<strong>Radiating connections:</strong> NRAO, CosmicAI, TACC, ngVLA -
+<strong>Color coding:</strong> Endorsement partners (green), funding
+agencies (blue), future deployment (purple) - <strong>Timeline
+overlay:</strong> 2026–2030+ roadmap</p>
+<hr />
+<h3 id="phase-3-success-criteria">Phase 3 Success Criteria</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Technical</strong></td>
+<td>TACC job submission success</td>
+<td>≥95%</td>
+</tr>
+<tr>
+<td><strong>Technical</strong></td>
+<td>Data federation query latency</td>
+<td>&lt;3s</td>
+</tr>
+<tr>
+<td><strong>Technical</strong></td>
+<td>Reproducibility manifest completeness</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>User-facing</strong></td>
+<td>NSF-affiliated institutions using portal</td>
+<td>15+</td>
+</tr>
+<tr>
+<td><strong>User-facing</strong></td>
+<td>Peer-reviewed papers citing vlass-portal</td>
+<td>5+</td>
+</tr>
+<tr>
+<td><strong>User-facing</strong></td>
+<td>Posts using TACC compute</td>
+<td>≥20%</td>
+</tr>
+<tr>
+<td><strong>Strategic</strong></td>
+<td>NSF SI² or DOE ASCR grant awarded</td>
+<td>✓ Demo site</td>
+</tr>
+<tr>
+<td><strong>Strategic</strong></td>
+<td>ngVLA operational planning citation</td>
+<td>✓ Roadmaps</td>
+</tr>
+<tr>
+<td><strong>Strategic</strong></td>
+<td>CosmicAI formal acknowledgment</td>
+<td>✓ Partnership</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-3-investment">Phase 3 Investment</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cost Category</th>
+<th>Amount</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Engineering labor</strong></td>
+<td>$150K–$300K</td>
+<td>2–3 FTE distributed systems</td>
+</tr>
+<tr>
+<td><strong>Cloud data federation</strong></td>
+<td>$15K–$25K</td>
+<td>TACC data transfer, S3 ops</td>
+</tr>
+<tr>
+<td><strong>Monitoring + infrastructure</strong></td>
+<td>$5K–$10K</td>
+<td>Prometheus, K8s, observability</td>
+</tr>
+<tr>
+<td><strong>Software + tools</strong></td>
+<td>$5K–$8K</td>
+<td>Integration libraries, docs</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>$175K–$343K</strong></td>
+<td>Grant-funded (50–70% typical)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Timeline:</strong> Oct 2026–Jun 2027 (post-grant
+decision)</p>
+<hr />
+<h2 id="technical-architecture">Technical Architecture</h2>
+<h3 id="mvp-phase-2-phase-3-system-evolution">MVP → Phase 2 → Phase 3:
+System Evolution</h3>
+<p><strong>MVP Architecture: Single-Site, Static Data</strong></p>
+<pre><code>┌─────────────────────────────────────────────┐
+│  Angular SSR Frontend + Client Viewer       │
+│  (fast, responsive, mobile-optimized)       │
+└──────────────────┬──────────────────────────┘
+                   │
+                   ↓
+┌──────────────────────────────────────────────┐
+│  NestJS API Gateway                          │
+│  • Auth + RBAC                               │
+│  • Post CRUD + history                       │
+│  • Rate limiting + audit log                 │
+└──────────────────┬──────────────────────────┘
+                   │
+     ┌─────────────┼─────────────┐
+     ↓             ↓             ↓
+  PostgreSQL   Redis Cache   Filesystem/S3
+  (posts)      (sessions,     (snapshots)
+               perf)
+     │
+     └──→ External: VLASS HiPS, FITS APIs (read-only)</code></pre>
+<p><strong>Phase 2 Extension: Local AI Inference</strong></p>
+<pre><code>Previous layers +
+│
+├─ InferenceOrchestrator
+│  ├─ Job queue (priority, retries)
+│  ├─ GPU allocation
+│  └─ Result storage
+│
+├─ ModelRegistry
+│  ├─ Version control
+│  ├─ Container specs
+│  └─ Deployment manifests
+│
+├─ ResultCache
+│  ├─ (dataset, model, params) → result
+│  └─ Cache hit detection
+│
+├─ ExplainabilityEngine
+│  ├─ Saliency visualization
+│  └─ Attribution scoring
+│
+└─ ReproducibilityGraph
+   ├─ DAG storage
+   └─ Replay orchestration</code></pre>
+<p><strong>Phase 3 Extension: Distributed Multi-Site</strong></p>
+<pre><code>Previous layers +
+│
+├─ TACCGateway
+│  ├─ Slurm integration
+│  ├─ OAuth → TACC allocation
+│  └─ Remote job monitoring
+│
+├─ DatasetFederator
+│  ├─ NRAO metadata sync
+│  ├─ CosmicAI curations
+│  └─ TACC S3 manifests
+│
+├─ RemoteJobMonitor
+│  ├─ Poll Slurm status
+│  └─ Sync to local DB
+│
+├─ ExplainabilityAggregator
+│  ├─ Multi-model consensus
+│  └─ Uncertainty quantification
+│
+└─ ReproducibilityManifestBuilder
+   ├─ Multi-site lineage
+   └─ DOI metadata</code></pre>
+<h3 id="technology-stack">Technology Stack</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Layer</th>
+<th>MVP</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Frontend</strong></td>
+<td>Angular 18 + RxJS</td>
+<td>+ Viewer overlays</td>
+<td>+ Dataset federation UI</td>
+</tr>
+<tr>
+<td><strong>Backend</strong></td>
+<td>NestJS + Postgres</td>
+<td>+ Job queue</td>
+<td>+ TACC gateway</td>
+</tr>
+<tr>
+<td><strong>Compute</strong></td>
+<td>N/A</td>
+<td>Local GPU/CPU</td>
+<td>+ Remote Slurm</td>
+</tr>
+<tr>
+<td><strong>Caching</strong></td>
+<td>Redis</td>
+<td>+ Result cache (local)</td>
+<td>+ Distributed cache</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>Filesystem + S3</td>
+<td>+ HDF5 artifacts</td>
+<td>+ TACC S3 integration</td>
+</tr>
+<tr>
+<td><strong>Deployment</strong></td>
+<td>Docker Compose</td>
+<td>+ Kubernetes-ready</td>
+<td>+ Multi-region</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strategic-alignment-impact">Strategic Alignment &amp;
+Impact</h2>
+<h3 id="cosmicai-integration">CosmicAI Integration</h3>
+<p>The NSF-Simons CosmicAI Initiative produced breakthrough results at
+the 247th American Astronomical Society Meeting (Feb 2026):</p>
+<p><strong>CosmicAI’s strength:</strong> World-class ML models -
+Calibration anomaly detection (production-ready) - AlphaCal (autonomous
+interferometric calibration) - Hyperspectral event detection (transfer
+learning) - Radio image reconstruction (neural networks)</p>
+<p><strong>CosmicAI’s weakness:</strong> No operational interface -
+Models live in GitHub repositories - Researchers interact via Jupyter
+notebooks - No governance, reproducibility, or audit trails - Not
+scalable to petaflop data volumes</p>
+<p><strong>VLASS Portal’s role:</strong> Become the <strong>missing
+operations layer</strong></p>
+<pre><code>CosmicAI                  VLASS Portal            Scientists
+(ML research)             (operations platform)    (users)
+│                         │                        │
+├─ Models ──────────────→ ├─ Inference service     │
+├─ Data ────────────────→ ├─ Dataset federation   │
+├─ Compute ─────────────→ ├─ Job orchestration    │
+│                         ├─ Reproducibility       │
+│                         ├─ Governance            │
+│                         │                        │
+│                         └─────────────────────→ Users run
+│                                                 reproducible,
+│                                                 audited,
+│                                                 published
+│                                                 analyses</code></pre>
+<h3 id="ngvla-readiness-2030s-challenge">ngVLA Readiness (2030s
+Challenge)</h3>
+<p>The Next Generation Very Large Array represents astronomy’s grand
+challenge:</p>
+<p><strong>Data scale:</strong> - 244 antennas × 18m diameter -
+Frequencies: 1.2–116 GHz - Sensitivity: 10× current VLA - <strong>Data
+rate: 50 petabytes/year</strong> (vs. 100 TB/year today in
+astronomy)</p>
+<p><strong>Computational requirement:</strong> - <strong>50
+petaFLOPS</strong> (50,000 trillion floating-point operations/second) -
+100× more than current ALMA compute - Orders of magnitude beyond desktop
+Jupyter notebooks</p>
+<p><strong>VLASS Portal’s role:</strong> Proven operational interface
+for petaflop-scale workflows</p>
+<p>By 2030, VLASS Portal will have demonstrated: - ✓ Multi-site GPU
+orchestration (Phase 3 TACC partnership) - ✓ Federated data discovery
+(Phase 3 dataset federation) - ✓ Reproducible AI analysis at scale
+(Phases 2–3) - ✓ Community adoption (15+ institutions, 5+ papers) - ✓
+Production reliability (audit trails, governance, SLAs)</p>
+<p><strong>Strategic outcome:</strong> When ngVLA launches, VLASS Portal
+is positioned as its <em>de facto</em> operations interface.</p>
+<hr />
+<h3 id="competitive-advantages">Competitive Advantages</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Advantage</th>
+<th>Why It Matters</th>
+<th>Competitors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Web-native</strong></td>
+<td>Researchers use browsers, not desktops</td>
+<td>Aladin (desktop), AstroImageJ (legacy)</td>
+</tr>
+<tr>
+<td><strong>AI-first design</strong></td>
+<td>Built for ML workflows, not retrofitted</td>
+<td>Airflow (generic), Jupyter (manual)</td>
+</tr>
+<tr>
+<td><strong>Reproducibility</strong></td>
+<td>Scientific funding demands provenance</td>
+<td>None (Jupyter is ad-hoc)</td>
+</tr>
+<tr>
+<td><strong>Multi-institutional</strong></td>
+<td>Works across NRAO, universities, TACC</td>
+<td>Siloed institutional tools</td>
+</tr>
+<tr>
+<td><strong>Open source</strong></td>
+<td>Community contributions, NSF mandates</td>
+<td>Proprietary (ALMA, Keck)</td>
+</tr>
+<tr>
+<td><strong>Governance</strong></td>
+<td>Post moderation, expert validation</td>
+<td>Unmoderated wikis, forums</td>
+</tr>
+<tr>
+<td><strong>Speed</strong></td>
+<td>&lt;1s first paint, &lt;10s inference latency</td>
+<td>Jupyter (30–60s startup)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="funding-investment-model">Funding &amp; Investment Model</h2>
+<h3 id="three-phases-multiple-funding-paths">Three Phases, Multiple
+Funding Paths</h3>
+<pre class="mermaid"><code>graph TB
+    subgraph Source[&quot;Funding Sources&quot;]
+        INT[&quot;Internal Budget&quot;]
+        NSF[&quot;NSF SI² &amp;&lt;br/&gt;CIS Grants&quot;]
+        DOE[&quot;DOE ASCR&quot;]
+        IND[&quot;NVIDIA&lt;br/&gt;GPU Research&quot;]
+    end
+    
+    subgraph Phase[&quot;Project Phases&quot;]
+        P1[&quot;MVP&lt;br/&gt;(Complete)&quot;]
+        P2[&quot;Phase 2&lt;br/&gt;AI Foundation&quot;]
+        P3[&quot;Phase 3&lt;br/&gt;Federation&quot;]
+        P4[&quot;Phase 4&lt;br/&gt;National&lt;br/&gt;Infrastructure&quot;]
+    end
+    
+    INT --&gt;|&quot;$100K–150K&quot;| P2
+    IND --&gt;|&quot;$50K–150K+&lt;br/&gt;credits&quot;| P2
+    NSF --&gt;|&quot;$150K–300K&lt;br/&gt;(if awarded)&quot;| P3
+    DOE --&gt;|&quot;$200K–400K&lt;br/&gt;(if awarded)&quot;| P3
+    NSF --&gt;|&quot;$500K–1M&lt;br/&gt;CIS (2027)&quot;| P4</code></pre>
+<h3 id="budget-overview">Budget Overview</h3>
+<p><strong>Total investment to reach national infrastructure (Phases
+1–4):</strong></p>
+<pre><code>Investment trajectory:
+  MVP        Phase 2      Phase 3          Phase 4
+  $0         $100–200K    $200–400K        $500K–1M
+  (done)     (2026)       (2026–27)        (2027+)
+  
+  Cumulative: $800K–1.6M over 3 years</code></pre>
+<h3 id="phase-2-self-fundable-100k200k">Phase 2: Self-Fundable
+($100K–$200K)</h3>
+<p><strong>Realistic scenario:</strong> - Engineering labor: $100K–$150K
+(1.5–2 FTE, 12–16 weeks) - Development compute: $5K (cloud GPU
+instances) - Tools/software: $2K–$3K (optional) - <strong>Total:
+$107K–$153K</strong></p>
+<p><strong>Funding sources:</strong> - Internal R&amp;D budget
+(departmental) - University seed funding - NSF/DOE preliminary grant
+(often $50K exploratory)</p>
+<p><strong>Risk:</strong> Low. System is optional; can pause
+mid-project.</p>
+<h3 id="phase-3-grant-accelerated-200k400k">Phase 3: Grant-Accelerated
+($200K–$400K)</h3>
+<p><strong>Requires external funding for scale.</strong></p>
+<p><strong>Grant targets:</strong></p>
+<ol type="1">
+<li><strong>NSF SI² (Research Software Engineering)</strong>
+<ul>
+<li>Budget: $150K–$300K (24 months typical)</li>
+<li>Due dates: Apr, Aug (rolling)</li>
+<li>Success rate: 20–25%</li>
+<li>Why you qualify: Infrastructure component of funded CosmicAI
+initiative</li>
+</ul></li>
+<li><strong>DOE ASCR (Advanced Scientific Computing Research)</strong>
+<ul>
+<li>Budget: $200K–$400K (24 months)</li>
+<li>Due dates: Rolling submissions (no fixed deadline)</li>
+<li>Success rate: 25–30%</li>
+<li>Why you qualify: Workflow orchestration, HPC + cloud integration,
+ngVLA planning</li>
+</ul></li>
+<li><strong>NVIDIA GPU Research Program</strong>
+<ul>
+<li>Budget: $50K–$150K + GPU credits</li>
+<li>Turnaround: 4–8 weeks</li>
+<li>Success rate: 60–70% (industry partnerships more flexible)</li>
+<li>Why you qualify: Multi-site GPU orchestration showcase</li>
+</ul></li>
+<li><strong>NSF CIS (Post-Phase 3, 2027)</strong>
+<ul>
+<li>Budget: $300K–$1M (3–4 years, national infrastructure)</li>
+<li>Success rate: 15–20% (very competitive; community validation
+critical)</li>
+<li><strong>Timing:</strong> Pursue after Phase 3 demonstrates
+impact</li>
+</ul></li>
+</ol>
+<h3 id="funding-timeline-20262027">Funding Timeline (2026–2027)</h3>
+<pre><code>Feb 2026 (now)
+  ├─ Finalize Phase 2/3 planning (done)
+  ├─ Contact NSF program officers (informal feedback)
+  └─ Reach out to NVIDIA (60% success likely)
+     ↓
+Mar–Apr 2026
+  ├─ Draft NSF SI² proposal (due Apr 15–May 15)
+  └─ Begin Phase 2 (unfunded or internal)
+     ↓
+May–Jun 2026
+  ├─ Submit DOE ASCR (rolling deadline)
+  └─ Accelerate Phase 2 with best effort
+     ↓
+Jul–Aug 2026
+  ├─ Wait for grant decisions
+  └─ Continue Phase 2 engineering
+     ↓
+Sep–Oct 2026
+  ├─ Grant decisions returning (4–6 month review)
+  ├─ If awarded (1 in 3 chance): Hire team, accelerate Phase 3
+  └─ If not awarded: Continue at 50% pace, pivot to NVIDIA + CIS 2027
+     ↓
+Jan–Jun 2027
+  └─ Phase 3 ramping (grant + internal)
+     ↓
+Jun–Aug 2027
+  └─ Prepare NSF CIS proposal (larger, $300K–$1M)</code></pre>
+<h3 id="honest-assessment">Honest Assessment</h3>
+<p><strong>Realistic outcome:</strong> You’ll self-fund Phase 2 fully
+(MVP → AI inference works). For Phase 3 scale, one of {NSF, DOE, NVIDIA}
+likely succeeds. If not, you can do Phase 3 on extended timeline (24–30
+weeks instead of 16–20).</p>
+<p><strong>Key advantage:</strong> Early execution (Phase 2 in 2026)
+makes grant proposals <em>much</em> stronger. Reviewers see working
+software, not promises.</p>
+<hr />
+<h2 id="timeline-roadmap">Timeline &amp; Roadmap</h2>
+<h3 id="mvp-complete">MVP: Complete ✅</h3>
+<p><strong>Status:</strong> Three pillars implemented in local
+environment<br />
+<strong>Deployment status:</strong> Ready for operational hardening
+(performance tuning, CI gates, release packaging)<br />
+<strong>Time invested:</strong> ~6 months (Nov 2025–Feb 2026)</p>
+<h3 id="phase-2-q2q3-2026-1216-weeks">Phase 2: Q2–Q3 2026 (12–16
+weeks)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Weeks</th>
+<th>Milestone</th>
+<th>Deliverable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W1–2</td>
+<td>Job orchestration service + model registry</td>
+<td>NestJS service, Swagger docs</td>
+</tr>
+<tr>
+<td>W3–4</td>
+<td>Viewer overlay rendering + streaming</td>
+<td>Angular components, WebSocket</td>
+</tr>
+<tr>
+<td>W5–6</td>
+<td>Result caching + reproducibility graph</td>
+<td>Cache layer, DAG storage</td>
+</tr>
+<tr>
+<td>W7–8</td>
+<td>Explainability UI + community feedback</td>
+<td>Saliency overlay, consensus scoring</td>
+</tr>
+<tr>
+<td>W9–12</td>
+<td>Integration testing + documentation</td>
+<td>End-to-end test suite, user guides</td>
+</tr>
+<tr>
+<td>W13–16</td>
+<td>Performance tuning + release</td>
+<td>Latency &lt;10s target, CI gates</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Go-live:</strong> Sep 2026</p>
+<h3 id="phase-3-q4-2026q2-2027-1620-weeks">Phase 3: Q4 2026–Q2 2027
+(16–20 weeks)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Weeks</th>
+<th>Milestone</th>
+<th>Deliverable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W1–3</td>
+<td>TACC authentication + Slurm integration</td>
+<td>OAuth bridge, job submission API</td>
+</tr>
+<tr>
+<td>W4–6</td>
+<td>Dataset federation (NRAO + CosmicAI + TACC)</td>
+<td>Metadata sync, query aggregation</td>
+</tr>
+<tr>
+<td>W7–9</td>
+<td>Remote job orchestration + distributed caching</td>
+<td>Multi-site job monitoring</td>
+</tr>
+<tr>
+<td>W10–12</td>
+<td>Multi-site reproducibility + manifest builder</td>
+<td>JSON-LD lineage, DOI-ready exports</td>
+</tr>
+<tr>
+<td>W13–16</td>
+<td>Explainability aggregation + community pilot</td>
+<td>Multi-model consensus, 5–10 institutions</td>
+</tr>
+<tr>
+<td>W17–20</td>
+<td>Performance hardening + ops readiness</td>
+<td>SLAs, monitoring, runbooks</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Go-live:</strong> Jun 2027</p>
+<h3 id="phase-4-2027-strategic-infrastructure">Phase 4: 2027+ (Strategic
+Infrastructure)</h3>
+<p><strong>Vision:</strong> Establish VLASS Portal as NSF-backed,
+multi-institutional scientific computing infrastructure</p>
+<p><strong>Scope:</strong> - Expanded institutional adoption (30+
+universities, research centers) - Advanced RBAC + multi-tenancy
+(per-institution quotas, billing) - Federated learning across sites
+(optional) - ngVLA prototype integration (2028–2030)</p>
+<p><strong>Funding:</strong> NSF CIS or equivalent major infrastructure
+grant</p>
+<hr />
+<h2 id="competitive-differentiation">Competitive Differentiation</h2>
+<h3 id="comparison-vlass-portal-vs.-alternatives">Comparison: VLASS
+Portal vs. Alternatives</h3>
+<h4 id="vs.-aladin-desktop-viewer"><strong>vs. Aladin (Desktop
+Viewer)</strong></h4>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Aladin</th>
+<th>VLASS Portal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Interface</strong></td>
+<td>Desktop (Java)</td>
+<td>Web (modern browsers)</td>
+</tr>
+<tr>
+<td><strong>Mobile support</strong></td>
+<td>❌</td>
+<td>✅ (responsive design)</td>
+</tr>
+<tr>
+<td><strong>AI integrated</strong></td>
+<td>❌</td>
+<td>✅ (Phase 2)</td>
+</tr>
+<tr>
+<td><strong>Collaboration</strong></td>
+<td>Email, forums</td>
+<td>✅ (native posts + revisions)</td>
+</tr>
+<tr>
+<td><strong>Reproducibility</strong></td>
+<td>❌ (manual)</td>
+<td>✅ (DAG-based)</td>
+</tr>
+<tr>
+<td><strong>Governance</strong></td>
+<td>N/A</td>
+<td>✅ (moderation + audit logs)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> Aladin = data viewing; VLASS Portal =
+analytical platform. Complementary, not competitive.</p>
+<h4 id="vs.-jupyter-notebooks"><strong>vs. Jupyter
+Notebooks</strong></h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Jupyter</th>
+<th>VLASS Portal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Computational flexibility</strong></td>
+<td>✅ Full Python</td>
+<td>Constrained (models only)</td>
+</tr>
+<tr>
+<td><strong>Ease of use</strong></td>
+<td>❌ (code required)</td>
+<td>✅ (GUI-driven)</td>
+</tr>
+<tr>
+<td><strong>Collaboration</strong></td>
+<td>❌ (manual + async)</td>
+<td>✅ (real-time + versioned)</td>
+</tr>
+<tr>
+<td><strong>Reproducibility</strong></td>
+<td>❌ (runtime dependent)</td>
+<td>✅ (versioned + audited)</td>
+</tr>
+<tr>
+<td><strong>Publishability</strong></td>
+<td>❌ (notebook format)</td>
+<td>✅ (HTML, social, discoverable)</td>
+</tr>
+<tr>
+<td><strong>Governance</strong></td>
+<td>❌</td>
+<td>✅ (access control, moderation)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> Jupyter = exploration; VLASS Portal =
+discovery + publishing + governance. Complementary.</p>
+<h4 id="vs.-airflow-generic-workflow-engines"><strong>vs. Airflow /
+Generic Workflow Engines</strong></h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Airflow</th>
+<th>VLASS Portal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Domain specificity</strong></td>
+<td>Generic workflows</td>
+<td>Radio astronomy (specialized)</td>
+</tr>
+<tr>
+<td><strong>ML-focused</strong></td>
+<td>❌ (data pipelines)</td>
+<td>✅ (inference + analysis)</td>
+</tr>
+<tr>
+<td><strong>User interface</strong></td>
+<td>DAG visualization</td>
+<td>Astronomy-native (sky viewer)</td>
+</tr>
+<tr>
+<td><strong>Community</strong></td>
+<td>Engineers</td>
+<td>Scientists</td>
+</tr>
+<tr>
+<td><strong>Accessibility</strong></td>
+<td>❌ (complex config)</td>
+<td>✅ (point-and-click)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> Airflow = ETL infrastructure; VLASS Portal
+= scientific discovery tool. Different audiences.</p>
+<hr />
+<h2 id="call-to-action">Call to Action</h2>
+<h3 id="for-funding-agencies-nsf-doe">For Funding Agencies (NSF,
+DOE)</h3>
+<p><strong>VLASS Portal represents:</strong></p>
+<ol type="1">
+<li><strong>Strategic alignment</strong> with CosmicAI (NSF-Simons
+funded) and ngVLA (Astro2020 decadal survey priority)</li>
+<li><strong>Demonstrated leadership</strong> in AI + astronomy
+operations<br />
+</li>
+<li><strong>Transferable infrastructure</strong> for petaflop-scale
+computing (ngVLA, ALMA-next)</li>
+<li><strong>Community validation</strong> from 15+ institutions (Phase 3
+target)</li>
+<li><strong>Proven return on investment:</strong> $300K–$600K investment
+→ decades of observatory operations</li>
+</ol>
+<p><strong>Recommend:</strong> SI² or ASCR grants for Phase 2–3
+(expected 2026–2027 decisions)</p>
+<h3 id="for-institutional-partners-nrao-cosmicai-tacc">For Institutional
+Partners (NRAO, CosmicAI, TACC)</h3>
+<p><strong>VLASS Portal offers:</strong></p>
+<ol type="1">
+<li><strong>Operations interface</strong> for CosmicAI models (addresses
+key gap)</li>
+<li><strong>Proof-of-concept</strong> for ngVLA operations (2030s
+planning)</li>
+<li><strong>Multi-institutional coordination</strong> (TACC partnership,
+federated compute)</li>
+<li><strong>Community engagement</strong> (published research, user
+adoption)</li>
+<li><strong>Strategic credibility</strong> in AI-driven observatory
+inference</li>
+</ol>
+<p><strong>Recommend:</strong> Early partnership / formal endorsement
+for grant applications (Q1–Q2 2026)</p>
+<h3 id="for-researchers-educators">For Researchers &amp; Educators</h3>
+<p><strong>VLASS Portal unlocks:</strong></p>
+<ol type="1">
+<li><strong>Fast discovery</strong> of radio sources (1-second first
+paint)</li>
+<li><strong>AI-assisted analysis</strong> (calibration, spectral
+anomalies, image reconstruction)</li>
+<li><strong>Reproducible research</strong> (cite exact model versions,
+datasets, compute environments)</li>
+<li><strong>Community publication</strong> (share findings without
+leaving the platform)</li>
+<li><strong>Learning pathway</strong> (from static data browser → AI
+inference → multi-site orchestration)</li>
+</ol>
+<p><strong>How to get involved:</strong> - Join early community pilot
+(Phase 2.5, Jun–Aug 2026) - Contribute domain expertise (CosmicAI model
+integration, user research) - Publish analysis notebooks (demonstrate
+use cases)</p>
+<h3 id="for-industry-partners-nvidia-cloud-providers">For Industry
+Partners (NVIDIA, Cloud Providers)</h3>
+<p><strong>VLASS Portal demonstrates:</strong></p>
+<ol type="1">
+<li><strong>Multi-GPU orchestration</strong> across HPC + cloud (TACC +
+vlass-portal hybrid)</li>
+<li><strong>Real-world workflow scheduling</strong> for science (not yet
+solved elegantly)</li>
+<li><strong>Case study</strong> for productionizing research ML (model →
+inference → operations)</li>
+<li><strong>Reference architecture</strong> for other scientific domains
+(astronomy → bio, materials, etc.)</li>
+</ol>
+<p><strong>Recommend:</strong> Technology partnerships (NVIDIA GPU
+credits, AWS/GCP compute allocations) + co-marketing</p>
+<hr />
+<h2 id="appendix-key-metrics-at-a-glance">Appendix: Key Metrics at a
+Glance</h2>
+<h3 id="phased-development-summary">Phased Development Summary</h3>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Metric</th>
+<th>MVP</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+<th>Phase 4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Timeline</strong></td>
+<td>Complete</td>
+<td>12–16w</td>
+<td>16–20w</td>
+<td>3–4y</td>
+</tr>
+<tr>
+<td><strong>Engineering effort</strong></td>
+<td>(6m done)</td>
+<td>1.5–2 FTE</td>
+<td>2–3 FTE</td>
+<td>3–5 FTE</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>(sunk)</td>
+<td>$100K–$200K</td>
+<td>$200K–$400K</td>
+<td>$500K–$1M</td>
+</tr>
+<tr>
+<td><strong>Key feature</strong></td>
+<td>Browser + posts</td>
+<td>AI inference</td>
+<td>Multi-site federation</td>
+<td>National infra</td>
+</tr>
+<tr>
+<td><strong>Users targeted</strong></td>
+<td>Researchers</td>
+<td>Power users</td>
+<td>15+ institutions</td>
+<td>30+ institutions</td>
+</tr>
+<tr>
+<td><strong>Success metric</strong></td>
+<td>3 pillars ✅</td>
+<td>10+ AI posts</td>
+<td>5+ peer-reviewed papers</td>
+<td>50+ papers/year</td>
+</tr>
+</tbody>
+</table>
+<h3 id="technology-stack-highlights">Technology Stack Highlights</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Component</th>
+<th>Technology</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Frontend</strong></td>
+<td>Angular 18 + RxJS</td>
+<td>Reactive patterns for streaming data</td>
+</tr>
+<tr>
+<td><strong>Backend</strong></td>
+<td>NestJS + TypeScript</td>
+<td>Type safety, scalable architecture</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>PostgreSQL + Redis</td>
+<td>ACID compliance + performance</td>
+</tr>
+<tr>
+<td><strong>Compute</strong></td>
+<td>Docker + Kubernetes</td>
+<td>Portable, cloud-agnostic</td>
+</tr>
+<tr>
+<td><strong>Orchestration</strong></td>
+<td>Slurm (Phase 3)</td>
+<td>HPC standard, no lock-in</td>
+</tr>
+<tr>
+<td><strong>Visualization</strong></td>
+<td>Aladin + Mermaid</td>
+<td>Astronomy + architecture diagrams</td>
+</tr>
+<tr>
+<td><strong>Deployment</strong></td>
+<td>GitHub Actions</td>
+<td>Fast CI/CD, open-source native</td>
+</tr>
+</tbody>
+</table>
+<h3 id="funding-ask-summary">Funding Ask Summary</h3>
+<p><strong>Phase 2:</strong> $100K–$200K (self-fundable or small
+internal grant)<br />
+<strong>Phase 3:</strong> $200K–$400K (NSF SI² or DOE ASCR, 50% success
+rate realistic)<br />
+<strong>Phase 4:</strong> $500K–$1M (NSF CIS or equivalent national
+infrastructure)</p>
+<p><strong>Total to national infrastructure:</strong> $800K–$1.6M over 3
+years</p>
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p>VLASS Portal is not just a website. It’s the <strong>missing
+operations layer</strong> for modern radio astronomy, bridging the gap
+between world-class research algorithms and the operational realities of
+petaflop-scale science.</p>
+<p><strong>By 2028:</strong> - Phase 2 complete → CosmicAI models
+integrated, reproducibility proven - Phase 3 complete →
+Multi-institutional federation working, ngVLA readiness demonstrated -
+Community adoption → 15+ institutions, 5+ published papers,
+production-grade reliability</p>
+<p><strong>By 2030:</strong> - ngVLA launches → VLASS Portal becomes its
+de facto operations interface - Phase 4 mature → Established as NSF
+strategic infrastructure - Impact → Transforms how astronomers across
+the country analyze data</p>
+<p><strong>The investment today</strong> ($300K–$600K over 2–3 years)
+<strong>becomes foundational infrastructure for astronomy’s next
+decade.</strong></p>
+<p>That’s the opportunity. That’s the vision. Let’s build it.</p>
+<hr />
+<h2 id="document-information">Document Information</h2>
+<ul>
+<li><strong>Prepared:</strong> February 2026</li>
+<li><strong>Target audience:</strong> NSF/DOE program officers,
+strategic partners, funding committees</li>
+<li><strong>Contains:</strong> Technical specifications, budget
+breakdowns, strategic roadmaps</li>
+<li><strong>For questions:</strong> Contact project owner
+(vlass-portal@github)</li>
+</ul>
+<p><strong>PDF Export recommended for:</strong> - Printing (use
+landscape for Mermaid diagrams) - Sharing with non-technical
+stakeholders - Archival in grant repositories</p>
+<hr />
+<h2 id="visual-assets-specifications">Visual Assets Specifications</h2>
+<h3 id="charts-infographics-needed-professional-designer">Charts &amp;
+Infographics Needed (Professional Designer)</h3>
+<ol type="1">
+<li><strong>Problem Statement Diagram</strong> (Section 2: The Problem)
+<ul>
+<li>Current fragmentation (separate tools, no integration)</li>
+<li>Future state (unified platform)</li>
+<li>Size: A4 landscape, 2-column layout</li>
+</ul></li>
+<li><strong>Three-Phase Capability Pyramid</strong> (Section 3: The
+Solution)
+<ul>
+<li>MVP base, Phase 2 expansion, Phase 3 federation</li>
+<li>Progressive enhancement visualization</li>
+<li>Color scheme: Blue (MVP), Orange (Phase 2), Green (Phase 3)</li>
+</ul></li>
+<li><strong>Data Volume Comparison Charts</strong> (Section 3: ngVLA
+Challenge)
+<ul>
+<li>VLASS vs. ALMA vs. ngVLA data rates</li>
+<li>Historical growth curve + future projection</li>
+<li>Interactive tooltip for technical specs</li>
+</ul></li>
+<li><strong>User Experience Flow Diagrams</strong> (Sections 5, 6, 7)
+<ul>
+<li>Pillar 1: From data to visualization (30s)</li>
+<li>Pillar 2: From exploration to sharing (2 min)</li>
+<li>Pillar 3: From analysis to publishing (10 min)</li>
+<li>Pillar 4 (Phase 2): From raw data to reproducible result (5
+min)</li>
+</ul></li>
+<li><strong>Project Timeline Gantt Chart</strong> (Section 12: Timeline)
+<ul>
+<li>MVP (done), Phase 2 (Q2–Q3 2026), Phase 3 (Q4 2026–Q2 2027)</li>
+<li>Grant decision points marked</li>
+<li>Staffing ramp visualization</li>
+</ul></li>
+<li><strong>Funding Waterfall Diagram</strong> (Section 10: Funding)
+<ul>
+<li>Internal budget → NSF → DOE → Industry partnerships</li>
+<li>Budget allocation per phase</li>
+<li>Success probability annotations</li>
+</ul></li>
+<li><strong>System Architecture Blueprints</strong> (Section 8:
+Technical)
+<ul>
+<li>MVP architecture (layered)</li>
+<li>Phase 2 extensions (AI/orchestration)</li>
+<li>Phase 3 extensions (federation/TACC)</li>
+<li>Data flow animations</li>
+</ul></li>
+<li><strong>Strategic Partnership Map</strong> (Section 9: CosmicAI)
+<ul>
+<li>Network diagram: VLASS Portal at center</li>
+<li>Radiating connections to NSF, NRAO, CosmicAI, TACC, ngVLA</li>
+<li>Timeline overlay showing integration points</li>
+</ul></li>
+</ol>
+<p>All diagrams should include: - Consistent color palette (blues,
+oranges, greens, neutrals) - Legend explaining symbols - Data
+sources/references - “For publication” quality (300+ DPI if
+rasterized)</p>
+<hr />
+<p><em>End of Marketing Overview</em></p>
