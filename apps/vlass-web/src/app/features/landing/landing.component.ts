@@ -1,9 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, interval } from 'rxjs';
-import { finalize } from 'rxjs/operators';
-import { map, startWith } from 'rxjs/operators';
+import { Subscription, interval } from 'rxjs';
+import { finalize, startWith } from 'rxjs/operators';
 import { AuthSessionService } from '../../services/auth-session.service';
 import { SkyPreview, SkyPreviewService } from '../../services/sky-preview.service';
 import { UserRole } from '../../services/auth-session.service';
@@ -22,7 +21,7 @@ interface LandingPillar {
   styleUrl: './landing.component.scss',
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit, OnDestroy {
   user = {
     name: 'User',
     email: 'user@example.com',
@@ -52,10 +51,9 @@ export class LandingComponent {
   latLonLabel = 'LAT --.---- | LON --.----';
   showTelemetryOverlay = false;
   telemetryCompact = true;
-  readonly clockLine$: Observable<string> = interval(1000).pipe(
-    startWith(0),
-    map(() => this.buildClockLine()),
-  );
+  clockLine = '';
+
+  private clockSubscription?: Subscription;
 
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
@@ -63,6 +61,8 @@ export class LandingComponent {
   private skyPreviewService = inject(SkyPreviewService);
   private authApiService = inject(AuthApiService);
   private readonly logger = inject(AppLoggerService);
+  private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.showTelemetryOverlay = isPlatformBrowser(this.platformId);
@@ -77,6 +77,23 @@ export class LandingComponent {
         role: sessionUser.role,
       };
     }
+  }
+
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.ngZone.runOutsideAngular(() => {
+        this.clockSubscription = interval(1000).pipe(
+          startWith(0),
+        ).subscribe(() => {
+          this.clockLine = this.buildClockLine();
+          this.cdr.detectChanges();
+        });
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.clockSubscription?.unsubscribe();
   }
 
   get isAdmin(): boolean {
