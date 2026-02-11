@@ -3,7 +3,8 @@ import { ProfileService } from './profile.service';
 import { UserRepository } from '../repositories/user.repository';
 import { PostRepository } from '../repositories/post.repository';
 import { NotFoundException } from '@nestjs/common';
-import { PostStatus } from '../entities/post.entity';
+import { Post, PostStatus } from '../entities/post.entity';
+import { User } from '../entities/user.entity';
 
 describe('ProfileService', () => {
   let service: ProfileService;
@@ -33,15 +34,84 @@ describe('ProfileService', () => {
   });
 
   it('should return profile and published posts', async () => {
-    const mockUser = { id: 'u1', username: 'testuser', password_hash: 'secret' };
-    const mockPosts = [
-      { id: 'p1', status: PostStatus.PUBLISHED, title: 'P1' },
-      { id: 'p2', status: PostStatus.DRAFT, title: 'P2' },
-      { id: 'p3', status: PostStatus.PUBLISHED, hidden_at: new Date(), title: 'P3' },
+    const mockUser: User = {
+      id: 'u1',
+      github_id: null,
+      username: 'testuser',
+      display_name: 'Test User',
+      avatar_url: null,
+      email: 'test@example.com',
+      role: 'user',
+      password_hash: 'secret',
+      bio: null,
+      github_profile_url: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+      deleted_at: null,
+      posts: [],
+      revisions: [],
+      comments: [],
+      auditLogs: [],
+    };
+    const mockPosts: Post[] = [
+      {
+        id: 'p1',
+        user_id: 'u1',
+        title: 'P1',
+        description: null,
+        content: 'c1',
+        status: PostStatus.PUBLISHED,
+        published_at: new Date(),
+        hidden_at: null,
+        locked_at: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+        user: mockUser,
+        revisions: [],
+        comments: [],
+        snapshots: [],
+      },
+      {
+        id: 'p2',
+        user_id: 'u1',
+        title: 'P2',
+        description: null,
+        content: 'c2',
+        status: PostStatus.DRAFT,
+        published_at: null,
+        hidden_at: null,
+        locked_at: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+        user: mockUser,
+        revisions: [],
+        comments: [],
+        snapshots: [],
+      },
+      {
+        id: 'p3',
+        user_id: 'u1',
+        title: 'P3',
+        description: null,
+        content: 'c3',
+        status: PostStatus.PUBLISHED,
+        published_at: new Date(),
+        hidden_at: new Date(),
+        locked_at: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+        user: mockUser,
+        revisions: [],
+        comments: [],
+        snapshots: [],
+      },
     ];
 
-    userRepository.findByUsername.mockResolvedValue(mockUser as any);
-    postRepository.findByUser.mockResolvedValue(mockPosts as any);
+    userRepository.findByUsername.mockResolvedValue(mockUser);
+    postRepository.findByUser.mockResolvedValue(mockPosts);
 
     const result = await service.getProfile('testuser');
 
@@ -57,7 +127,25 @@ describe('ProfileService', () => {
   });
 
   it('should update profile', async () => {
-    userRepository.update.mockResolvedValue({ id: 'u1' } as any);
+    userRepository.update.mockResolvedValue({
+      id: 'u1',
+      github_id: null,
+      username: 'testuser',
+      display_name: 'Test User',
+      avatar_url: null,
+      email: 'test@example.com',
+      role: 'user',
+      password_hash: null,
+      bio: 'hello',
+      github_profile_url: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+      deleted_at: null,
+      posts: [],
+      revisions: [],
+      comments: [],
+      auditLogs: [],
+    });
     await service.updateProfile('u1', { bio: 'hello' });
     expect(userRepository.update).toHaveBeenCalledWith('u1', {
       display_name: undefined,

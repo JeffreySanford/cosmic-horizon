@@ -12,6 +12,7 @@ import {
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import { RateLimitGuard } from '../guards/rate-limit.guard';
 import { ProfileService } from './profile.service';
+import type { AuthenticatedRequest } from '../types/http.types';
 
 @Controller('profiles')
 export class ProfileController {
@@ -27,7 +28,7 @@ export class ProfileController {
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
   @HttpCode(HttpStatus.OK)
   async updateMyProfile(
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
     @Body() updateData: { display_name?: string; bio?: string; avatar_url?: string }
   ) {
     return this.profileService.updateProfile(req.user.id, updateData);

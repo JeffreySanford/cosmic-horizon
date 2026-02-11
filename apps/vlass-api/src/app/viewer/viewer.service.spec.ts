@@ -149,7 +149,44 @@ describe('ViewerService', () => {
     });
 
     expect(result.id).toBe('snapshot-1');
+    expect(result.retention_days).toBeGreaterThanOrEqual(7);
     expect(auditLogRepository.createAuditLog).toHaveBeenCalled();
+  });
+
+  it('enforces minimum snapshot retention policy of seven days', async () => {
+    const originalRetentionDays = process.env['SNAPSHOT_RETENTION_DAYS'];
+    process.env['SNAPSHOT_RETENTION_DAYS'] = '1';
+
+    viewerSnapshotRepository.save.mockResolvedValueOnce({
+      id: 'snapshot-policy',
+      file_name: 'snapshot-policy.png',
+      mime_type: 'image/png',
+      size_bytes: 67,
+      short_id: null,
+      state_json: null,
+      created_at: new Date('2026-02-07T00:00:00.000Z'),
+      updated_at: new Date('2026-02-07T00:00:00.000Z'),
+    } as ViewerSnapshot);
+
+    const onePixelPngBase64 =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO1N7nQAAAAASUVORK5CYII=';
+
+    try {
+      const result = await service.createSnapshot({
+        image_data_url: `data:image/png;base64,${onePixelPngBase64}`,
+      });
+
+      expect(result.retention_days).toBe(7);
+      expect(auditLogRepository.createAuditLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          changes: expect.objectContaining({
+            retention_days: 7,
+          }),
+        }),
+      );
+    } finally {
+      process.env['SNAPSHOT_RETENTION_DAYS'] = originalRetentionDays;
+    }
   });
 
   it('retries cutout request using fallback surveys', async () => {

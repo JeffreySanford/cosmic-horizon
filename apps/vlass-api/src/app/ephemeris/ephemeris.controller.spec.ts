@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EphemerisController } from './ephemeris.controller';
-import { EphemerisService } from './ephemeris.service';
+import { EphemerisService, EphemerisResult } from './ephemeris.service';
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import { RateLimitGuard } from '../guards/rate-limit.guard';
-import { ExecutionContext, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 
 describe('EphemerisController', () => {
   let controller: EphemerisController;
@@ -24,9 +24,9 @@ describe('EphemerisController', () => {
       ],
     })
       .overrideGuard(AuthenticatedGuard)
-      .useValue({ canActivate: (context: ExecutionContext) => true })
+      .useValue({ canActivate: () => true })
       .overrideGuard(RateLimitGuard)
-      .useValue({ canActivate: (context: ExecutionContext) => true })
+      .useValue({ canActivate: () => true })
       .compile();
 
     controller = module.get<EphemerisController>(EphemerisController);
@@ -38,7 +38,7 @@ describe('EphemerisController', () => {
   });
 
   it('should return calculation results', async () => {
-    const mockResult = {
+    const mockResult: EphemerisResult = {
       ra: 10,
       dec: 20,
       accuracy_arcsec: 0.1,
@@ -66,7 +66,7 @@ describe('EphemerisController', () => {
   });
 
   it('should prioritize "target" over "object_name"', async () => {
-    const mockResult = {
+    const mockResult: EphemerisResult = {
       ra: 15,
       dec: 25,
       accuracy_arcsec: 0.1,
@@ -87,7 +87,7 @@ describe('EphemerisController', () => {
   });
 
   it('should use current date if epoch is missing', async () => {
-    const mockResult = {
+    const mockResult: EphemerisResult = {
       ra: 100,
       dec: -10,
       accuracy_arcsec: 0.1,
@@ -121,7 +121,7 @@ describe('EphemerisController', () => {
   });
 
   it('should support jpl-horizons source from service', async () => {
-    const mockResult = {
+    const mockResult: EphemerisResult = {
       ra: 50.5,
       dec: 12.3,
       accuracy_arcsec: 1.0,

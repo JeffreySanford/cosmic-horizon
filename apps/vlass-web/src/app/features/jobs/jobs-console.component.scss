@@ -1,0 +1,42 @@
+.jobs-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.job-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.params-row {
+  display: flex;
+  gap: 16px;
+}
+
+.active-jobs {
+  margin-top: 40px;
+}
+
+.job-item {
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.job-id {
+  font-family: monospace;
+  font-weight: bold;
+}
+
+mat-form-field {
+  width: 100%;
+}

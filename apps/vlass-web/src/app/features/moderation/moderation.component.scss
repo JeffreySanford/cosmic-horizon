@@ -1,0 +1,83 @@
+.moderation-container {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+
+    h1 {
+      color: #eec976;
+      margin: 0;
+    }
+  }
+
+  .reports-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(238, 201, 118, 0.15);
+    color: #c9ccd6;
+  }
+
+  .reports-table {
+    width: 100%;
+    background: transparent;
+    
+    th {
+      color: #eec976;
+      font-weight: 500;
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    td {
+      color: #c9ccd6;
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+      padding: 16px 8px;
+    }
+
+    .content-cell {
+      max-width: 400px;
+    }
+
+    .comment-preview {
+      font-style: italic;
+      color: #a4a9b6;
+    }
+
+    .hidden-label {
+      color: #ff8080;
+      font-size: 0.8rem;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .resolved-text {
+      color: #8ed081;
+      font-size: 0.9rem;
+    }
+  }
+
+  .loading-state, .empty-state {
+    text-align: center;
+    padding: 64px;
+    color: #a4a9b6;
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      color: #8ed081;
+    }
+  }
+
+  .error-banner {
+    background: rgba(255, 69, 58, 0.1);
+    border-left: 4px solid #ff453a;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #ffb8b8;
+  }
+}

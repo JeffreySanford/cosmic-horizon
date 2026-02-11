@@ -120,6 +120,33 @@
   font-size: 1.5rem;
 }
 
+.login-prompt, .locked-message {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-bottom: 24px;
+  text-align: center;
+  color: #c9ccd6;
+
+  a {
+    color: #eec976;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  mat-icon {
+    vertical-align: middle;
+    margin-right: 8px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
 .add-comment {
   margin-bottom: 32px;
   background: rgba(255, 255, 255, 0.1);

@@ -21,8 +21,10 @@ export class ProfileApiService {
     return this.http.get<ProfileModel>(`${this.apiBaseUrl}/api/profiles/${encodeURIComponent(username)}`);
   }
 
-  updateProfile(data: { display_name?: string; bio?: string; avatar_url?: string }): Observable<any> {
-    return this.http.put<any>(`${this.apiBaseUrl}/api/profiles/me`, data, {
+  updateProfile(
+    data: { display_name?: string; bio?: string; avatar_url?: string }
+  ): Observable<ProfileModel['user']> {
+    return this.http.put<ProfileModel['user']>(`${this.apiBaseUrl}/api/profiles/me`, data, {
       headers: this.authHeaders(),
     });
   }

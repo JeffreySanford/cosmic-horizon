@@ -39,8 +39,8 @@
 
 - Full FITS proxy / caching
 - Mode B (Canvas) viewer
-- Comments / replies
-- User profiles
+- Comments / replies (originally deferred in MVP lock; later added as post-MVP extension)
+- User profiles (originally deferred in MVP lock; later added as post-MVP extension)
 - Any Rust code (deferred)
 
 ---

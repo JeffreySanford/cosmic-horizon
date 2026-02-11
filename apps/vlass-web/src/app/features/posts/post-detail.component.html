@@ -78,17 +78,23 @@
         <h2 class="comments-title">Comments ({{ comments.length }})</h2>
 
         @if (!post.locked_at) {
-          <div class="add-comment">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Add a comment...</mat-label>
-              <textarea matInput rows="3" [(ngModel)]="newCommentContent" [disabled]="submittingComment"></textarea>
-            </mat-form-field>
-            <div class="form-actions">
-              <button mat-raised-button color="primary" [disabled]="!newCommentContent.trim() || submittingComment" (click)="submitComment()">
-                {{ submittingComment ? 'Posting...' : 'Post Comment' }}
-              </button>
+          @if (isAuthenticated) {
+            <div class="add-comment">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Add a comment...</mat-label>
+                <textarea matInput rows="3" [(ngModel)]="newCommentContent" [disabled]="submittingComment"></textarea>
+              </mat-form-field>
+              <div class="form-actions">
+                <button mat-raised-button color="primary" [disabled]="!newCommentContent.trim() || submittingComment" (click)="submitComment()">
+                  {{ submittingComment ? 'Posting...' : 'Post Comment' }}
+                </button>
+              </div>
             </div>
-          </div>
+          } @else {
+            <div class="login-prompt">
+              Please <a routerLink="/login">login</a> to join the conversation.
+            </div>
+          }
         } @else {
           <div class="locked-message">
             <mat-icon>lock</mat-icon> This post is locked. No new comments are allowed.
@@ -102,6 +108,7 @@
                 <app-comment-item
                   [comment]="comment"
                   [canDeleteAny]="canModerate"
+                  [isPostLocked]="!!post.locked_at"
                   (deleted)="onCommentDeleted()"
                   (replied)="onCommentReplied()"
                 >

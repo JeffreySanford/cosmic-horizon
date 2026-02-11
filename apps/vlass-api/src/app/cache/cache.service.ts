@@ -83,7 +83,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     return null;
   }
 
-  async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
+  async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
     const val = JSON.stringify(value);
     const ttl = ttlSeconds || 3600; // Default 1h
 

@@ -58,8 +58,8 @@ async function bootstrap() {
       .build();
     const openApiDocument = SwaggerModule.createDocument(app, openApiConfig);
     if (process.env['GENERATE_OPENAPI_SPEC'] === 'true') {
-      const outputPath = resolve(process.cwd(), 'documentation', 'api', 'openapi.json');
-      mkdirSync(resolve(process.cwd(), 'documentation', 'api'), { recursive: true });
+      const outputPath = resolve(process.cwd(), 'documentation', 'reference', 'api', 'openapi.json');
+      mkdirSync(resolve(process.cwd(), 'documentation', 'reference', 'api'), { recursive: true });
       writeFileSync(outputPath, JSON.stringify(openApiDocument, null, 2), 'utf8');
       await app.close();
       Logger.log(`OpenAPI spec generated at ${outputPath}`);

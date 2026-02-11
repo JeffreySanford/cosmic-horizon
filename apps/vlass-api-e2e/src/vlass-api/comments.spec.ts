@@ -1,21 +1,8 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 describe('comments e2e', () => {
   let authToken: string;
   let postId: string;
-
-  async function registerUser(
-    username: string,
-    email: string,
-    password = 'Password123!',
-  ): Promise<{ access_token: string; user: { id: string } }> {
-    const response = await axios.post('/api/auth/register', {
-      username,
-      email,
-      password,
-    });
-    return response.data as { access_token: string; user: { id: string } };
-  }
 
   beforeAll(async () => {
     // Login as test user
@@ -134,7 +121,7 @@ describe('comments e2e', () => {
     expect(deleteRes.status).toBe(204);
 
     const checkRes = await axios.get(`/api/comments/post/${postId}`);
-    const deletedFound = checkRes.data.find((c: any) => c.id === commentId);
+    const deletedFound = (checkRes.data as Array<{ id: string }>).find((c) => c.id === commentId);
     expect(deletedFound).toBeUndefined();
   });
 });

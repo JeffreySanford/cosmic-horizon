@@ -51,9 +51,9 @@ test('meets SSR login performance budget (TTFB/FCP/LCP)', async ({ page, browser
   expect(metrics.fcp).toBeGreaterThan(0);
   expect(metrics.lcp).toBeGreaterThan(0);
 
-  // Conservative local-gate thresholds to avoid flaky CI while still enforcing regressions.
+  // Pillar 1 charter thresholds.
   const ttfbBudget = ttfbBudgetForBrowser(browserName);
   expect(metrics.ttfb).toBeLessThan(ttfbBudget);
-  expect(metrics.fcp).toBeLessThan(3000);
-  expect(metrics.lcp).toBeLessThan(4500);
+  expect(metrics.fcp).toBeLessThan(1000);
+  expect(metrics.lcp).toBeLessThan(2000);
 });

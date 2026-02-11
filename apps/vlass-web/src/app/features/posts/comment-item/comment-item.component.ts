@@ -12,6 +12,7 @@ export class CommentItemComponent {
   @Input({ required: true }) comment!: CommentModel;
   @Input() depth = 0;
   @Input() canDeleteAny = false;
+  @Input() isPostLocked = false;
   @Output() deleted = new EventEmitter<string>();
   @Output() replied = new EventEmitter<void>();
 
@@ -26,6 +27,14 @@ export class CommentItemComponent {
   get isOwner(): boolean {
     const user = this.auth.getUser();
     return !!user && user.id === this.comment.user_id;
+  }
+
+  get canReply(): boolean {
+    return this.auth.isAuthenticated() && !this.isPostLocked && !this.comment.deleted_at;
+  }
+
+  get canReport(): boolean {
+    return this.auth.isAuthenticated() && !this.comment.deleted_at;
   }
 
   get canDelete(): boolean {
@@ -77,6 +86,33 @@ export class CommentItemComponent {
       },
       error: (err) => {
         alert(err.error?.message || 'Failed to delete comment.');
+      },
+    });
+  }
+
+  reportComment(): void {
+    const reason = prompt('Reason for reporting this comment?');
+    if (!reason) return;
+
+    this.commentsApi.reportComment(this.comment.id, { reason }).subscribe({
+      next: () => {
+        alert('Comment reported. Thank you.');
+      },
+      error: (err) => {
+        alert(err.error?.message || 'Failed to report comment.');
+      },
+    });
+  }
+
+  hideComment(): void {
+    if (!this.canDeleteAny) return;
+    
+    this.commentsApi.hideComment(this.comment.id).subscribe({
+      next: () => {
+        this.replied.emit(); // Refresh view
+      },
+      error: (err) => {
+        alert(err.error?.message || 'Failed to hide comment.');
       },
     });
   }

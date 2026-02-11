@@ -15,7 +15,22 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, defer, from, interval, map, merge, of, startWith, switchMap, tap } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  defer,
+  from,
+  fromEvent,
+  interval,
+  map,
+  merge,
+  of,
+  startWith,
+  switchMap,
+  take,
+  tap,
+  throwError,
+} from 'rxjs';
 import {
   CutoutTelemetryModel,
   NearbyCatalogLabelModel,
@@ -254,7 +269,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const startAt = performance.now();
-    from(this.initializeAladin())
+    this.initializeAladin$()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -501,8 +516,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           );
           return true;
         };
-        if (maybe && typeof (maybe as Promise<unknown>).then === 'function') {
-          return from(maybe as Promise<unknown>).pipe(
+        if (this.isPromiseLike(maybe)) {
+          return from(maybe).pipe(
             map(() => finish()),
             catchError(() => of(false)),
           );
@@ -677,7 +692,20 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       previous_enabled: previous,
       next_enabled: enabled,
     });
-    void this.reinitializeAladinView();
+    this.reinitializeAladinView$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
+          this.statusMessage = 'Failed to reinitialize sky viewer.';
+          if (this.gridToggleStartedAt !== null && isPlatformBrowser(this.platformId)) {
+            this.logViewerEvent('grid_toggle_failed', {
+              enabled: this.gridOverlayEnabled,
+              reinit_duration_ms: Math.round(performance.now() - this.gridToggleStartedAt),
+            });
+            this.gridToggleStartedAt = null;
+          }
+        },
+      });
   }
 
   toggleLabelsOverlay(enabled: boolean): void {
@@ -907,92 +935,102 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     return JSON.parse(atob(padded)) as ViewerStateModel;
   }
 
-  private async initializeAladin(): Promise<void> {
+  private initializeAladin$(): Observable<void> {
     const startedAt = isPlatformBrowser(this.platformId) ? performance.now() : 0;
     const host = this.aladinHost?.nativeElement;
     if (!host) {
-      return;
+      return of(void 0);
     }
 
-    const aladinFactory = await this.loadAladinFactory();
-    if (!aladinFactory) {
-      throw new Error('Aladin factory missing');
-    }
+    return this.loadAladinFactory$().pipe(
+      switchMap((aladinFactory) => {
+        if (!aladinFactory) {
+          return throwError(() => new Error('Aladin factory missing'));
+        }
 
-    this.aladinView = aladinFactory.aladin(host, {
-      target: `${this.stateForm.value.ra} ${this.stateForm.value.dec}`,
-      fov: Number(this.stateForm.value.fov),
-      survey: this.resolveEffectiveSurvey(this.currentState()),
-      showCooGrid: this.gridOverlayEnabled,
-      showFullscreenControl: false,
-      showLayersControl: false,
-    });
+        this.aladinView = aladinFactory.aladin(host, {
+          target: `${this.stateForm.value.ra} ${this.stateForm.value.dec}`,
+          fov: Number(this.stateForm.value.fov),
+          survey: this.resolveEffectiveSurvey(this.currentState()),
+          showCooGrid: this.gridOverlayEnabled,
+          showFullscreenControl: false,
+          showLayersControl: false,
+        });
 
-    this.aladinView.on('positionChanged', () => {
-      this.scheduleFormSyncFromAladin();
-    });
-    this.aladinView.on('zoomChanged', () => {
-      this.zoomEventCount += 1;
-      this.scheduleFormSyncFromAladin();
-    });
+        this.aladinView.on('positionChanged', () => {
+          this.scheduleFormSyncFromAladin();
+        });
+        this.aladinView.on('zoomChanged', () => {
+          this.zoomEventCount += 1;
+          this.scheduleFormSyncFromAladin();
+        });
 
-    this.applySurveyToAladin(this.resolveEffectiveSurvey(this.currentState()));
-    if (this.initialFovForLabels === null) {
-      this.initialFovForLabels = Number(this.stateForm.value.fov);
-    }
-    if (isPlatformBrowser(this.platformId)) {
-      this.logViewerEvent('aladin_initialized', {
-        duration_ms: Math.round(performance.now() - startedAt),
-        grid_enabled: this.gridOverlayEnabled,
-        pdss_enabled: this.pdssColorEnabled,
-      });
-    }
+        this.applySurveyToAladin(this.resolveEffectiveSurvey(this.currentState()));
+        if (this.initialFovForLabels === null) {
+          this.initialFovForLabels = Number(this.stateForm.value.fov);
+        }
+        if (isPlatformBrowser(this.platformId)) {
+          this.logViewerEvent('aladin_initialized', {
+            duration_ms: Math.round(performance.now() - startedAt),
+            grid_enabled: this.gridOverlayEnabled,
+            pdss_enabled: this.pdssColorEnabled,
+          });
+        }
+
+        return of(void 0);
+      }),
+    );
   }
 
-  private async loadAladinFactory(): Promise<AladinFactory | null> {
+  private loadAladinFactory$(): Observable<AladinFactory | null> {
     if (!isPlatformBrowser(this.platformId)) {
-      return null;
+      return of(null);
     }
 
     const getFactory = (): AladinFactory | undefined => (window as unknown as { A?: AladinFactory }).A;
 
     const cachedFactory = getFactory();
     if (cachedFactory) {
-      await cachedFactory.init;
-      return cachedFactory;
+      return from(cachedFactory.init).pipe(map(() => cachedFactory));
     }
 
     const existingScript = document.querySelector(
       'script[data-vlass-aladin="true"]',
     ) as HTMLScriptElement | null;
-    if (!existingScript) {
-      const script = document.createElement('script');
-      script.src = 'https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js';
-      script.async = true;
-      script.defer = true;
-      script.dataset['vlassAladin'] = 'true';
+    const scriptReady$ =
+      existingScript && getFactory()
+        ? of(void 0)
+        : existingScript
+          ? this.waitForScriptLoad$(existingScript)
+          : defer(() => {
+              const script = document.createElement('script');
+              script.src = 'https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js';
+              script.async = true;
+              script.defer = true;
+              script.dataset['vlassAladin'] = 'true';
+              document.body.appendChild(script);
+              return this.waitForScriptLoad$(script);
+            });
 
-      await new Promise<void>((resolve, reject) => {
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Unable to load Aladin Lite'));
-        document.body.appendChild(script);
-      });
-    } else if (!getFactory()) {
-      await new Promise<void>((resolve, reject) => {
-        existingScript.addEventListener('load', () => resolve(), { once: true });
-        existingScript.addEventListener('error', () => reject(new Error('Unable to load Aladin Lite')), {
-          once: true,
-        });
-      });
-    }
+    return scriptReady$.pipe(
+      switchMap(() => {
+        const factory = getFactory();
+        if (!factory) {
+          return of(null);
+        }
 
-    const factory = getFactory();
-    if (!factory) {
-      return null;
-    }
+        return from(factory.init).pipe(map(() => factory));
+      }),
+    );
+  }
 
-    await factory.init;
-    return factory;
+  private waitForScriptLoad$(script: HTMLScriptElement): Observable<void> {
+    return merge(
+      fromEvent(script, 'load').pipe(map(() => void 0)),
+      fromEvent(script, 'error').pipe(
+        switchMap(() => throwError(() => new Error('Unable to load Aladin Lite'))),
+      ),
+    ).pipe(take(1));
   }
 
   private syncAladinFromForm(): void {
@@ -1217,26 +1255,33 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private async reinitializeAladinView(): Promise<void> {
+  private reinitializeAladinView$(): Observable<void> {
     const host = this.aladinHost?.nativeElement;
     if (!host) {
-      return;
+      return of(void 0);
     }
 
     host.innerHTML = '';
     this.aladinView = null;
     this.lastAppliedSurvey = '';
     this.zoomEventCount = 0;
-    await this.initializeAladin();
-    this.syncAladinFromForm();
-    this.scheduleNearbyLabelLookup(this.currentState(), { force: true });
-    if (this.gridToggleStartedAt !== null && isPlatformBrowser(this.platformId)) {
-      this.logViewerEvent('grid_toggle_applied', {
-        enabled: this.gridOverlayEnabled,
-        reinit_duration_ms: Math.round(performance.now() - this.gridToggleStartedAt),
-      });
-      this.gridToggleStartedAt = null;
-    }
+    return this.initializeAladin$().pipe(
+      tap(() => {
+        this.syncAladinFromForm();
+        this.scheduleNearbyLabelLookup(this.currentState(), { force: true });
+        if (this.gridToggleStartedAt !== null && isPlatformBrowser(this.platformId)) {
+          this.logViewerEvent('grid_toggle_applied', {
+            enabled: this.gridOverlayEnabled,
+            reinit_duration_ms: Math.round(performance.now() - this.gridToggleStartedAt),
+          });
+          this.gridToggleStartedAt = null;
+        }
+      }),
+    );
+  }
+
+  private isPromiseLike(value: unknown): value is PromiseLike<unknown> {
+    return typeof value === 'object' && value !== null && 'then' in value && typeof value.then === 'function';
   }
 
   private resetLabelLookupGate(): void {

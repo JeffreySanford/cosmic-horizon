@@ -23,7 +23,7 @@ Canonical scope: `documentation/product/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md`.
 
 - No FITS proxy code paths
 
-- No comment system code paths
+- Comments/profile extensions may exist, but Pillar 1/2 behavior and performance gates must remain green
 
 ## Deferred Work Handling
 

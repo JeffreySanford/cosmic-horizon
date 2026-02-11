@@ -28,7 +28,17 @@ Affiliation note:
 
 - Backend: `apps/vlass-api` (NestJS + Postgres/Redis)
 
+- Remote Compute Gateway (Phase 4): `JobsModule` integration with TACC/CosmicAI exascale compute fabric.
+
 - Shared models: `libs/shared/models`
+
+## Remote Compute & AI Integration (Phase 4)
+
+The VLASS Portal serves as the **AI Control Plane** for autonomous agents developed by the NSF-Simons CosmicAI initiative.
+
+- **Frontend Job Console**: Enterprise-grade steering interface for monitoring AlphaCal and Radio Image Reconstruction performance.
+- **Backend Orchestration**: `TaccIntegrationService` manages job submission, status polling, and result retrieval from TACC resources.
+- **Explainability**: Integration of agent-generated Science Ready Data Products (SRDPs) into Aladin snapshots for auditable results.
 
 ```mermaid
 flowchart LR
@@ -84,6 +94,7 @@ Frontend runtime note:
 Mode B planning overview (timing, feasibility, permission assumptions):
 
 ## - `documentation/architecture/VIEWER-MODE-B-INTEGRATION-OVERVIEW.md`
+
 ---
 
 *VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

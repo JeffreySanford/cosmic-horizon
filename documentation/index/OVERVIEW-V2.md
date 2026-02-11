@@ -33,6 +33,8 @@ In scope:
 
 - Scientific Ephemeris Backend (astronomy-engine based).
 
+- Remote Compute Gateway (TACC/CosmicAI job orchestration spike).
+
 Out of scope:
 
 - Mode B viewer (deferred to v2).
@@ -237,6 +239,7 @@ Required CI signals:
 - Lighthouse mobile report generated per CI run.
 
 ## - `documentation/operations/DEMO.md` reproducible by a new reviewer in under 3 minutes
+
 ---
 
 *VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

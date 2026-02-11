@@ -17,12 +17,24 @@
 
     <div class="comment-actions">
       @if (!comment.deleted_at) {
-        <button mat-button color="primary" (click)="toggleReply()">
-          Reply
-        </button>
+        @if (canReply) {
+          <button mat-button color="primary" (click)="toggleReply()">
+            Reply
+          </button>
+        }
+        @if (canReport) {
+          <button mat-button (click)="reportComment()">
+            Report
+          </button>
+        }
         @if (canDelete) {
           <button mat-button color="warn" (click)="deleteComment()">
             Delete
+          </button>
+        }
+        @if (canDeleteAny) {
+          <button mat-button color="accent" (click)="hideComment()">
+            Hide
           </button>
         }
       }
@@ -54,6 +66,7 @@
           [comment]="reply"
           [depth]="depth + 1"
           [canDeleteAny]="canDeleteAny"
+          [isPostLocked]="isPostLocked"
           (deleted)="onChildDeleted($event)"
           (replied)="onChildReplied()"
         >

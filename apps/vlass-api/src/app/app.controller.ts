@@ -3,11 +3,7 @@ import { AppService } from './app.service';
 import { CreateUserDto, UpdateUserDto, CreatePostDto, UpdatePostDto } from './dto';
 import { AuthenticatedGuard } from './auth/guards/authenticated.guard';
 import { RateLimitGuard } from './guards/rate-limit.guard';
-import { User } from './entities';
-
-type RequestWithUser = {
-  user: User;
-};
+import type { AuthenticatedRequest } from './types/http.types';
 
 @Controller()
 export class AppController {
@@ -65,7 +61,7 @@ export class AppController {
 
   @Post('posts')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  createPost(@Request() req: RequestWithUser, @Body() createPostDto: CreatePostDto) {
+  createPost(@Request() req: AuthenticatedRequest, @Body() createPostDto: CreatePostDto) {
     return this.appService.createPost({
       ...createPostDto,
       user_id: req.user.id,
@@ -79,49 +75,49 @@ export class AppController {
 
   @Put('posts/:id')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  updatePost(@Request() req: RequestWithUser, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  updatePost(@Request() req: AuthenticatedRequest, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.appService.updatePost(id, req.user.id, updatePostDto);
   }
 
   @Post('posts/:id/publish')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  publishPost(@Request() req: RequestWithUser, @Param('id') id: string) {
+  publishPost(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.appService.publishPost(id, req.user.id);
   }
 
   @Post('posts/:id/unpublish')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  unpublishPost(@Request() req: RequestWithUser, @Param('id') id: string) {
+  unpublishPost(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.appService.unpublishPost(id, req.user.id);
   }
 
   @Delete('posts/:id')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  deletePost(@Request() req: RequestWithUser, @Param('id') id: string) {
+  deletePost(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.appService.deletePost(id, req.user.id);
   }
 
   @Post('posts/:id/hide')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  hidePost(@Request() req: RequestWithUser, @Param('id') id: string) {
+  hidePost(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.appService.hidePost(id, req.user.id);
   }
 
   @Post('posts/:id/unhide')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  unhidePost(@Request() req: RequestWithUser, @Param('id') id: string) {
+  unhidePost(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.appService.unhidePost(id, req.user.id);
   }
 
   @Post('posts/:id/lock')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  lockPost(@Request() req: RequestWithUser, @Param('id') id: string) {
+  lockPost(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.appService.lockPost(id, req.user.id);
   }
 
   @Post('posts/:id/unlock')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  unlockPost(@Request() req: RequestWithUser, @Param('id') id: string) {
+  unlockPost(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.appService.unlockPost(id, req.user.id);
   }
 

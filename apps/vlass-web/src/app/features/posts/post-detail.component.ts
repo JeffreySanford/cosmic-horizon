@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PostsApiService, PostModel } from './posts-api.service';
 import { CommentsApiService, CommentModel } from './comments-api.service';
 import { renderSafeMarkdownHtml } from './markdown-renderer';
+import { AuthSessionService } from '../../services/auth-session.service';
 
 @Component({
   selector: 'app-post-detail',
@@ -30,7 +31,12 @@ export class PostDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly postsApi = inject(PostsApiService);
   private readonly commentsApi = inject(CommentsApiService);
+  private readonly auth = inject(AuthSessionService);
   private readonly destroyRef = inject(DestroyRef);
+
+  get isAuthenticated(): boolean {
+    return this.auth.isAuthenticated();
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

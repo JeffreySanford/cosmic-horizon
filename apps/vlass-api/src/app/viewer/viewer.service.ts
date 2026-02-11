@@ -237,6 +237,8 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
         state_json: payload.state ? (payload.state as unknown as Record<string, unknown>) : null,
       }),
     );
+    const retentionDays = this.snapshotRetentionDays();
+    const retainUntil = new Date(snapshot.created_at.getTime() + retentionDays * 24 * 60 * 60 * 1000);
 
     await this.auditLogRepository.createAuditLog({
       action: AuditAction.CREATE,
@@ -246,6 +248,8 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
         type: 'viewer_snapshot',
         short_id: snapshot.short_id,
         size_bytes: snapshot.size_bytes,
+        retention_days: retentionDays,
+        retain_until: retainUntil.toISOString(),
       },
     });
 
@@ -255,7 +259,17 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       short_id: snapshot.short_id,
       size_bytes: snapshot.size_bytes,
       created_at: snapshot.created_at,
+      retention_days: retentionDays,
+      retain_until: retainUntil.toISOString(),
     };
+  }
+
+  private snapshotRetentionDays(): number {
+    const configured = Number(process.env['SNAPSHOT_RETENTION_DAYS'] ?? 30);
+    if (!Number.isFinite(configured) || configured <= 0) {
+      return 30;
+    }
+    return Math.max(7, Math.floor(configured));
   }
 
   getCutoutTelemetry(): CutoutTelemetrySnapshot {

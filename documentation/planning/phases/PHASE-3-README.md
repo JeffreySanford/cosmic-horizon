@@ -12,6 +12,12 @@ Welcome to Phase 3 planning documentation. This phase establishes vlass-portal a
 
   - Success criteria and timeline
 
+- **[ALPHACAL-INTEGRATION-PLAYBOOK.md](ALPHACAL-INTEGRATION-PLAYBOOK.md)** — AlphaCal docking model, contract expectations, and claim-safe status guidance
+
+- **[PILLAR-3-IMPLEMENTATION-CHECKLIST.md](PILLAR-3-IMPLEMENTATION-CHECKLIST.md)** — Scope-to-task checklist for Pillar 3 APIs, models, tests, and done criteria
+
+- **[PILLAR-3-EXECUTION-BACKLOG.md](PILLAR-3-EXECUTION-BACKLOG.md)** — Ticketized execution order for Pillar 3 implementation
+
 - **[FUNDING-AND-COSTS.md](../funding/FUNDING-AND-COSTS.md)** — Funding strategy and cost breakdown (shared with Phase 2)
 
 ## Quick Overview
@@ -76,5 +82,11 @@ Welcome to Phase 3 planning documentation. This phase establishes vlass-portal a
 - [../../architecture/ARCHITECTURE.md](../../architecture/ARCHITECTURE.md) — MVP infrastructure (extends to distributed)
 
 - [PHASE-2-README.md](PHASE-2-README.md) — Phase 2 planning
+
+- [ALPHACAL-INTEGRATION-PLAYBOOK.md](ALPHACAL-INTEGRATION-PLAYBOOK.md) — AlphaCal integration analysis and operational playbook
+
+- [PILLAR-3-IMPLEMENTATION-CHECKLIST.md](PILLAR-3-IMPLEMENTATION-CHECKLIST.md) — Pillar 3 implementation checklist
+
+- [PILLAR-3-EXECUTION-BACKLOG.md](PILLAR-3-EXECUTION-BACKLOG.md) — Pillar 3 executable backlog
 
 - [../funding/FUNDING-AND-COSTS.md](../funding/FUNDING-AND-COSTS.md) — Comprehensive funding and cost breakdown

@@ -298,6 +298,7 @@ Pillar 1 + 2 + 3 as defined above. ~4–6 weeks.
 **Last Updated:** 2026-02-07
 
 ## **Next Review:** After MVP launch (go/no-go for v1.1)
+
 ---
 
 *VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

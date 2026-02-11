@@ -13,8 +13,21 @@ export interface CommentModel {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  hidden_at: string | null;
   user?: PostUserModel;
   replies?: CommentModel[];
+}
+
+export interface CommentReportModel {
+  id: string;
+  comment_id: string;
+  user_id: string;
+  reason: string;
+  description: string | null;
+  status: 'pending' | 'reviewed' | 'dismissed';
+  created_at: string;
+  user?: PostUserModel;
+  comment?: CommentModel;
 }
 
 @Injectable({
@@ -43,6 +56,36 @@ export class CommentsApiService {
 
   deleteComment(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}`, {
+      headers: this.authHeaders(),
+    });
+  }
+
+  reportComment(id: string, payload: { reason: string; description?: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/report`, payload, {
+      headers: this.authHeaders(),
+    });
+  }
+
+  hideComment(id: string): Observable<CommentModel> {
+    return this.http.patch<CommentModel>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/hide`, {}, {
+      headers: this.authHeaders(),
+    });
+  }
+
+  unhideComment(id: string): Observable<CommentModel> {
+    return this.http.patch<CommentModel>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/unhide`, {}, {
+      headers: this.authHeaders(),
+    });
+  }
+
+  getAllReports(): Observable<CommentReportModel[]> {
+    return this.http.get<CommentReportModel[]>(`${this.apiBaseUrl}/api/comments/reports/all`, {
+      headers: this.authHeaders(),
+    });
+  }
+
+  resolveReport(id: string, status: 'reviewed' | 'dismissed'): Observable<any> {
+    return this.http.patch<any>(`${this.apiBaseUrl}/api/comments/reports/${encodeURIComponent(id)}/resolve`, { status }, {
       headers: this.authHeaders(),
     });
   }

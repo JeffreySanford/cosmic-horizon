@@ -98,6 +98,15 @@ See [../phases/PHASE-2-EPHEMERIS-BACKEND.md](../phases/PHASE-2-EPHEMERIS-BACKEND
 ### Other v1.1 Features (Planned Next)
 
 - User profile polish
+
+## v1.2 (Scale and AI Gateway) — In-Progress
+
+See [../../architecture/TACC-JOB-ORCHESTRATION-SPIKE.md](../../architecture/TACC-JOB-ORCHESTRATION-SPIKE.md) for detailed implementation.
+
+- **Remote Job Orchestration Spike**: Implement backend simulations and frontend console for TACC-scale AI agent steering (AlphaCal, CosmicAI).
+- **Symposium Narrative**: Draft strategic artifacts for the "Explainable Universe" theme and Charlottesville 2026.
+- **Type Hardening**: Enforce strict TypeScript interfaces across the API gateway to eliminate implicit `any` and `unknown` types.
+- **Explainable UI Framework**: Initial prototypes for documentation of AI-driven results via persistent Aladin snapshots.
 - Feed ranking and discovery improvements
 - Target resolution enhancements for minor planets and comets
 
@@ -139,11 +148,17 @@ See [../phases/PHASE-3-README.md](../phases/PHASE-3-README.md) for overview and 
 
 To keep external positioning grounded in executable work:
 
-1. Add integration contracts for remote job control (`submit`, `status`, `cancel`) behind feature flags.
-2. Add run-audit trail and lineage metadata model extension in shared models.
-3. Add "independent/non-affiliated" presentation checklist to demo/release workflow.
-4. Keep external ecosystem claims source-dated and marked as planning hypotheses until verified.
-5. Publish a symposium packet (architecture, gates, scope boundaries, integration-ready APIs).
+1. [x] Add integration contracts for remote job control (`submit`, `status`, `cancel`) behind feature flags. (Simulated in `JobsModule`)
+2. [ ] Add run-audit trail and lineage metadata model extension in shared models.
+3. [ ] Add "independent/non-affiliated" presentation checklist to demo/release workflow.
+4. [ ] Keep external ecosystem claims source-dated and marked as planning hypotheses until verified.
+5. [x] Publish a symposium packet (architecture, gates, scope boundaries, integration-ready APIs). (`SYMPOSIUM-2026-NARRATIVE-DRAFT.md`)
+
+## Phase 4: Remote Compute & TACC Orchestration (ACTIVE)
+
+- **Status**: Spike COMPLETED (Feb 2026).
+- **Core Narrative**: Bridging the "Human Bottleneck" via the Remote Compute Gateway.
+- **Next High-Priority**: Transition from simulation to live TACC API headers; Job-to-Snapshot provenance linkage.
 
 ## Funding & Cost Strategy
 
@@ -168,6 +183,7 @@ See [FUNDING-AND-COSTS.md](../funding/FUNDING-AND-COSTS.md) for comprehensive co
 - Custom model training or fine-tuning
 
 ## - ngVLA data ingestion (await official ngVLA data release; infrastructure ready by Phase 3)
+
 ---
 
 *VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

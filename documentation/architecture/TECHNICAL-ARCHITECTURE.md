@@ -97,7 +97,9 @@ The transition from MVP to subsequent versions involves shifting from a unified 
 
 - **Scientific Ephemeris Backend (COMPLETED):** High-precision coordinate resolution for solar system objects using `astronomy-engine` (TS) and JPL Horizons fallback. Features daily cache pre-warming and Redis/Memory multi-tier caching.
 
-- **Interactive Comments:** Social features for the notebook system, allowing users to discuss and peer-review published sky posts (includes threaded replies and moderation).
+- **Interactive Comments (COMPLETED):** Social features for the notebook system, allowing users to discuss and peer-review published sky posts (includes threaded replies and moderation).
+
+- **Remote Compute Gateway (IN-PROGRESS):** Integration spike completed for remote TACC/CosmicAI job orchestration (submit/status/cancel). Features simulated gateway connectivity and a frontend Job Console for steering exascale AI agents.
 
 - **FITS Proxy (Mode B Integration):** Implementation of a specialized proxy to optimize the streaming and handling of Flexible Image Transport System (FITS) data (awaiting institutional policy alignment; deferred to v2).
 

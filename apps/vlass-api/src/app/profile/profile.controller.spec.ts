@@ -3,7 +3,6 @@ import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import { RateLimitGuard } from '../guards/rate-limit.guard';
-import { ExecutionContext } from '@nestjs/common';
 
 describe('ProfileController', () => {
   let controller: ProfileController;
@@ -25,9 +24,9 @@ describe('ProfileController', () => {
       ],
     })
       .overrideGuard(AuthenticatedGuard)
-      .useValue({ canActivate: (context: ExecutionContext) => true })
+      .useValue({ canActivate: () => true })
       .overrideGuard(RateLimitGuard)
-      .useValue({ canActivate: (context: ExecutionContext) => true })
+      .useValue({ canActivate: () => true })
       .compile();
 
     controller = module.get<ProfileController>(ProfileController);
@@ -39,11 +38,11 @@ describe('ProfileController', () => {
   });
 
   it('should return profile data', async () => {
-    const mockProfile = {
+    const mockProfile: Awaited<ReturnType<ProfileService['getProfile']>> = {
       user: { id: '1', username: 'testuser', display_name: 'Test User' },
       posts: [],
     };
-    service.getProfile.mockResolvedValue(mockProfile as any);
+    service.getProfile.mockResolvedValue(mockProfile);
 
     const result = await controller.getProfile('testuser');
     expect(result).toEqual(mockProfile);
@@ -52,8 +51,26 @@ describe('ProfileController', () => {
 
   it('should update my profile', async () => {
     const updateData = { bio: 'New bio' };
-    const mockUser = { id: '1', username: 'testuser', bio: 'New bio' };
-    service.updateProfile.mockResolvedValue(mockUser as any);
+    const mockUser: Awaited<ReturnType<ProfileService['updateProfile']>> = {
+      id: '1',
+      github_id: null,
+      username: 'testuser',
+      display_name: 'Test User',
+      avatar_url: null,
+      email: 'test@example.com',
+      role: 'user',
+      password_hash: null,
+      bio: 'New bio',
+      github_profile_url: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+      deleted_at: null,
+      posts: [],
+      revisions: [],
+      comments: [],
+      auditLogs: [],
+    };
+    service.updateProfile.mockResolvedValue(mockUser);
 
     const result = await controller.updateMyProfile({ user: { id: '1' } }, updateData);
     expect(result).toEqual(mockUser);

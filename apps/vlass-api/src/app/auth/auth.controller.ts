@@ -19,25 +19,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthenticatedGuard } from './guards/authenticated.guard';
 import { AuditLogRepository } from '../repositories/audit-log.repository';
 import { randomBytes } from 'node:crypto';
-
-type SessionShape = {
-  csrfToken?: string;
-};
-
-type RequestUser = Partial<User> & { id: string | number };
-
-type RequestWithUser = {
-  user?: RequestUser;
-  ip?: string;
-  headers?: Record<string, string | string[] | undefined>;
-  session?: SessionShape;
-  logout?: (callback: (err: Error | null) => void) => void;
-};
-
-type ResponseWithJsonAndRedirect = {
-  json: (body: unknown) => void;
-  redirect: (url: string) => void;
-};
+import { RequestWithUser, ResponseWithJsonAndRedirect } from '../types/http.types';
 
 @Controller('auth')
 export class AuthController {

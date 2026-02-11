@@ -4,6 +4,15 @@ import { firstValueFrom } from 'rxjs';
 import { CacheService } from '../cache/cache.service';
 import * as Astronomy from 'astronomy-engine';
 
+export interface EphemerisResult {
+  ra: number;
+  dec: number;
+  accuracy_arcsec: number;
+  epoch: string;
+  source: 'astronomy-engine' | 'jpl-horizons' | 'cache';
+  object_type: 'planet' | 'satellite' | 'asteroid';
+}
+
 @Injectable()
 export class EphemerisService {
   private readonly logger = new Logger(EphemerisService.name);
@@ -16,13 +25,13 @@ export class EphemerisService {
   async calculatePosition(
     objectName: string,
     epochIso: string = new Date().toISOString()
-  ) {
+  ): Promise<EphemerisResult | null> {
     const object = objectName.toLowerCase();
     const dateKey = epochIso.split('T')[0];
     const cacheKey = `ephem:${object}:${dateKey}`;
 
     // Check cache first
-    const cached = await this.cache.get<any>(cacheKey);
+    const cached = await this.cache.get<Omit<EphemerisResult, 'source'> | EphemerisResult>(cacheKey);
     if (cached) {
       return { ...cached, source: 'cache' };
     }
@@ -80,7 +89,7 @@ export class EphemerisService {
     return objectMap[name.toLowerCase()] ?? null;
   }
 
-  private async handleAsteroidFallback(name: string, epochIso: string) {
+  private async handleAsteroidFallback(name: string, epochIso: string): Promise<EphemerisResult | null> {
     const date = new Date(epochIso);
     const dateStr = date.toISOString().split('T')[0];
     const nextDay = new Date(date);
@@ -164,7 +173,7 @@ export class EphemerisService {
     }
   }
 
-  private classifyObject(name: string): string {
+  private classifyObject(name: string): EphemerisResult['object_type'] {
     const planets = ['mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'sun'];
     if (planets.includes(name.toLowerCase())) {
       return 'planet';

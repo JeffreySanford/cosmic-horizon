@@ -53,15 +53,13 @@ export class CommentsService {
         }
     }
 
-    const commentData: any = {
+    const commentData: Partial<Comment> = {
       user_id: userId,
       post_id: dto.post_id,
       content: dto.content,
+      parent_id: dto.parent_id ?? null,
+      parent: dto.parent_id ? ({ id: dto.parent_id } as Comment) : null,
     };
-
-    if (dto.parent_id) {
-      commentData.parent = { id: dto.parent_id };
-    }
 
     const comment = await this.commentRepository.create(commentData);
 

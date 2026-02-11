@@ -19,9 +19,10 @@
     "lint": "nx run-many --target=lint --all",
     "lighthouse:mobile": "pnpm dlx @lhci/cli@0.14.0 autorun --config=.github/lighthouse/lighthouserc.json",
     "lighthouse:summary": "node scripts/summarize-lighthouse.mjs",
+    "openapi:check": "node scripts/check-openapi.mjs",
     "security:audit": "pnpm audit --prod --audit-level=high",
     "docs:check": "node scripts/check-doc-consistency.mjs",
-    "quality:ci": "nx run docs-policy:check && nx run-many --target=test --all && nx run mvp-gates:e2e"
+    "quality:ci": "nx run docs-policy:check && pnpm openapi:check && nx run-many --target=test --all && nx run mvp-gates:e2e"
   },
   "private": true,
   "devDependencies": {

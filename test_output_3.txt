@@ -1,0 +1,191 @@
+
+> NX {workspaceRoot}\jest.preset.js does not start with {workspaceRoot}/. This will throw an error in Nx 20.
+
+
+ NX   Running targets lint, test for 5 projects:
+
+- shared-models
+- vlass-api-e2e
+- vlass-web-e2e
+- vlass-api
+- vlass-web
+
+
+
+> nx run vlass-api:test  [local cache]
+
+> jest --passWithNoTests=true
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/config/[22m[1msecurity.config.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/guards/[22m[1mrate-limit.guard.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/ephemeris/[22m[1mephemeris.service.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/ephemeris/[22m[1mephemeris.controller.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/profile/[22m[1mprofile.service.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/profile/[22m[1mprofile.controller.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/auth/strategies/[22m[1mjwt.strategy.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/viewer/[22m[1mviewer.controller.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/viewer/[22m[1mviewer.service.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/[22m[1mapp.service.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/[22m[1mapp.controller.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/auth/[22m[1mauth.service.spec.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m vlass-api [39m[27m[0m [2msrc/app/auth/[22m[1mauth.controller.spec.ts[22m
+[32m[Nest] 37560  - [39m02/11/2026, 10:08:06 AM [32m    LOG[39m [38;5;3m[AppService] [39m[32mDatabase status: connected[39m
+[32m[Nest] 37560  - [39m02/11/2026, 10:08:06 AM [32m    LOG[39m [38;5;3m[AppService] [39m[32mDatabase status: connected[39m
+[32m[Nest] 35916  - [39m02/11/2026, 10:08:06 AM [32m    LOG[39m [38;5;3m[ViewerService] [39m[32mCutout cache miss (source=none, provider=primary, survey=CDS/P/DSS2/color, size=1024x1024).[39m
+[32m[Nest] 35916  - [39m02/11/2026, 10:08:06 AM [32m    LOG[39m [38;5;3m[ViewerService] [39m[32mCutout cache miss (source=none, provider=primary, survey=CDS/VLASS, size=1024x1024).[39m
+[32m[Nest] 35916  - [39m02/11/2026, 10:08:06 AM [32m    LOG[39m [38;5;3m[ViewerService] [39m[32mCutout cache miss (source=none, provider=primary, survey=CDS/VLASS, size=2048x2048).[39m
+[32m[Nest] 35916  - [39m02/11/2026, 10:08:06 AM [32m    LOG[39m [38;5;3m[ViewerService] [39m[32mCutout cache miss (source=none, provider=primary, survey=CDS/VLASS, size=1024x1024).[39m
+[32m[Nest] 35916  - [39m02/11/2026, 10:08:06 AM [32m    LOG[39m [38;5;3m[ViewerService] [39m[32mCutout cache miss (source=none, provider=secondary, survey=CDS/VLASS, size=1024x1024).[39m
+[32m[Nest] 35916  - [39m02/11/2026, 10:08:06 AM [32m    LOG[39m [38;5;3m[ViewerService] [39m[32mNearby-label cache miss (source=none, limit=10, radius_deg=0.08).[39m
+
+[1mTest Suites: [22m[1m[32m13 passed[39m[22m, 13 total
+[1mTests:       [22m[1m[32m110 passed[39m[22m, 110 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        2.468 s
+[2mRan all test suites[22m[2m.[22m
+
+> nx run vlass-api:lint  [existing outputs match the cache, left as is]
+
+[2m> [22meslint .
+
+
+> nx run vlass-web-e2e:lint
+
+> eslint .
+
+
+> nx run vlass-api-e2e:lint  [existing outputs match the cache, left as is]
+
+[2m> [22meslint .
+
+
+> nx run shared-models:lint  [existing outputs match the cache, left as is]
+
+> eslint .
+
+
+> nx run shared-models:test  [local cache]
+
+> vitest
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/repos/vlass-portal/libs/shared/models[39m
+
+ [32m✓[39m [30m[42m shared-models [49m[39m src/lib/shared-models.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 08:30:13
+[2m   Duration [22m 166ms[2m (transform 24ms, setup 0ms, import 31ms, tests 2ms, environment 0ms)[22m
+
+
+> nx run vlass-web:lint
+
+
+Linting "vlass-web"...
+[0m[0m
+[0m[4mC:\repos\vlass-portal\apps\vlass-web\src\app\features\posts\comments-api.service.ts[24m[0m
+[0m  [2m63:92[22m  [33mwarning[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m64:27[22m  [33mwarning[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m87:75[22m  [33mwarning[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m88:28[22m  [33mwarning[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[33m[1m✖ 4 problems (0 errors, 4 warnings)[22m[39m[0m
+[0m[33m[1m[22m[39m[0m
+✖ 4 problems (0 errors, 4 warnings)
+
+
+> nx run vlass-web:test
+
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37m[1mInitial chunk files[22m                                   [2m | [22m[1mNames[22m                                              [2m | [22m [1mRaw size[22m[39m
+[37m[32mspec-app-features-viewer-viewer.component.js[39m[37m          [2m | [22m[2mspec-app-features-viewer-viewer.component[22m          [2m | [22m[36m111.04 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-posts-post-detail.component.js[39m[37m      [2m | [22m[2mspec-app-features-posts-post-detail.component[22m      [2m | [22m [36m66.11 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-auth-register-register.component.js[39m[37m [2m | [22m[2mspec-app-features-auth-register-register.component[22m [2m | [22m [36m49.06 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-landing-landing.component.js[39m[37m        [2m | [22m[2mspec-app-features-landing-landing.component[22m        [2m | [22m [36m45.41 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-logs-logs.component.js[39m[37m              [2m | [22m[2mspec-app-features-logs-logs.component[22m              [2m | [22m [36m34.69 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-posts-post-editor.component.js[39m[37m      [2m | [22m[2mspec-app-features-posts-post-editor.component[22m      [2m | [22m [36m32.79 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-profile-profile.component.js[39m[37m        [2m | [22m[2mspec-app-features-profile-profile.component[22m        [2m | [22m [36m30.58 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-moderation-moderation.component.js[39m[37m  [2m | [22m[2mspec-app-features-moderation-moderation.component[22m  [2m | [22m [36m24.62 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-posts-posts-list.component.js[39m[37m       [2m | [22m[2mspec-app-features-posts-posts-list.component[22m       [2m | [22m [36m23.72 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-jobs-jobs-console.component.js[39m[37m      [2m | [22m[2mspec-app-features-jobs-jobs-console.component[22m      [2m | [22m [36m17.33 kB[39m[37m[2m | [22m[39m
+[37m[32mstyles.css[39m[37m              [39m[37m                              [2m | [22m[2mstyles[22m                                             [2m | [22m [36m15.73 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-app.js[39m[37m                                       [2m | [22m[2mspec-app-app[22m                                       [2m | [22m [36m14.50 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-EHH6453B.js[39m[37m                                     [2m | [22m[2m-[22m                                                  [2m | [22m  [36m8.99 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-interceptors-auth-token.interceptor.js[39m[37m       [2m | [22m[2mspec-app-interceptors-auth-token.interceptor[22m       [2m | [22m  [36m7.30 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-LR642XO6.js[39m[37m                                     [2m | [22m[2m-[22m                                                  [2m | [22m  [36m5.23 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-RSTWSNOR.js[39m[37m                                     [2m | [22m[2m-[22m                                                  [2m | [22m  [36m4.75 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-guards-admin.guard.js[39m[37m                        [2m | [22m[2mspec-app-guards-admin.guard[22m                        [2m | [22m  [36m4.75 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-posts-posts-api.service.js[39m[37m          [2m | [22m[2mspec-app-features-posts-posts-api.service[22m          [2m | [22m  [36m3.95 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-PSYEB473.js[39m[37m                                     [2m | [22m[2m-[22m                                                  [2m | [22m  [36m3.23 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-services-sky-preview.service.js[39m[37m              [2m | [22m[2mspec-app-services-sky-preview.service[22m              [2m | [22m  [36m3.21 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-GFGOAHBC.js[39m[37m                                     [2m | [22m[2m-[22m                                                  [2m | [22m  [36m2.78 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-Z2AIQCP7.js[39m[37m                           [39m[37m          [2m | [22m[2m-[22m                                                  [2m | [22m  [36m2.70 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-viewer-hips-tile-prefetch.service.js[39m[37m[2m | [22m[2mspec-app-features-viewer-hips-tile-prefetch.service[22m[2m | [22m  [36m2.05 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-6BZ3CG22.js[39m[37m                                     [2m | [22m[2m-[22m                                                  [2m | [22m  [36m1.96 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-5RTMZ5EK.js[39m[37m                                     [2m | [22m[2m-[22m                                                  [2m | [22m  [36m1.76 kB[39m[37m[2m | [22m[39m
+[37m[32mchunk-3SZSKVQR.js[39m[37m                                     [2m | [22m[2m-[22m                                                  [2m | [22m  [36m1.39 kB[39m[37m[2m | [22m[39m
+[37m[32minit-testbed.js[39m[37m                                       [2m | [22m[2minit-testbed[22m                                       [2m | [22m  [36m1.21 kB[39m[37m[2m | [22m[39m
+[37m[32mspec-app-features-posts-markdown-renderer.js[39m[37m          [2m | [22m[2mspec-app-features-posts-markdown-renderer[22m          [2m | [22m[36m701 bytes[39m[37m[2m | [22m[39m
+[37m[39m
+[37m[1m [22m                                                     [2m | [22m[1mInitial total[22m                                      [2m | [22m[1m521.55 kB[22m[39m
+[37m[39m
+[37mApplication bundle generation complete. [3.007 seconds] - 2026-02-11T16:08:38.422Z[39m
+[37m[39m
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/repos/vlass-portal[39m
+
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/posts/markdown-renderer.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/viewer/hips-tile-prefetch.service.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/services/sky-preview.service.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/posts/posts-api.service.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/interceptors/auth-token.interceptor.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/guards/admin.guard.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/app.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 84[2mms[22m[39m
+ [31m❯[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/moderation/moderation.component.spec.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 89[2mms[22m[39m
+[31m     [31m×[31m should create[39m[32m 88[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/profile/profile.component.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/logs/logs.component.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 239[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/landing/landing.component.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 298[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/posts/posts-list.component.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 228[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/auth/register/register.component.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 237[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/posts/post-editor.component.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 233[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/posts/post-detail.component.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 277[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/jobs/jobs-console.component.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 237[2mms[22m[39m
+ [32m✓[39m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/viewer/viewer.component.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 655[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[43m vlass-web [49m[39m apps/vlass-web/src/app/features/moderation/moderation.component.spec.ts[2m > [22mModerationComponent[2m > [22mshould create
+[31m[1mError[22m: NG0304: 'mat-icon' is not a known element (used in the '_ModerationComponent' component template):
+1. If 'mat-icon' is an Angular component, then verify that it is a part of an @NgModule where this component is declared.
+2. If 'mat-icon' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@NgModule.schemas' of this component to suppress this message.[39m
+[90m [2m❯[22m validateElementIsKnown node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:[2m2795:15[22m[39m
+[90m [2m❯[22m Module.ɵɵelementStart node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:[2m14342:5[22m[39m
+[90m [2m❯[22m ModerationComponent_Template apps/vlass-web/src/app/features/moderation/moderation.component.html:[2m5:7[22m[39m
+[90m [2m❯[22m executeTemplate node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:[2m4848:5[22m[39m
+[90m [2m❯[22m renderView node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:[2m5247:7[22m[39m
+[90m [2m❯[22m renderComponent node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:[2m5226:5[22m[39m
+[90m [2m❯[22m renderChildComponents node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:[2m5276:5[22m[39m
+[90m [2m❯[22m renderView node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:[2m5261:7[22m[39m
+[90m [2m❯[22m ComponentFactory.create node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:[2m8312:9[22m[39m
+[90m [2m❯[22m initComponent node_modules/.pnpm/@angular+core@21.1.3_@angular+compiler@21.1.3_rxjs@7.8.2/node_modules/@angular/core/fesm2022/testing.mjs:[2m1475:45[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m16 passed[39m[22m[90m (17)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m71 passed[39m[22m[90m (72)[39m
+[2m   Start at [22m 10:08:38
+[2m   Duration [22m 2.96s[2m (transform 2.39s, setup 8.23s, import 6.64s, tests 2.88s, environment 17.93s)[22m
+
+
+
+
+ NX   Running targets lint, test for 5 projects failed
+
+Failed tasks:
+
+- vlass-web:test
+

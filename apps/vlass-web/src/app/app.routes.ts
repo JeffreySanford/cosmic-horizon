@@ -37,10 +37,22 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'moderation',
+    loadChildren: () =>
+      import('./features/moderation/moderation.module').then((m) => m.ModerationModule),
+    canActivate: [AuthGuard, AdminGuard],
+  },
+  {
     path: 'logs',
     loadChildren: () =>
       import('./features/logs/logs.module').then((m) => m.LogsModule),
     canActivate: [AuthGuard, AdminGuard],
+  },
+  {
+    path: 'jobs',
+    loadChildren: () =>
+      import('./features/jobs/jobs.module').then((m) => m.JobsModule),
+    canActivate: [AuthGuard],
   },
   {
     path: '**',

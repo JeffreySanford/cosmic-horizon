@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
+import { AxiosHeaders, AxiosResponse } from 'axios';
 import { EphemerisService } from './ephemeris.service';
 import { CacheService } from '../cache/cache.service';
 
@@ -78,7 +79,14 @@ describe('EphemerisService', () => {
   });
 
   it('should return null for unknown objects', async () => {
-    httpService.get.mockReturnValue(of({ data: { result: 'No matches found' } }) as any);
+    const response = {
+      data: { result: 'No matches found' },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { headers: new AxiosHeaders() },
+    } as AxiosResponse<{ result: string }>;
+    httpService.get.mockReturnValue(of(response));
     const result = await service.calculatePosition('unknown-planet');
     expect(result).toBeNull();
   });
@@ -92,7 +100,14 @@ $$EOE
 *******************************************************************************
     `;
     cacheService.get.mockResolvedValue(null);
-    httpService.get.mockReturnValue(of({ data: { result: mockJplResponse } }) as any);
+    const response = {
+      data: { result: mockJplResponse },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { headers: new AxiosHeaders() },
+    } as AxiosResponse<{ result: string }>;
+    httpService.get.mockReturnValue(of(response));
 
     const result = await service.calculatePosition('eros', '2026-02-11T12:00:00Z');
 

@@ -18,8 +18,8 @@ Canonical scope:
 
 - [x] Add source-dated industry context note for planning (`documentation/planning/INDUSTRY-CONTEXT-AND-FEASIBILITY-2026-02-11.md`)
 - [x] Add external-claims governance workflow (`documentation/governance/EXTERNAL-RESEARCH-WORKFLOW.md`)
-- [ ] Build symposium packet draft (architecture, quality gates, affiliation-safe positioning)
-- [ ] Define integration-readiness spike for remote job orchestration contracts (`submit/status/cancel`)
+- [x] Build symposium packet draft (`documentation/planning/SYMPOSIUM-2026-DRAFT.md`)
+- [x] Define integration-readiness spike for remote job orchestration contracts (`documentation/architecture/TACC-JOB-ORCHESTRATION-SPIKE.md`)
 - [ ] Add source/date table for external trend figures used in presentations
 
 **Phase 2 (v1.1) - Scientific Ephemeris Backend**: COMPLETED
@@ -61,9 +61,29 @@ Canonical scope:
   - [x] Implement User Profile page (backend + frontend)
   - [x] Link to profiles from posts and comments
   - [x] Added comprehensive testing for Ephemeris and Profile modules
-  - [ ] Implement comment reporting workflow
-  - [ ] Extend Post moderation (hide/lock) to comments
-  - [ ] Rate limiting and anti-spam measures
+  - [x] Implement comment reporting workflow
+  - [x] Extend Post moderation (hide/lock) to comments
+  - [x] Rate limiting and anti-spam measures
+  - [x] Admin Moderation Dashboard (UI to view/resolve reports)
+
+**Phase 4 (v1.2) - Remote Compute & TACC Integration**: IN-PROGRESS
+
+- [x] Sprint 1: Integration Spike & Symposium Prep (Weeks 1-2)
+  - [x] Scaffold `JobsModule` in backend with simulated TACC service
+  - [x] Implement Frontend Job Console with agent orchestration UI
+  - [x] Create Symposium 2026 Narrative and Exascale alignment artifacts
+  - [x] Harden API type safety (replace unknown/any with strict interfaces)
+  - [x] Align `ARCHITECTURE.md` with "Remote Compute Gateway" narrative
+
+- [ ] Sprint 2: Real Gateway Connectivity (Weeks 3-4)
+  - [ ] Implement actual TACC API orchestration (Slurm/Tapis integration)
+  - [ ] Secure credential management for remote compute headers
+  - [ ] Add persistent job audit trail to PostgreSQL schema
+
+- [ ] Sprint 3: Provenance and Explainable UI (Weeks 5-6)
+  - [ ] Link AI job outputs to persistent Aladin viewer snapshots
+  - [ ] Implement agent performance monitoring dashboards
+  - [ ] Finalize Symposium packet for Charlottesville 2026
 
 **MVP Pre-Deploy Checklist** (Before Public Release):
 
