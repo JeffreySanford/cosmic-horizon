@@ -62,7 +62,7 @@ jobs:
           pnpm nx run mvp-gates:e2e --output-style=stream 2>&1 | tee e2e.log
       - name: Upload e2e artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: e2e-test-output
           path: |
@@ -72,7 +72,7 @@ jobs:
           if-no-files-found: ignore
       - name: Upload e2e logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: e2e-logs
           path: e2e.log
@@ -85,7 +85,7 @@ jobs:
           docker compose logs --no-color > e2e-docker-logs.log || true
       - name: Upload infra diagnostic artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: e2e-infra-diagnostics
           path: |

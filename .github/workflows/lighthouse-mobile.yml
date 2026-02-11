@@ -40,7 +40,7 @@ jobs:
         run: node scripts/summarize-lighthouse.mjs
       - name: Upload Lighthouse artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: lighthouse-mobile
           path: |
