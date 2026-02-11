@@ -69,7 +69,6 @@ async function bootstrap() {
     app.getHttpAdapter().get(`/${globalPrefix}/openapi.json`, (_req: unknown, res: { json: (body: unknown) => void }) => {
       res.json(openApiDocument);
     });
-    const snapshotDir = resolveApiRootDir('storage', 'snapshots');
     app.use(
       helmet({
         contentSecurityPolicy: false,
@@ -119,12 +118,6 @@ async function bootstrap() {
     Logger.error('Failed to start application', error instanceof Error ? error.message : error);
     process.exit(1);
   }
-}
-
-function resolveApiRootDir(...segments: string[]): string {
-  const normalizedCwd = process.cwd().replace(/\\/g, '/');
-  const basePath = normalizedCwd.endsWith('/apps/vlass-api') ? process.cwd() : resolve(process.cwd(), 'apps', 'vlass-api');
-  return resolve(basePath, ...segments);
 }
 
 bootstrap();

@@ -22,11 +22,14 @@ If this direction is potentially useful, would you be open to connecting me with
 - policy/compliance constraints,
 - whether this should be explored as a future collaboration.
 
-I plan to submit a poster/short-talk abstract for Cosmic Horizons 2026 and would value a quick fit check on this framing.
+I am currently not in a position to travel to Cosmic Horizons 2026, but I would still value a quick fit check on this framing.
 
-If useful, I can share a short architecture note and live demo.
+If helpful, I can provide open-source presentation-ready materials (architecture overview, diagrams, abstract text, and documentation) that your team could use internally or in related program discussions.
 
-Best,  
-[Your Name]  
-[Role / Project]  
-`github.com/JeffreySanford/vlass-portal`
+I can also share a short architecture note and demo recording.
+
+Best regards,
+
+Jeffrey Sanford
+Architect, Designer, Developer
+Public VLASS Portal (github.com/JeffreySanford/vlass-portal)

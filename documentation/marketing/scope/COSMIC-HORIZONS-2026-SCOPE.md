@@ -31,6 +31,13 @@ Current astronomy AI ecosystems are strong in models and compute but weaker in p
 - reproducibility-linked outputs and collaboration workflows
 - human-centered interpretation and review pathways
 
+## Policy and Permission Boundaries
+
+- Current messaging is anchored to public-data-compatible workflows.
+- FITS-oriented expansion is treated as permission-gated until explicit guidance is received.
+- Proprietary/archive constraints must be respected before implementing any advanced FITS pipeline path.
+- See `documentation/marketing/scope/DATA-POLICY-BOUNDARIES.md`.
+
 ## Next Pillars (2-3 Year Alignment)
 
 1. AI inference service integration (short-term, highest leverage)
@@ -48,4 +55,3 @@ Current astronomy AI ecosystems are strong in models and compute but weaker in p
 1. Submit poster/short talk with infrastructure framing.
 2. Use outreach letter to validate program fit early.
 3. Bring a concrete live demo pathway (current pillars + next integration milestone).
-
