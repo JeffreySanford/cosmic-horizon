@@ -58,3 +58,6 @@ vitest.config.*.timestamp*
 # local test scratch outputs
 e2e-output.txt
 test-output-*.txt
+test-results.txt
+lint-results.txt
+e2e-results.txt
