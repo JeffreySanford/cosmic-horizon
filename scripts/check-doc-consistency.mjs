@@ -7,11 +7,11 @@ const checks = [
     banned: [/Mode B.*part of MVP/i, /Go microservice.*part of MVP/i],
   },
   {
-    file: 'documentation/SOURCE-OF-TRUTH.md',
+    file: 'documentation/governance/SOURCE-OF-TRUTH.md',
     required: [/PRODUCT-CHARTER\.md/i, /SCOPE-LOCK\.md/i, /libs\/shared\/models/i],
   },
   {
-    file: 'documentation/OVERVIEW.md',
+    file: 'documentation/index/OVERVIEW.md',
     required: [/Status date:/i],
     banned: [
       /Mode B.*part of MVP/i,
@@ -20,25 +20,25 @@ const checks = [
     ],
   },
   {
-    file: 'documentation/ARCHITECTURE.md',
+    file: 'documentation/architecture/ARCHITECTURE.md',
     required: [/Canonical scope/i],
     banned: [/apps\/vlass-go.*part of MVP/i, /Mode B.*part of MVP/i],
   },
   {
-    file: 'documentation/QUICK-START.md',
+    file: 'documentation/operations/QUICK-START.md',
     banned: [/apps\/vlass-go.*run/i, /Mode B.*required/i],
   },
   {
-    file: 'documentation/TESTING-STRATEGY.md',
+    file: 'documentation/quality/TESTING-STRATEGY.md',
     required: [/Baseline Gate/i],
     banned: [/Nest\s*[<\-]+>\s*Go.*required/i, /Mode B.*golden.*required/i],
   },
   {
-    file: 'documentation/API-ROUTES.md',
+    file: 'documentation/backend/API-ROUTES.md',
     required: [/Source of Truth Models/i],
   },
   {
-    file: 'documentation/ROADMAP.md',
+    file: 'documentation/planning/roadmap/ROADMAP.md',
     banned: [
       /Go microservice.*part of MVP/i,
       /Mode B.*part of MVP/i,
