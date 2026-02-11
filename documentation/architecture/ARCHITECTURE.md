@@ -49,3 +49,6 @@ Frontend runtime note:
   2. SSR preview generation becomes CPU-bound in production.
   3. v2 Mode B is approved.
 
+Mode B planning overview (timing, feasibility, permission assumptions):
+- `documentation/architecture/VIEWER-MODE-B-INTEGRATION-OVERVIEW.md`
+

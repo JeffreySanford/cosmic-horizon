@@ -10,6 +10,10 @@
 
 Mode B (originally "Go-backed Mode") was a proposed two-tier viewer architecture designed to support observatory-grade data visualization with serverless FITS processing. This document explains the original vision and why it was deferred.
 
+For current planning on "if/when" integration, feasibility gates, and permission assumptions, see:
+
+- `documentation/architecture/VIEWER-MODE-B-INTEGRATION-OVERVIEW.md`
+
 ---
 
 ## Mode B Architecture (Proposed, Deferred)

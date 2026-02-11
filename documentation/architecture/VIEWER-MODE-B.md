@@ -16,4 +16,5 @@ For active work, use:
 - `documentation/product/PRODUCT-CHARTER.md`
 - `SCOPE-LOCK.md`
 - `documentation/architecture/ARCHITECTURE.md`
+- `documentation/architecture/VIEWER-MODE-B-INTEGRATION-OVERVIEW.md`
 
