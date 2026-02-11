@@ -6,6 +6,7 @@ import { MaterialModule } from '../../shared/material/material.module';
 import { PostDetailComponent } from './post-detail.component';
 import { PostEditorComponent } from './post-editor.component';
 import { PostsListComponent } from './posts-list.component';
+import { CommentItemComponent } from './comment-item/comment-item.component';
 
 const postsRoutes: Routes = [
   {
@@ -23,7 +24,7 @@ const postsRoutes: Routes = [
 ];
 
 @NgModule({
-  declarations: [PostsListComponent, PostEditorComponent, PostDetailComponent],
+  declarations: [PostsListComponent, PostEditorComponent, PostDetailComponent, CommentItemComponent],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule, RouterModule.forChild(postsRoutes)],
 })
 export class PostsModule {}

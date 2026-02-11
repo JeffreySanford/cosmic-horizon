@@ -7,7 +7,7 @@ import { PostsApiService, PostModel } from './posts-api.service';
 @Component({
   selector: 'app-posts-list',
   templateUrl: './posts-list.component.html',
-  styleUrl: './posts-list.component.scss',
+  styleUrls: ['./posts-list.component.scss'],
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class PostsListComponent implements OnInit {

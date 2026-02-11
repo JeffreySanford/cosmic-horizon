@@ -7,13 +7,16 @@ Status date: 2026-02-07
 This strategy covers in-scope MVP architecture only:
 
 - Angular SSR web app
+
 - NestJS API
+
 - Shared models library
 
 ## Baseline Gate (Required)
 
 ```bash
 pnpm nx run-many --target=test --all
+
 ```
 
 CI must fail on baseline gate failures.
@@ -24,6 +27,7 @@ CI must fail on baseline gate failures.
 pnpm nx run docs-policy:check
 pnpm nx run-many --target=test --all
 pnpm nx run mvp-gates:e2e
+
 ```
 
 These three commands are the minimum quality bar for merge readiness.
@@ -33,7 +37,9 @@ These three commands are the minimum quality bar for merge readiness.
 1. Unit tests
 
 - API services/controllers
+
 - Web components/services (Vitest)
+
 - shared models
 
 1. Integration tests
@@ -43,16 +49,24 @@ These three commands are the minimum quality bar for merge readiness.
 1. E2E tests
 
 - Web critical flows (Playwright, Chromium for MVP gates)
+
 - API e2e scenarios
 
 ## Deferred Test Work (Not MVP)
 
 - Nest <-> Go contract tests
+
 - Mode B golden image tests
+
 - FITS proxy compliance tests
 
 ## Quality Policy
 
 - Every merge must keep baseline tests green.
+
 - New behavior should include tests in the closest relevant layer.
-- SSR performance is tracked via product KPIs and operational monitoring.
+
+## - SSR performance is tracked via product KPIs and operational monitoring
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

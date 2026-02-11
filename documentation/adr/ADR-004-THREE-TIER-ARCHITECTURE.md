@@ -6,10 +6,16 @@ Status: Updated for MVP scope lock
 MVP runtime decision:
 
 - Active tiers: Angular SSR + NestJS API
+
 - Optional future tier: Rust compute service (deferred)
 
 Notes:
 
 - Go microservice removed from MVP.
+
 - Mode B is deferred to v2.
-- Comments are deferred to v1.1.
+
+## Comments are deferred to v1.1
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

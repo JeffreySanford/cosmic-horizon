@@ -390,7 +390,7 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     const cachedNearby = await this.getNearbyLabelsFromCache(nearbyCacheKey);
     if (cachedNearby) {
       this.logNearbyCacheEvent('hit', cachedNearby.source, normalizedLimit, normalizedRadius);
-      return cachedNearby;
+      return cachedNearby.labels;
     }
     this.logNearbyCacheEvent('miss', 'none', normalizedLimit, normalizedRadius);
     const query = [

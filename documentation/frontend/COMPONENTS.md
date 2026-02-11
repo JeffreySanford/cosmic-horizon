@@ -1,7 +1,7 @@
 # Frontend Components Catalog
 
-**Date:** 2026-02-07  
-**Status:** MVP - Production Ready  
+**Date:** 2026-02-07
+**Status:** MVP - Production Ready
 **Scope:** All major Angular components in vlass-web app
 
 ---
@@ -9,10 +9,15 @@
 ## Table of Contents
 
 1. [Component Hierarchy](#component-hierarchy)
+
 2. [Feature Components (Routed)](#feature-components-routed)
+
 3. [Shared Components](#shared-components)
+
 4. [Service Singletons](#service-singletons)
+
 5. [Component Interaction Patterns](#component-interaction-patterns)
+
 6. [Testing Guidelines](#testing-guidelines)
 
 ---
@@ -35,6 +40,7 @@ AppComponent (root)
 │   ├── Aladin canvas container
 │   ├── Overlay controls (Grid, Labels, P/DSS2/color toggles)
 │   ├── Control Deck (form + actions)
+
 │   ├── Annotations panel
 │   ├── Cutout telemetry panel
 │   └── Permalink metadata panel
@@ -42,6 +48,7 @@ AppComponent (root)
 ├── [PostsModule] ⭐ (Pillar 3)
 │   ├── PostsListComponent (feed)
 │   ├── PostEditorComponent (markdown + viewer blocks)
+
 │   └── PostDetailComponent (published post)
 │
 └── [AdminModule]
@@ -49,6 +56,7 @@ AppComponent (root)
     │   ├── LogCountTilesComponent
     │   └── LogTableComponent (Material DataTable)
     └── ModerationComponent
+
 ```
 
 ---
@@ -59,8 +67,8 @@ These are the major components loaded via the router.
 
 ### LandingComponent
 
-**Path:** `features/landing/landing.component.ts`  
-**Route:** `/landing` (default)  
+**Path:** `features/landing/landing.component.ts`
+**Route:** `/landing` (default)
 **Purpose:** Project discovery and navigation hub
 
 #### Landing Inputs
@@ -74,6 +82,7 @@ These are the major components loaded via the router.
 #### Services Used
 
 - `AuthService` (check login status)
+
 - `ApiService` (fetch projects)
 
 #### Landing Key Methods
@@ -82,7 +91,7 @@ These are the major components loaded via the router.
 ngOnInit(): void {
   // Load public projects
   this.projects$ = this.api.getPublicProjects();
-  
+
   // Track user auth state
   this.isAuthenticated$ = this.authService.isAuthenticated$;
   this.currentUser$ = this.authService.currentUser$;
@@ -95,23 +104,28 @@ navigateToViewer(): void {
 navigateToEditor(): void {
   this.router.navigate(['/posts/new']); // Guard redirects if not authenticated
 }
+
 ```
 
 #### Template Sections
 
 - Hero banner (title + intro)
+
 - Search/filter projects
+
 - Project grid (cards)
+
 - Call-to-action buttons (Explore Viewer, New Post)
+
 - Footer with quick links
 
 ---
 
 ### ViewerComponent ⭐
 
-**Path:** `features/viewer/viewer.component.ts`  
-**Route:** `/view`, `/view/:shortId`  
-**Purpose:** Interactive astronomical sky viewer (Aladin Mode A)  
+**Path:** `features/viewer/viewer.component.ts`
+**Route:** `/view`, `/view/:shortId`
+**Purpose:** Interactive astronomical sky viewer (Aladin Mode A)
 **Complexity:** COMPLEX (1000+ lines)
 
 #### Viewer Inputs
@@ -121,14 +135,19 @@ navigateToEditor(): void {
 #### Viewer Outputs
 
 - Events logged to backend via LoggerService
+
 - State persisted to localStorage + database
 
 #### Viewer Services Used
 
 - `ViewerApiService` (state + cutout API)
+
 - `ActivatedRoute` (route params)
+
 - `StorageService` (localStorage)
+
 - `LoggerService` (event logging)
+
 - `FormBuilder` (reactive state form)
 
 #### Viewer Key Properties
@@ -153,18 +172,22 @@ centerCatalogLabel: NearbyCatalogLabelModel | null = null;
 loadingPermalink: boolean = false;
 savingSnapshot: boolean = false;
 cutoutTelemetry: CutoutTelemetryModel | null = null;
+
 ```
 
 #### Viewer Key Methods
 
 | Method | Purpose |
 | --- | --- |
+
 | `toggleGridOverlay(enabled)` | Toggle coordinate grid |
 | `toggleLabelsOverlay(enabled)` | Toggle catalog labels |
 | `togglePdssColor(enabled)` | Toggle P/DSS2/color survey |
 | `applyStateToUrl()` | Encode state + update URL |
+
 | `downloadScienceData()` | Download FITS cutout |
 | `createPermalink()` | Generate + save short ID |
+
 | `saveSnapshot()` | Export PNG screenshot |
 | `addCenterLabel()` | Manual label placement |
 | `addCenterCatalogLabelAsAnnotation()` | Annotate catalog object |
@@ -172,30 +195,43 @@ cutoutTelemetry: CutoutTelemetryModel | null = null;
 #### Viewer Lifecycle
 
 1. **ngOnInit:** Parse route params → load state from DB/URL
+
 2. **ngAfterViewInit:** Initialize Aladin on canvas
+
 3. **Form valueChanges subscription:** Sync form → Aladin in real-time
+
 4. **Nearby lookup scheduler:** Query catalogs when panning/zooming
+
 5. **onDestroy:** Clear timers, save labels to localStorage
 
 #### Viewer Template Structure
 
 - `<mat-toolbar>` — Header (title, back button)
+
 - `<div class="aladin-stage">` — Sky canvas container
+
 - `<div class="viewer-overlay-controls">` — Toggle switches (Grid, Labels, P/DSS)
+
 - `<mat-card class="viewer-state-card">` — Right panel with Control Deck
+
   - State form fields (RA, Dec, FoV, Survey)
+
   - Action buttons (Update URL, Download FITS, Create Permalink, Save PNG)
+
   - Label management section
+
   - Annotations details panel
+
   - Cutout telemetry
+
   - Encoded state display
 
 ---
 
 ### PostEditorComponent
 
-**Path:** `features/posts/post-editor.component.ts`  
-**Route:** `/posts/new` (create) or `/posts/:id/edit` (edit)  
+**Path:** `features/posts/post-editor.component.ts`
+**Route:** `/posts/new` (create) or `/posts/:id/edit` (edit)
 **Purpose:** Markdown editor with embedded viewer block parsing
 
 #### Editor Inputs
@@ -205,13 +241,17 @@ cutoutTelemetry: CutoutTelemetryModel | null = null;
 #### Editor Outputs
 
 - POST `/api/posts` (create)
+
 - PUT `/api/posts/:id` (update)
 
 #### Editor Services Used
 
 - `PostsApiService` (CRUD)
+
 - `FormBuilder` (title + content form)
+
 - `StorageService` (draft auto-save)
+
 - `Router` (navigation)
 
 #### Editor Key Properties
@@ -222,6 +262,7 @@ initialContent: string = '';
 isDirty: boolean = false;
 isSaving: boolean = false;
 draftKey = 'post-draft'; // localStorage key
+
 ```
 
 #### Editor Key Methods
@@ -232,7 +273,7 @@ private parseViewerBlocks(markdown: string): ViewerBlockReference[] {
   const regex = /```viewer\s*\n([\s\S]*?)\n```/g;
   const blocks: ViewerBlockReference[] = [];
   let match;
-  
+
   while ((match = regex.exec(markdown)) !== null) {
     try {
       const config = JSON.parse(match[1]);
@@ -247,7 +288,7 @@ private parseViewerBlocks(markdown: string): ViewerBlockReference[] {
       this.logParseError(e);
     }
   }
-  
+
   return blocks;
 }
 
@@ -267,46 +308,54 @@ private autoSaveDraft(): void {
 async saveDraft(): Promise<void> {
   this.isSaving = true;
   try {
-    const dto = { 
+    const dto = {
       title: this.editForm.value.title,
-      content: this.editForm.value.content 
+      content: this.editForm.value.content
     };
-    
+
     if (this.editMode && this.postId) {
       await this.postsApi.updatePost(this.postId, dto).toPromise();
     } else {
       const response = await this.postsApi.createPost(dto).toPromise();
       this.postId = response.id;
     }
-    
+
     this.router.navigate(['/posts', this.postId]);
   } finally {
     this.isSaving = false;
   }
 }
+
 ```
 
 #### Editor Lifecycle
 
 1. **ngOnInit:** Load draft from localStorage if new post; load from DB if editing
+
 2. **Form valueChanges:** Auto-save to localStorage every 5s
+
 3. **Parse viewer blocks:** Extract coordinates for preview (future enhancement)
+
 4. **onDestroy:** Clear form (reset isDirty flag)
 
 #### Editor Template
 
 - Title input field
+
 - Markdown content textarea
+
 - Preview pane (collapsible, shows parsed blocks)
+
 - Auto-save indicator
+
 - Publish/Save/Discard buttons
 
 ---
 
 ### PostDetailComponent
 
-**Path:** `features/posts/post-detail.component.ts`  
-**Route:** `/posts/:id`  
+**Path:** `features/posts/post-detail.component.ts`
+**Route:** `/posts/:id`
 **Purpose:** Display published/draft post with edit/publish controls
 
 #### Detail Inputs
@@ -316,13 +365,17 @@ async saveDraft(): Promise<void> {
 #### Detail Outputs
 
 - POST `/api/posts/:id/publish` (publish)
+
 - PUT `/api/posts/:id` (update)
+
 - DELETE `/api/posts/:id` (delete)
 
 #### Detail Services Used
 
 - `PostsApiService`
+
 - `ActivatedRoute`
+
 - `Router`
 
 #### Detail Key Properties
@@ -334,6 +387,7 @@ currentRevisionId: string | null = null;
 isOwner: boolean = false;
 isPublished: boolean = false;
 isLoading: boolean = true;
+
 ```
 
 #### Detail Key Methods
@@ -358,7 +412,7 @@ ngOnInit(): void {
 publish(): void {
   const postId = this.post?.id;
   if (!postId) return;
-  
+
   this.postsApi.publishPost(postId)
     .subscribe({
       next: (updatedPost) => {
@@ -385,17 +439,21 @@ deletePost(): void {
 private loadRevisions(postId: string): void {
   this.postsApi.getRevisions(postId)
     .subscribe(revisions => {
-      this.revisions = revisions.sort((a, b) => 
+      this.revisions = revisions.sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+
       );
     });
 }
+
 ```
 
 #### Detail Lifecycle
 
 1. **ngOnInit:** Load post + revisions
+
 2. **Display:** Show title, author, content, revision history
+
 3. **Auth check:** Show edit/delete buttons only if owner
 
 4. **Revision view:** Click revision to show specific version
@@ -403,17 +461,21 @@ private loadRevisions(postId: string): void {
 #### Detail Template
 
 - Post card header (title, author, created/published dates)
+
 - Post content (rendered markdown)
+
 - Revision history sidebar (list of revisions with dates)
+
 - Action buttons (Edit, Publish/Unpublish, Delete) if owner
+
 - Comments section placeholder (future)
 
 ---
 
 ### PostsListComponent
 
-**Path:** `features/posts/posts-list.component.ts`  
-**Route:** `/posts`  
+**Path:** `features/posts/posts-list.component.ts`
+**Route:** `/posts`
 **Purpose:** Feed of published community posts
 
 #### List Inputs
@@ -427,7 +489,9 @@ private loadRevisions(postId: string): void {
 #### List Services Used
 
 - `PostsApiService`
+
 - `ActivatedRoute` (query params)
+
 - `Router`
 
 #### List Key Properties
@@ -442,6 +506,7 @@ isLoading: boolean = false;
 // Filters
 searchTerm: string = '';
 selectedAuthor: string | null = null;
+
 ```
 
 #### List Key Methods
@@ -483,29 +548,36 @@ onPageChange(newPage: number): void {
 viewPost(postId: string): void {
   this.router.navigate(['/posts', postId]);
 }
+
 ```
 
 #### List Template
 
 - Search + filter form
+
 - Loading spinner (if isLoading)
+
 - Post grid/list view
+
   - Post card per row (title, author, excerpt, created date)
+
   - Click to navigate to detail
+
 - Pagination controls (prev/next, page number input)
 
 ---
 
 ### AdminLogsDashboardComponent
 
-**Path:** `features/admin/logs/admin-logs-dashboard.component.ts`  
-**Route:** `/admin/logs`  
-**Requires:** RBAC admin role  
+**Path:** `features/admin/logs/admin-logs-dashboard.component.ts`
+**Route:** `/admin/logs`
+**Requires:** RBAC admin role
 **Purpose:** System logs viewer with filters + full-text search
 
 #### Admin Services Used
 
 - `AdminLogsApiService`
+
 - `FormBuilder` (filter form)
 
 #### Key Properties
@@ -518,6 +590,7 @@ selectedFilter$: BehaviorSubject<string> = new BehaviorSubject('all');
 
 filterForm: FormGroup; // search, type, severity, user, date range
 pagination$: Observable<PaginationModel>;
+
 ```
 
 #### Admin Key Methods
@@ -533,12 +606,12 @@ ngOnInit(): void {
     from: [''],
     to: [''],
   });
-  
+
   // Load logs on filter change
   this.filterForm.valueChanges
     .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
     .subscribe(() => this.applyFilters());
-  
+
   // Load initial summary (counts)
   this.loadSummary();
 }
@@ -573,6 +646,7 @@ applyFilters(): void {
     shareReplay(1),
   );
 }
+
 ```
 
 #### See Also
@@ -587,12 +661,13 @@ These are reusable components used across features.
 
 ### HeaderComponent
 
-**Path:** `shared/components/header.component.ts`  
+**Path:** `shared/components/header.component.ts`
 **Purpose:** Top navigation bar
 
 #### Header Inputs
 
 - `title: string` (page title)
+
 - `showBackButton: boolean` (optional)
 
 #### Header Outputs
@@ -602,32 +677,37 @@ These are reusable components used across features.
 #### Template
 
 - Logo + brand
+
 - Current page title
+
 - User menu dropdown (profile, logout) if authenticated
+
 - Back button (if showBackButton true)
 
 ---
 
 ### LoadingSpinnerComponent
 
-**Path:** `shared/components/loading-spinner.component.ts`  
+**Path:** `shared/components/loading-spinner.component.ts`
 **Purpose:** Reusable loading indicator
 
 #### Spinner Inputs
 
 - `isLoading: boolean`
+
 - `message: string` (optional)
 
 #### Spinner Template
 
 - Material spinner
+
 - Loading text message
 
 ---
 
 ### ConfirmDialogComponent
 
-**Path:** `shared/components/confirm-dialog.component.ts`  
+**Path:** `shared/components/confirm-dialog.component.ts`
 **Purpose:** Modal confirmation dialog
 
 #### Usage
@@ -647,6 +727,7 @@ result.afterClosed().subscribe(confirmed => {
     this.deletePost();
   }
 });
+
 ```
 
 ---
@@ -664,13 +745,14 @@ These are global services provided at root level.
 export class AuthService {
   currentUser$ = new BehaviorSubject<User | null>(null);
   isAuthenticated$ = this.currentUser$.pipe(map(u => !!u));
-  
+
   login(email: string, password: string): Observable<AuthResponse>
   register(email: string, password: string): Observable<AuthResponse>
   verifyMfa(code: string): Observable<AuthResponse>
   logout(): void
   refreshToken(): Observable<string>
 }
+
 ```
 
 ---
@@ -688,6 +770,7 @@ export class ViewerApiService {
   scienceDataUrl(state: ViewerStateModel, detail: string): string
   downloadCutout(state: ViewerStateModel): Observable<Blob>
 }
+
 ```
 
 ---
@@ -707,6 +790,7 @@ export class PostsApiService {
   getPublishedPosts(options: QueryOptions): Observable<PaginatedResponse<PostModel>>
   getRevisions(postId: string): Observable<RevisionModel[]>
 }
+
 ```
 
 ---
@@ -722,6 +806,7 @@ export class AdminLogsApiService {
   getLogsSummary(fromDate?: Date, toDate?: Date): Observable<LogCountSummary>
   deleteOldLogs(retentionDays: number): Observable<{ deleted_count: number }>
 }
+
 ```
 
 ---
@@ -737,13 +822,14 @@ export class AdminLogsApiService {
 // Child
 @Input() post: PostModel;
 @Input() isOwner: boolean = false;
+
 ```
 
 ### Child → Parent: @Output + EventEmitter
 
 ```typescript
 // Parent
-<app-post-actions [postId]="postId" 
+<app-post-actions [postId]="postId"
                    (published)="onPublished($event)"
                    (deleted)="onDeleted($event)">
 </app-post-actions>
@@ -760,6 +846,7 @@ publish(): void {
     this.published.emit(result);
   });
 }
+
 ```
 
 ### Async Data: Observable + async Pipe
@@ -772,6 +859,7 @@ posts$ = this.postsApi.getPublishedPosts();
 @for (post of posts$ | async; track post.id) {
   <app-post-card [post]="post"></app-post-card>
 }
+
 ```
 
 ---
@@ -788,7 +876,7 @@ describe('MyComponent', () => {
 
   beforeEach(async () => {
     mockService = jasmine.createSpyObj('MyService', ['getData']);
-    
+
     await TestBed.configureTestingModule({
       imports: [MyComponent],
       providers: [
@@ -811,9 +899,14 @@ describe('MyComponent', () => {
     expect(mockService.getData).toHaveBeenCalled();
   });
 });
+
 ```
 
 ---
 
-**Last Updated:** 2026-02-07  
-**Maintained By:** VLASS Portal Frontend Team
+**Last Updated:** 2026-02-07
+
+## **Maintained By:** VLASS Portal Frontend Team
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

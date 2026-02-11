@@ -1,8 +1,8 @@
 # VLASS Portal Logging System (MVP)
 
-**Date:** 2026-02-07  
-**Status:** DESIGN PHASE  
-**Owner:** Architecture Team  
+**Date:** 2026-02-07
+**Status:** DESIGN PHASE
+**Owner:** Architecture Team
 **Audience:** Engineering (implementation guide)
 
 ---
@@ -12,8 +12,11 @@
 Comprehensive request/event logging system with:
 
 - **Dual-layer storage:** Redis (cache) + PostgreSQL (persistent)
+
 - **Universal instrumentation:** HTTP interceptors (frontend + backend) + WebSocket logging + application events
+
 - **Admin dashboard:** Material Data Table with RBAC, filtering, and search
+
 - **Real-time insights:** Log count tiles by severity/type
 
 ---
@@ -21,14 +24,23 @@ Comprehensive request/event logging system with:
 ## Table of Contents
 
 1. [System Architecture](#system-architecture)
+
 2. [What Gets Logged](#what-gets-logged)
+
 3. [Storage Strategy](#storage-strategy)
+
 4. [Database Schema](#database-schema)
+
 5. [API Endpoints](#api-endpoints)
+
 6. [Backend Implementation](#backend-implementation)
+
 7. [Frontend Implementation](#frontend-implementation)
+
 8. [Admin Dashboard UI](#admin-dashboard-ui)
+
 9. [RBAC & Security](#rbac--security)
+
 10. [Implementation Timeline](#implementation-timeline)
 
 ---
@@ -103,11 +115,13 @@ Comprehensive request/event logging system with:
 │  │ HTTP │ Info     │ jane │    │ POST     │ 201    │ 2s   │   │
 │  │ HTTP │ Error    │ john │    │ GET      │ 500    │ 5s   │   │
 │  │ EVT  │ Info     │ -    │    │ Publish  │ -      │ 1s   │   │
+
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                │
 │  [Prev] [1 2 3 4 5] [Next]  (100 items shown)               │
 │                                                                │
 └─────────────────────────────────────────────────────────────────┘
+
 ```
 
 ---
@@ -135,6 +149,7 @@ Comprehensive request/event logging system with:
   response_body_size: 512,
   error_message: null
 }
+
 ```
 
 ### **HTTP Requests (Backend)**
@@ -155,6 +170,7 @@ Comprehensive request/event logging system with:
   error_message: null,
   stack_trace: null
 }
+
 ```
 
 ### **WebSocket Events**
@@ -169,6 +185,7 @@ Comprehensive request/event logging system with:
   message_count: 5,
   error_message: null
 }
+
 ```
 
 ### **Application Events**
@@ -220,19 +237,28 @@ Comprehensive request/event logging system with:
     error_message: 'Unexpected token }'
   }
 }
+
 ```
 
 ### **Event Categories (See Tiles)**
 
 | Category | Count | Examples |
 | --- | --- | --- |
+
 | **All** | (sum) | Everything |
+
 | **HTTP** | - | Requests/responses |
+
 | **WebSocket** | - | Connection events |
+
 | **Auth** | - | LOGIN, LOGOUT, REGISTER, AUTH_FAILED |
+
 | **Post** | - | POST_CREATED, POST_PUBLISHED, POST_DELETED |
+
 | **Error** | - | HTTP 5xx, exception stack traces |
+
 | **Info** | - | Informational events |
+
 | **Warning** | - | Deprecations, fallbacks |
 
 ---
@@ -252,6 +278,7 @@ The current MVP viewer now emits runtime events for grid and load timing in dev 
   },
   timestamp: '2026-02-08T00:00:00.000Z'
 }
+
 ```
 
 Grid toggle events are logged as:
@@ -266,12 +293,15 @@ Grid toggle events are logged as:
     reinit_duration_ms: 420
   }
 }
+
 ```
 
 Backend cache behavior for viewer endpoints is logged with explicit source attribution:
 
 - cutout cache: `memory` | `redis` | `none`
+
 - nearby-label cache: `memory` | `redis` | `none`
+
 - startup cache config summary (Redis enabled, TTLs, warmup enabled)
 
 Example log messages:
@@ -280,6 +310,7 @@ Example log messages:
 Cutout cache hit (source=redis, provider=primary, survey=CDS/P/DSS2/color, size=1024x1024).
 Nearby-label cache miss (source=none, limit=16, radius_deg=0.2).
 Viewer cache config: redis_enabled=true, cutout_ttl_ms=300000, nearby_ttl_ms=30000, warmup_enabled=true.
+
 ```
 
 ### **Logger UI Route (Implemented)**
@@ -287,14 +318,19 @@ Viewer cache config: redis_enabled=true, cutout_ttl_ms=300000, nearby_ttl_ms=300
 Current MVP includes a built-in logger screen in the web app:
 
 - Route: `/logs`
+
 - Guard: authenticated + admin role
+
 - Data source: frontend in-memory `AppLoggerService` buffer
+
 - Purpose: verify runtime viewer/app events during development
 
 The page currently supports:
 
 - Refresh of local runtime entries
+
 - Event list with timestamp, level, area, event name
+
 - Structured details payload per entry (JSON)
 
 ---
@@ -303,41 +339,55 @@ The page currently supports:
 
 ### **Redis (Hot Cache)**
 
-**Purpose:** Fast queries for real-time dashboard  
-**Retention:** 7 days (TTL)  
-**Capacity:** ~100,000 recent log entries  
+**Purpose:** Fast queries for real-time dashboard
+**Retention:** 7 days (TTL)
+**Capacity:** ~100,000 recent log entries
 **Keys:**
 
 - `logs:all` → Sorted set with all logs (score = timestamp)
+
 - `logs:type:HTTP` → Sorted set filtered by type
+
 - `logs:type:EVENT` → Sorted set filtered by type
+
 - `logs:type:WEBSOCKET` → Sorted set filtered by type
+
 - `logs:severity:ERROR` → Sorted set filtered by severity
+
 - `logs:user:{user_id}` → User-specific logs
+
 - `logs:index` → Count of entries
 
 **Operations:**
 
 - Add: `ZADD logs:all <score> <entry_json>`
+
 - Query: `ZRANGE logs:all <start> <end> WITHSCORES`
+
 - Filter: `ZRANGE logs:severity:ERROR 0 -1`
+
 - Count: `ZCARD logs:all`
 
 ### **PostgreSQL (Persistent)**
 
-**Purpose:** Long-term storage, audit trail, compliance  
-**Retention:** Configurable (default 90 days)  
+**Purpose:** Long-term storage, audit trail, compliance
+**Retention:** Configurable (default 90 days)
 **Indexes:**
 
 - Primary: `id`
+
 - Composite: `(user_id, created_at)` for user-specific dashboards
+
 - Composite: `(type, severity, created_at)` for filtering
+
 - Single: `created_at` for date range queries
+
 - Single: `user_email` (hashed if sensitive)
 
 **Archival Strategy:**
 
 - After 90 days, move to `logs_archive` table
+
 - Optional: Export archive to S3 for compliance
 
 ---
@@ -349,40 +399,60 @@ The page currently supports:
 ```sql
 CREATE TABLE logs (
   -- PKs
+
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Core fields
+
   type VARCHAR(32)    NOT NULL,  -- 'HTTP_REQUEST', 'EVENT', 'WEBSOCKET'
+
   event_name VARCHAR(128),       -- Event name (e.g., 'POST_PUBLISHED')
+
   severity VARCHAR(16),          -- 'INFO', 'WARNING', 'ERROR'
-  
+
   -- User/context
+
   user_id UUID,                  -- nullable for public actions
+
   user_email VARCHAR(255),       -- denormalized for search
+
   ip_address INET,               -- IP address
-  
+
   -- Request/entity context
+
   method VARCHAR(16),            -- 'GET', 'POST', 'PUT', 'DELETE'
+
   path VARCHAR(512),             -- API path or entity type
+
   status_code SMALLINT,          -- HTTP 200, 404, etc
+
   entity_type VARCHAR(64),       -- 'post', 'revision', 'user'
+
   entity_id VARCHAR(255),        -- entity UUID
-  
+
   -- Performance
+
   duration_ms INT,               -- Request duration (ms)
-  
+
   -- Details (JSON, flexible)
+
   details JSONB DEFAULT '{}',    -- { title, viewer_blocks_count, error_type, etc }
+
   request_body TEXT,             -- Truncated request body
+
   response_body TEXT,            -- Truncated response body
+
   error_message TEXT,            -- Error message
+
   stack_trace TEXT,              -- Stack trace (only for errors)
-  
+
   -- Metadata
+
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  
+
   -- Indexes
+
   INDEX idx_type_severity_created (type, severity, created_at),
   INDEX idx_user_created (user_id, created_at),
   INDEX idx_created (created_at),
@@ -391,11 +461,13 @@ CREATE TABLE logs (
 );
 
 -- Archive table (same schema, rotated periodically)
+
 CREATE TABLE logs_archive LIKE logs;
 
 -- Search materialized view
+
 CREATE MATERIALIZED VIEW log_summary AS
-SELECT 
+SELECT
   type,
   severity,
   COUNT(*) as count,
@@ -403,6 +475,7 @@ SELECT
   MAX(created_at) as latest
 FROM logs
 GROUP BY type, severity;
+
 ```
 
 ---
@@ -411,9 +484,9 @@ GROUP BY type, severity;
 
 ### **Create Log Entry (Batch)**
 
-**Endpoint:** `POST /api/logs/batch`  
-**Auth:** Optional (frontend can log before auth)  
-**Rate Limit:** 100 req/min (generous for client-side logging)  
+**Endpoint:** `POST /api/logs/batch`
+**Auth:** Optional (frontend can log before auth)
+**Rate Limit:** 100 req/min (generous for client-side logging)
 **Body:**
 
 ```typescript
@@ -430,6 +503,7 @@ GROUP BY type, severity;
     // ... more entries
   ]
 }
+
 ```
 
 **Response:**
@@ -440,14 +514,15 @@ GROUP BY type, severity;
   count: 3,  // Entries accepted
   message: 'Batch logged'
 }
+
 ```
 
 ---
 
 ### **Get Logs (Paginated with Filters)**
 
-**Endpoint:** `GET /api/admin/logs`  
-**Auth:** Required + RBAC (admin:read)  
+**Endpoint:** `GET /api/admin/logs`
+**Auth:** Required + RBAC (admin:read)
 **Query Params:**
 
 ```bash
@@ -461,6 +536,7 @@ GET /api/admin/logs?
   search=POST%20/api/posts&
   from=2026-02-01&
   to=2026-02-07
+
 ```
 
 **Response:**
@@ -499,18 +575,20 @@ GET /api/admin/logs?
     info: 1128
   }
 }
+
 ```
 
 ---
 
 ### **Get Log Counts (For Tiles)**
 
-**Endpoint:** `GET /api/admin/logs/summary`  
-**Auth:** Required + RBAC (admin:read)  
-**Query Params:**  
+**Endpoint:** `GET /api/admin/logs/summary`
+**Auth:** Required + RBAC (admin:read)
+**Query Params:**
 
 ```bash
 GET /api/admin/logs/summary?from=2026-02-01&to=2026-02-07
+
 ```
 
 **Response:**
@@ -526,20 +604,22 @@ GET /api/admin/logs/summary?from=2026-02-01&to=2026-02-07
   info: 1128,
   timestamp: '2026-02-07T22:31:00.000Z'
 }
+
 ```
 
 ---
 
 ### **Delete Old Logs (Cleanup Job)**
 
-**Endpoint:** `POST /api/admin/logs/cleanup`  
-**Auth:** Required + RBAC (admin:write)  
+**Endpoint:** `POST /api/admin/logs/cleanup`
+**Auth:** Required + RBAC (admin:write)
 **Body:**
 
 ```typescript
 {
   retention_days: 90  // Keep logs newer than this
 }
+
 ```
 
 **Response:**
@@ -550,6 +630,7 @@ GET /api/admin/logs/summary?from=2026-02-01&to=2026-02-07
   remaining_count: 8920,
   message: 'Cleanup complete'
 }
+
 ```
 
 ---
@@ -636,6 +717,7 @@ export class Log {
   @UpdateDateColumn()
   updated_at!: Date;
 }
+
 ```
 
 ---
@@ -719,6 +801,7 @@ export class LogRepository {
     const data = await query
       .orderBy('log.created_at', 'DESC')
       .skip((page - 1) * limit)
+
       .take(limit)
       .getMany();
 
@@ -755,7 +838,9 @@ export class LogRepository {
       const typeKey = row.type.toLowerCase();
       const severityKey = row.severity?.toLowerCase() || 'info';
       summary[typeKey] = (summary[typeKey] || 0) + parseInt(row.count);
+
       summary[severityKey] = (summary[severityKey] || 0) + parseInt(row.count);
+
       summary.all += parseInt(row.count);
     }
 
@@ -773,6 +858,7 @@ export class LogRepository {
     return result.affected || 0;
   }
 }
+
 ```
 
 ---
@@ -805,6 +891,7 @@ export class LogService {
 
   /**
    * Queue a log entry for batch persistence
+
    */
   async queueLog(entry: Partial<Log>): Promise<void> {
     this.logQueue.push({
@@ -820,6 +907,7 @@ export class LogService {
 
   /**
    * Flush queued logs to Redis + PostgreSQL
+
    */
   async flushQueue(): Promise<void> {
     if (this.logQueue.length === 0) return;
@@ -847,6 +935,7 @@ export class LogService {
 
   /**
    * Write to Redis cache
+
    */
   private async writeToRedis(entries: Partial<Log>[]): Promise<void> {
     for (const entry of entries) {
@@ -886,11 +975,13 @@ export class LogService {
 
     // Set TTL on all keys (7 days)
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
     await this.cacheManager.store.client.expire('logs:all', sevenDaysMs);
   }
 
   /**
    * Start timer to auto-flush queue
+
    */
   private startQueueFlush(): void {
     this.queueTimer = setInterval(async () => {
@@ -902,6 +993,7 @@ export class LogService {
 
   /**
    * Stop queue timer (on app shutdown)
+
    */
   onModuleDestroy(): void {
     if (this.queueTimer) {
@@ -913,6 +1005,7 @@ export class LogService {
     );
   }
 }
+
 ```
 
 ---
@@ -946,6 +1039,7 @@ export class LoggingInterceptor implements NestInterceptor {
     return next.pipe(
       tap(async (responseData) => {
         const duration = Date.now() - startTime;
+
         const statusCode = response.statusCode;
 
         const logEntry: Partial<Log> = {
@@ -1010,6 +1104,7 @@ export class LoggingInterceptor implements NestInterceptor {
     return cloned;
   }
 }
+
 ```
 
 ---
@@ -1113,6 +1208,7 @@ export class AdminLogsController {
     };
   }
 }
+
 ```
 
 ---
@@ -1150,6 +1246,7 @@ export class LoggingInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       finalize(() => {
         const duration = Date.now() - startTime;
+
         // Log after response/error
       }),
       catchError((error: HttpErrorResponse) => {
@@ -1171,6 +1268,7 @@ export class LoggingInterceptor implements HttpInterceptor {
     );
   }
 }
+
 ```
 
 ---
@@ -1212,6 +1310,7 @@ export class LoggerService {
 
   /**
    * Queue a log entry
+
    */
   queueLog(entry: LogEntry): void {
     entry.timestamp = entry.timestamp || new Date().toISOString();
@@ -1225,6 +1324,7 @@ export class LoggerService {
 
   /**
    * Flush queued logs to backend
+
    */
   private flushLogs(): void {
     if (this.logQueue.length === 0) return;
@@ -1249,6 +1349,7 @@ export class LoggerService {
 
   /**
    * Log a custom event
+
    */
   logEvent(eventName: string, details?: any): void {
     this.queueLog({
@@ -1258,6 +1359,7 @@ export class LoggerService {
     });
   }
 }
+
 ```
 
 ---
@@ -1279,6 +1381,7 @@ admin-logs-dashboard/
     ├── log-table.component.ts
     ├── log-table.component.html
     └── log-table.component.scss
+
 ```
 
 ---
@@ -1290,6 +1393,7 @@ admin-logs-dashboard/
 ```html
 <div class="logs-dashboard">
   <!-- Header -->
+
   <mat-toolbar color="primary" class="toolbar">
     <span>System Logs</span>
     <span class="spacer"></span>
@@ -1299,6 +1403,7 @@ admin-logs-dashboard/
   </mat-toolbar>
 
   <!-- Count Tiles -->
+
   <section class="tiles-section">
     <app-log-count-tiles
       [counts]="logCounts"
@@ -1308,6 +1413,7 @@ admin-logs-dashboard/
   </section>
 
   <!-- Search & Filters -->
+
   <section class="filters-section">
     <mat-card>
       <mat-card-content>
@@ -1390,6 +1496,7 @@ admin-logs-dashboard/
   </section>
 
   <!-- Results Table -->
+
   <section class="table-section">
     <app-log-table
       [logs]="(logs$ | async) || []"
@@ -1399,6 +1506,7 @@ admin-logs-dashboard/
     ></app-log-table>
   </section>
 </div>
+
 ```
 
 ---
@@ -1407,6 +1515,7 @@ admin-logs-dashboard/
 
 ```html
 <!-- log-count-tiles.component.html -->
+
 <div class="tiles-container">
   <mat-card
     class="tile"
@@ -1457,6 +1566,7 @@ admin-logs-dashboard/
     <span class="label">Warnings</span>
   </mat-card>
 </div>
+
 ```
 
 ---
@@ -1465,6 +1575,7 @@ admin-logs-dashboard/
 
 ```html
 <!-- log-table.component.html -->
+
 <div class="table-wrapper">
   @if (loading) {
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -1472,6 +1583,7 @@ admin-logs-dashboard/
 
   <table mat-table [dataSource]="logs" class="logs-table">
     <!-- Type Column -->
+
     <ng-container matColumnDef="type">
       <th mat-header-cell>Type</th>
       <td mat-cell>
@@ -1482,6 +1594,7 @@ admin-logs-dashboard/
     </ng-container>
 
     <!-- Severity Column -->
+
     <ng-container matColumnDef="severity">
       <th mat-header-cell>Severity</th>
       <td mat-cell>
@@ -1492,6 +1605,7 @@ admin-logs-dashboard/
     </ng-container>
 
     <!-- Method/Event Column -->
+
     <ng-container matColumnDef="method">
       <th mat-header-cell>Method / Event</th>
       <td mat-cell>
@@ -1500,6 +1614,7 @@ admin-logs-dashboard/
     </ng-container>
 
     <!-- Path/Endpoint Column -->
+
     <ng-container matColumnDef="path">
       <th mat-header-cell>Path</th>
       <td mat-cell class="monospace">
@@ -1508,6 +1623,7 @@ admin-logs-dashboard/
     </ng-container>
 
     <!-- Status Column -->
+
     <ng-container matColumnDef="status">
       <th mat-header-cell>Status</th>
       <td mat-cell>
@@ -1522,6 +1638,7 @@ admin-logs-dashboard/
     </ng-container>
 
     <!-- User Column -->
+
     <ng-container matColumnDef="user">
       <th mat-header-cell>User</th>
       <td mat-cell>
@@ -1530,6 +1647,7 @@ admin-logs-dashboard/
     </ng-container>
 
     <!-- Duration Column -->
+
     <ng-container matColumnDef="duration">
       <th mat-header-cell>Duration</th>
       <td mat-cell>
@@ -1538,10 +1656,12 @@ admin-logs-dashboard/
         } @else {
           -
         }
+
       </td>
     </ng-container>
 
     <!-- Time Column -->
+
     <ng-container matColumnDef="time">
       <th mat-header-cell>Time</th>
       <td mat-cell class="time">
@@ -1550,6 +1670,7 @@ admin-logs-dashboard/
     </ng-container>
 
     <!-- Action Column -->
+
     <ng-container matColumnDef="actions">
       <th mat-header-cell>Actions</th>
       <td mat-cell>
@@ -1574,6 +1695,7 @@ admin-logs-dashboard/
   </table>
 
   <!-- Pagination -->
+
   <mat-paginator
     [length]="pagination.total"
     [pageSize]="pagination.limit"
@@ -1581,6 +1703,7 @@ admin-logs-dashboard/
     (page)="onPageChange($event)"
   ></mat-paginator>
 </div>
+
 ```
 
 ---
@@ -1610,6 +1733,7 @@ const rolePermissions = {
     // No log access
   ],
 };
+
 ```
 
 ### **RBAC Guard**
@@ -1620,6 +1744,7 @@ const rolePermissions = {
 @RequireRole('admin')
 @Controller('admin/logs')
 export class AdminLogsController { ... }
+
 ```
 
 ---
@@ -1629,33 +1754,49 @@ export class AdminLogsController { ... }
 ### Phase 1: Core Logging (3 days)
 
 - [ ] Create Log entity + repository
+
 - [ ] Create LogService with Redis/DB write
+
 - [ ] Create HTTP interceptor (backend)
+
 - [ ] Create HTTP interceptor (frontend)
+
 - [ ] Add batch log endpoint
+
 - [ ] Unit tests for logging
 
 ### Phase 2: Admin Endpoints (2 days)
 
 - [ ] Create AdminLogsController
+
 - [ ] Implement GET /api/admin/logs with filters
+
 - [ ] Implement GET /api/admin/logs/summary
+
 - [ ] Implement cleanup endpoint
+
 - [ ] Integration tests
 
 ### Phase 3: Frontend Dashboard (2 days)
 
 - [ ] Create admin-logs-dashboard component
+
 - [ ] Create log-count-tiles component
+
 - [ ] Create log-table component with Material DataTable
+
 - [ ] Implement search/filter form
+
 - [ ] Add RBAC guards to routing
 
 ### Phase 4: Polish & Testing (1 day)
 
 - [ ] E2E tests for logging flow
+
 - [ ] Performance optimization (Redis queries)
+
 - [ ] Documentation
+
 - [ ] UAT with admins
 
 ### Total: ~1 week for MVP
@@ -1667,12 +1808,15 @@ export class AdminLogsController { ... }
 ### **Environment Variables**
 
 ```bash
+
 # .env
+
 REDIS_URL=redis://localhost:6379
 LOG_RETENTION_DAYS=90
 LOG_BATCH_SIZE=100
 LOG_FLUSH_INTERVAL_MS=5000
 LOG_SENSITIVE_FIELDS=password,token,authorization,secret
+
 ```
 
 ---
@@ -1680,10 +1824,15 @@ LOG_SENSITIVE_FIELDS=password,token,authorization,secret
 ## Success Metrics
 
 - ✅ All HTTP/WebSocket/event traffic logged
+
 - ✅ Admin can see logs within 5 seconds of action
+
 - ✅ Filters work smoothly (< 500ms query time)
+
 - ✅ 90-day retention without performance degradation
+
 - ✅ RBAC prevents unauthorized access
+
 - ✅ Redis + DB stay in sync
 
 ---
@@ -1691,12 +1840,20 @@ LOG_SENSITIVE_FIELDS=password,token,authorization,secret
 ## Future Enhancements (v2+)
 
 - [ ] WebSocket log collection
+
 - [ ] Real-time log streaming to admin dashboard
+
 - [ ] Custom alerts for error rates
+
 - [ ] Log export to CSV/JSON
+
 - [ ] Integration with external logging services (DataDog, ELK)
+
 - [ ] Machine learning anomaly detection
 
 ---
 
-**Ready to implement?** Start with Phase 1 (core logging infrastructure).
+## **Ready to implement?** Start with Phase 1 (core logging infrastructure)
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

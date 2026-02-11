@@ -4,13 +4,22 @@ import { ViewerService } from './viewer.service';
 import { ViewerState } from '../entities/viewer-state.entity';
 import { ViewerSnapshot } from '../entities/viewer-snapshot.entity';
 import { AuditLogRepository } from '../repositories';
+import { LoggingService } from '../logging/logging.service';
 
 describe('ViewerService', () => {
   let service: ViewerService;
   let dataSource: jest.Mocked<Pick<DataSource, 'query'>>;
-  let viewerStateRepository: jest.Mocked<Pick<Repository<ViewerState>, 'findOne' | 'create' | 'save'>>;
-  let viewerSnapshotRepository: jest.Mocked<Pick<Repository<ViewerSnapshot>, 'create' | 'save'>>;
+  let viewerStateRepository: {
+    findOne: jest.Mock;
+    create: jest.Mock;
+    save: jest.Mock;
+  };
+  let viewerSnapshotRepository: {
+    create: jest.Mock;
+    save: jest.Mock;
+  };
   let auditLogRepository: jest.Mocked<Pick<AuditLogRepository, 'createAuditLog'>>;
+  let loggingService: jest.Mocked<Pick<LoggingService, 'add'>>;
 
   beforeEach(() => {
     jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
@@ -31,7 +40,11 @@ describe('ViewerService', () => {
     };
 
     auditLogRepository = {
-      createAuditLog: jest.fn().mockResolvedValue(),
+      createAuditLog: jest.fn().mockResolvedValue(undefined),
+    };
+
+    loggingService = {
+      add: jest.fn().mockResolvedValue(undefined),
     };
 
     service = new ViewerService(
@@ -39,6 +52,7 @@ describe('ViewerService', () => {
       viewerStateRepository as unknown as Repository<ViewerState>,
       viewerSnapshotRepository as unknown as Repository<ViewerSnapshot>,
       auditLogRepository as unknown as AuditLogRepository,
+      loggingService as unknown as LoggingService,
     );
 
     jest.spyOn(global, 'fetch').mockResolvedValue({

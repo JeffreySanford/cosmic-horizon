@@ -6,8 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
-  Relation,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Post } from './post.entity';
 import { User } from './user.entity';
 

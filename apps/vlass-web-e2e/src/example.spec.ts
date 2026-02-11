@@ -119,7 +119,17 @@ test('logs in and allows logout', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Login');
   await loginEmail.fill('test@vlass.local');
   await loginPassword.fill('Password123!');
-  await page.getByRole('button', { name: 'Login' }).click();
+  await expect(loginEmail).toHaveValue('test@vlass.local');
+  await expect(loginPassword).toHaveValue('Password123!');
+  await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/auth/login') &&
+        response.request().method() === 'POST' &&
+        response.status() === 200,
+    ),
+    page.getByRole('button', { name: 'Login' }).click(),
+  ]);
 
   await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
   await expect(page.locator('h1')).toContainText('Welcome back, Test User');

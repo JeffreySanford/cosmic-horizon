@@ -11,12 +11,17 @@ Single migration system works for both SQLite (dev) and PostgreSQL (prod) withou
 TypeORM migrations work consistently across SQLite + Postgres with careful schema design.
 
 ```bash
+
 # Initialize
+
 npm install @nestjs/typeorm typeorm
 
 # Create migration
+
 pnpm nx exec -- typeorm migration:create \
+
   apps/vlass-api/src/migrations/InitialSchema
+
 ```
 
 ---
@@ -118,6 +123,7 @@ export class InitialSchema1700000000000 implements MigrationInterface {
     await queryRunner.dropTable('users');
   }
 }
+
 ```
 
 ---
@@ -166,6 +172,7 @@ const config: TypeOrmModuleOptions = {
 };
 
 export default config;
+
 ```
 
 ---
@@ -175,21 +182,29 @@ export default config;
 **Allowed:**
 
 - `VARCHAR(n)` ✅
+
 - `BOOLEAN` ✅
+
 - `INTEGER`, `BIGINT` ✅
+
 - `TIMESTAMP` ✅
+
 - `JSONB` → TypeORM handles; SQLite uses `TEXT` + JSON1 extension
+
 - `UUID` → TypeORM maps to `TEXT` in SQLite
 
 **Forbidden (Postgres-only):**
 
 - Array types: `INT[]` → Use JSONB instead
+
 - Range types: `INT4RANGE` → Use two columns (min, max)
+
 - Native UUID type in Postgres → Use `uuid` type in migration; TypeORM abstracts
 
 **Forbidden (SQLite-only):**
 
 - Foreign key constraint cascades (SQLite has limited CASCADE support)
+
   → Define in ORM, not DB-level
 
 ---
@@ -197,18 +212,25 @@ export default config;
 ## Running Migrations
 
 ```bash
+
 # Generate migration (interactive)
+
 pnpm nx exec -- typeorm migration:create \
+
   apps/vlass-api/src/migrations/AddUserBanFields
 
 # Run migrations (auto on app startup OR manual)
+
 pnpm nx exec -- typeorm migration:run
 
 # Revert last migration
+
 pnpm nx exec -- typeorm migration:revert
 
 # Show migration status
+
 pnpm nx exec -- typeorm migration:show
+
 ```
 
 ---
@@ -216,6 +238,7 @@ pnpm nx exec -- typeorm migration:show
 ## CI Testing (Both DBs)
 
 ```yaml
+
 # .github/workflows/test.yml
 
 jobs:
@@ -228,11 +251,13 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup SQLite
+
         if: matrix.db == 'sqlite'
         run: |
           echo "DB_URL=sqlite:///:memory:" >> $GITHUB_ENV
 
       - name: Setup Postgres
+
         if: matrix.db == 'postgres'
         run: |
           docker run -d -e POSTGRES_PASSWORD=test -p 5432:5432 postgres:14
@@ -240,10 +265,13 @@ jobs:
           echo "DB_URL=postgresql://postgres:test@localhost:5432/vlass_test" >> $GITHUB_ENV
 
       - name: Run tests
+
         run: pnpm nx test --all
 
       - name: Run e2e
+
         run: pnpm nx e2e vlass-api-e2e
+
 ```
 
 ---
@@ -252,26 +280,35 @@ jobs:
 
 ```bash
 #!/bin/bash
+
 # Migrate data from dev (SQLite) to prod (Postgres)
 
 # 1. Dump SQLite
+
 sqlite3 vlass.dev.db .dump > dump.sql
 
 # 2. Transform SQL dialect (SQLite → Postgres)
+
 # - Remove SQLite-specific pragmas
+
 # - Convert AUTOINCREMENT → SERIAL
+
 sed -i '/PRAGMA/d' dump.sql
 
 # 3. Create Postgres schema from migrations
+
 psql -h prod-db.example.com -U postgres -d vlass_prod \
   -c "GRANT CREATE ON DATABASE vlass_prod TO vlass_app;"
 
 # 4. Run TypeORM migrations against Postgres
+
 NODE_ENV=production DB_URL="postgresql://..." \
   pnpm nx exec -- typeorm migration:run
 
 # 5. Import data (if needed)
+
 # psql -h prod-db.example.com -U vlass_app -d vlass_prod < dump.sql
+
 ```
 
 ---
@@ -315,6 +352,7 @@ describe('Database Migrations', () => {
       await dataSource.runMigrations();
 
       // Insert + verify
+
       const user = dataSource.getRepository(User).create({
         email: 'test@example.com',
         displayName: 'Test',
@@ -350,15 +388,22 @@ describe('Database Migrations', () => {
     });
   });
 });
+
 ```
 
 ---
 
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-02-11
 
 **Key Reminders:**
 
 1. **Single migration system.**TypeORM handles both DB types.
+
 2. **Never use auto-sync.** Always explicit migrations.
+
 3. **Test against both SQLite + Postgres** in CI.
-4. **Avoid DB-specific types.** Keep schema portable.
+
+## 4. **Avoid DB-specific types.** Keep schema portable
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

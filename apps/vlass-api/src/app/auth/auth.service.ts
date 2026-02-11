@@ -46,12 +46,17 @@ export class AuthService implements OnModuleInit {
    * Validate or create a user from GitHub OAuth profile
    */
   async validateOrCreateUser(profile: Strategy.Profile): Promise<User> {
-    const {
-      id: github_id,
-      login: username,
-      emails,
-      displayName,
-    } = profile;
+    const githubId = Number(profile.id);
+    if (!Number.isInteger(githubId)) {
+      throw new BadRequestException('GitHub profile id is invalid.');
+    }
+
+    const username =
+      (typeof profile.username === 'string' && profile.username.trim().length > 0
+        ? profile.username.trim()
+        : null) ?? `github_${githubId}`;
+
+    const { emails, displayName } = profile;
 
     const display_name = displayName || username;
     const avatar_url = profile.photos?.[0]?.value || null;
@@ -66,14 +71,14 @@ export class AuthService implements OnModuleInit {
     }
 
     // Find existing user by GitHub ID
-    let user = await this.userRepository.findByGitHubId(github_id);
+    let user = await this.userRepository.findByGitHubId(githubId);
 
     if (!user) {
       // Create new user
       const createUserDto: CreateUserDto = {
         username,
         email,
-        github_id,
+        github_id: githubId,
         display_name,
         avatar_url,
       };

@@ -31,6 +31,12 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'profile',
+    loadChildren: () =>
+      import('./features/profile/profile.module').then((m) => m.ProfileModule),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'logs',
     loadChildren: () =>
       import('./features/logs/logs.module').then((m) => m.LogsModule),

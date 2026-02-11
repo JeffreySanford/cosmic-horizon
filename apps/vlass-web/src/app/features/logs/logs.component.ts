@@ -27,12 +27,12 @@ interface LogRow {
 @Component({
   selector: 'app-logs',
   templateUrl: './logs.component.html',
-  styleUrl: './logs.component.scss',
+  styleUrls: ['./logs.component.scss'],
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class LogsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly displayedColumns = ['at', 'level', 'area', 'event', 'message', 'status', 'user', 'context'];
-  readonly dataSource = new MatTableDataSource<LogRow>([]);
+  readonly dataSource: MatTableDataSource<LogRow> = new MatTableDataSource<LogRow>([]);
   readonly tiles: LogLevelTile[] = [
     { id: 'all', label: 'All', count: 0 },
     { id: 'verbose', label: 'Verbose', count: 0 },

@@ -13,7 +13,7 @@ import { AppLoggerService } from '../../../services/app-logger.service';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss',
+  styleUrls: ['./register.component.scss'],
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class RegisterComponent {

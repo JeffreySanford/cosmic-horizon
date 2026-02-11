@@ -8,10 +8,10 @@ import { CreateUserDto, CreatePostDto, UpdateUserDto } from './dto';
 describe('AppService', () => {
   let service: AppService;
   let mockDataSource: Pick<DataSource, 'isInitialized' | 'query'>;
-  let mockUserRepository: jest.Mocked<UserRepository>;
-  let mockPostRepository: jest.Mocked<PostRepository>;
-  let mockAuditLogRepository: jest.Mocked<AuditLogRepository>;
-  let mockRevisionRepository: jest.Mocked<RevisionRepository>;
+  let mockUserRepository: Record<string, jest.Mock>;
+  let mockPostRepository: Record<string, jest.Mock>;
+  let mockAuditLogRepository: Record<string, jest.Mock>;
+  let mockRevisionRepository: Record<string, jest.Mock>;
 
   const mockUser: User = {
     id: '1',
@@ -23,6 +23,7 @@ describe('AppService', () => {
     avatar_url: null,
     bio: null,
     github_profile_url: null,
+    password_hash: null,
     posts: [],
     revisions: [],
     comments: [],
@@ -90,7 +91,7 @@ describe('AppService', () => {
 
     mockAuditLogRepository = {
       createAuditLog: jest.fn().mockResolvedValue(undefined),
-    } as jest.Mocked<AuditLogRepository>;
+    };
 
     mockRevisionRepository = {
       create: jest.fn().mockResolvedValue(undefined as never),
@@ -98,15 +99,15 @@ describe('AppService', () => {
       findLatestByPost: jest.fn(),
       findById: jest.fn(),
       hardDelete: jest.fn(),
-    } as unknown as jest.Mocked<RevisionRepository>;
+    };
 
     // Manually instantiate service to avoid circular dependency in NestJS module system
     service = new AppService(
       mockDataSource as DataSource,
-      mockUserRepository,
-      mockPostRepository,
-      mockAuditLogRepository,
-      mockRevisionRepository,
+      mockUserRepository as unknown as UserRepository,
+      mockPostRepository as unknown as PostRepository,
+      mockAuditLogRepository as unknown as AuditLogRepository,
+      mockRevisionRepository as unknown as RevisionRepository,
     );
   });
 

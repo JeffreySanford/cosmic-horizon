@@ -41,6 +41,7 @@ export function errorBoundary<T>(
         ) {
           retryCount++;
           const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
+
           return new Promise((resolve) =>
             setTimeout(() => resolve(caught), delay),
           ).then(() => caught);
@@ -69,6 +70,7 @@ function isRetryableError(error: any): boolean {
     error.status === 408 // Request timeout
   );
 }
+
 ```
 
 ### Usage Example
@@ -101,6 +103,7 @@ export class TapService {
       );
   }
 }
+
 ```
 
 ---
@@ -168,6 +171,7 @@ export class DashboardComponent implements OnInit {
     );
   }
 }
+
 ```
 
 ---
@@ -198,6 +202,7 @@ this.data$ = this.fetchDataWithFallback(
   this.cache.get("posts"),
   this.http.get("/api/posts")
 );
+
 ```
 
 ---
@@ -226,11 +231,13 @@ export class CircuitBreaker {
 
   recordFailure(serviceName: string): void {
     const count = (this.failures.get(serviceName) ?? 0) + 1;
+
     this.failures.set(serviceName, count);
 
     // Open circuit after 5 failures
     if (count >= 5) {
       const tripped = Date.now() + 60000; // 60 seconds
+
       this.openUntil.set(serviceName, tripped);
       this.failures.set(serviceName, 0);
 
@@ -242,6 +249,7 @@ export class CircuitBreaker {
     this.failures.set(serviceName, 0);
   }
 }
+
 ```
 
 ### Usage in Service
@@ -275,6 +283,7 @@ export class ExternalApiService {
     );
   }
 }
+
 ```
 
 ---
@@ -321,6 +330,7 @@ export class ErrorLogger {
       .subscribe();
   }
 }
+
 ```
 
 ### Usage
@@ -337,6 +347,7 @@ this.api.getPosts().pipe(
     return of([]);
   }),
 );
+
 ```
 
 ---
@@ -381,9 +392,11 @@ describe('TapService Error Handling', () => {
     result.subscribe((sources) => {
       expect(sources.length).toBe(1);
       expect(callCount).toBe(3); // 2 retries + 1 success
+
     });
   });
 });
+
 ```
 
 ---
@@ -391,15 +404,24 @@ describe('TapService Error Handling', () => {
 ## Best Practices
 
 1. **Always have a fallback** for non-critical streams
+
 2. **Isolate subscriptions** — don't share error-prone streams
+
 3. **Timeout aggressively** — prevent hanging requests
+
 4. **Retry smartly** — only retryable errors (5xx, network)
+
 5. **Log with context** — correlation ID, user, action
+
 6. **Use circuit breaker** for external API dependencies
+
 7. **Test error paths** — not just happy paths
 
 ---
 
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-02-11
 
-**Key:** Isolate streams. Use fallbacks. Log with context. Retry smartly.
+## **Key:** Isolate streams. Use fallbacks. Log with context. Retry smartly
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

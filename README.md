@@ -24,7 +24,11 @@ VLASS Portal MVP is a three-pillar Angular + NestJS product:
 2. Aladin viewer + permalink + snapshots
 3. Community notebook posts with revisions
 
-Deferred to v1.1/v2: comments, Mode B, FITS proxy, Go microservice.
+**v1.1 Additions (In Progress/Complete)**:
+- **Threaded Comments**: Recursive community engagement on notebook posts.
+- **Scientific Ephemeris**: High-precision planetary/minor-planet coordinate resolution.
+
+Deferred to v2+: Mode B, FITS proxy, Go microservice.
 
 ## Quick Start
 
@@ -79,9 +83,11 @@ pnpm nx run mvp-gates:e2e
 - `SCOPE-LOCK.md`
 - `documentation/governance/STATUS.md`
 - `documentation/product/AFFILIATION.md`
+- `documentation/governance/EXTERNAL-RESEARCH-WORKFLOW.md`
 - `documentation/operations/ENV.md`
 - `documentation/operations/DEMO.md`
 - `documentation/index/OVERVIEW-V2.md`
 - `documentation/quality/TESTING-STRATEGY.md`
 - `documentation/planning/roadmap/ROADMAP.md`
+- `documentation/planning/INDUSTRY-CONTEXT-AND-FEASIBILITY-2026-02-11.md`
 - `TODO.md`

@@ -31,6 +31,7 @@ describe('ViewerComponent', () => {
     createState: ReturnType<typeof vi.fn>;
     resolveState: ReturnType<typeof vi.fn>;
     createSnapshot: ReturnType<typeof vi.fn>;
+    resolveEphemeris: ReturnType<typeof vi.fn>;
     getNearbyLabels: ReturnType<typeof vi.fn>;
     getCutoutTelemetry: ReturnType<typeof vi.fn>;
     scienceDataUrl: ReturnType<typeof vi.fn>;
@@ -64,6 +65,7 @@ describe('ViewerComponent', () => {
       createState: vi.fn(),
       resolveState: vi.fn(),
       createSnapshot: vi.fn(),
+      resolveEphemeris: vi.fn().mockReturnValue(of(null)),
       getNearbyLabels: vi.fn().mockReturnValue(of([])),
       getCutoutTelemetry: vi.fn().mockReturnValue(
         of({
@@ -308,6 +310,9 @@ describe('ViewerComponent', () => {
         'resolveWithSkybot$',
       )
       .mockReturnValue(of({ ra: 100.1234, dec: -5.6789 }));
+    viewerApiService.resolveEphemeris.mockReturnValue(
+      throwError(() => new Error('ephemeris unavailable')),
+    );
     component.targetQuery = 'Venus';
 
     await component.searchTarget();

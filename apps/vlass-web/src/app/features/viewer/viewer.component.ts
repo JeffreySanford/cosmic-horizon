@@ -67,7 +67,7 @@ const DSS_COLOR_HIPS_URL = 'https://skies.esac.esa.int/DSSColor';
 @Component({
   selector: 'app-viewer',
   templateUrl: './viewer.component.html',
-  styleUrl: './viewer.component.scss',
+  styleUrls: ['./viewer.component.scss'],
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -448,22 +448,29 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     of(query)
       .pipe(
         switchMap((target) => this.tryGotoWithAladin$(target)),
-        switchMap((aladinSuccess) =>
-          aladinSuccess
-            ? of<'aladin' | { ra: number; dec: number }>('aladin')
-            : this.resolveWithSkybot$(query),
-        ),
+        switchMap((aladinSuccess) => {
+          if (aladinSuccess) {
+            return of<'aladin' | { ra: number; dec: number }>('aladin');
+          }
+          // Try scientific ephemeris backend (Phase 2)
+          return this.viewerApi.resolveEphemeris(query).pipe(
+            catchError(() => {
+              this.appLogger.info('viewer', 'ephemeris_failed_trying_legacy', { query });
+              return this.resolveWithSkybot$(query);
+            }),
+          );
+        }),
         tap((result) => {
           if (result === 'aladin') {
             this.statusMessage = `Centered on "${query}".`;
             this.appLogger.info('viewer', 'target_search_resolved_aladin', { query });
-          } else if (result && typeof result === 'object') {
+          } else if (result && typeof result === 'object' && 'ra' in result) {
             this.stateForm.patchValue(
               { ra: Number(result.ra.toFixed(4)), dec: Number(result.dec.toFixed(4)) },
               { emitEvent: true },
             );
-            this.statusMessage = `Centered on "${query}" via SkyBot.`;
-            this.appLogger.info('viewer', 'target_search_resolved_skybot', { query, ...result });
+            this.statusMessage = `Centered on "${query}" via Scientific Ephemeris.`;
+            this.appLogger.info('viewer', 'target_search_resolved_ephem', { query, ...result });
           } else {
             this.statusMessage = `Could not resolve "${query}".`;
             this.appLogger.warn('viewer', 'target_search_failed', { query });

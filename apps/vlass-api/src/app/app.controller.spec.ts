@@ -184,7 +184,7 @@ describe('AppController', () => {
       it('should create a new post and enforce authenticated user id', async () => {
         const createPostDto = { title: 'New Post', content: 'Content', user_id: 'malicious-user' };
         const mockRequest = { user: { id: '1' } };
-        const result = await controller.createPost(mockRequest, createPostDto);
+        const result = await controller.createPost(mockRequest as never, createPostDto);
         
         expect(result).toEqual(mockPost);
         expect(mockAppService.createPost).toHaveBeenCalledWith({

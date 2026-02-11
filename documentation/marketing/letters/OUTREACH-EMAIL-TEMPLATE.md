@@ -9,7 +9,9 @@ I am the sole developer of `vlass-portal`, an independent open-source idea/proto
 I recently completed three platform pillars:
 
 - SSR fast first paint for responsive access
+
 - Aladin viewer integration with permalink/snapshot workflows
+
 - Notebook-style posts with revision history for reproducible collaboration
 
 Based on CosmicAI and Cosmic Horizons priorities, I believe this aligns as research software infrastructure: a web-native operations/control-plane layer for AI-driven radio pipelines (calibration, reconstruction, anomaly detection), complementary to backend compute ecosystems.
@@ -23,7 +25,9 @@ I am also opening this question through NRAO Helpdesk to ensure I follow the off
 If this direction is potentially useful, would you be open to connecting me with a software engineer or technical lead to discuss:
 
 - feasibility and integration boundaries,
+
 - policy/compliance constraints,
+
 - whether this should be explored as a future collaboration.
 
 I am currently not in a position to travel to Cosmic Horizons 2026, but I would still value a quick fit check on this framing.
@@ -36,4 +40,7 @@ Best regards,
 
 Jeffrey Sanford
 Architect, Designer, Developer
-Public VLASS Portal (github.com/JeffreySanford/vlass-portal)
+## Public VLASS Portal (github.com/JeffreySanford/vlass-portal)
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

@@ -104,16 +104,39 @@ CREATE TABLE IF NOT EXISTS comments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   post_id UUID NOT NULL,
   user_id UUID NOT NULL,
+  parent_id UUID NULL,
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP NULL,
+  hidden_at TIMESTAMP NULL,
   FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_user_id ON comments(user_id);
+CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON comments(parent_id);
+
+-- Comment reports table
+CREATE TABLE IF NOT EXISTS comment_reports (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  comment_id UUID NOT NULL,
+  user_id UUID NOT NULL,
+  reason VARCHAR(255) NOT NULL,
+  description TEXT,
+  status VARCHAR(50) DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  resolved_at TIMESTAMP NULL,
+  resolved_by UUID NULL,
+  FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (resolved_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_reports_comment_id ON comment_reports(comment_id);
+CREATE INDEX IF NOT EXISTS idx_reports_status ON comment_reports(status);
 
 -- Audit logs table (90-day retention)
 CREATE TABLE IF NOT EXISTS audit_logs (

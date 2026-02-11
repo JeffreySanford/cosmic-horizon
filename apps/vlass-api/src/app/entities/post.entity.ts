@@ -8,8 +8,8 @@ import {
   OneToMany,
   JoinColumn,
   Index,
-  Relation,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { User } from './user.entity';
 import { Revision } from './revision.entity';
 import { Comment } from './comment.entity';
