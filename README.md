@@ -14,7 +14,7 @@ Canonical MVP docs:
 - `SCOPE-LOCK.md`
 - `documentation/index/OVERVIEW-V2.md`
 
-If any other doc conflicts, treat those two as source of truth.
+If any other doc conflicts, treat `PRODUCT-CHARTER.md` + `SCOPE-LOCK.md` as source of truth.
 
 ## MVP Summary
 
@@ -85,4 +85,3 @@ pnpm nx run mvp-gates:e2e
 - `documentation/quality/TESTING-STRATEGY.md`
 - `documentation/planning/roadmap/ROADMAP.md`
 - `TODO.md`
-

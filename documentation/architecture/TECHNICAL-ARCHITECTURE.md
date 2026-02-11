@@ -38,9 +38,9 @@ The project adheres to a rigorous testing and deployment lifecycle governed by [
 
 ### Release Quality Gates
 
-1. **Documentation Compliance:** Verification of standards via `nx run docs-policy:check`
-2. **Unit and Integration Testing:** A comprehensive sweep using `nx run-many --target=test --all`
-3. **End-to-End Validation:** Success in the specialized `nx run mvp-gates:e2e` target
+1. **Documentation Compliance:** Verification of standards via `pnpm nx run docs-policy:check`
+2. **Unit and Integration Testing:** A comprehensive sweep using `pnpm nx run-many --target=test --all`
+3. **End-to-End Validation:** Success in the specialized `pnpm nx run mvp-gates:e2e` target
 
 ### Primary Development & Auditing Commands
 
@@ -88,7 +88,7 @@ The transition from MVP to subsequent versions involves shifting from a unified 
 
 ## 5. Technical Debt & Scope Management
 
-To maintain delivery velocity and prevent feature creep, the project operates under a "hard freeze" for the MVP as defined in [SCOPE-LOCK.md](../index/SCOPE-LOCK.md). This management philosophy ensures that all non-essential enhancements are triaged into the v1.1/2.0 roadmap.
+To maintain delivery velocity and prevent feature creep, the project operates under a "hard freeze" for the MVP as defined in [SCOPE-LOCK.md](../../SCOPE-LOCK.md). This management philosophy ensures that all non-essential enhancements are triaged into the v1.1/2.0 roadmap.
 
 ### Source of Truth Documentation
 
@@ -96,8 +96,8 @@ The project relies on the following canonical reference documents:
 
 - [PRODUCT-CHARTER.md](../product/PRODUCT-CHARTER.md): Core mission, constraints, and project boundaries.
 - [ARCHITECTURE.md](./ARCHITECTURE.md): Technical architectural blueprints and system design.
-- [STATUS.md](../operations/STATUS.md): Real-time tracking of implementation progress against requirements.
-- [SCOPE-LOCK.md](../index/SCOPE-LOCK.md): The definitive boundary between the MVP and future iterations.
+- [STATUS.md](../governance/STATUS.md): Real-time tracking of implementation progress against requirements.
+- [SCOPE-LOCK.md](../../SCOPE-LOCK.md): The definitive boundary between the MVP and future iterations.
 
 ---
 
@@ -119,9 +119,9 @@ This distribution reflects a modern, type-safe architecture designed for scalabi
 
 For additional architectural details and strategic planning, see:
 
-- [MARKETING-OVERVIEW.md](../MARKETING-OVERVIEW.md) — Stakeholder-focused narrative covering MVP, Phase 2, and Phase 3
+- [MARKETING-OVERVIEW.md](../product/MARKETING-OVERVIEW.md) — Stakeholder-focused narrative covering MVP, Phase 2, and Phase 3
 - [MARKETING-VISUAL-GUIDE.md](../MARKETING-VISUAL-GUIDE.md) — Visual specifications and infographic outlines
-- [ROADMAP.md](../planning/ROADMAP.md) — Complete project timeline through Phase 4 (2027+)
+- [ROADMAP.md](../planning/roadmap/ROADMAP.md) — Complete project timeline through Phase 4 (2027+)
 - [FUNDING-AND-COSTS.md](../planning/funding/FUNDING-AND-COSTS.md) — Financial breakdown and grant strategy
 
 ---

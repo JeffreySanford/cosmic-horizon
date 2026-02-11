@@ -294,7 +294,7 @@ These metadata fields enable:
 **Related Documentation:**
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture overview
-- [SCOPE-LOCK.md](../SCOPE-LOCK.md) - MVP scope boundaries
+- [SCOPE-LOCK.md](../../SCOPE-LOCK.md) - MVP scope boundaries
 - [PRODUCT-CHARTER.md](../product/PRODUCT-CHARTER.md) - Product requirements
 
 ---

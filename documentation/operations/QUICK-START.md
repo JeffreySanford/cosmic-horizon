@@ -56,5 +56,5 @@ pnpm build
 - `start:all` runs:
   1. `start:ports:free`
   2. `start:infra` (`docker compose down --volumes`, build, up `--wait`)
-  3. `nx run-many --target=serve --projects=vlass-web,vlass-api`
+  3. `pnpm nx run-many --target=serve --projects=vlass-web,vlass-api`
 - Go and Mode B are deferred and not part of MVP setup.

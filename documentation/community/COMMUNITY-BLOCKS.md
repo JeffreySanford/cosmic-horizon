@@ -165,7 +165,7 @@ The core shows a clear ring structure.
 
 ## Image
 
-![M87 Snapshot](/uploads/m87-snapshot.png)
+![M87 Snapshot](<uploaded-image-url>)
 
 Regular text follows...
 

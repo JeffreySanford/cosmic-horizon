@@ -37,7 +37,7 @@ User reports Mars search not working. **Possible causes**:
 2. **Resolver chain not executing**
    - Check browser console for warnings
    - Verify network requests in Network tab
-   - See [MARS-RESOLUTION-DEBUGGING.md](documentation/architecture/MARS-RESOLUTION-DEBUGGING.md)
+   - See [MARS-RESOLUTION-DEBUGGING.md](./MARS-RESOLUTION-DEBUGGING.md)
 
 3. **Aladin viewer initialization issue**
    - `gotoRaDec()` not working
@@ -135,7 +135,7 @@ searchTarget('mars')
 If manual coordinates work but Mars search doesn't:
 
 - Resolver chain has a bug
-- Use [MARS-RESOLUTION-DEBUGGING.md](documentation/architecture/MARS-RESOLUTION-DEBUGGING.md) to diagnose
+- Use [MARS-RESOLUTION-DEBUGGING.md](./MARS-RESOLUTION-DEBUGGING.md) to diagnose
 
 If manual coordinates don't work:
 
@@ -148,18 +148,18 @@ If manual coordinates don't work:
 
 ### For Users/Explorers
 
-- [VIEWER-CONTROLS.md](documentation/frontend/VIEWER-CONTROLS.md) - How to use target search
-- [MARS-RESOLUTION-DEBUGGING.md](documentation/architecture/MARS-RESOLUTION-DEBUGGING.md) - If search doesn't work
+- [VIEWER-CONTROLS.md](../frontend/VIEWER-CONTROLS.md) - How to use target search
+- [MARS-RESOLUTION-DEBUGGING.md](./MARS-RESOLUTION-DEBUGGING.md) - If search doesn't work
 
 ### For Developers
 
-- [TARGET-RESOLUTION-EPHEMERIS.md](documentation/architecture/TARGET-RESOLUTION-EPHEMERIS.md) - Technical implementation
-- [EPHEMERIS-SCOPE-DECISION.md](documentation/architecture/EPHEMERIS-SCOPE-DECISION.md) - Architecture options
+- [TARGET-RESOLUTION-EPHEMERIS.md](./TARGET-RESOLUTION-EPHEMERIS.md) - Technical implementation
+- [EPHEMERIS-SCOPE-DECISION.md](./EPHEMERIS-SCOPE-DECISION.md) - Architecture options
 
 ### For Product/Stakeholders
 
-- [EPHEMERIS-SCOPE-DECISION.md](documentation/architecture/EPHEMERIS-SCOPE-DECISION.md) - Scope analysis and recommendations
-- [ROADMAP.md](documentation/planning/roadmap/ROADMAP.md) - v1.1 planning with ephemeris
+- [EPHEMERIS-SCOPE-DECISION.md](./EPHEMERIS-SCOPE-DECISION.md) - Scope analysis and recommendations
+- [ROADMAP.md](../planning/roadmap/ROADMAP.md) - v1.1 planning with ephemeris
 
 ---
 

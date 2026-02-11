@@ -11,11 +11,13 @@
 ### Pillars Complete
 
 ✅ **Pillar 1: SVG First Paint**
+
 - Landing page with SSR performance optimization
 - FCP/LCP tuning to target ranges
 - Perf gates in CI baseline
 
 ✅ **Pillar 2: Viewer + Permalinks + Snapshots**
+
 - Aladin Lite Mode A integration
 - RA/Dec/FOV state encoding/decoding
 - Persistent permalink generation and resolution
@@ -27,6 +29,7 @@
 - Full test coverage (unit + e2e)
 
 ✅ **Pillar 3: Community Notebooks**
+
 - Post create/edit/publish workflow
 - Revision history with diff viewer
 - Moderation hide/lock functionality
@@ -34,6 +37,7 @@
 - All edge cases handled
 
 ✅ **Foundations**
+
 - JWT auth + verification gates
 - Audit logging on critical operations
 - Rate limiting (60 req/min per user)
@@ -42,12 +46,14 @@
 ### New Features This Session
 
 ✅ **Label Hover Interaction** (2026-02-10)
+
 - Labels appear when cursor hovers over sky objects
 - Labels disappear when cursor leaves canvas area
 - 1-second debounce reduces bandwidth chatter
 - Responsive UX maintained
 
 ✅ **Planet Search Resolution** (2026-02-07)
+
 - Multi-layered resolver: Aladin → SkyBot → VizieR → Hardcoded
 - Supports Mars, Venus, Jupiter, Saturn, Uranus, Neptune
 - Fallback coordinates accurate to ±5-10° (MVP-appropriate)
@@ -57,10 +63,11 @@
 ### Documentation Complete
 
 ✅ All architecture decisions documented:
-- [EPHEMERIS-SUMMARY.md](../architecture/EPHEMERIS-SUMMARY.md) - High-level overview
-- [TARGET-RESOLUTION-EPHEMERIS.md](../architecture/TARGET-RESOLUTION-EPHEMERIS.md) - Technical architecture
-- [EPHEMERIS-SCOPE-DECISION.md](../architecture/EPHEMERIS-SCOPE-DECISION.md) - Scope analysis
-- [MARS-RESOLUTION-DEBUGGING.md](../architecture/MARS-RESOLUTION-DEBUGGING.md) - Troubleshooting guide
+
+- [EPHEMERIS-SUMMARY.md](../../architecture/EPHEMERIS-SUMMARY.md) - High-level overview
+- [TARGET-RESOLUTION-EPHEMERIS.md](../../architecture/TARGET-RESOLUTION-EPHEMERIS.md) - Technical architecture
+- [EPHEMERIS-SCOPE-DECISION.md](../../architecture/EPHEMERIS-SCOPE-DECISION.md) - Scope analysis
+- [MARS-RESOLUTION-DEBUGGING.md](../../architecture/MARS-RESOLUTION-DEBUGGING.md) - Troubleshooting guide
 
 ---
 
@@ -164,14 +171,16 @@ Result: { ra: 142.847, dec: -15.234, accuracy_arcsec: 1.2 }
 ### 2026-02-10: Label Hover + Phase 2 Kickoff
 
 **Implemented**:
-- [apps/vlass-web/src/app/features/viewer/viewer.component.html](../../apps/vlass-web/src/app/features/viewer/viewer.component.html)
+
+- [apps/vlass-web/src/app/features/viewer/viewer.component.html](../../../apps/vlass-web/src/app/features/viewer/viewer.component.html)
   - Added `(mouseleave)="onCanvasMouseLeave()"` handler to clear labels
   
-- [apps/vlass-web/src/app/features/viewer/viewer.component.ts](../../apps/vlass-web/src/app/features/viewer/viewer.component.ts)
+- [apps/vlass-web/src/app/features/viewer/viewer.component.ts](../../../apps/vlass-web/src/app/features/viewer/viewer.component.ts)
   - Implemented `onCanvasMouseLeave()` method to clear catalog labels and cancel pending debounce
   - Changed cursor debounce from hardcoded 300ms to 1000ms (`this.nearbyLookupDebounceMs`)
 
 **Documentation Created**:
+
 - [documentation/planning/phases/PHASE-2-EPHEMERIS-BACKEND.md](../phases/PHASE-2-EPHEMERIS-BACKEND.md)
   - Complete implementation plan with 3 sprints, 10+ tasks
   - Architecture diagrams and code examples
@@ -181,7 +190,7 @@ Result: { ra: 142.847, dec: -15.234, accuracy_arcsec: 1.2 }
   - Updated to show Phase 2 ephemeris backend as active development
   - Clear timeline and integration points
 
-- [TODO.md](../../TODO.md)
+- [TODO.md](../../../TODO.md)
   - Logged label hover completion
   - Added Phase 2 sprint tasks in "Next Steps"
   - Updated MVP completion status
@@ -198,6 +207,7 @@ Result: { ra: 142.847, dec: -15.234, accuracy_arcsec: 1.2 }
    - Identify Sprint 1 owner (backend engineer)
 
 2. **Verify MVP in Local Environment**
+
    ```bash
    # Run full release gate
    pnpm nx run docs-policy:check
@@ -262,10 +272,10 @@ Result: { ra: 142.847, dec: -15.234, accuracy_arcsec: 1.2 }
 
 ## Questions?
 
-**MVP Completion**: See [TODO.md](../../TODO.md#archived-completed-items) for full history  
-**Ephemeris Scope**: See [EPHEMERIS-SCOPE-DECISION.md](../architecture/EPHEMERIS-SCOPE-DECISION.md)  
+**MVP Completion**: See [TODO.md](../../../TODO.md#archived-completed-items) for full history  
+**Ephemeris Scope**: See [EPHEMERIS-SCOPE-DECISION.md](../../architecture/EPHEMERIS-SCOPE-DECISION.md)  
 **Phase 2 Details**: See [PHASE-2-EPHEMERIS-BACKEND.md](../phases/PHASE-2-EPHEMERIS-BACKEND.md)  
-**Technical Stack**: See [TECHNICAL-ARCHITECTURE.md](../architecture/TECHNICAL-ARCHITECTURE.md)
+**Technical Stack**: See [TECHNICAL-ARCHITECTURE.md](../../architecture/TECHNICAL-ARCHITECTURE.md)
 
 ---
 
