@@ -5,9 +5,13 @@
 VLASS Portal personalizes the landing page background (sky image) to the user's region. This is done with **strict privacy guarantees**:
 
 - **Coarse-grained only:** Geohash precision 4 (~5km × 5km grid)
+
 - **No storage of precise location:** Only geohash stored (reversible but not pinpoint)
+
 - **User opt-in:** Browser geolocation only if user permits
+
 - **Fallback:** Manual entry (city/state) as alternative
+
 - **No tracking:** No persistent cross-session tracking
 
 ---
@@ -51,6 +55,7 @@ export class LocationService {
     });
   }
 }
+
 ```
 
 ### Option B: Manual Entry
@@ -67,6 +72,7 @@ User types city/state or coordinates:
 │                                 │
 │ [Search]                        │
 └─────────────────────────────────┘
+
 ```
 
 Backend geocodes city → RA/Dec:
@@ -89,12 +95,14 @@ async geocodeCity(
   // Convert to sky coordinates (RA/Dec in J2000)
   // For SSR preview: map lat/lon to zenith of observer
   const ra = (longitude + 360) % 360;  // Simplified; actually needs time/date
+
   const dec = latitude;
 
   const geohash = geohasher.encode(latitude, longitude, 4);  // Precision 4
 
   return { ra, dec, geohash };
 }
+
 ```
 
 ---
@@ -116,12 +124,14 @@ const gh = geohash.encode(40.7128, -74.006, 4);
 const { latitude, longitude, error } = geohash.bounds(gh);
 // latitude: 40.70313, ±0.02197 (±2.4 km)
 // longitude: -74.01367, ±0.02197
+
 ```
 
 **Precision trade-offs:**
 
 | Precision | Cell Size | Risk                       | Use          |
 | --------- | --------- | -------------------------- | ------------ |
+
 | 1         | ~5000 km  | Too coarse (continent)     | ❌           |
 | 2         | ~600 km   | Too coarse (country)       | ❌           |
 | 3         | ~75 km    | Usable; still broad        | ✓ (fallback) |
@@ -159,6 +169,7 @@ async setLocation(
     secure: true,             // HTTPS only
     sameSite: "Lax",          // CSRF protection
     maxAge: 90 * 24 * 60 * 60 * 1000,  // 90 days
+
     path: "/",
     domain: ".vlass.example.com",
   });
@@ -183,6 +194,7 @@ async verifyAndGetLocation(
   }
 
 }
+
 ```
 
 ### Cookie Format
@@ -197,6 +209,7 @@ Payload (JSON):
   "signed": "hmac_sha256(...)",
   "nonce": "random_string"
 }
+
 ```
 
 ---
@@ -250,6 +263,7 @@ async function renderLandingPage(req: Request, res: Response): Promise<string> {
     `,
   );
 }
+
 ```
 
 ### Background Image Generation
@@ -281,6 +295,7 @@ async getBackgroundImage(
     type: "image/png",
   });
 }
+
 ```
 
 ---
@@ -295,6 +310,7 @@ await this.audit.log({
   action: 'LOCATION_PERMISSION_GRANTED',
   actor_id: user?.id || 'anonymous',
   details: { geohash: geohash.substring(0, 2) + '**' }, // Redact to 2 chars
+
   timestamp: new Date(),
 });
 
@@ -303,8 +319,10 @@ await this.audit.log({
   action: 'LOCATION_STORED_TO_COOKIE',
   actor_id: user?.id || 'anonymous',
   details: { geohash: geohash.substring(0, 2) + '**' },
+
   timestamp: new Date(),
 });
+
 ```
 
 **Redaction rule:** Only log first 2 characters of geohash (reduces precision to ~600 km).
@@ -400,6 +418,7 @@ export class LandingComponent implements OnInit {
     this.manualLocationVisible = !this.manualLocationVisible;
   }
 }
+
 ```
 
 ### Privacy Consent Banner
@@ -412,6 +431,7 @@ export class LandingComponent implements OnInit {
   </p>
   <a href="/privacy">Privacy Policy</a>
 </div>
+
 ```
 
 ---
@@ -420,20 +440,20 @@ export class LandingComponent implements OnInit {
 
 ### What is Stored
 
-✅ Geohash (precision 4): ~5km × 5km cell identifier  
-✅ Timestamp: when location was set  
+✅ Geohash (precision 4): ~5km × 5km cell identifier
+✅ Timestamp: when location was set
 ✅ HTTP-only, signed cookie: immune to JS XSS
 
 ### What is NOT Stored
 
-❌ Precise latitude/longitude  
-❌ Device identifiers (IMEI, etc.)  
-❌ Cross-session tracking  
+❌ Precise latitude/longitude
+❌ Device identifiers (IMEI, etc.)
+❌ Cross-session tracking
 ❌ IP address (unless already logged elsewhere)
 
 ### Audit Trail (Redacted)
 
-❌ Full geohash (only first 2 chars logged)  
+❌ Full geohash (only first 2 chars logged)
 ❌ Any raw lat/lon
 
 ### Data Deletion
@@ -441,7 +461,9 @@ export class LandingComponent implements OnInit {
 When user deletes account (see DATA-RETENTION.md):
 
 - Cookie is cleared immediately (browser-side)
+
 - Server audit logs are redacted to 2-char prefix (anonymization, not deletion)
+
 - No separate location database to wipe
 
 ---
@@ -535,26 +557,31 @@ describe('Location Privacy', () => {
     expect(loginRes.headers['set-cookie']).not.toMatch(/vlass_location/);
   });
 });
+
 ```
 
 ---
 
 ## Part 9: FAQ
 
-**Q: Can you deanonymize a geohash?**  
+**Q: Can you deanonymize a geohash?**
 A: Yes, precision 4 reveals ~5km cell. But we don't store geohashes in queryable database; only in signed cookie + redacted audit logs.
 
-**Q: What if user doesn't provide location?**  
+**Q: What if user doesn't provide location?**
 A: They get generic background (entire sky or random field). Still works; just not personalized.
 
-**Q: What about VPN / proxy?**  
+**Q: What about VPN / proxy?**
 A: Browser geolocation goes through system APIs, not IP. VPN doesn't affect it. Manual entry is unaffected.
 
-**Q: Can this be GDPR-compliant?**  
+**Q: Can this be GDPR-compliant?**
 A: Yes. Geohash ≤5km is not personally identifiable (5 million cells globally). It's not "personal data" in GDPR terms. Audit logging doesn't include raw geohash.
 
 ---
 
-**Last Updated:** 2026-02-06  
-**Status:** NORMATIVE  
-**Related:** DATA-RETENTION-DELETION.md, AUTHENTICATION.md
+**Last Updated:** 2026-02-11
+**Status:** NORMATIVE
+
+## **Related:** DATA-RETENTION-DELETION.md, AUTHENTICATION.md
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

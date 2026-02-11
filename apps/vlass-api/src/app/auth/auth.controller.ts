@@ -8,6 +8,7 @@ import {
   Request,
   Response,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuditAction, AuditEntityType, User } from '../entities';
@@ -23,12 +24,14 @@ type SessionShape = {
   csrfToken?: string;
 };
 
+type RequestUser = Partial<User> & { id: string | number };
+
 type RequestWithUser = {
-  user?: User;
+  user?: RequestUser;
   ip?: string;
   headers?: Record<string, string | string[] | undefined>;
   session?: SessionShape;
-  logout: (callback: (err: Error | null) => void) => void;
+  logout?: (callback: (err: Error | null) => void) => void;
 };
 
 type ResponseWithJsonAndRedirect = {
@@ -106,16 +109,21 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthenticatedGuard)
   getCurrentUser(@Request() req: RequestWithUser) {
+    if (!req.user) {
+      throw new UnauthorizedException('Not authenticated');
+    }
+
+    const user = req.user;
     return {
       authenticated: true,
       user: {
-        id: req.user.id,
-        username: req.user.username,
-        email: req.user.email,
-        display_name: req.user.display_name,
-        role: req.user.role,
-        github_id: req.user.github_id,
-        created_at: req.user.created_at,
+        id: user.id,
+        username: user.username ?? null,
+        email: user.email ?? null,
+        display_name: user.display_name ?? null,
+        role: user.role ?? null,
+        github_id: user.github_id ?? null,
+        created_at: user.created_at ?? null,
       },
     };
   }
@@ -143,8 +151,13 @@ export class AuthController {
     @Response() res: ResponseWithJsonAndRedirect,
     @Body() refreshDto?: RefreshTokenDto,
   ) {
+    if (!req.logout) {
+      throw new BadRequestException('Logout is not available on this request.');
+    }
+    const logout = req.logout;
+
     await new Promise<void>((resolve, reject) => {
-      req.logout((err: Error | null) => {
+      logout((err: Error | null) => {
         if (err) {
           this.logger.warn(`Logout failed: ${err.message}`);
           reject(err);
@@ -155,13 +168,14 @@ export class AuthController {
     });
 
     if (req.user) {
-      await this.authService.revokeAllRefreshTokensForUser(req.user.id);
+      const userId = String(req.user.id);
+      await this.authService.revokeAllRefreshTokensForUser(userId);
       const metadata = this.getRequestMetadata(req);
       await this.auditLogRepository.createAuditLog({
-        user_id: req.user.id,
+        user_id: userId,
         action: AuditAction.LOGOUT,
         entity_type: AuditEntityType.USER,
-        entity_id: req.user.id,
+        entity_id: userId,
         changes: {
           auth_event: 'logout',
           auth_method: 'jwt',

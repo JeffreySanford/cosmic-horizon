@@ -117,4 +117,10 @@ export class ViewerApiService {
 
     return `${this.apiBaseUrl}/api/view/cutout?${params.toString()}`;
   }
+
+  resolveEphemeris(target: string): Observable<{ ra: number; dec: number }> {
+    return this.http.get<{ ra: number; dec: number }>(
+      `${this.apiBaseUrl}/api/view/ephem/search?target=${encodeURIComponent(target)}`,
+    );
+  }
 }

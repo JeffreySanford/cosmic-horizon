@@ -1,8 +1,8 @@
 # Frontend Error Handling & Resilience
 
-**Date:** 2026-02-07  
-**Status:** MVP - Production Ready  
-**Framework:** Angular 18 + RxJS + HttpClientModule  
+**Date:** 2026-02-07
+**Status:** MVP - Production Ready
+**Framework:** Angular 18 + RxJS + HttpClientModule
 **Pattern:** Centralized error handlers + error boundaries
 
 ---
@@ -10,13 +10,21 @@
 ## Table of Contents
 
 1. [Error Handling Architecture](#error-handling-architecture)
+
 2. [HTTP Error Handling](#http-error-handling)
+
 3. [RxJS Error Boundaries](#rxjs-error-boundaries)
+
 4. [User-Facing Error Messages](#user-facing-error-messages)
+
 5. [Logging Errors](#logging-errors)
+
 6. [Component Error States](#component-error-states)
+
 7. [Testing Error Scenarios](#testing-error-scenarios)
+
 8. [Error Recovery Strategies](#error-recovery-strategies)
+
 9. [Common Errors & Solutions](#common-errors--solutions)
 
 ---
@@ -29,6 +37,7 @@
 // Core error types used throughout the app
 
 // 1. HTTP Errors (from API)
+
 export interface HttpErrorResponse {
   status: number;           // 400, 401, 403, 404, 500, etc.
   statusText: string;       // "Bad Request", "Unauthorized"
@@ -40,6 +49,7 @@ export interface HttpErrorResponse {
 }
 
 // 2. Validation Errors (from forms)
+
 export interface ValidationError {
   field: string;           // Form field name (e.g., 'ra')
   message: string;         // What's wrong (e.g., 'Must be 0-360')
@@ -47,6 +57,7 @@ export interface ValidationError {
 }
 
 // 3. Custom Application Errors
+
 export class AppError extends Error {
   constructor(
     public code: string,
@@ -60,12 +71,14 @@ export class AppError extends Error {
 }
 
 // 4. Timeout Errors
+
 export class TimeoutError extends Error {
   constructor(public timeout: number) {
     super(`Operation timed out after ${timeout}ms`);
     this.name = 'TimeoutError';
   }
 }
+
 ```
 
 ### Error Handling Flow
@@ -112,6 +125,7 @@ export class TimeoutError extends Error {
        └─> Offline mode
            Use cached data
            Queue requests
+
 ```
 
 ---
@@ -147,7 +161,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       // Timeout after 30 seconds
       timeout(30000),
-      
+
       // Retry on 5xx errors up to 3 times with exponential backoff
       retry({
         count: 3,
@@ -158,6 +172,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           ) {
             // Exponential backoff: 1s, 2s, 4s
             const backoffMs = Math.pow(2, count) * 1000;
+
             console.warn(
               `Retrying request (attempt ${count}), backoff ${backoffMs}ms`
             );
@@ -166,7 +181,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           return throwError(() => error);
         }
       }),
-      
+
       // Handle errors
       catchError((error: unknown) => {
         return this.handleError(error, request);
@@ -227,6 +242,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
 
     if (status === 401) {
       // Unauthorized - redirect to login
+
       window.location.href = '/auth/login';
       return new AppError(
         'UNAUTHORIZED',
@@ -302,6 +318,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     );
   }
 }
+
 ```
 
 ### Registering the Interceptor
@@ -321,6 +338,7 @@ export const appConfig: ApplicationConfig = {
     }
   ]
 };
+
 ```
 
 ### Example API Call with Error Handling
@@ -377,6 +395,7 @@ export class ViewerApiService {
     );
   }
 }
+
 ```
 
 ---
@@ -397,9 +416,13 @@ export class ErrorBoundaryService {
 
   /**
    * Wrap observable with error handling
+
    * @param source Observable to wrap
+
    * @param fallback Fallback value if error occurs
+
    * @param context Error context for logging
+
    */
   wrapObservable<T>(
     source: Observable<T>,
@@ -420,6 +443,7 @@ export class ErrorBoundaryService {
 
   /**
    * Track observable with error logging
+
    */
   track<T>(
     source: Observable<T>,
@@ -446,6 +470,7 @@ export class ErrorBoundaryService {
 
   /**
    * Retry with exponential backoff
+
    */
   retryWithBackoff<T>(
     source: Observable<T>,
@@ -457,6 +482,7 @@ export class ErrorBoundaryService {
         count: maxRetries,
         delay: (error, count) => {
           const delay = baseDelay * Math.pow(2, count - 1);
+
           console.warn(
             `Retrying after ${delay}ms (attempt ${count}/${maxRetries})`
           );
@@ -470,6 +496,7 @@ export class ErrorBoundaryService {
     );
   }
 }
+
 ```
 
 ### Usage in Components
@@ -510,7 +537,7 @@ export class ViewerComponent implements OnInit {
   nearbyObjects$ = this.state$.pipe(
     switchMap(state => {
       if (!state) return of(null);
-      
+
       return this.viewerApi.getNearby(
         state.ra,
         state.dec,
@@ -534,6 +561,7 @@ export class ViewerComponent implements OnInit {
     })
   );
 }
+
 ```
 
 ---
@@ -551,6 +579,7 @@ import { AppError } from '../models/error.model';
 export class ErrorMessageService {
   /**
    * Convert error to user-friendly message
+
    */
   getMessage(error: unknown): string {
     if (error instanceof AppError) {
@@ -576,7 +605,7 @@ export class ErrorMessageService {
       'RATE_LIMITED': 'Too many requests. Wait and try again.',
       'SERVER_ERROR': 'Server error. Try again later.'
     };
-    
+
     return messages[error.code] || error.message;
   }
 
@@ -601,6 +630,7 @@ export class ErrorMessageService {
 
   /**
    * Get error-specific action suggestions
+
    */
   getSuggestion(error: AppError): string | null {
     switch (error.code) {
@@ -617,6 +647,7 @@ export class ErrorMessageService {
     }
   }
 }
+
 ```
 
 ### Notification Service
@@ -666,6 +697,7 @@ export class NotificationService {
     });
   }
 }
+
 ```
 
 ---
@@ -708,6 +740,7 @@ export class LoggingService {
     ).subscribe({
       error: () => {
         // Silently fail - don't cascade error logging errors
+
         console.error('Failed to log error to backend', payload);
       }
     });
@@ -715,7 +748,7 @@ export class LoggingService {
 
   logWarning(message: string, context?: Record<string, unknown>) {
     console.warn('[WARNING]', message, context);
-    
+
     this.http.post('/api/v1/logs/warning', {
       message,
       context,
@@ -732,6 +765,7 @@ export class LoggingService {
     }
   }
 }
+
 ```
 
 ---
@@ -744,6 +778,7 @@ export class LoggingService {
 <!-- viewer.component.html -->
 
 <!-- Loading state -->
+
 @if (isLoading$ | async) {
   <div class="loading-spinner">
     <mat-spinner></mat-spinner>
@@ -752,6 +787,7 @@ export class LoggingService {
 }
 
 <!-- Error state -->
+
 @else if (error$ | async as error) {
   <div class="error-container">
     <mat-card class="error-card">
@@ -759,24 +795,24 @@ export class LoggingService {
         <mat-icon class="error-icon">error_outline</mat-icon>
         <mat-card-title>Unable to Load Viewer</mat-card-title>
       </mat-card-header>
-      
+
       <mat-card-content>
         <p class="error-message">{{ error.message }}</p>
-        
+
         @if (error.code === 'NOT_FOUND') {
           <p class="error-hint">
             The viewer state you requested was not found.
             Try starting from the home page.
           </p>
         }
-        
+
         @if (error.code === 'NETWORK_ERROR' {
           <p class="error-hint">
             Check your internet connection and try again.
           </p>
         }
       </mat-card-content>
-      
+
       <mat-card-actions>
         <button mat-raised-button color="primary" routerLink="/">
           <mat-icon>home</mat-icon>
@@ -792,11 +828,14 @@ export class LoggingService {
 }
 
 <!-- Success state -->
+
 @else if (state$ | async as state) {
   <div class="viewer-container">
     <!-- Viewer content -->
+
   </div>
 }
+
 ```
 
 ### Component Logic
@@ -849,6 +888,7 @@ export class ViewerComponent implements OnInit {
     this.loadViewerState();
   }
 }
+
 ```
 
 ---
@@ -860,6 +900,7 @@ export class ViewerComponent implements OnInit {
 ```typescript
 // viewer.component.spec.ts
 describe('ViewerComponent - Error Handling', () => {
+
   let component: ViewerComponent;
   let fixture: ComponentFixture<ViewerComponent>;
   let viewerApi: jasmine.SpyObj<ViewerApiService>;
@@ -945,6 +986,7 @@ describe('ViewerComponent - Error Handling', () => {
     )).toBeFalsy();
   }));
 });
+
 ```
 
 ### HTTP Interceptor Tests
@@ -966,14 +1008,14 @@ describe('HttpErrorInterceptor', () => {
       imports: [HttpClientTestingModule],
       providers: [
         HttpErrorInterceptor,
-        { 
+        {
           provide: HTTP_INTERCEPTORS,
           useClass: HttpErrorInterceptor,
           multi: true
         },
-        { 
-          provide: NotificationService, 
-          useValue: notificationSpy 
+        {
+          provide: NotificationService,
+          useValue: notificationSpy
         }
       ]
     });
@@ -1003,13 +1045,13 @@ describe('HttpErrorInterceptor', () => {
 
   it('should retry on 500 error', () => {
     let attempt = 0;
-    
+
     httpClient.get('/api/test').subscribe();
 
     for (let i = 0; i < 3; i++) {
       const req = httpTestingController.expectOne('/api/test');
       attempt++;
-      
+
       if (i < 2) {
         // Fail first 2 attempts
         req.flush('Server Error', {
@@ -1025,6 +1067,7 @@ describe('HttpErrorInterceptor', () => {
     expect(attempt).toBe(3);
   });
 });
+
 ```
 
 ---
@@ -1038,7 +1081,7 @@ describe('HttpErrorInterceptor', () => {
 @Injectable({ providedIn: 'root' })
 export class OfflineService {
   isOnline$ = new BehaviorSubject(navigator.onLine);
-  
+
   constructor(
     private notification: NotificationService,
     private storage: StorageService
@@ -1073,6 +1116,7 @@ export class OfflineService {
     // Send queued requests...
   }
 }
+
 ```
 
 ### Caching Strategy
@@ -1089,6 +1133,7 @@ export class CacheService {
     if (!entry) return null;
 
     if (Date.now() - entry.timestamp > this.TTL_MS) {
+
       this.cache.delete(key);
       return null;
     }
@@ -1128,6 +1173,7 @@ export class CacheService {
     );
   }
 }
+
 ```
 
 ---
@@ -1148,13 +1194,14 @@ onSubmit() {
     Object.keys(this.form.controls).forEach(key => {
       this.form.get(key)?.markAsTouched();
     });
-    
+
     this.notification.showError('Please fix the errors below');
     return;
   }
 
   // Submit form...
 }
+
 ```
 
 ### Problem: Race conditions with multiple API calls
@@ -1171,6 +1218,7 @@ public searchResults$ = this.search$.pipe(
   switchMap(query => this.api.search(query)), // Cancels previous
   catchError(() => of([]))
 );
+
 ```
 
 ### Problem: Memory leaks from subscriptions
@@ -1202,6 +1250,7 @@ export class MyComponent implements OnInit {
     this.destroy$.next();
   }
 }
+
 ```
 
 ### Problem: Lost error context
@@ -1227,15 +1276,21 @@ this.api.call()
     })
   )
   .subscribe();
+
 ```
 
 ---
 
-**Last Updated:** 2026-02-07  
+**Last Updated:** 2026-02-07
 **Maintained By:** VLASS Portal Development Team
 
 **Related Documentation:**
 
 - [FRONTEND-OVERVIEW.md](FRONTEND-OVERVIEW.md) - Architecture overview
+
 - [VIEWER-CONTROLS.md](VIEWER-CONTROLS.md) - Viewer control details
-- [COMPONENTS.md](COMPONENTS.md) - Component catalog
+
+## - [COMPONENTS.md](COMPONENTS.md) - Component catalog
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

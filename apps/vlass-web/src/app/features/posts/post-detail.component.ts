@@ -3,26 +3,33 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PostsApiService, PostModel } from './posts-api.service';
+import { CommentsApiService, CommentModel } from './comments-api.service';
 import { renderSafeMarkdownHtml } from './markdown-renderer';
 
 @Component({
   selector: 'app-post-detail',
   templateUrl: './post-detail.component.html',
-  styleUrl: './post-detail.component.scss',
+  styleUrls: ['./post-detail.component.scss'],
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class PostDetailComponent implements OnInit {
   post: PostModel | null = null;
+  comments: CommentModel[] = [];
   loading = false;
+  loadingComments = false;
   publishing = false;
   moderating = false;
   statusMessage = '';
   viewMode: 'formatted' | 'raw' = 'formatted';
   canModerate = false;
 
+  newCommentContent = '';
+  submittingComment = false;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly postsApi = inject(PostsApiService);
+  private readonly commentsApi = inject(CommentsApiService);
   private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
@@ -41,12 +48,89 @@ export class PostDetailComponent implements OnInit {
           this.post = post;
           this.canModerate = this.computeCanModerate(post.user_id);
           this.loading = false;
+          this.loadComments();
         },
         error: (error: HttpErrorResponse) => {
           this.loading = false;
           this.statusMessage = typeof error.error?.message === 'string' ? error.error.message : 'Post was not found.';
         },
       });
+  }
+
+  loadComments(): void {
+    if (!this.post) return;
+    this.loadingComments = true;
+    this.commentsApi
+      .getCommentsByPost(this.post.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (comments) => {
+          this.comments = this.organizeComments(comments);
+          this.loadingComments = false;
+        },
+        error: () => {
+          this.loadingComments = false;
+        },
+      });
+  }
+
+  submitComment(): void {
+    if (!this.post || !this.newCommentContent.trim() || this.submittingComment) {
+      return;
+    }
+
+    this.submittingComment = true;
+    this.commentsApi
+      .createComment({
+        post_id: this.post.id,
+        content: this.newCommentContent,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.submittingComment = false;
+          this.newCommentContent = '';
+          this.loadComments();
+        },
+        error: (err) => {
+          this.submittingComment = false;
+          this.statusMessage = err.error?.message || 'Failed to post comment.';
+        },
+      });
+  }
+
+  onCommentDeleted(): void {
+    this.loadComments();
+  }
+
+  onCommentReplied(): void {
+    this.loadComments();
+  }
+
+  private organizeComments(comments: CommentModel[]): CommentModel[] {
+    const commentMap = new Map<string, CommentModel>();
+    const roots: CommentModel[] = [];
+
+    // Initialize map
+    comments.forEach((c) => {
+      commentMap.set(c.id, { ...c, replies: [] });
+    });
+
+    // Build tree
+    commentMap.forEach((c) => {
+      if (c.parent_id) {
+        const parent = commentMap.get(c.parent_id);
+        if (parent && parent.replies) {
+          parent.replies.push(c);
+        } else {
+          roots.push(c);
+        }
+      } else {
+        roots.push(c);
+      }
+    });
+
+    return roots;
   }
 
   publish(): void {

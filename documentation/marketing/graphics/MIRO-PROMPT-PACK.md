@@ -36,6 +36,7 @@ Each lane should include actor, action, and output.
 
 Create 3 architecture diagrams side-by-side:
 MVP architecture (frontend + API + shared models).
+
 Phase 2 architecture adding inference and job services.
 Phase 3 architecture adding federation, TACC integration, and multi-site workflows.
 Use consistent icon legend and increasing complexity.
@@ -45,8 +46,10 @@ Use consistent icon legend and increasing complexity.
 Create a timeline from Feb 2026 through Jun 2027:
 MVP completion milestone in early 2026.
 Phase 2 planning and implementation windows.
+
 Conference milestone: Cosmic Horizons July 2026.
 Phase 3 ramp and readiness milestones through mid-2027.
+
 Add dependencies and critical path highlights.
 
 ## 7) Funding Landscape
@@ -72,5 +75,7 @@ Position vlass-portal in high-high quadrant with note: "integrated domain UX + o
 
 Create a dashboard mock with Phase 2 and Phase 3 target metrics:
 job completion rate, latency targets, reproducibility coverage, user/institution adoption, publication outputs.
-Use KPI cards + trend lines + milestone markers.
+## Use KPI cards + trend lines + milestone markers
+---
 
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

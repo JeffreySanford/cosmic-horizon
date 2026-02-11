@@ -227,12 +227,12 @@ describe('AuthController', () => {
     it('should return authenticated user info', () => {
       const mockRequest = {
         user: {
-          id: 1,
+          id: '1',
           username: 'testuser',
           email: 'test@github.com',
           display_name: 'Test User',
-          role: 'admin',
-          github_id: '12345',
+          role: 'admin' as const,
+          github_id: 12345,
           created_at: new Date(),
         },
       };
@@ -242,12 +242,12 @@ describe('AuthController', () => {
       expect(result).toEqual({
         authenticated: true,
         user: {
-          id: 1,
+          id: '1',
           username: 'testuser',
           email: 'test@github.com',
           display_name: 'Test User',
           role: 'admin',
-          github_id: '12345',
+          github_id: 12345,
           created_at: expect.any(Date),
         },
       });

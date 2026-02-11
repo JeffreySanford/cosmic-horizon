@@ -184,16 +184,17 @@ Tracked progress in `TODO.md`:
    - Set assertions in CI (e.g., mobile score >70%)
    - Store artifact baselines for trend tracking
 
-2. **Affiliation Disclaimer Standardization** (~1 hour)
-   - Add footer: "VLASS Portal is an independent project not affiliated with VLA/NRAO"
+2. **Affiliation Disclaimer Standardization** ✅
+   - Add footer: "VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved."
    - Apply to: docs/frontend/*, architecture/ADR docs, API docs
    - Verify in `docs-policy:check`
 
 ### Medium Priority (Can Be Post-Launch)
-3. **API Contract Testing** (~2 hours)
+3. **API Contract Testing** ✅
    - Commit baseline `documentation/reference/api/openapi.json`
    - Add CI step: OpenAPI diff (no breaking changes)
    - Generate from NestJS controllers (auto)
+   - Status: COMPLETED (scripts/check-api-contract.mjs)
 
 4. **GitHub Metadata** (~30 min)
    - Repo description: "Fast VLASS sky browser with shareable permalinks and research notebook"

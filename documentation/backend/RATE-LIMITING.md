@@ -5,7 +5,9 @@
 Three-tier rate limiting:
 
 1. **IP-based** (global): 1000 req/min to prevent bot attacks
+
 2. **User-based** (authenticated): 5000 req/min per user
+
 3. **User + Endpoint** (per route): Variable per endpoint
 
 ---
@@ -107,6 +109,7 @@ export class EndpointThrottleGuard implements CanActivate {
     return true;
   }
 }
+
 ```
 
 ### Usage in Controller
@@ -136,6 +139,7 @@ export class CommunityController {
     return this.posts.findOne(id);
   }
 }
+
 ```
 
 ---
@@ -157,6 +161,7 @@ HTTP/1.1 429 Too Many Requests
 Retry-After: 30
 Content-Type: application/json
 { "error": "Rate limit exceeded: 100/min" }
+
 ```
 
 ---
@@ -177,6 +182,7 @@ async canActivate(context: ExecutionContext): Promise<boolean> {
 
   // ... apply normal limits
 }
+
 ```
 
 ---
@@ -188,6 +194,7 @@ Log rate limit events to track abuse:
 ```typescript
 // Log when user approaches limit (80% of quota)
 const threshold = limit * 0.8;
+
 if (current > threshold) {
   this.logger.warn(`Rate limit approaching for ${userId}`, {
     route,
@@ -207,6 +214,7 @@ if (current > limit) {
     timestamp: new Date(),
   });
 }
+
 ```
 
 ---
@@ -256,10 +264,14 @@ describe('Rate Limiting', () => {
     expect(res.status).toBe(201);
   });
 });
+
 ```
 
 ---
 
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-02-11
 
-**Strategy:** IP → User → Endpoint. Bypass for premium/service accounts.
+## **Strategy:** IP → User → Endpoint. Bypass for premium/service accounts
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

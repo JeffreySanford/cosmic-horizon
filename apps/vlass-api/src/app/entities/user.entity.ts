@@ -6,8 +6,8 @@ import {
   UpdateDateColumn,
   OneToMany,
   Unique,
-  Relation,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Post } from './post.entity';
 import { Revision } from './revision.entity';
 import { Comment } from './comment.entity';

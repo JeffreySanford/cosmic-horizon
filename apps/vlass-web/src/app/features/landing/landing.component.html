@@ -15,6 +15,9 @@
     @if (isAdmin) {
       <button mat-stroked-button type="button" (click)="openLogs()">Logs</button>
     }
+    @if (user.username) {
+      <a mat-button routerLink="/profile">My Profile</a>
+    }
     <button mat-flat-button (click)="logout()">Logout</button>
   </mat-toolbar>
 

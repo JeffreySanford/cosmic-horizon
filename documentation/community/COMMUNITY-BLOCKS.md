@@ -18,31 +18,43 @@ CREATE TABLE posts (
   author_id UUID NOT NULL REFERENCES users(id),
 
   -- Identity
+
   slug STRING UNIQUE,              -- URL-friendly: "m87-core-observation"
+
   status ENUM('DRAFT', 'PUBLISHED', 'HIDDEN', 'DELETED'),
 
   -- Latest revision pointer
+
   latest_revision_id UUID,         -- FK to post_revisions.id
+
   revision_count INT DEFAULT 1,
 
   -- Metadata
+
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
   published_at TIMESTAMP,          -- When first published
+
   hidden_at TIMESTAMP,             -- When hidden by mod
+
   hidden_reason STRING,            -- e.g., "Spam", "Misinformation"
 
   -- Engagement & moderation
+
   comment_count INT DEFAULT 0,
   flag_count INT DEFAULT 0,
   flagged BOOL DEFAULT FALSE,      -- Flagged after 3+ reports
+
   locked BOOL DEFAULT FALSE,       -- Comments disabled
 
   -- Search
+
   search_vector TSVECTOR,          -- Full-text search (Postgres)
 
   -- Snapshot artifact
+
   snapshot_artifact_id STRING,     -- S3 key (optional)
+
   snapshot_generated_at TIMESTAMP
 );
 
@@ -51,25 +63,35 @@ CREATE TABLE post_revisions (
   post_id UUID NOT NULL REFERENCES posts(id),
 
   -- Content
+
   rev_number INT,                  -- 1, 2, 3, ...
+
   title STRING,
   markdown_raw TEXT,               -- Raw Markdown (user edited)
 
   -- Extracted data (deterministic parsing)
+
   blocks_json JSONB,               -- Extracted blocks (viewer, image, etc.)
+
   tags_json JSONB,                 -- Extracted tags (curated + user)
 
   -- Author & audit
+
   author_id UUID,                  -- May differ from post.author_id if admin edited
+
   edited_reason STRING,            -- Why revision was made
+
   created_at TIMESTAMP,
 
   -- Metadata
+
   word_count INT,
   is_snapshot_ready BOOL,          -- Was snapshot generated?
+
   snapshot_job_id STRING,          -- Async job tracking
 
   -- Search
+
   search_vector TSVECTOR
 );
 
@@ -78,19 +100,26 @@ CREATE TABLE post_block_snapshots (
   revision_id UUID NOT NULL REFERENCES post_revisions(id),
 
   -- Which block?
+
   block_index INT,
   block_type ENUM('VIEWER', 'IMAGE', 'CODE'),
 
   -- Generated artifact
+
   artifact_s3_key STRING,          -- Where snapshot PNG is stored
+
   artifact_url_signed STRING,      -- Signed URL (100-char cache)
+
   artifact_size_bytes BIGINT,
   artifact_generated_at TIMESTAMP,
 
   -- Lifecycle
+
   artifact_expires_at TIMESTAMP,   -- 30-day TTL
+
   artifact_is_deleted BOOL
 );
+
 ```
 
 ### Post Revisions & Immutability
@@ -119,6 +148,7 @@ User deletes post → post.status = 'DELETED', deleted_at = now()
   ├─ soft delete; data retained 30d for recovery
   ├─ emits: AUDIT_EVENT(action=POST_DELETED)
   ├─ after 30d: hard delete (cascade delete revisions, artifacts)
+
 ```
 
 ---
@@ -130,6 +160,7 @@ User deletes post → post.status = 'DELETED', deleted_at = now()
 Users write standard Markdown + special block notations:
 
 ````markdown
+
 # M87 Core Observation
 
 Here's what we observed in the VLASS Quick Look data.
@@ -148,9 +179,11 @@ Here's what we observed in the VLASS Quick Look data.
   "colormap": "viridis",
   "overlayGrid": true,
   "overlayCompass": true,
-  "timestampUtc": "2026-02-06T20:00:00Z"
+  "timestampUtc": "2026-02-11T20:00:00Z"
 }
+
 ```
+
 ````
 
 The core shows a clear ring structure.
@@ -158,9 +191,13 @@ The core shows a clear ring structure.
 ## Curated Tags
 
 ```tags
+
 - spectral-line-search
+
 - supermassive-black-hole
+
 - compact-core
+
 ```
 
 ## Image
@@ -242,6 +279,7 @@ function validateViewerConfig(config: any): { valid: bool, errors: string[] } {
 
   return { valid: errors.length === 0, errors };
 }
+
 ````
 
 ### Stored Representation (post_revisions.blocks_json)
@@ -266,7 +304,7 @@ After parsing, store as JSON (deterministic, queryable):
       "jobId": "snapshot_abc123",
       "status": "COMPLETE",
       "artifactId": "s3://vlass-artifacts/post_123_block_0.png",
-      "generatedAt": "2026-02-06T20:15:00Z"
+      "generatedAt": "2026-02-11T20:15:00Z"
     }
   },
   {
@@ -296,7 +334,7 @@ After parsing, store as JSON (deterministic, queryable):
     "index": 2,
     "data": {
       "url": "/uploads/user_1/m87-snapshot.png",
-      "uploadedAt": "2026-02-06T20:00:00Z",
+      "uploadedAt": "2026-02-11T20:00:00Z",
       "metadata": {
         "width": 512,
         "height": 512,
@@ -306,6 +344,7 @@ After parsing, store as JSON (deterministic, queryable):
     }
   }
 ]
+
 ```
 
 ---
@@ -339,6 +378,7 @@ async createPost(
   }
 
   // Valid markdown → create revision + queue snapshots
+
   const post = await this.posts.createPost(user.id, {
     markdown: dto.markdown,
     blocks,
@@ -348,6 +388,7 @@ async createPost(
   // Return immediately (async jobs queued)
   return toDto(post);  // 201 Created, POST complete
 }
+
 ```
 
 ### Async Snapshot Job (Background)
@@ -402,6 +443,7 @@ export class SnapshotGenerationJob {
       // Get signed URL (valid for 7 days, then expires)
       const signedUrl = await this.s3.getSignedUrl(key, {
         expiresIn: 7 * 24 * 60 * 60,
+
       });
 
       // Update database
@@ -417,6 +459,7 @@ export class SnapshotGenerationJob {
           artifact_url_signed: signedUrl,
           artifact_generated_at: new Date(),
           artifact_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+
         },
         create: {
           id: uuid(),
@@ -427,6 +470,7 @@ export class SnapshotGenerationJob {
           artifact_url_signed: signedUrl,
           artifact_generated_at: new Date(),
           artifact_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+
         },
       });
 
@@ -456,6 +500,7 @@ export class SnapshotGenerationJob {
     }
   }
 }
+
 ```
 
 ### WebSocket Events
@@ -482,6 +527,7 @@ interface JobEvent {
   // FAILED
   error?: string;
 }
+
 ```
 
 ---
@@ -512,6 +558,7 @@ if (post.flag_count >= 3 && !post.flagged) {
     reportCount: post.flag_count,
   });
 }
+
 ```
 
 ### Mod Action: Hide Post
@@ -555,6 +602,7 @@ async hidePost(
 
   return toDto(post);
 }
+
 ```
 
 ### Mod Action: Lock Comments on Post
@@ -578,6 +626,7 @@ async lockPost(
 
   return toDto(post);
 }
+
 ```
 
 ### Mod Action: Tag for "Needs Sources"
@@ -597,6 +646,7 @@ async addNeedsSourcesTag(
 
   return toDto(post);
 }
+
 ```
 
 ---
@@ -615,7 +665,7 @@ Response:
     {
       "revNumber": 1,
       "title": "M87 Core Observation",
-      "createdAt": "2026-02-06T20:00:00Z",
+      "createdAt": "2026-02-11T20:00:00Z",
       "modifiedBy": "user_1",
       "wordCount": 345,
       "hasSnapshot": true,
@@ -628,13 +678,14 @@ Response:
     {
       "revNumber": 2,
       "title": "M87 Core Observation (Updated)",
-      "createdAt": "2026-02-06T21:30:00Z",
+      "createdAt": "2026-02-11T21:30:00Z",
       "modifiedBy": "user_1",
       "editReason": "Fixed colormap typo",
       ...
     }
   ]
 }
+
 ```
 
 ### Diff Between Revisions
@@ -662,6 +713,7 @@ Response:
     ]
   }
 }
+
 ```
 
 ---
@@ -679,6 +731,7 @@ describe("Community Posts with Blocks", () => {
       .send({
         title: "M87 Observation",
         markdown: `
+
 # M87
 
 \`\`\`viewer
@@ -773,29 +826,34 @@ describe("Community Posts with Blocks", () => {
     // (verify S3 calls made)
   });
 });
+
 ````
 
 ---
 
 ## Part 7: FAQ / Design Decisions
 
-**Q: Why immutable revisions instead of inline edits?**  
+**Q: Why immutable revisions instead of inline edits?**
 A: Preserves edit history for transparency and moderation. Easy to diff, revert, or audit.
 
-**Q: Why store blocks as JSON instead of markdown?**  
+**Q: Why store blocks as JSON instead of markdown?**
 A: Queryable (find all posts with a specific epoch). Faster rendering (no re-parse on every view). Easier to validate and version independently.
 
-**Q: Why generate snapshots async?**  
+**Q: Why generate snapshots async?**
 A: Tile rendering can take 1-5 seconds. User shouldn't wait. Async job + WS notification gives great UX.
 
-**Q: Why 30-day TTL on artifacts?**  
+**Q: Why 30-day TTL on artifacts?**
 A: Balances storage cost vs. user expectations. Posts are usually accessed within days of creation.
 
-**Q: Can users edit blocks after publish?**  
+**Q: Can users edit blocks after publish?**
 A: Yes, via creating a new revision. Old revision's snapshot is preserved (immutable).
 
 ---
 
-**Last Updated:** 2026-02-06  
-**Status:** NORMATIVE  
-**Related:** HIPS-PIPELINE.md, MODERATION-SYSTEM.md, DATA-RETENTION-DELETION.md
+**Last Updated:** 2026-02-11
+**Status:** NORMATIVE
+
+## **Related:** HIPS-PIPELINE.md, MODERATION-SYSTEM.md, DATA-RETENTION-DELETION.md
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

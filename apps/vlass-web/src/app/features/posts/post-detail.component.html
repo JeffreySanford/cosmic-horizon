@@ -15,7 +15,14 @@
         <mat-card-header>
           <mat-card-title>{{ post.title }}</mat-card-title>
           <mat-card-subtitle>
-            {{ post.user?.display_name || post.user?.username || 'Unknown author' }} | {{ post.status }}
+            @if (post.user?.username) {
+              <a [routerLink]="['/profile', post.user?.username]" class="author-link">
+                {{ post.user?.display_name || post.user?.username || 'Unknown author' }}
+              </a>
+            } @else {
+              <span class="author-link">{{ post.user?.display_name || post.user?.username || 'Unknown author' }}</span>
+            }
+            | {{ post.status }}
             @if (post.hidden_at) {
               | hidden
             }
@@ -66,6 +73,50 @@
           <a mat-button routerLink="/view">Open Viewer</a>
         </mat-card-actions>
       </mat-card>
+
+      <section class="comments-section">
+        <h2 class="comments-title">Comments ({{ comments.length }})</h2>
+
+        @if (!post.locked_at) {
+          <div class="add-comment">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Add a comment...</mat-label>
+              <textarea matInput rows="3" [(ngModel)]="newCommentContent" [disabled]="submittingComment"></textarea>
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-raised-button color="primary" [disabled]="!newCommentContent.trim() || submittingComment" (click)="submitComment()">
+                {{ submittingComment ? 'Posting...' : 'Post Comment' }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="locked-message">
+            <mat-icon>lock</mat-icon> This post is locked. No new comments are allowed.
+          </div>
+        }
+
+        @if (!loadingComments) {
+          @if (comments.length > 0) {
+            <div class="comments-list">
+              @for (comment of comments; track comment.id) {
+                <app-comment-item
+                  [comment]="comment"
+                  [canDeleteAny]="canModerate"
+                  (deleted)="onCommentDeleted()"
+                  (replied)="onCommentReplied()"
+                >
+                </app-comment-item>
+              }
+            </div>
+          } @else {
+            <div class="empty-comments">
+              No comments yet. Be the first to share your thoughts!
+            </div>
+          }
+        } @else {
+          <mat-spinner diameter="40"></mat-spinner>
+        }
+      </section>
     }
 
     @if (statusMessage) {

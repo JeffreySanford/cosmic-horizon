@@ -44,7 +44,13 @@
                 {{ post.title }}
               </mat-card-title>
               <mat-card-subtitle>
-                {{ authorName(post) }}
+                @if (post.user?.username) {
+                  <a [routerLink]="['/profile', post.user?.username]" (click)="$event.stopPropagation()" class="author-link">
+                    {{ authorName(post) }}
+                  </a>
+                } @else {
+                  <span class="author-link">{{ authorName(post) }}</span>
+                }
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>

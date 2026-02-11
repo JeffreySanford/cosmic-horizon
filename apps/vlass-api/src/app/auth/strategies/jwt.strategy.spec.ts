@@ -10,7 +10,7 @@ describe('JwtStrategy', () => {
 
   beforeEach(() => {
     authService.getCurrentUser.mockReset();
-    strategy = new JwtStrategy(authService);
+    strategy = new JwtStrategy(authService as never);
   });
 
   it('returns user for valid payload subject', async () => {
@@ -21,6 +21,7 @@ describe('JwtStrategy', () => {
       sub: 'user-1',
       email: 'test@vlass.local',
       username: 'testuser',
+      role: 'user',
     });
 
     expect(authService.getCurrentUser).toHaveBeenCalledWith('user-1');
@@ -35,6 +36,7 @@ describe('JwtStrategy', () => {
         sub: 'missing',
         email: null,
         username: 'missing',
+        role: 'user',
       })
     ).rejects.toBeInstanceOf(UnauthorizedException);
   });

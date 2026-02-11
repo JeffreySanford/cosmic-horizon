@@ -7,7 +7,9 @@ The VLASS Portal is a specialized, independent public-data platform engineered t
 Our Minimum Viable Product (MVP) is anchored by three critical functional pillars:
 
 - **Performance-Driven Delivery:** Implementing a high-speed Server-Side Rendering (SSR) architecture to achieve a first-paint target of <1 second on 4G connections.
+
 - **Advanced Visualization:** Integration of the Aladin viewer, complemented by robust permalink and snapshot capabilities for precision data sharing.
+
 - **Collaborative Documentation:** A native community notebook system supporting versioned revisions and technical posts.
 
 ---
@@ -20,10 +22,15 @@ The portal is built on an Nx monorepo architecture. This centralized approach al
 
 | Component | Technology | Role/Description |
 | --- | --- | --- |
+
 | **vlass-web** | Angular SSR | Performance-optimized frontend utilizing server-side pre-rendering for SEO and speed. |
+
 | **vlass-api** | NestJS | Backend orchestration layer providing business logic and data aggregation. |
+
 | **vlass-web-e2e** | Playwright | Frontend regression suite for UI validation and user-flow simulation. |
+
 | **vlass-api-e2e** | Playwright | API contract testing and endpoint validation. |
+
 | **libs/shared/models** | Nx Library (Shared Types) | Centralized TypeScript interfaces and models shared by both web and API services. |
 
 ### SSR-First Implementation
@@ -39,7 +46,9 @@ The project adheres to a rigorous testing and deployment lifecycle governed by [
 ### Release Quality Gates
 
 1. **Documentation Compliance:** Verification of standards via `pnpm nx run docs-policy:check`
+
 2. **Unit and Integration Testing:** A comprehensive sweep using `pnpm nx run-many --target=test --all`
+
 3. **End-to-End Validation:** Success in the specialized `pnpm nx run mvp-gates:e2e` target
 
 ### Primary Development & Auditing Commands
@@ -47,21 +56,31 @@ The project adheres to a rigorous testing and deployment lifecycle governed by [
 We utilize `pnpm` as our primary package manager and task runner for the Nx workspace:
 
 ```bash
+
 # Environment Initialization
+
 pnpm start:all          # Initialize infrastructure, API, and Web services
 
 # Focused Application Development
+
 pnpm start:web          # Serve Angular frontend
+
 pnpm start:api          # Serve NestJS backend
 
 # Testing & Verification
+
 pnpm test:api           # Execute NestJS unit tests
+
 pnpm test:web           # Execute Angular unit tests
+
 pnpm e2e:mvp            # Execute full Playwright E2E suite
 
 # Performance Auditing
+
 pnpm lighthouse:mobile  # Execute mobile performance audit
+
 pnpm lighthouse:summary # Generate text/json summary for CI + AI consumers
+
 ```
 
 ### Testing Ecosystem
@@ -74,15 +93,15 @@ Our quality assurance stack comprises Vitest/Jest for high-speed unit testing, P
 
 The transition from MVP to subsequent versions involves shifting from a unified Node.js environment to a more polyglot, distributed architecture.
 
-### Planned Enhancements
+### Planned Enhancements (v1.1+)
 
-- **Go Microservice Integration:** We will introduce a high-concurrency Go-based service into the Nx ecosystem to handle computationally intensive backend tasks that exceed the performance profile of Node.js.
+- **Scientific Ephemeris Backend (COMPLETED):** High-precision coordinate resolution for solar system objects using `astronomy-engine` (TS) and JPL Horizons fallback. Features daily cache pre-warming and Redis/Memory multi-tier caching.
 
-- **FITS Proxy:** Implementation of a specialized proxy to optimize the streaming and handling of Flexible Image Transport System (FITS) data.
+- **Interactive Comments:** Social features for the notebook system, allowing users to discuss and peer-review published sky posts (includes threaded replies and moderation).
 
-- **Mode B Implementation:** This requires a significant extension of the data ingestion pipeline and schema support to accommodate the unique survey parameters and metadata requirements of VLASS Mode B.
+- **FITS Proxy (Mode B Integration):** Implementation of a specialized proxy to optimize the streaming and handling of Flexible Image Transport System (FITS) data (awaiting institutional policy alignment; deferred to v2).
 
-- **Community Engagement Features:** Expansion of the existing notebook infrastructure to support threaded user comments and interactive feedback loops.
+- **Mode B Implementation:** This requires a significant extension of the data ingestion pipeline and schema support to accommodate the unique survey parameters and metadata requirements of VLASS Mode B (deferred to v2).
 
 ---
 
@@ -95,8 +114,11 @@ To maintain delivery velocity and prevent feature creep, the project operates un
 The project relies on the following canonical reference documents:
 
 - [PRODUCT-CHARTER.md](../product/PRODUCT-CHARTER.md): Core mission, constraints, and project boundaries.
+
 - [ARCHITECTURE.md](./ARCHITECTURE.md): Technical architectural blueprints and system design.
+
 - [STATUS.md](../governance/STATUS.md): Real-time tracking of implementation progress against requirements.
+
 - [SCOPE-LOCK.md](../../SCOPE-LOCK.md): The definitive boundary between the MVP and future iterations.
 
 ---
@@ -106,9 +128,13 @@ The project relies on the following canonical reference documents:
 The repository leverages a unified TypeScript stack to facilitate code sharing and maintainability across the monorepo:
 
 - **TypeScript (76.5%):** Powering the logic for both NestJS and Angular.
+
 - **SCSS (13.9%):** Modular, component-scoped styling.
+
 - **HTML (5.7%):** Angular structural templates.
+
 - **JavaScript (2.7%):** Build-time configuration and tooling.
+
 - **Other (1.2%):** YAML configurations and markdown documentation.
 
 This distribution reflects a modern, type-safe architecture designed for scalability and developer ergonomics.
@@ -120,11 +146,19 @@ This distribution reflects a modern, type-safe architecture designed for scalabi
 For additional architectural details and strategic planning, see:
 
 - [MARKETING-OVERVIEW.md](../product/MARKETING-OVERVIEW.md) — Stakeholder-focused narrative covering MVP, Phase 2, and Phase 3
+
 - [MARKETING-VISUAL-GUIDE.md](../MARKETING-VISUAL-GUIDE.md) — Visual specifications and infographic outlines
+
 - [ROADMAP.md](../planning/roadmap/ROADMAP.md) — Complete project timeline through Phase 4 (2027+)
+
 - [FUNDING-AND-COSTS.md](../planning/funding/FUNDING-AND-COSTS.md) — Financial breakdown and grant strategy
 
 ---
 
-*Last Updated: February 10, 2026*  
+*Last Updated: February 11, 2026*
+
 *Status: MVP Architecture Complete | Phase 2 Planning Underway*
+
+---
+
+*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

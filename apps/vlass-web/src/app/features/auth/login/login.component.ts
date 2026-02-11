@@ -13,7 +13,7 @@ import { AppLoggerService } from '../../../services/app-logger.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
+  styleUrls: ['./login.component.scss'],
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class LoginComponent implements OnInit, OnDestroy {

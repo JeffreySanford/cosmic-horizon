@@ -97,7 +97,7 @@ describe('AuthService', () => {
         role: 'admin',
       };
 
-      const token = service.signToken(user);
+      const token = service.signToken(user as never);
 
       expect(jwtService.sign).toHaveBeenCalledWith({
         sub: 'user-1',

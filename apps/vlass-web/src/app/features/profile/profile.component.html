@@ -1,0 +1,99 @@
+<div class="profile-page">
+  <mat-toolbar color="primary" class="profile-toolbar">
+    <span>Profile</span>
+    <span class="spacer"></span>
+    @if (isOwner && !editing) {
+      <button mat-stroked-button type="button" (click)="startEdit()">Edit Profile</button>
+    }
+    <a mat-flat-button routerLink="/posts">Back to feed</a>
+  </mat-toolbar>
+
+  <section class="profile-shell">
+    @if (loading) {
+      <p>Loading profile...</p>
+    } @else if (error) {
+      <mat-card class="error-card">
+        <mat-card-content>{{ error }}</mat-card-content>
+        <mat-card-actions>
+          <a mat-button routerLink="/posts">Return to feed</a>
+        </mat-card-actions>
+      </mat-card>
+    } @else if (profile) {
+      <div class="profile-grid">
+        <mat-card class="user-info-card">
+          <mat-card-header>
+            <div mat-card-avatar class="avatar-placeholder">
+              @if (profile.user.avatar_url) {
+                <img [src]="profile.user.avatar_url" alt="avatar">
+              } @else {
+                <mat-icon>account_circle</mat-icon>
+              }
+            </div>
+            <mat-card-title>{{ profile.user.display_name || profile.user.username }}</mat-card-title>
+            <mat-card-subtitle>@{{ profile.user.username }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            @if (editing && isOwner) {
+              <form class="profile-form" [formGroup]="editForm" (ngSubmit)="saveProfile()">
+                <mat-form-field appearance="outline">
+                  <mat-label>Display Name</mat-label>
+                  <input matInput formControlName="display_name" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Bio</mat-label>
+                  <textarea matInput rows="4" formControlName="bio"></textarea>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Avatar URL</mat-label>
+                  <input matInput formControlName="avatar_url" placeholder="https://..." />
+                </mat-form-field>
+
+                <div class="profile-form-actions">
+                  <button mat-stroked-button type="button" (click)="cancelEdit()" [disabled]="saving">
+                    Cancel
+                  </button>
+                  <button mat-flat-button color="primary" type="submit" [disabled]="saving">
+                    @if (saving) {
+                      Saving...
+                    } @else {
+                      Save
+                    }
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <p class="bio" [class.empty]="!profile.user.bio">
+                {{ profile.user.bio || 'No bio provided.' }}
+              </p>
+              <mat-divider></mat-divider>
+              <p class="meta">
+                Joined {{ profile.user.created_at | date: 'mediumDate' }}
+              </p>
+            }
+            @if (saveMessage) {
+              <p class="save-message">{{ saveMessage }}</p>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <section class="user-posts">
+          <h3>Published Notebooks ({{ profile.posts.length }})</h3>
+          @if (profile.posts.length > 0) {
+            <mat-nav-list>
+              @for (post of profile.posts; track post.id) {
+                <a mat-list-item [routerLink]="['/posts', post.id]">
+                  <span matListItemTitle>{{ post.title }}</span>
+                  <span matListItemLine>{{ post.published_at | date: 'shortDate' }}</span>
+                </a>
+              }
+            </mat-nav-list>
+          } @else {
+            <p class="empty-message">This user hasn't published any notebooks yet.</p>
+          }
+        </section>
+      </div>
+    }
+  </section>
+</div>

@@ -18,12 +18,13 @@ interface LandingPillar {
 @Component({
   selector: 'app-landing',
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.scss',
+  styleUrls: ['./landing.component.scss'],
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
 export class LandingComponent implements OnInit, OnDestroy {
   user = {
     name: 'User',
+    username: '',
     email: 'user@example.com',
     role: 'guest' as UserRole,
   };
@@ -73,6 +74,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     if (sessionUser) {
       this.user = {
         name: sessionUser.display_name || sessionUser.username,
+        username: sessionUser.username,
         email: sessionUser.email || 'user@example.com',
         role: sessionUser.role,
       };

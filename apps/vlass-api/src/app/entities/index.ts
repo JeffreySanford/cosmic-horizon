@@ -2,6 +2,7 @@ export { User } from './user.entity';
 export { Post, PostStatus } from './post.entity';
 export { Revision } from './revision.entity';
 export { Comment } from './comment.entity';
+export { CommentReport } from './comment-report.entity';
 export { Snapshot } from './snapshot.entity';
 export { ViewerState } from './viewer-state.entity';
 export { ViewerSnapshot } from './viewer-snapshot.entity';

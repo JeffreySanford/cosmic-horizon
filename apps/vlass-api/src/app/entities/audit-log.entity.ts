@@ -6,8 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
-  Relation,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { User } from './user.entity';
 
 export enum AuditAction {

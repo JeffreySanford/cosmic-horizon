@@ -32,15 +32,17 @@ export class RequestLoggerInterceptor implements NestInterceptor {
       tap({
         next: (response) => {
           const duration = Math.round(Date.now() - start);
+          const httpRes = context.switchToHttp().getResponse<HttpResponse>();
           const status =
-            (response as { statusCode?: number }).statusCode ??
-            context.switchToHttp().getResponse<HttpResponse>().statusCode;
+            (response as { statusCode?: number })?.statusCode ??
+            httpRes?.statusCode ??
+            200;
 
           const log = {
             event: 'http_response',
             method,
             url,
-            status_code: status ?? 0,
+            status_code: status,
             duration_ms: duration,
             user_id: userId,
             user_role: userRole,
@@ -58,9 +60,10 @@ export class RequestLoggerInterceptor implements NestInterceptor {
         },
         error: (err: unknown) => {
           const duration = Math.round(Date.now() - start);
+          const httpRes = context.switchToHttp().getResponse<HttpResponse>();
           const status =
-            (err as { status?: number }).status ??
-            context.switchToHttp().getResponse<HttpResponse>().statusCode ??
+            (err as { status?: number })?.status ??
+            httpRes?.statusCode ??
             500;
 
           const log = {
