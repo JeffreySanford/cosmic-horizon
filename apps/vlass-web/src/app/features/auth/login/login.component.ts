@@ -3,8 +3,8 @@ import { ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit, PLATFO
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, interval, Subscription } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { interval, Subscription } from 'rxjs';
+import { startWith } from 'rxjs/operators';
 import { AuthApiService } from '../auth-api.service';
 import { AuthSessionService } from '../../../services/auth-session.service';
 import { SkyPreview, SkyPreviewService } from '../../../services/sky-preview.service';
