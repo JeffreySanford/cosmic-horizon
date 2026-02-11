@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, ConflictException, OnModuleInit, UnauthorizedException } from '@nestjs/common';
-import Strategy from 'passport-github';
+import Strategy from 'passport-github2';
 import { UserRepository } from '../repositories';
 import { CreateUserDto } from '../dto';
 import { User } from '../entities';
