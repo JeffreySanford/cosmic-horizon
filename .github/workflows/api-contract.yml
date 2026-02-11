@@ -24,11 +24,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run start:infra
       - run: pnpm nx run vlass-api:openapi
+      - name: API Contract Regression Check
+        run: node scripts/check-api-contract.mjs
       - name: Upload OpenAPI artifact
         uses: actions/upload-artifact@v4
         with:
           name: openapi-spec
-          path: documentation/api/openapi.json
+          path: documentation/reference/api/openapi.json
       - name: Stop infra
         if: always()
         run: docker compose down --remove-orphans --volumes

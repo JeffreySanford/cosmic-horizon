@@ -205,3 +205,6 @@ Completed on 2026-02-07:
 - Primary archive location: `TODO.md` under "Archived Completed Items".
 - Secondary historical context: release notes under `documentation/RELEASE-NOTES-*.md`.
 - `documentation/planning/roadmap/ROADMAP.md` should stay future-facing, not become a done-work log.
+
+---
+*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*

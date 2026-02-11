@@ -1,7 +1,17 @@
 {
   "name": "@vlass-portal/source",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Enterprise-grade VLASS sky browser with autonomous agent orchestration, high-precision ephemeris, and interactive research notebooks.",
   "license": "MIT",
+  "keywords": [
+    "radio-astronomy",
+    "vlass",
+    "ngvla",
+    "cosmicai",
+    "astronomical-viewer",
+    "interferometry",
+    "science-operations"
+  ],
   "scripts": {
     "start:web": "nx serve vlass-web",
     "start:api": "nx serve vlass-api",

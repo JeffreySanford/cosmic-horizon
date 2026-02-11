@@ -187,3 +187,6 @@ See [FUNDING-AND-COSTS.md](../funding/FUNDING-AND-COSTS.md) for comprehensive co
 ---
 
 *VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+
+---
+*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*

@@ -102,3 +102,6 @@ API payloads must align with DTOs defined in `libs/shared/models`.
 ---
 
 *VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+
+---
+*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*

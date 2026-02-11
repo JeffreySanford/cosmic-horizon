@@ -57,8 +57,15 @@ const checks = [
 
 const violations = [];
 
+const AFFILIATION_PATTERN = /not affiliated with VLA\/NRAO/i;
+
 for (const check of checks) {
   const content = readFileSync(check.file, 'utf8');
+
+  if (!AFFILIATION_PATTERN.test(content)) {
+    violations.push(`${check.file}: missing standardized affiliation disclaimer ("not affiliated with VLA/NRAO")`);
+  }
+
   for (const pattern of check.required ?? []) {
     if (!pattern.test(content)) {
       violations.push(`${check.file}: missing required pattern ${pattern}`);

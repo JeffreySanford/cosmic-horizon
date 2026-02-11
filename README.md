@@ -1,6 +1,6 @@
 # VLASS Portal
 
-> Independent public-data project. This repository is not affiliated with, sponsored by, or operated on behalf of the VLA, NRAO, or the VLASS program.
+> Independent portal using public VLASS data; not affiliated with VLA/NRAO.
 
 [![Build](https://github.com/JeffreySanford/vlass-portal/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/vlass-portal/actions/workflows/build.yml)
 [![Unit Tests](https://github.com/JeffreySanford/vlass-portal/actions/workflows/unit-tests.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/vlass-portal/actions/workflows/unit-tests.yml)

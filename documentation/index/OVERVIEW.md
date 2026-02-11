@@ -50,3 +50,6 @@ Rust remains optional for future advanced rendering. It is not required to ship 
 ---
 
 *VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+
+---
+*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*

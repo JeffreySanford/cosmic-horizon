@@ -71,6 +71,7 @@ interface AladinView {
   getRaDec(): [number, number];
   getViewDataURL(options?: { format?: 'image/png'; width?: number; height?: number; logo?: boolean }): Promise<string>;
   on(event: AladinEvent, callback: (payload: AladinListenerPayload | number) => void): void;
+  pix2world?(x: number, y: number): [number, number] | null;
 }
 
 interface AladinFactory {
@@ -105,6 +106,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   gridOverlayEnabled = false;
   labelsOverlayEnabled = true;
   pdssColorEnabled = false;
+  controlPanelCollapsed = false;
+  keyboardHelpVisible = false;
   private previousSurvey = 'VLASS'; // Track survey when disabling P/DSS
   readonly surveyOptions = [
     { label: 'VLASS', value: 'VLASS' },
@@ -130,6 +133,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   private gridToggleStartedAt: number | null = null;
   private readonly viewerSyncDebounceMs = 1000;
   private readonly nearbyLookupDebounceMs = 1000;
+  private readonly cursorLookupDebounceMs = 1000;
   private readonly supportedAladinSurveys = new Set<string>([
     'P/VLASS/QL',
     'P/DSS2/color',
@@ -762,6 +766,14 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  toggleControlPanel(): void {
+    this.controlPanelCollapsed = !this.controlPanelCollapsed;
+  }
+
+  toggleKeyboardHelp(): void {
+    this.keyboardHelpVisible = !this.keyboardHelpVisible;
+  }
+
   onCanvasMouseMove(event: MouseEvent): void {
     if (!this.labelsOverlayEnabled || !this.aladinView || !this.stateForm.valid) {
       return;
@@ -776,15 +788,15 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // Convert pixel coordinates to world coordinates
-    // Aladin.js uses pixel2world(x, y) to convert screen to sky coords
-    const globalAladin = (window as unknown as { A?: { pix2world?: (x: number, y: number) => [number, number] } }).A;
-    if (!globalAladin || !globalAladin.pix2world) {
+    const pix2world = this.aladinView.pix2world
+      ?? (window as unknown as { A?: { pix2world?: (x: number, y: number) => [number, number] } }).A?.pix2world;
+
+    if (!pix2world) {
       return;
     }
 
     try {
-      const skyCoords = globalAladin.pix2world(x, y);
+      const skyCoords = pix2world(x, y);
       if (!skyCoords || skyCoords.length < 2) {
         return;
       }
@@ -847,7 +859,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         },
       });
-    }, this.nearbyLookupDebounceMs); // 1-second debounce for bandwidth efficiency
+    }, this.cursorLookupDebounceMs); // 1-second debounce for cursor label lookups
   }
 
   private hydrateStateFromRoute(): void {
