@@ -538,7 +538,7 @@ flowchart LR
 
 ## 11. Infographics Call-Out Locations
 
-In the primary [MARKETING-OVERVIEW.md](MARKETING-OVERVIEW.md) document, these sections should include professional graphics:
+In the primary [MARKETING-OVERVIEW.md](product/MARKETING-OVERVIEW.md) document, these sections should include professional graphics:
 
 | Section | Visual Type | Recommendation |
 | --- | --- | --- |

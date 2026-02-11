@@ -8,7 +8,9 @@ This folder contains reusable conference and proposal-facing material.
 
 - `documentation/marketing/abstracts/` - abstract drafts and submission variants
 - `documentation/marketing/letters/` - outreach/contact templates and target lists
+- `documentation/marketing/letters/NRAO-HELPDESK-POLICY-REQUEST.md` - permission-first ticket template for FITS/policy boundaries
 - `documentation/marketing/scope/` - proposal scope and delivery framing
+- `documentation/marketing/scope/DATA-POLICY-BOUNDARIES.md` - NRAO/VLASS permission and policy guardrails
 - `documentation/marketing/graphics/` - AI platform guidance and prompt packs for visuals
 
 ## Current Focus
@@ -20,9 +22,11 @@ This folder contains reusable conference and proposal-facing material.
 ## Quick Start
 
 1. Start with `documentation/marketing/scope/COSMIC-HORIZONS-2026-SCOPE.md`.
-2. Use `documentation/marketing/abstracts/COSMIC-HORIZONS-2026-ABSTRACT.md`.
-3. Personalize and send `documentation/marketing/letters/OUTREACH-EMAIL-TEMPLATE.md`.
-4. Generate visuals using `documentation/marketing/graphics/MIRO-PROMPT-PACK.md`.
+2. Confirm policy guardrails in `documentation/marketing/scope/DATA-POLICY-BOUNDARIES.md`.
+3. Use `documentation/marketing/abstracts/COSMIC-HORIZONS-2026-ABSTRACT.md`.
+4. Personalize and send `documentation/marketing/letters/OUTREACH-EMAIL-TEMPLATE.md`.
+5. Send policy request via `documentation/marketing/letters/NRAO-HELPDESK-POLICY-REQUEST.md`.
+6. Generate visuals using `documentation/marketing/graphics/MIRO-PROMPT-PACK.md`.
 
 ## Mermaid Visual PDF
 

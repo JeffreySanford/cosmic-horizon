@@ -4,7 +4,7 @@
       <button type="button" class="telemetry-toggle" (click)="toggleTelemetryCompact()">
         {{ telemetryCompact ? 'Expand' : 'Compact' }}
       </button>
-      <p>{{ clockLine$ | async }}</p>
+      <p>{{ clockLine }}</p>
       <p class="telemetry-detail">{{ locationLabel }}</p>
       <p class="telemetry-detail">{{ latLonLabel }}</p>
     </aside>

@@ -16,3 +16,5 @@ Deferred entities:
 - Comment-related entities (v1.1)
 
 If model docs conflict with code, trust current entities and migrations.
+
+For SQL bootstrap and local seed account behavior, see `documentation/database/SEEDING-OPERATIONS.md`.

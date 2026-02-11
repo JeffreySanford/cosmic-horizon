@@ -7,7 +7,6 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import express from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 import session from 'express-session';
@@ -70,8 +69,6 @@ async function bootstrap() {
     app.getHttpAdapter().get(`/${globalPrefix}/openapi.json`, (_req: unknown, res: { json: (body: unknown) => void }) => {
       res.json(openApiDocument);
     });
-    const snapshotDir = resolveApiRootDir('storage', 'snapshots');
-    app.use(`/${globalPrefix}/view/snapshots`, express.static(snapshotDir));
     app.use(
       helmet({
         contentSecurityPolicy: false,
@@ -121,12 +118,6 @@ async function bootstrap() {
     Logger.error('Failed to start application', error instanceof Error ? error.message : error);
     process.exit(1);
   }
-}
-
-function resolveApiRootDir(...segments: string[]): string {
-  const normalizedCwd = process.cwd().replace(/\\/g, '/');
-  const basePath = normalizedCwd.endsWith('/apps/vlass-api') ? process.cwd() : resolve(process.cwd(), 'apps', 'vlass-api');
-  return resolve(basePath, ...segments);
 }
 
 bootstrap();

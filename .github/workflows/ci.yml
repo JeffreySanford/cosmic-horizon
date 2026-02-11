@@ -45,6 +45,7 @@ jobs:
       - run: pnpm run security:audit
       - run: pnpm nx run docs-policy:check
       - run: pnpm nx run-many --target=test --all
+      - run: pnpm run start:ports:free
       - run: pnpm run start:infra
       - run: pnpm nx run mvp-gates:e2e
       - run: docker compose down --remove-orphans --volumes

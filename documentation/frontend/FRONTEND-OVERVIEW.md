@@ -280,7 +280,7 @@ User → Login → Email+Password → Backend validates → JWT issued → Store
 **Location:** `features/admin/logs/`  
 **Purpose:** System log viewing with filters and full-text search  
 **Features:** Count tiles (all, error, info), Material DataTable, RBAC gated  
-**See:** [LOGGING-SYSTEM-DESIGN.md](../LOGGING-SYSTEM-DESIGN.md) for comprehensive logging architecture
+**See:** [LOGGING-SYSTEM-DESIGN.md](../backend/LOGGING-SYSTEM-DESIGN.md) for comprehensive logging architecture
 
 ---
 

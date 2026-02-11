@@ -10,6 +10,10 @@ Conference context in this draft:
 
 Use the official event pages to confirm final deadline and fee updates before submission.
 
+Compliance note:
+- This abstract pack should be framed around public-data-compatible workflows unless explicit FITS/policy permissions are confirmed.
+- See `documentation/marketing/scope/DATA-POLICY-BOUNDARIES.md`.
+
 ## Title
 
 `vlass-portal: A Web-Native Operational Interface for AI-Driven VLASS Data Exploration and Analysis Aligned with CosmicAI and ngVLA Infrastructure`
@@ -29,7 +33,7 @@ The platform has shipped three core pillars:
 2. Integrated Aladin Lite controls with permalink state and snapshot sharing.  
 3. Community notebook-style posts with revision history for reproducible collaboration.
 
-This baseline is being extended toward AI-inference integration, GPU-backed job orchestration, dataset federation, and explainability workflows. The objective is not to replace scientific modeling frameworks, but to operationalize them through a usable and auditable control plane: model runs as trackable jobs, reproducible parameters attached to outputs, and role-aware workflows for team science.
+This baseline is being extended toward AI-inference integration, GPU-backed job orchestration, dataset federation, and explainability workflows. The objective is not to replace scientific modeling frameworks, but to operationalize them through a usable and auditable control plane: model runs as trackable jobs, reproducible parameters attached to outputs, and role-aware workflows for team science. Any FITS-oriented expansion is treated as permission-gated pending formal policy guidance.
 
 This scope aligns with Cosmic Horizons themes including trustworthy AI, high-dimensional data analysis, and infrastructure readiness for ngVLA-scale data velocity. We position `vlass-portal` as the domain UX and MLOps-adjacent layer that complements institutional compute platforms, enabling researchers to move from isolated notebooks toward shared, reproducible, and interpretable operational workflows.
 

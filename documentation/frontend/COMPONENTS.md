@@ -577,7 +577,7 @@ applyFilters(): void {
 
 #### See Also
 
-[LOGGING-SYSTEM-DESIGN.md](../LOGGING-SYSTEM-DESIGN.md) for complete logging architecture.
+[LOGGING-SYSTEM-DESIGN.md](../backend/LOGGING-SYSTEM-DESIGN.md) for complete logging architecture.
 
 ---
 

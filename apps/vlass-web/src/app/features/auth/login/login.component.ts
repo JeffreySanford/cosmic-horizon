@@ -1,10 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, interval } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { interval, Subscription } from 'rxjs';
+import { startWith } from 'rxjs/operators';
 import { AuthApiService } from '../auth-api.service';
 import { AuthSessionService } from '../../../services/auth-session.service';
 import { SkyPreview, SkyPreviewService } from '../../../services/sky-preview.service';
@@ -16,7 +16,7 @@ import { AppLoggerService } from '../../../services/app-logger.service';
   styleUrl: './login.component.scss',
   standalone: false, // eslint-disable-line @angular-eslint/prefer-standalone
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   loading = false;
   submitted = false;
@@ -28,10 +28,7 @@ export class LoginComponent {
   latLonLabel = 'LAT --.---- | LON --.----';
   showTelemetryOverlay = false;
   telemetryCompact = true;
-  readonly clockLine$: Observable<string> = interval(1000).pipe(
-    startWith(0),
-    map(() => this.buildClockLine()),
-  );
+  clockLine = '';
 
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
@@ -41,6 +38,10 @@ export class LoginComponent {
   private authSessionService = inject(AuthSessionService);
   private skyPreviewService = inject(SkyPreviewService);
   private readonly logger = inject(AppLoggerService);
+  private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  private clockSubscription?: Subscription;
 
   constructor() {
     this.showTelemetryOverlay = isPlatformBrowser(this.platformId);
@@ -50,6 +51,23 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
+  }
+
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.ngZone.runOutsideAngular(() => {
+        this.clockSubscription = interval(1000).pipe(
+          startWith(0),
+        ).subscribe(() => {
+          this.clockLine = this.buildClockLine();
+          this.cdr.detectChanges();
+        });
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.clockSubscription?.unsubscribe();
   }
 
   get f() {

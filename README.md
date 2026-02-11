@@ -10,11 +10,11 @@
 
 Canonical MVP docs:
 
-- `documentation/PRODUCT-CHARTER.md`
+- `documentation/product/PRODUCT-CHARTER.md`
 - `SCOPE-LOCK.md`
-- `documentation/OVERVIEW-V2.md`
+- `documentation/index/OVERVIEW-V2.md`
 
-If any other doc conflicts, treat those two as source of truth.
+If any other doc conflicts, treat `PRODUCT-CHARTER.md` + `SCOPE-LOCK.md` as source of truth.
 
 ## MVP Summary
 
@@ -75,13 +75,13 @@ pnpm nx run mvp-gates:e2e
 
 ## Key Docs
 
-- `documentation/PRODUCT-CHARTER.md`
+- `documentation/product/PRODUCT-CHARTER.md`
 - `SCOPE-LOCK.md`
-- `documentation/STATUS.md`
-- `documentation/AFFILIATION.md`
-- `documentation/ENV.md`
-- `documentation/DEMO.md`
-- `documentation/OVERVIEW-V2.md`
-- `documentation/TESTING-STRATEGY.md`
-- `documentation/ROADMAP.md`
+- `documentation/governance/STATUS.md`
+- `documentation/product/AFFILIATION.md`
+- `documentation/operations/ENV.md`
+- `documentation/operations/DEMO.md`
+- `documentation/index/OVERVIEW-V2.md`
+- `documentation/quality/TESTING-STRATEGY.md`
+- `documentation/planning/roadmap/ROADMAP.md`
 - `TODO.md`

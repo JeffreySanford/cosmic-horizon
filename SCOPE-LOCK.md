@@ -19,15 +19,15 @@
 
 ### ✅ Updated
 
-| File                                | Change                                               |
-| ----------------------------------- | ---------------------------------------------------- |
-| `documentation/adr/ADR-001-*.md`    | 90d hot only (no 2yr cold)                           |
-| `documentation/adr/ADR-002-*.md`    | Link-out (Option A, no NRAO approval blocker)        |
-| `documentation/adr/ADR-003-*.md`    | Rust for rendering only, not compute                 |
-| `documentation/PRODUCT-CHARTER.md`  | **Created** — MVP scope + success metrics            |
-| `documentation/CACHE-POLICY.md`     | Removed Go tier; NestJS + browser only               |
-| `documentation/QUICK-START.md`      | Removed Terminal 3 (Go); marked Rust optional        |
-| `documentation/TESTING-STRATEGY.md` | Replaced "contract tests" with API integration tests |
+| File                                        | Change                                               |
+| ------------------------------------------- | ---------------------------------------------------- |
+| `documentation/adr/ADR-001-*.md`            | 90d hot only (no 2yr cold)                           |
+| `documentation/adr/ADR-002-*.md`            | Link-out (Option A, no NRAO approval blocker)        |
+| `documentation/adr/ADR-003-*.md`            | Rust for rendering only, not compute                 |
+| `documentation/product/PRODUCT-CHARTER.md`  | **Created** — MVP scope + success metrics            |
+| `documentation/backend/CACHE-POLICY.md`     | Removed Go tier; NestJS + browser only               |
+| `documentation/operations/QUICK-START.md`   | Removed Terminal 3 (Go); marked Rust optional        |
+| `documentation/quality/TESTING-STRATEGY.md` | Replaced "contract tests" with API integration tests |
 
 ### 📋 Three Pillars (Locked)
 

@@ -48,12 +48,29 @@ Tracking rule:
 
 - MVP pillars are implemented in local environment.
 - Remaining work before public deployment is operational hardening (performance tuning, CI trend baselines, release packaging).
+- **Label hover feature**: Completed with 1-second debounce for bandwidth efficiency
+- **Planet resolution**: Multi-layered fallback resolver (Aladin → SkyBot → VizieR → Hardcoded) implemented and documented
 
-## v1.1 (Quick wins)
+## v1.1 (Quick wins) — Active Development
 
-- Comments/replies
-- Profile polish
-- Feed enhancements
+### Interim: Astropy Ephemeris Backend (Starting Now)
+
+See [../phases/PHASE-2-EPHEMERIS-BACKEND.md](../phases/PHASE-2-EPHEMERIS-BACKEND.md) for detailed planning.
+
+- Scientific ephemeris calculation (Astropy library)
+- Real-time planet/asteroid positions (±1 arcsecond accuracy)
+- Replaces hardcoded fallback coordinates with accurate time-dependent values
+- Redis caching for performance (24h TTL)
+- JPL Horizons API fallback for extended object catalog
+- **Timeline**: 3-6 weeks
+- **Impact**: Enables AI-driven coordinate calibration features (Phase 2)
+
+### Other v1.1 Features (Planned After Ephemeris)
+
+- Comments/replies system
+- User profile polish
+- Feed ranking and discovery improvements
+- Target resolution enhancements for minor planets and comets
 
 ## Phase 2: AI Integration Foundation
 
@@ -100,4 +117,3 @@ See [FUNDING-AND-COSTS.md](../funding/FUNDING-AND-COSTS.md) for comprehensive co
 - Full FITS archive/mirror tier (cutout passthrough suffices; proxy deferred)
 - Custom model training or fine-tuning
 - ngVLA data ingestion (await official ngVLA data release; infrastructure ready by Phase 3)
-

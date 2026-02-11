@@ -21,7 +21,7 @@
   <div class="viewer-shell">
     <section class="viewer-canvas-panel">
       <div class="aladin-stage">
-        <div #aladinHost class="aladin-host" aria-label="Aladin sky viewer" (mousemove)="onCanvasMouseMove($event)"></div>
+        <div #aladinHost class="aladin-host" aria-label="Aladin sky viewer" (mousemove)="onCanvasMouseMove($event)" (mouseleave)="onCanvasMouseLeave()"></div>
         <div class="center-indicator" aria-hidden="true">
           <span class="crosshair"></span>
           @if (centerCatalogLabel) {

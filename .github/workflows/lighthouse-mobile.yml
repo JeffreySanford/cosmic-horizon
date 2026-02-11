@@ -26,6 +26,8 @@ jobs:
         run: pnpm exec playwright install chromium --with-deps
       - name: Resolve Chrome path
         run: echo "CHROME_PATH=$(node -e \"console.log(require('@playwright/test').chromium.executablePath())\")" >> $GITHUB_ENV
+      - name: Free ports
+        run: pnpm run start:ports:free
       - name: Start web app for Lighthouse
         run: |
           pnpm nx run vlass-web:serve:development > /tmp/vlass-web-lighthouse.log 2>&1 &

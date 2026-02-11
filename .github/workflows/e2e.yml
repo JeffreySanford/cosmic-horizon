@@ -23,6 +23,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps
+      - run: pnpm run start:ports:free
       - run: pnpm run start:infra
       - run: pnpm nx run mvp-gates:e2e
       - name: Upload e2e artifacts

@@ -854,7 +854,86 @@ logViewerEvent('label_added', { name, ra, dec });
 logViewerEvent('catalog_label_annotated', { name });
 ```
 
-**Logging Framework:** See [LOGGING-SYSTEM-DESIGN.md](../LOGGING-SYSTEM-DESIGN.md)
+**Logging Framework:** See [LOGGING-SYSTEM-DESIGN.md](../backend/LOGGING-SYSTEM-DESIGN.md)
+
+---
+
+## Target Search & Resolution
+
+### Search Bar Overview
+
+**Location:** Top toolbar (next to brand name)  
+**Input Field:** "Search target" placeholder text  
+**Trigger:** Enter key or click search icon button  
+**Component Method:** `searchTarget()`
+
+The target search field accepts:
+
+- **Astronomical object names:** M31, Messier 1, Andromeda, Whirlpool, etc.
+- **Coordinates in decimal degrees:** RA Dec (space-separated)
+- **Known planets and solar system objects:** Mars, Venus, Jupiter, Saturn, etc.
+
+### Resolution Strategy
+
+The viewer uses a **multi-layered resolver chain** to find target coordinates:
+
+#### Layer 1: Aladin gotoObject (via Sesame)
+
+- **Purpose:** Resolve named astronomical objects
+- **Service:** CDS Sesame name resolver
+- **Supports:** galaxies, stars, nebulae, Messier objects, named sources
+- **Failure Mode:** Silent failure for planets (Sesame doesn't support ephemeris)
+
+#### Layer 2: SkyBot Ephemeris API
+
+- **Purpose:** Resolve planets and solar system objects
+- **Service:** IMCCE SkyBot `http://vo.imcce.fr/webservices/skybot/api/ephem`
+- **Supports:** Mars, Venus, Jupiter, Saturn, Uranus, Neptune, asteroids, comets
+- **Failure Mode:** Falls back if service is unavailable
+
+#### Layer 3: CDS VizieR Aliases
+
+- **Purpose:** Broader object name resolution
+- **Service:** CDS VizieR catalog service
+- **Supports:** Extended object list including minor planets
+- **Failure Mode:** Falls back if service is unavailable
+
+#### Layer 4: Hardcoded Planet Coordinates (Fallback)
+
+- **Purpose:** Ensure planets are always resolvable
+- **Data:** Approximate RA/Dec for major planets (epoch ~2026)
+- **Caveat:** ⚠️ **APPROXIMATE ONLY** — Use for visual centering only, NOT for scientific analysis
+- **Example Coordinates:**
+  - Mars: RA 142.8°, Dec -15.2°
+  - Venus: RA 65.2°, Dec 18.9°
+  - Jupiter: RA 285.6°, Dec 8.1°
+  - Saturn: RA 306.4°, Dec 12.2°
+
+### Example Searches
+
+<!-- markdownlint-disable MD060 -->
+| Search Query    | Resolver Used      | Result                                |
+| :-------------- | :----------------- | :------------------------------------ |
+| `M31`           | Aladin/Sesame      | Andromeda Galaxy (RA 10.68, Dec 41.27) |
+| `Whirlpool`     | Aladin/Sesame      | Messier 51 (RA 202.47, Dec 47.19)      |
+| `Mars`          | SkyBot → Fallback  | Mars (RA 142.8, Dec -15.2, approx.)    |
+| `Venus`         | SkyBot → Fallback  | Venus (RA 65.2, Dec 18.9, approx.)     |
+| `Jupiter`       | SkyBot → Fallback  | Jupiter (RA 285.6, Dec 8.1, approx.)   |
+| `10.68 41.27`   | No resolution      | Direct RA/Dec parse (Andromeda)        |
+<!-- markdownlint-enable MD060 -->
+
+### Scientific Analysis & Technical Details
+
+**For detailed technical analysis, resolver architecture, and ephemeris implementation notes:**  
+See [→ TARGET-RESOLUTION-EPHEMERIS.md](../architecture/TARGET-RESOLUTION-EPHEMERIS.md)
+
+**Topics covered:**
+
+- Root cause analysis of planet resolution failures
+- Multi-layered fallback architecture
+- Coordinate accuracy limitations and caveats
+- Recommended production improvements (JPL Horizons, Astropy backend service)
+- Testing strategy and validation approach
 
 ---
 

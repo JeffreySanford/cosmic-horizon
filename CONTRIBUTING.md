@@ -20,10 +20,10 @@
 
 ## Documentation and Contracts
 
-- Environment vars: `documentation/ENV.md`
-- Architecture: `documentation/ARCHITECTURE.md`
-- Demo path: `documentation/DEMO.md`
-- API contract artifact: `documentation/api/openapi.json`
+- Environment vars: `documentation/operations/ENV.md`
+- Architecture: `documentation/architecture/ARCHITECTURE.md`
+- Demo path: `documentation/operations/DEMO.md`
+- API contract artifact: `documentation/reference/api/openapi.json`
 
 ## Style and Safety
 

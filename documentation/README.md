@@ -7,6 +7,7 @@ Status date: 2026-02-10
 - Repository overview: `README.md`
 - Docs overview (current architecture and status): `documentation/index/OVERVIEW-V2.md`
 - Product charter and scope lock: `documentation/product/PRODUCT-CHARTER.md`, `SCOPE-LOCK.md`
+- Target resolution & ephemeris architecture: `documentation/architecture/TARGET-RESOLUTION-EPHEMERIS.md`
 
 ## Folder Layout
 
@@ -30,6 +31,13 @@ Status date: 2026-02-10
 - `documentation/adr/` - architecture decision records
 - `documentation/setup/` - local docker/bootstrap setup
 
+## Architecture & Design
+
+- **START HERE**: `documentation/architecture/EPHEMERIS-SUMMARY.md` - Overview of Mars/Venus/Jupiter search and scope decision
+- `documentation/architecture/TARGET-RESOLUTION-EPHEMERIS.md` - Technical planetary search resolver design and v1.1 ephemeris roadmap
+- `documentation/architecture/EPHEMERIS-SCOPE-DECISION.md` - Detailed scope analysis: MVP vs. Phase 2 scientific implementation
+- `documentation/architecture/MARS-RESOLUTION-DEBUGGING.md` - Troubleshooting guide for planet search issues
+
 ## Fast Path
 
 - Start environment: `documentation/operations/QUICK-START.md`
@@ -39,3 +47,4 @@ Status date: 2026-02-10
 - Review auth and roles: `documentation/backend/AUTH-VERIFICATION.md`, `documentation/backend/RBAC-ROLES.md`
 - Review seeding behavior: `documentation/database/SEEDING-OPERATIONS.md`
 - Start conference/proposal materials: `documentation/marketing/README.md`
+- Viewer controls & target search: `documentation/frontend/VIEWER-CONTROLS.md` + `documentation/architecture/TARGET-RESOLUTION-EPHEMERIS.md`

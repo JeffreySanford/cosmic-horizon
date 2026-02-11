@@ -121,6 +121,7 @@ The Next Generation Very Large Array will deliver:
 ### VLASS Portal: Three Pillars (MVP to Phase 3)
 
 ```mermaid
+%%{init: {"themeVariables":{"fontSize":"22px"},"flowchart":{"nodeSpacing":70,"rankSpacing":90,"padding":24}} }%%
 graph TB
     subgraph MVP["MVP (Complete)"]
         MVP1["Pillar 1:<br/>Instant<br/>Performance"]

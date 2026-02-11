@@ -30,7 +30,7 @@ This runs:
 
 1. `pnpm run start:ports:free`
 2. `pnpm run start:infra`
-3. `nx run-many --target=serve --projects=vlass-web,vlass-api --parallel=2`
+3. `pnpm nx run-many --target=serve --projects=vlass-web,vlass-api --parallel=2`
 
 `start:infra` runs:
 
@@ -94,7 +94,7 @@ Optional cutout reliability vars:
 - `CUTOUT_SECONDARY_TIMEOUT_MS`
 - `CUTOUT_SECONDARY_API_KEY`
 - `CUTOUT_SECONDARY_API_KEY_HEADER` (default `Authorization`)
-- `CUTOUT_SECONDARY_API_KEY_PREFIX` (default `Bearer `)
+- `CUTOUT_SECONDARY_API_KEY_PREFIX` (default `Bearer`)
 - `CUTOUT_SECONDARY_API_KEY_QUERY_PARAM`
 
 ## Health and Troubleshooting
@@ -129,5 +129,5 @@ docker compose exec vlass-postgres psql -U vlass_user -d vlass_portal
 ## Related Docs
 
 - `documentation/setup/DOCKER-BOOTSTRAP.md`
-- `documentation/QUICK-START.md`
-- `documentation/ENVIRONMENT-CONFIG.md`
+- `documentation/operations/QUICK-START.md`
+- `documentation/operations/ENVIRONMENT-CONFIG.md`

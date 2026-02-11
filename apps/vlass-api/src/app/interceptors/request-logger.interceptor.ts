@@ -1,7 +1,17 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Logger } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { Observable, tap } from 'rxjs';
 import { LoggingService } from '../logging/logging.service';
+
+export type HttpRequest = {
+  method: string;
+  url: string;
+  headers: Record<string, string | string[] | undefined>;
+  user?: { id?: string; email?: string; role?: string };
+};
+
+export type HttpResponse = {
+  statusCode?: number;
+};
 
 @Injectable()
 export class RequestLoggerInterceptor implements NestInterceptor {
@@ -10,7 +20,7 @@ export class RequestLoggerInterceptor implements NestInterceptor {
   constructor(private readonly logging: LoggingService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const req = context.switchToHttp().getRequest<Request & { user?: { id?: string; email?: string; role?: string } }>();
+    const req = context.switchToHttp().getRequest<HttpRequest>();
     const start = Date.now();
     const method = req.method;
     const url = req.url;
@@ -24,7 +34,7 @@ export class RequestLoggerInterceptor implements NestInterceptor {
           const duration = Math.round(Date.now() - start);
           const status =
             (response as { statusCode?: number }).statusCode ??
-            context.switchToHttp().getResponse<Response>().statusCode;
+            context.switchToHttp().getResponse<HttpResponse>().statusCode;
 
           const log = {
             event: 'http_response',
@@ -50,7 +60,7 @@ export class RequestLoggerInterceptor implements NestInterceptor {
           const duration = Math.round(Date.now() - start);
           const status =
             (err as { status?: number }).status ??
-            context.switchToHttp().getResponse<Response>().statusCode ??
+            context.switchToHttp().getResponse<HttpResponse>().statusCode ??
             500;
 
           const log = {
