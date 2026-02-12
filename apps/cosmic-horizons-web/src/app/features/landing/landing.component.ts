@@ -59,6 +59,11 @@ export class LandingComponent implements OnInit, OnDestroy {
       route: '/jobs',
     },
     {
+      icon: 'radar',
+      title: 'Messaging & Array Topology',
+      route: '/messaging',
+    },
+    {
       icon: 'description',
       title: 'Project Documentation',
       route: '/docs',

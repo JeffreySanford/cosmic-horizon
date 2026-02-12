@@ -28,6 +28,7 @@
 | `documentation/backend/CACHE-POLICY.md`     | Removed Go tier; NestJS + browser only               |
 | `documentation/operations/QUICK-START.md`   | Removed Terminal 3 (Go); marked Rust optional        |
 | `documentation/quality/TESTING-STRATEGY.md` | Replaced "contract tests" with API integration tests |
+| `apps/cosmic-horizons-api/src/app/messaging/` | **Refactored** — Generalized Radar telemetry to Messaging Topology |
 
 ### 📋 Three Pillars (Locked)
 
@@ -72,12 +73,3 @@ If you decide to add Rust for advanced rendering (v2+):
 For now: **Rust is future-proofed but not required.**
 
 ---
-
-## Question for You
-
-Beyond removing Go and simplifying FITS:
-
-1. **Do you want to delete VIEWER-MODE-B.md now**, or keep it as "deferred v2" documentation?
-2. **Do you want a simplified README.md** that explains the MVP in 1 sentence + 3 pillars?
-
-Let me know, or we're done! 🚀

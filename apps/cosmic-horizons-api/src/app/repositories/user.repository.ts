@@ -28,10 +28,10 @@ export class UserRepository {
     return this.repo.findOneBy({ email, deleted_at: IsNull() });
   }
 
-  async findByEmailAndPassword(email: string, password: string): Promise<User | null> {
+  async findByIdentifierAndPassword(identifier: string, password: string): Promise<User | null> {
     return this.repo
       .createQueryBuilder('user')
-      .where('user.email = :email', { email })
+      .where('(user.email = :identifier OR user.username = :identifier)', { identifier })
       .andWhere('user.deleted_at IS NULL')
       .andWhere('user.password_hash IS NOT NULL')
       .andWhere('user.password_hash = crypt(:password, user.password_hash)', {

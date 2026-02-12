@@ -1,10 +1,32 @@
-# NRAO Radar & ngVLA Integration Strategy
+# ngVLA Array Messaging Integration Strategy
 
 ## 1. Objective
 
-This document outlines the strategic integration of competencies required for the NRAO Radar/ngVLA Software Engineer role into the **Cosmic Horizon** project. The goal is to evolve the platform into a "Common Domain Software" prototype capable of handling high-throughput messaging, multi-site data passing, and specialized radar data visualization.
+This document outlines the strategic integration of competencies required for the ngVLA Software Engineer role into the **Cosmic Horizon** project. The goal is to evolve the platform into a "Common Domain Software" prototype capable of handling high-throughput messaging, multi-site data passing, and specialized array topology visualization.
 
-## 2. Targeted NRAO Competencies
+**Technical Implementation Details**: See [ARRAY-MESSAGING-DESIGN.md](ARRAY-MESSAGING-DESIGN.md) for architecture, messaging patterns, and site topology.
+
+## 2. Phased Integration Roadmap
+
+```mermaid
+gantt
+    title NRAO Radar Integration Roadmap (Phase 3-4)
+    dateFormat  YYYY-MM-DD
+    section Infrastructure
+    RabbitMQ & Docker Setup       :a1, 2026-02-12, 5d
+    NestJS Microservice Skeleton  :a2, after a1, 7d
+    section Backend Logic
+    RxJS Telemetry Ingest         :b1, 2026-02-15, 10d
+    Bulk Persistence (Postgres)   :b2, after b1, 5d
+    section Frontend
+    Information Map Scaffold      :c1, 2026-02-18, 5d
+    D3.js Topology Animation      :c2, after c1, 12d
+    section Validation
+    Telemetry Simulation (60 Radars): d1, 2026-03-01, 7d
+    Benchmark & System Profiling    : d2, after d1, 5d
+```
+
+## 3. Targeted NRAO Competencies
 
 | Competency | Cosmic Horizon Implementation Target | Priority |
 | :--- | :--- | :--- |
@@ -20,9 +42,10 @@ The NRAO Radar project and ngVLA represent the "Next Generation" of data challen
 
 ### 3.1 Messaging-Driven Architecture
 
-- **Concept**: Move from polling-based API requests to an Event-Driven Architecture (EDA).
-- **Tooling**: Introduction of NestJS `Microservices` module using RabbitMQ or Kafka as a message broker.
-- **Goal**: Demonstrate proficiency in asynchronous system communication.
+- **Concept**: Move from polling-based API requests to an Event-Driven Architecture (EDA) with dual-plane separation.
+- **Tooling**: Introduction of NestJS `Microservices` module using **RabbitMQ** (Telemetry/Control) and **Kafka** (Raw Data) as message brokers.
+- **Infrastructure**: Containerized development via **Docker Compose** and production-ready **Kubernetes** orchestration patterns.
+- **Goal**: Demonstrate proficiency in asynchronous system communication and exascale data management.
 
 ### 3.2 Radar Shared Data Backend
 

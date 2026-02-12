@@ -5,7 +5,7 @@ import { BehaviorSubject, Subject, combineLatest } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { AppLogEntry, AppLoggerService, LogDetails, LogDetailValue } from '../../services/app-logger.service';
 
-type LogTileFilter = 'all' | 'verbose' | 'errors' | 'warnings' | 'info';
+type LogTileFilter = 'all' | 'verbose' | 'errors' | 'warnings' | 'info' | 'messaging' | 'remote';
 
 interface LogLevelTile {
   id: LogTileFilter;
@@ -35,10 +35,12 @@ export class LogsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly dataSource: MatTableDataSource<LogRow> = new MatTableDataSource<LogRow>([]);
   readonly tiles: LogLevelTile[] = [
     { id: 'all', label: 'All', count: 0 },
-    { id: 'verbose', label: 'Verbose', count: 0 },
+    { id: 'messaging', label: 'Messaging', count: 0 },
+    { id: 'remote', label: 'Remote', count: 0 },
     { id: 'errors', label: 'Errors', count: 0 },
     { id: 'warnings', label: 'Warnings', count: 0 },
     { id: 'info', label: 'Info', count: 0 },
+    { id: 'verbose', label: 'Verbose', count: 0 },
   ];
 
   selectedFilter: LogTileFilter = 'all';
@@ -134,6 +136,8 @@ export class LogsComponent implements OnInit, AfterViewInit, OnDestroy {
       errors: rows.filter((row) => row.level === 'error').length,
       warnings: rows.filter((row) => row.level === 'warn').length,
       info: rows.filter((row) => row.level === 'info').length,
+      messaging: rows.filter((row) => row.area === 'messaging' || row.area === 'radar').length,
+      remote: rows.filter((row) => row.area === 'remote').length,
     };
   }
 
@@ -147,6 +151,10 @@ export class LogsComponent implements OnInit, AfterViewInit, OnDestroy {
         return rows.filter((row) => row.level === 'warn');
       case 'info':
         return rows.filter((row) => row.level === 'info');
+      case 'messaging':
+        return rows.filter((row) => row.area === 'messaging' || row.area === 'radar');
+      case 'remote':
+        return rows.filter((row) => row.area === 'remote');
       default:
         return rows;
     }

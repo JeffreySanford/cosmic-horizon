@@ -61,6 +61,8 @@ External ecosystem alignment (planning context): The portal is designed to be in
 
 - Full viewer state serializable + deserializable
 
+- Array Messaging & Topology Map: Live telemetry visualization for ngVLA array elements (operational observability).
+
 - Constrained FITS cutout passthrough endpoint for centered state export (rate-limited, audited, no mirror caching)
 
 **Success Metric:** Permalink works 100% of time; snapshot artifact persists >7 days

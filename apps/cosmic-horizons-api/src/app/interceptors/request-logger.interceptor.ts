@@ -21,6 +21,12 @@ export class RequestLoggerInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const req = context.switchToHttp().getRequest<HttpRequest>();
+    
+    // Prevent physical circular loops by excluding the logging endpoint itself
+    if (req.url.includes('/logging/remote')) {
+      return next.handle();
+    }
+
     const start = Date.now();
     const method = req.method;
     const url = req.url;

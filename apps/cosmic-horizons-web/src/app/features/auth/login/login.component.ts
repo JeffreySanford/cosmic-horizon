@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -40,6 +41,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly logger = inject(AppLoggerService);
   private readonly ngZone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly sanitizer = inject(DomSanitizer);
 
   private clockSubscription?: Subscription;
 
@@ -48,7 +50,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.preview = this.skyPreviewService.getInitialPreview();
     this.syncTelemetryFromPreview();
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required]],
       password: ['', Validators.required],
     });
   }
@@ -72,6 +74,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   get f() {
     return this.loginForm.controls;
+  }
+
+  get backgroundStyle(): SafeStyle {
+    const imageUrl = this.preview?.imageUrl || '/previews/region-default.png';
+    return this.sanitizer.bypassSecurityTrustStyle(`--sky-preview-url: url(${imageUrl})`);
   }
 
   onSubmit(): void {

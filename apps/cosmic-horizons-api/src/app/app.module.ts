@@ -13,6 +13,7 @@ import { CommentsModule } from './comments/comments.module';
 import { ProfileModule } from './profile/profile.module';
 import { CacheModule } from './cache/cache.module';
 import { JobsModule } from './jobs/jobs.module';
+import { MessagingModule } from './messaging/messaging.module';
 import { RateLimitGuard } from './guards/rate-limit.guard';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RequestLoggerInterceptor } from './interceptors/request-logger.interceptor';
@@ -44,6 +45,7 @@ const envCandidates = [
     CacheModule,
     LoggingModule,
     JobsModule,
+    MessagingModule,
   ],
   controllers: [AppController, AdminLogsController],
   providers: [
@@ -55,4 +57,8 @@ const envCandidates = [
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    console.log('AppModule instantiated');
+  }
+}

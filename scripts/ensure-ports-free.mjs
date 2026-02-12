@@ -34,7 +34,11 @@ function readEnvFile() {
 const env = readEnvFile();
 const apiPort = Number(env.API_PORT ?? '3000');
 const frontendPort = Number(env.FRONTEND_PORT ?? '4200');
-const PORTS = [apiPort, frontendPort].filter((port, index, array) => Number.isFinite(port) && port > 0 && array.indexOf(port) === index);
+const rabbitMqPort = 5672;
+const rabbitMqMgmtPort = 15672;
+const kafkaPort = 9092;
+
+const PORTS = [apiPort, frontendPort, rabbitMqPort, rabbitMqMgmtPort, kafkaPort].filter((port, index, array) => Number.isFinite(port) && port > 0 && array.indexOf(port) === index);
 
 function killStaleNxWatchersWindows() {
   const res = spawnSync(

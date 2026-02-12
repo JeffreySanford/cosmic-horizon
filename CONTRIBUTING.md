@@ -30,6 +30,7 @@
 ## Style and Safety
 
 - Do not commit `.env.local`, credentials, or logs.
+- **Logging Safety**: When adding logs, ensure you are not creating recursive loops (e.g., logging a logging request). Use the `LOGGING-STRATEGY.md` loop-prevention guidelines.
 - Keep all changes scoped and tested.
 - Prefer updating existing docs over creating conflicting copies.
 

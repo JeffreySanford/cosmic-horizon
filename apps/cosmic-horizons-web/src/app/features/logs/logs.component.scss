@@ -104,7 +104,13 @@
 .tile-error {
   border-left: 4px solid rgba(255, 93, 93, 0.85);
 }
+.tile-radar {
+  border-left: 4px solid #18c6d6;
+}
 
+.tile-remote {
+  border-left: 4px solid #ab47bc;
+}
 .tile-count {
   font-weight: 700;
   color: var(--accent-slate);

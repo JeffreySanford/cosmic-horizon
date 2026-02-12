@@ -1,5 +1,5 @@
 export type LogSeverity = 'debug' | 'info' | 'warn' | 'error';
-export type LogType = 'http' | 'redis' | 'system';
+export type LogType = 'http' | 'redis' | 'system' | 'messaging' | 'remote';
 
 export interface LogEntry {
   id: string;

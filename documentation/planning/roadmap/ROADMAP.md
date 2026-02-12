@@ -99,6 +99,15 @@ See [../phases/PHASE-2-EPHEMERIS-BACKEND.md](../phases/PHASE-2-EPHEMERIS-BACKEND
 
 - User profile polish
 
+## v2.0 (Exascale Array Control Plane) — COMPLETED
+
+See [../../messaging/ARRAY-MESSAGING-DESIGN.md](../../messaging/ARRAY-MESSAGING-DESIGN.md) for full architecture.
+
+- **Dual-Plane Messaging**: Separation of Telemetry (RabbitMQ) from Raw Data (Kafka) to support 240 PB/year ngVLA data flows.
+- **Topology Map**: Real-time D3.js visualization of 5 remote sites and 60 array elements with animated data flow.
+- **Robust Observability**: Redis-backed central logger with strict recursive loop prevention (Interceptor exclusions + Native Fetch bypass).
+- **Auditability**: Remote frontend logging endpoint (`/api/logging/remote`) for full system traceability.
+
 ## v1.2 (Scale and AI Gateway) — In-Progress
 
 See [../../architecture/TACC-JOB-ORCHESTRATION-SPIKE.md](../../architecture/TACC-JOB-ORCHESTRATION-SPIKE.md) for detailed implementation.
@@ -136,10 +145,10 @@ See [../phases/PHASE-3-README.md](../phases/PHASE-3-README.md) for overview and 
 - Pillar 2: TACC compute integration (Slurm + remote job orchestration)
 
 - Pillar 3: Multi-site reproducibility (federated lineage tracking)
-  - **NRAO Radar Integration**: Messaging frameworks (Kafka/RabbitMQ) for inter-site job notification.
+  - **Array Messaging Integration**: Messaging frameworks (Kafka/RabbitMQ) for inter-site job notification.
   - **Site-to-Site Benchmarking**: Latency profiling and data-bus throughput metrics for ngVLA scale.
-  - **Common System Software**: Integrated Radar visualization (Range-Doppler) in the AI Control Plane.
-  - See: [NRAO-RADAR-INTEGRATION.md](../NRAO-RADAR-INTEGRATION.md)
+  - **Common System Software**: Integrated Array Mapping visualization in the AI Control Plane.
+  - See: [../../messaging/STRATEGIC-MESSAGING-PLAN.md](../../messaging/STRATEGIC-MESSAGING-PLAN.md)
 
 - Pillar 4: Explainability aggregation (multi-model consensus, uncertainty quantification)
 

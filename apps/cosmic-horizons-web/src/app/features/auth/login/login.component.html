@@ -1,4 +1,4 @@
-<div class="login-container" [style.--sky-preview-url]="'url(' + preview.imageUrl + ')'">
+<div class="login-container" [style]="backgroundStyle">
   @if (showTelemetryOverlay) {
     <aside class="sky-meta-panel" [class.compact]="telemetryCompact" aria-label="Sky background telemetry">
       <button type="button" class="telemetry-toggle" (click)="toggleTelemetryCompact()">
@@ -29,19 +29,16 @@
       </div>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" autocomplete="on">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
+          <mat-label>Email or Username</mat-label>
           <input
             matInput
-            type="email"
+            type="text"
             formControlName="email"
-            placeholder="your@email.com"
-            autocomplete="email"
+            placeholder="adminuser or your@email.com"
+            autocomplete="username"
           />
           @if (f['email'].hasError('required')) {
-            <mat-error>Email is required</mat-error>
-          }
-          @if (f['email'].hasError('email')) {
-            <mat-error>Invalid email format</mat-error>
+            <mat-error>Email or Username is required</mat-error>
           }
         </mat-form-field>
 

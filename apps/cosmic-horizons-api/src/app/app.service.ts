@@ -21,7 +21,7 @@ export class AppService implements OnModuleInit {
   }
 
   getData(): { message: string } {
-    return { message: 'Cosmic Horizon API' };
+    return { message: 'Cosmic Horizon API DEBUG' };
   }
 
   async getHealthStatus() {

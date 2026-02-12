@@ -43,6 +43,12 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'messaging',
+    loadComponent: () =>
+      import('./features/messaging/messaging.component').then((m) => m.MessagingComponent),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'moderation',
     loadChildren: () =>
       import('./features/moderation/moderation.module').then((m) => m.ModerationModule),

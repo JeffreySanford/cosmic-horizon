@@ -13,6 +13,11 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
   private readonly session = inject(AuthSessionService);
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<HttpResponse<unknown>>> {
+    // Prevent physical circular loops by excluding the logging endpoint itself
+    if (req.url.includes('/logging/remote')) {
+      return next.handle(req);
+    }
+
     const startedAt = performance.now();
     const requestBytes = this.estimateSize(req.body);
     const correlationId = '272762e810cea2de53a2f';

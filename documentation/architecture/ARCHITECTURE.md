@@ -28,6 +28,8 @@ Affiliation note:
 
 - Backend: `apps/cosmic-horizons-api` (NestJS + Postgres/Redis)
 
+- Messaging Tier (Phase 3 v2.0): RabbitMQ (Telemetry Management) + Apache Kafka (Raw Data Stream).
+
 - Remote Compute Gateway (Phase 4): `JobsModule` integration with TACC/CosmicAI exascale compute fabric.
 
 - Shared models: `libs/shared/models`
@@ -46,9 +48,10 @@ flowchart LR
     W --> A[NestJS API<br/>apps/cosmic-horizons-api]
     A --> P[(PostgreSQL)]
     A --> R[(Redis)]
+    A --> MQ[/RabbitMQ: Telemetry Management/]
+    A --> K[/Kafka: Raw Data Plane/]
     W --> V[Aladin HiPS Viewer]
     V --> E[External VLASS/HiPS Sources]
-
 ```
 
 Frontend runtime note:

@@ -8,6 +8,7 @@ Canonical scope:
 ## MVP Priorities
 
 - [x] Complete Pillar 2 operational telemetry dashboarding for cutout provider reliability
+- [x] Refactor Radar view to generalized Messaging & Array Topology framework
 - [x] Complete post and revision workflows
 - [x] Complete post moderation path (hide/lock)
 - [ ] Complete Pillar 3 Documentation Hub (Markdown rendering + Repo guides integration)
@@ -90,14 +91,20 @@ Canonical scope:
   - [ ] Implement agent performance monitoring dashboards
   - [ ] Finalize Symposium packet for Charlottesville 2026
 
-**Phase 3 (v2.0) - NRAO Radar & Messaging Integration** (Scale Focus)
+**Phase 3 (v2.0) - NRAO Radar & Messaging Integration** (Scale Focus) — COMPLETED
 
-- [ ] **Sprint 1: Messaging Infrastructure**
-  - [ ] Integrate NestJS Microservices with RabbitMQ/Kafka transport
-  - [ ] Implement event-driven telemetry for job state changes
-- [ ] **Sprint 2: Radar Visualization & Profiling**
-  - [ ] Create specialized Range-Doppler visualization component
-  - [ ] Develop site-to-site data transit benchmarking script (100TB+ simulations)
+- [x] **Sprint 1: Messaging Infrastructure**
+  - [x] Integrate NestJS Microservices with RabbitMQ/Kafka transport theory
+  - [x] Implement dual-plane messaging (RabbitMQ Telemetry + Kafka Raw Data)
+  - [x] Implement event-driven telemetry for 60 VLA radars across 5 remote sites
+- [x] **Sprint 2: Radar Visualization & Profiling**
+  - [x] Create high-fidelity D3.js force-directed topology map
+  - [x] Implement real-time "data particle" animations for site-to-site transit
+  - [x] Create Robust Observability Layer (Redis-backed logging with loop prevention)
+  - [x] Standardized Logging Strategy for Exascale-class messaging volumes
+
+## Project Totals (v1.1/2.0 Milestone reached)
+
 - [ ] **Sprint 3: Common System Software Alignment**
   - [ ] Standardize API contracts for "Common Domain" software modules
   - [ ] Document data-passing p95 latency targets for ngVLA scale

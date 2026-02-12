@@ -22,6 +22,8 @@
             [class.tile-info]="tile.id === 'info'"
             [class.tile-warn]="tile.id === 'warnings'"
             [class.tile-error]="tile.id === 'errors'"
+            [class.tile-radar]="tile.id === 'messaging'"
+            [class.tile-remote]="tile.id === 'remote'"
             (click)="setFilter(tile.id)"
           >
             <span class="tile-label">{{ tile.label }}</span>

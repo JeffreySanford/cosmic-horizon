@@ -76,6 +76,33 @@ export class AppLoggerService {
       this.entries.splice(0, this.entries.length - this.maxEntries);
     }
     this.entriesSubject.next([...this.entries]);
+
+    // Send to backend if not local/debug (optional threshold)
+    if (entry.level !== 'debug') {
+      this.sendToBackend(entry);
+    }
+  }
+
+  private async sendToBackend(entry: AppLogEntry): Promise<void> {
+    try {
+      // Use native fetch to avoid HttpClient interceptors (preventing dependency cycle)
+      await fetch('http://localhost:3000/api/logging/remote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Note: Auth token handling might be needed if AuthenticatedGuard is on this endpoint
+          // But usually we want logs to be semi-open or handle auth separately to prevent log loss
+        },
+        body: JSON.stringify({
+          type: entry.area,
+          severity: entry.level,
+          message: entry.event,
+          data: entry.details,
+        }),
+      });
+    } catch {
+      // Silent fail for logger to prevent app crash
+    }
   }
 }
 

@@ -106,13 +106,13 @@ export class AuthService implements OnModuleInit {
   }
 
   async loginWithCredentials(credentials: LoginDto): Promise<User> {
-    const email = credentials.email.trim().toLowerCase();
+    const identifier = credentials.email.trim().toLowerCase();
     const password = credentials.password;
 
-    const user = await this.userRepository.findByEmailAndPassword(email, password);
+    const user = await this.userRepository.findByIdentifierAndPassword(identifier, password);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid identifier or password');
     }
 
     return user;
