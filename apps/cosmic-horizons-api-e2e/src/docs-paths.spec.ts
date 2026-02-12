@@ -15,12 +15,10 @@ describe('documentation paths validation', () => {
   const requiredPaths = [
     'README.md',
     'TODO.md',
-    'documentation/governance/SOURCE-OF-TRUTH.md',
+    'SCOPE-LOCK.md',
     'documentation/index/OVERVIEW.md',
     'documentation/architecture/ARCHITECTURE.md',
-    'documentation/operations/QUICK-START.md',
     'documentation/quality/TESTING-STRATEGY.md',
-    'documentation/backend/API-ROUTES.md',
     'documentation/planning/roadmap/ROADMAP.md',
   ];
 

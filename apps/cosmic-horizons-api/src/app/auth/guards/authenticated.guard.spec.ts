@@ -53,7 +53,7 @@ describe('AuthenticatedGuard', () => {
           getRequest: () => req,
         }),
         getClass: () => class MockController {},
-        getHandler: () => () => {},
+        getHandler: () => (() => null),
       } as unknown as ExecutionContext;
 
       // Note: Full integration test requires passport strategy to be configured

@@ -36,11 +36,13 @@ Canonical scope:
 
 ## Industry Alignment and Outreach Workflow (New)
 
-- [x] Add source-dated industry context note for planning (`documentation/planning/INDUSTRY-CONTEXT-AND-FEASIBILITY-2026-02-11.md`)
-- [x] Add external-claims governance workflow (`documentation/governance/EXTERNAL-RESEARCH-WORKFLOW.md`)
-- [x] Build symposium packet draft (`documentation/planning/SYMPOSIUM-2026-DRAFT.md`)
-- [x] Define integration-readiness spike for remote job orchestration contracts (`documentation/architecture/TACC-JOB-ORCHESTRATION-SPIKE.md`)
+- [x] Document industry context and feasibility analysis
+- [x] Define external research governance workflow
+- [x] Build symposium packet draft
+- [x] Define integration-readiness spike for remote job orchestration
 - [ ] Add source/date table for external trend figures used in presentations
+
+**Note**: Documentation has been consolidated into core architecture and product guides. See `documentation/architecture/ARCHITECTURE.md` and `documentation/product/PRODUCT-CHARTER.md`.
 
 **Phase 2 (v1.1) - Scientific Ephemeris Backend**: COMPLETED
 
@@ -180,7 +182,7 @@ Canonical scope:
 ## CosmicHorizons Priorities 5-7: Event Infrastructure & Real-Time Dashboards
 
 **Status:** 📋 In Planning (Q2-Q3 2026)  
-**Documentation:** See `documentation/planning/PRIORITIES-5-7-ROADMAP.md`
+**Documentation**: See roadmap in `README.md` and long-term vision in `SCOPE-LOCK.md`
 
 ### Priority 5: Event Streaming Infrastructure (Q2 2026, Months 3-4)
 

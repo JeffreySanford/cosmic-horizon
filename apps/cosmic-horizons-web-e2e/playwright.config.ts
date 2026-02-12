@@ -1,23 +1,34 @@
 import { defineConfig, devices } from '@playwright/test';
 import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // For CI, you may want to set BASE_URL to the deployed application.
 const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:4200';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
+// Coverage configuration
+const enableCoverage = process.env['COVERAGE'] === 'true';
+const coverageDir = path.join(__dirname, 'coverage', 'browser');
+
+// Ensure coverage directory exists
+if (enableCoverage && !fs.existsSync(coverageDir)) {
+  fs.mkdirSync(coverageDir, { recursive: true });
+}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
+ *
+ * Code Coverage Options:
+ * - COVERAGE=true: Enable code coverage collection (V8 for Chromium)
+ * - runs separately from regular e2e tests
+ * - coverage reports available in coverage/browser/
  */
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
   retries: process.env['CI'] ? 2 : 0,
   workers: 1,
+  fullyParallel: false,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
@@ -34,32 +45,17 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        ...(enableCoverage && {
+          viewport: { width: 1280, height: 720 },
+        }),
+      },
     },
 
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-
-    // Uncomment for mobile browsers support
-    /* {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    }, */
-
-    // Uncomment for branded browsers
-    /* {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    } */
   ],
 });

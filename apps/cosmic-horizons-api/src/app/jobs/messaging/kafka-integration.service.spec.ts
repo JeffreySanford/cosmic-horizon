@@ -1,5 +1,4 @@
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
 
 /**
  * Priority 5.2: Kafka Integration Tests
@@ -38,18 +37,43 @@ class KafkaService {
     this.admin = null;
   }
 
-  async createTopic(name: string): Promise<void> {}
-  async deleteTopic(name: string): Promise<void> {}
+  async createTopic(name: string): Promise<void> {
+    // Mock implementation - no-op for testing
+    return Promise.resolve();
+  }
+
+  async deleteTopic(name: string): Promise<void> {
+    // Mock implementation - no-op for testing
+    return Promise.resolve();
+  }
+
   async listTopics(): Promise<string[]> { return []; }
+
   async getTopic(name: string): Promise<any> { return {}; }
 
-  async createConsumerGroup(groupId: string): Promise<void> {}
-  async listConsumerGroups(): Promise<string[]> { return []; }
-  async getConsumerGroupMetadata(groupId: string): Promise<any> { return {}; }
-  async resetConsumerGroupOffset(groupId: string, partition: number, offset: number): Promise<void> {}
+  async createConsumerGroup(groupId: string): Promise<void> {
+    // Mock implementation - no-op for testing
+    return Promise.resolve();
+  }
 
-  async produce(topic: string, messages: any[]): Promise<void> {}
-  async consume(groupId: string, callback: Function): Promise<void> {}
+  async listConsumerGroups(): Promise<string[]> { return []; }
+
+  async getConsumerGroupMetadata(groupId: string): Promise<any> { return {}; }
+
+  async resetConsumerGroupOffset(groupId: string, partition: number, offset: number): Promise<void> {
+    // Mock implementation - no-op for testing
+    return Promise.resolve();
+  }
+
+  async produce(topic: string, messages: any[]): Promise<void> {
+    // Mock implementation - no-op for testing
+    return Promise.resolve();
+  }
+
+  async consume(groupId: string, callback: (message: any) => void): Promise<void> {
+    // Mock implementation - no-op for testing
+    return Promise.resolve();
+  }
 
   isConnected(): boolean { return !!this.admin; }
   getMetrics(): any { return {}; }

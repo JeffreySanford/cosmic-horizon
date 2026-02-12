@@ -1,5 +1,4 @@
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -54,9 +53,15 @@ class JobEventsService {
     return eventId;
   }
 
-  async registerJobCallback(jobId: string, callbackUrl: string): Promise<void> {}
+  async registerJobCallback(jobId: string, callbackUrl: string): Promise<void> {
+    // Mock implementation - no-op for testing
+    return Promise.resolve();
+  }
 
-  async triggerJobCallback(jobId: string, status: string, metadata?: any): Promise<void> {}
+  async triggerJobCallback(jobId: string, status: string, metadata?: any): Promise<void> {
+    // Mock implementation - no-op for testing
+    return Promise.resolve();
+  }
 
   async replayEventRange(eventType: string, startTimestamp: Date, endTimestamp: Date): Promise<number> {
     return 10;

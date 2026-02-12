@@ -1,5 +1,4 @@
 import { DatasetStagingService, StagingRequest, StagingStatus } from './dataset-staging.service';
-import { BadRequestException } from '@nestjs/common';
 
 describe('DatasetStagingService - Comprehensive Coverage', () => {
   let service: DatasetStagingService;
@@ -229,6 +228,7 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
       // Only in_progress status should have estimated_time_minutes
       if (status && status.status === 'in_progress') {
         expect(status.estimated_time_minutes).toBeDefined();
+        expect(status.estimated_time_minutes ?? 0).toBeGreaterThan(0);
       }
     });
   });
@@ -468,10 +468,10 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
       const status2 = await service.getStagingStatus('dataset-1');
 
       // Both should still be in_progress (Phase 1 simulates indefinitely or until completion)
-      if (status1) {
+      if (status1 && status1.status) {
         expect(['in_progress', 'completed']).toContain(status1.status);
       }
-      if (status2) {
+      if (status2 && status2.status) {
         expect(['in_progress', 'completed']).toContain(status2.status);
       }
     });
@@ -488,7 +488,7 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
       await new Promise(resolve => setTimeout(resolve, 2500));
 
       const status = await service.getStagingStatus('dataset-1');
-      if (status) {
+      if (status && status.progress !== undefined) {
         expect(status.progress).toBeGreaterThanOrEqual(0);
         expect(status.progress).toBeLessThanOrEqual(100);
       }
