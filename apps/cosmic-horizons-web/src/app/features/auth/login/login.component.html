@@ -1,4 +1,4 @@
-<div class="login-container" [style.--sky-preview-url]="'url(' + preview.imageUrl + ')'">
+<div class="login-container" [style]="backgroundStyle">
   @if (showTelemetryOverlay) {
     <aside class="sky-meta-panel" [class.compact]="telemetryCompact" aria-label="Sky background telemetry">
       <button type="button" class="telemetry-toggle" (click)="toggleTelemetryCompact()">
