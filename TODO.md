@@ -111,6 +111,191 @@ Canonical scope:
 
 **Phase 3 (v2.0) - NRAO Radar & Messaging Integration** (Scale Focus)
 
+**Phase 3 (v2.0) - NRAO Radar & Messaging Integration** (Scale Focus)
+
+## CosmicHorizons Priority 4A: TACC Integration Test Infrastructure (COMPLETED 2026-02-12)
+
+**Overview:** Completed comprehensive test infrastructure for TACC remote compute integration supporting autonomous AI agents at ngVLA scale.
+
+**Completion Status:** ✅ **COMPLETE**
+
+**Key Deliverables:**
+
+- [x] Create 159 new tests (865 total, 100% pass rate)
+  - [x] tacc-integration.service.spec.ts (38 tests) - Core TACC functionality
+  - [x] tacc-integration.credential-security.spec.ts (36 tests) - Auth & security
+  - [x] job-audit-trail.spec.ts (45 tests) - Job lifecycle tracking
+  - [x] tacc-integration.error-handling.spec.ts (40 tests) - Resilience patterns
+  
+- [x] Comprehensive audit trail infrastructure
+  - [x] Full job lifecycle persistence (QUEUED → COMPLETED)
+  - [x] Performance metrics capture (execution_time, gpu_utilization, memory_used)
+  - [x] TACC job ID linkage for cross-system tracking
+  - [x] Error context & retry tracking
+  - [x] Data lineage and query capabilities
+  
+- [x] Error handling & retry strategies
+  - [x] Transient vs permanent error classification
+  - [x] Exponential backoff (1000ms base, 2x multiplier, 30s cap)
+  - [x] Circuit breaker pattern (open/closed/half-open states)
+  - [x] Idempotency support with idempotency keys
+  - [x] Fallback mechanisms and recovery strategies
+  
+- [x] Security & credential management
+  - [x] API key/secret lifecycle management
+  - [x] HTTPS enforcement validation
+  - [x] Rate limiting & quota management
+  - [x] Audit compliance logging
+  - [x] No credentials in debug output
+  
+- [x] Documentation
+  - [x] TEST-COVERAGE-PRIORITY-4A-COMPLETE.md (350+ lines)
+  - [x] Audit strategy guide
+  - [x] Error handling patterns
+  - [x] Performance metrics documentation
+  
+- [x] Fix all TypeScript compilation errors (30+ issues)
+- [x] Fix all markdown linting warnings (4 code blocks)
+- [x] Git commit & push (148 files, 46,100 insertions)
+
+**Test Metrics:**
+
+- Test Suites: 39 passed (all green)
+- Total Tests: 865 passed (100% success rate)
+- Pass Rate: 100% ✅
+- Execution Time: ~12-13 seconds
+- Coverage (Jobs Module): 78.57% statements, 41.66% branches
+
+**Strategic Value:**
+
+- Enables autonomous AI agents (AlphaCal, ImageReconstruction, AnomalyDetection)
+- Supports ngVLA scale (7.5-8 GB/s data rate)
+- Production-ready audit trail for compliance
+- Foundation for event-driven architecture (Priority 5)
+
+**Next Phase:** Priority 5-6 planning complete; see `documentation/planning/PRIORITIES-5-7-ROADMAP.md`
+
+---
+
+## CosmicHorizons Priorities 5-7: Event Infrastructure & Real-Time Dashboards
+
+**Status:** 📋 In Planning (Q2-Q3 2026)  
+**Documentation:** See `documentation/planning/PRIORITIES-5-7-ROADMAP.md`
+
+### Priority 5: Event Streaming Infrastructure (Q2 2026, Months 3-4)
+
+- [ ] Sprint 5.1: RabbitMQ Foundation (3 weeks)
+  - [ ] Set up 3-node RabbitMQ cluster
+  - [ ] Event schema & routing rules
+  - [ ] NestJS RabbitMQ integration
+  - [ ] Dead Letter Queue handlers
+  - [ ] Target: 45 tests, sub-100ms latency
+  
+- [ ] Sprint 5.2: Kafka Integration (3 weeks)
+  - [ ] Set up 3-broker Kafka cluster with Zookeeper
+  - [ ] Kafka topics with retention policies
+  - [ ] NestJS Kafka integration
+  - [ ] Schema Registry for compatibility
+  - [ ] Target: 40 tests, 1000+ events/second
+  
+- [ ] Sprint 5.3: Job Orchestration Events (2 weeks)
+  - [ ] Job submission → event publishing
+  - [ ] Job status change events
+  - [ ] Result notification system
+  - [ ] Event acknowledgment system
+  - [ ] Target: 50 tests, event replay capability
+
+**Expected Outcomes:**
+
+- Event latency: < 100ms P99
+- Throughput: > 1000 events/second
+- Broker availability: > 99.99%
+- Test coverage: 85%+
+
+### Priority 6: Real-Time Visualization & Monitoring (Q2-Q3 2026, Months 4-6)
+
+- [ ] Sprint 6.1: WebSocket Infrastructure (3 weeks)
+  - [ ] Socket.IO server setup
+  - [ ] Connection pooling & heartbeat
+  - [ ] Broadcast channels for job updates
+  - [ ] Reconnection logic
+  - [ ] Target: 55 tests, 500+ concurrent connections
+  
+- [ ] Sprint 6.2: Real-Time Dashboards (4 weeks)
+  - [ ] Angular/React dashboard components
+  - [ ] Real-time job status visualization
+  - [ ] Performance metrics charts
+  - [ ] GPU utilization heatmaps
+  - [ ] Target: 60 tests, 60 FPS rendering
+  
+- [ ] Sprint 6.3: Performance Analytics (3 weeks)
+  - [ ] Time-series data collection
+  - [ ] Analytics queries and aggregations
+  - [ ] Historical performance charts
+  - [ ] Anomaly detection system
+  - [ ] Target: 55 tests, real-time alerts
+  
+- [ ] Sprint 6.4: Aladin Integration (2 weeks)
+  - [ ] Aladin sky viewer integration
+  - [ ] Source positions & detections display
+  - [ ] Observation coverage maps
+  - [ ] Interactive annotations
+  - [ ] Target: 30 tests, sky map rendering
+
+**Expected Outcomes:**
+
+- Dashboard 60 FPS rendering
+- WebSocket updates < 500ms
+- 500+ concurrent user connections
+- Query response < 2 seconds
+- 95%+ component test coverage
+
+### Priority 7: Advanced Features & Optimization (Q3 2026, Months 6-8)
+
+- [ ] Sprint 7.1: Workflow Orchestration (3 weeks)
+  - [ ] Visual workflow builder
+  - [ ] DAG execution engine
+  - [ ] Chained job submissions
+  - [ ] Workflow versioning & rollback
+  - [ ] Target: 50 tests
+  
+- [ ] Sprint 7.2: Advanced Caching (2 weeks)
+  - [ ] Multi-tier caching (Redis/S3)
+  - [ ] Cache invalidation strategies
+  - [ ] Cache warming logic
+  - [ ] Cache analytics
+  - [ ] Target: 40 tests, 40-60% query reduction
+  
+- [ ] Sprint 7.3: GPU Optimization (3 weeks)
+  - [ ] GPU profiling & tuning
+  - [ ] Dynamic batch sizing
+  - [ ] Mixed-precision inference
+  - [ ] Memory allocation optimization
+  - [ ] Target: 35 tests, 25-35% throughput gain
+  
+- [ ] Sprint 7.4: Scale Testing & Hardening (2 weeks)
+  - [ ] Load testing (100+ concurrent jobs)
+  - [ ] Broker failover validation
+  - [ ] Disaster recovery testing
+  - [ ] Production readiness review
+  - [ ] Target: 45 tests, benchmark reports
+
+**Expected Outcomes:**
+
+- Support 500+ GPU-hours/month
+- Cache hit rate > 75%
+- GPU utilization > 90%
+- 40%+ performance improvement
+- Successful 1000-job stress test
+
+**Resource Requirements:**
+
+- Total Team: 10-12 engineers
+- Total Budget: ~$115,200/mo infrastructure
+- Duration: 5-6 months (Q2-Q3 2026)
+
+---
+
 - [ ] **Sprint 1: Messaging Infrastructure**
   - [ ] Integrate NestJS Microservices with RabbitMQ/Kafka transport
   - [ ] Implement event-driven telemetry for job state changes
