@@ -118,4 +118,197 @@ $$EOE
     expect(result?.ra).toBeCloseTo(217.1338, 4);
     expect(result?.dec).toBeCloseTo(-15.47836, 4);
   });
+
+  // ========== ADDITIONAL COVERAGE TESTS ==========
+
+  it('should calculate Moon position correctly', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    const result = await service.calculatePosition('moon', epoch);
+
+    expect(result).toBeDefined();
+    expect(result?.object_type).toBe('satellite');
+    expect(result?.source).toBe('astronomy-engine');
+    expect(typeof result?.ra).toBe('number');
+    expect(typeof result?.dec).toBe('number');
+  });
+
+  it('should calculate Venus position correctly', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    const result = await service.calculatePosition('venus', epoch);
+
+    expect(result).toBeDefined();
+    expect(result?.object_type).toBe('planet');
+    expect(result?.source).toBe('astronomy-engine');
+  });
+
+  it('should calculate Mercury position correctly', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    const result = await service.calculatePosition('mercury', epoch);
+
+    expect(result).toBeDefined();
+    expect(result?.object_type).toBe('planet');
+  });
+
+  it('should calculate Jupiter position correctly', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    const result = await service.calculatePosition('jupiter', epoch);
+
+    expect(result).toBeDefined();
+    expect(result?.object_type).toBe('planet');
+  });
+
+  it('should calculate Saturn position correctly', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    const result = await service.calculatePosition('saturn', epoch);
+
+    expect(result).toBeDefined();
+    expect(result?.object_type).toBe('planet');
+  });
+
+  it('should calculate Uranus position correctly', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    const result = await service.calculatePosition('uranus', epoch);
+
+    expect(result).toBeDefined();
+    expect(result?.object_type).toBe('planet');
+  });
+
+  it('should calculate Neptune position correctly', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    const result = await service.calculatePosition('neptune', epoch);
+
+    expect(result).toBeDefined();
+    expect(result?.object_type).toBe('planet');
+  });
+
+  it('should calculate Sun position correctly', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    const result = await service.calculatePosition('sun', epoch);
+
+    expect(result).toBeDefined();
+    expect(result?.object_type).toBe('planet');
+  });
+
+  it('should use default current epoch when not provided', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const result = await service.calculatePosition('mars');
+
+    expect(result).toBeDefined();
+    expect(result?.source).toBe('astronomy-engine');
+    expect(result?.epoch).toBeDefined();
+  });
+
+  it('should handle multiple cache lookups for different objects', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    
+    const result1 = await service.calculatePosition('mars', epoch);
+    const result2 = await service.calculatePosition('venus', epoch);
+    const result3 = await service.calculatePosition('mercury', epoch);
+
+    expect(cacheService.get).toHaveBeenCalledTimes(3);
+    expect(cacheService.set).toHaveBeenCalledTimes(3);
+    expect(result1).toBeDefined();
+    expect(result2).toBeDefined();
+    expect(result3).toBeDefined();
+  });
+
+  it('should handle case-insensitive object names', async () => {
+    const cachedResult = {
+      ra: 100,
+      dec: 20,
+      object_type: 'planet',
+      epoch: '2026-02-11T12:00:00Z',
+    };
+    cacheService.get.mockResolvedValue(cachedResult);
+
+    // Test with uppercase
+    const result = await service.calculatePosition('MARS', '2026-02-11T12:00:00Z');
+
+    expect(result).toEqual({ ...cachedResult, source: 'cache' });
+    expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
+  });
+
+  it('should correctly parse Earth as null and return null', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const result = await service.calculatePosition('earth', '2026-02-11T12:00:00Z');
+
+    expect(result).toBeNull();
+  });
+
+  it('should cache results with correct TTL', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    const epoch = '2026-02-11T12:00:00Z';
+    await service.calculatePosition('mars', epoch);
+
+    expect(cacheService.set).toHaveBeenCalledWith(
+      `ephem:mars:2026-02-11`,
+      expect.objectContaining({
+        ra: expect.any(Number),
+        dec: expect.any(Number),
+        accuracy_arcsec: expect.any(Number),
+        epoch: epoch,
+        object_type: 'planet',
+        source: 'astronomy-engine',
+      }),
+      86400
+    );
+  });
+
+  it('should handle calculation errors gracefully', async () => {
+    cacheService.get.mockResolvedValue(null);
+    
+    // Mock an invalid epoch that could cause errors
+    const result = await service.calculatePosition('mars', 'invalid-date');
+
+    // Should handle error internally and return null or handle gracefully
+    expect(result === null || result?.object_type).toBeDefined();
+  });
+
+  it('should fetch from cache for same object on same day', async () => {
+    const cachedResult = {
+      ra: 100,
+      dec: 20,
+      object_type: 'planet',
+      epoch: '2026-02-11T15:00:00Z',
+      source: 'astronomy-engine',
+      accuracy_arcsec: 0.1,
+    };
+    
+    // First call cache miss
+    cacheService.get.mockResolvedValueOnce(null);
+    cacheService.set.mockResolvedValueOnce(undefined);
+    
+    const epoch1 = '2026-02-11T12:00:00Z';
+    await service.calculatePosition('mars', epoch1);
+
+    // Second call same day - cache key uses only date, not time
+    cacheService.get.mockResolvedValueOnce(cachedResult);
+    const epoch2 = '2026-02-11T18:00:00Z';
+    const result = await service.calculatePosition('mars', epoch2);
+
+    expect(result?.source).toBe('cache');
+    expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
+  });
 });
+

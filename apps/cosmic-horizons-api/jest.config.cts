@@ -17,4 +17,32 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: 'test-output/jest/coverage',
+  collectCoverageFrom: [
+    'src/**/*.{ts,js}',
+    '!src/**/*.spec.ts',
+    '!src/**/*.test.ts',
+    '!src/**/index.ts',
+    '!src/**/main.ts',
+    '!src/**/*.interface.ts',
+    '!src/**/*.type.ts',
+    '!src/**/*.d.ts',
+  ],
+  // Realistic thresholds based on current coverage: ~70% statements, ~50% branches, ~61% functions
+  // Plan: Maintain 90%+ coverage across all metrics
+  coverageThreshold: {
+    global: {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90,
+    },
+  },
+  coverageReporters: [
+    'text',
+    'text-summary',
+    'html',
+    'lcov',
+    'json',
+    'json-summary',
+  ],
 };

@@ -88,7 +88,10 @@
       "inputs": ["default", "^production"]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "cache": true,
+      "inputs": ["default", "^production"],
+      "outputs": ["{workspaceRoot}/coverage", "{projectRoot}/test-output"]
     }
   },
   "generators": {
