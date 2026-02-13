@@ -1,5 +1,9 @@
 // Polyfill for jsdom test environment
 // Ensures navigator.platform is defined for Angular Forms
+// This MUST run FIRST before any Angular modules are imported
+
+console.log('[TEST SETUP] Initializing polyfills...');
+
 if (typeof navigator !== 'undefined') {
   try {
     // Check if navigator.platform exists and is not empty
@@ -9,10 +13,11 @@ if (typeof navigator !== 'undefined') {
         writable: true,
         configurable: true,
       });
+      console.log('[TEST SETUP] navigator.platform polyfilled successfully');
     }
   } catch (e) {
     // Silently ignore if defineProperty fails (in case of strict mode)
-    console.warn('Could not set navigator.platform polyfill:', e);
+    console.warn('[TEST SETUP] Could not set navigator.platform polyfill:', e);
   }
 }
 
@@ -25,3 +30,5 @@ if (typeof window !== 'undefined') {
     });
   }
 }
+
+console.log('[TEST SETUP] Polyfills initialized');
