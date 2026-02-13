@@ -30,6 +30,7 @@ export class KafkaService {
     this.logger.debug(`Kafka produced ${messages.length} messages to ${topic}`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   async consume(groupId: string, callback: Function): Promise<void> {
     this.logger.debug(`Kafka consumer group ${groupId} started`);
   }
@@ -42,6 +43,7 @@ export class KafkaService {
     return { groupId, state: 'Stable', members: 1 };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getMetrics(): any {
     return {
       connected: this.isConnected(),

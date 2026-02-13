@@ -36,6 +36,7 @@ class RabbitMQService {
   private connection: any;
   private consumerGroups: Map<string, any[]> = new Map();
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   async connect(): Promise<void> {
@@ -52,6 +53,7 @@ class RabbitMQService {
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   async consume(callback: Function, options: ConsumeOptions): Promise<void> {
     if (!this.consumerGroups.has(options.queue)) {
       this.consumerGroups.set(options.queue, []);

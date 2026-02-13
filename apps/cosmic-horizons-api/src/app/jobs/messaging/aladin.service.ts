@@ -8,6 +8,7 @@ export class AladinService {
   private overlays: Map<string, Set<string>> = new Map();
   private instanceCounter = 0;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   async initializeAladin(elementId: string, config?: any): Promise<string> {

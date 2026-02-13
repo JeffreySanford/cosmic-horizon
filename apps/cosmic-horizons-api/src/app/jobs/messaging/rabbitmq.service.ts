@@ -41,6 +41,7 @@ export interface RabbitMQMessage {
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('RabbitMQService');
   private connection: any;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   private consumerCallbacks: Map<string, Function> = new Map();
   private isConnecting = false;
 
@@ -141,6 +142,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   /**
    * Consume messages from a queue
    */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   async consume(callback: Function, options: ConsumeOptions): Promise<string> {
     if (!this.isConnected()) {
       throw new Error('RabbitMQ connection not established');
