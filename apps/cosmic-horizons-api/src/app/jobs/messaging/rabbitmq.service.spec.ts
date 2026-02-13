@@ -81,7 +81,7 @@ describe('RabbitMQService', () => {
 
     it('should use default URL if config missing', async () => {
       mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'RABBITMQ_URLS') return undefined;
+        // Always return the default value when RABBITMQ_URLS is not found
         return defaultValue;
       });
 

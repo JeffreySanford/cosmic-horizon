@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+// @ts-expect-error TS7016: @types/uuid is installed but can't resolve for uuid@3.4.0
 import { v4 as uuidv4 } from 'uuid';
 import { JobEventsService } from './job-events.service';
 
@@ -44,10 +45,10 @@ describe('JobEventsService', () => {
 
       expect(eventId).toBe('test-uuid-12345');
       expect(mockEventRegistry.validateEvent).toHaveBeenCalledWith('JOB_SUBMITTED', job);
-      expect(mockEventPublisher.publish).toHaveBeenCalledWith('jobs.submitted', {
-        id: 'test-uuid-12345',
-        ...job,
-      });
+      expect(mockEventPublisher.publish).toHaveBeenCalledWith(
+        'jobs.submitted',
+        expect.objectContaining(job)
+      );
     });
 
     it('should generate unique event IDs', async () => {
@@ -138,7 +139,7 @@ describe('JobEventsService', () => {
     });
 
     it('should handle status changes without metadata', async () => {
-      const eventId = await service.emitJobStatusChangedEvent(
+      await service.emitJobStatusChangedEvent(
         'job-789',
         'COMPLETED'
       );

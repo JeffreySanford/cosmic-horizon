@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
@@ -25,10 +25,9 @@ export class EphemerisService {
   private readonly CACHE_TTL_MS = 86400000; // 24 hours
   private cache = new Map<string, EphemerisCache>();
   private calculatingSubject = new BehaviorSubject<boolean>(false);
+  private http = inject(HttpClient);
 
   public calculating$ = this.calculatingSubject.asObservable();
-
-  constructor(private http: HttpClient) {}
 
   /**
    * Calculate ephemeris position for a celestial object
