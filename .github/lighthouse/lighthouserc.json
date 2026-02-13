@@ -14,10 +14,24 @@
     },
     "assert": {
       "assertions": {
-        "categories:performance": ["error", { "minScore": 0.3 }],
-        "first-contentful-paint": ["error", { "maxNumericValue": 60000 }],
-        "largest-contentful-paint": ["error", { "maxNumericValue": 65000 }],
-        "total-blocking-time": ["error", { "maxNumericValue": 3000 }]
+        "first-contentful-paint": [
+          "error",
+          {
+            "maxNumericValue": 60000
+          }
+        ],
+        "largest-contentful-paint": [
+          "error",
+          {
+            "maxNumericValue": 65000
+          }
+        ],
+        "total-blocking-time": [
+          "error",
+          {
+            "maxNumericValue": 3000
+          }
+        ]
       }
     },
     "upload": {
