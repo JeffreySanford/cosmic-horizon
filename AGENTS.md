@@ -14,6 +14,12 @@
 
 - For scaffolding tasks (creating apps, libs, project structure, setup), ALWAYS invoke the `nx-generate` skill FIRST before exploring or calling MCP tools
 
+## Testing & CI/CD
+
+- All unit tests and E2E tests must pass locally before pushing (`pnpm test`, `pnpm e2e:mvp`)
+- GitHub Actions automatically runs full test suite on push - monitor with `gh run list` or `gh run watch`
+- Test environment polyfills are handled at test-setup level for cross-platform compatibility
+
 ## When to use nx_docs
 
 - USE for: advanced config options, unfamiliar flags, migration guides, plugin configuration, edge cases
