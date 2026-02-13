@@ -14,8 +14,8 @@ describe('EphemerisWarmupService', () => {
         dec: 0,
         accuracy_arcsec: 0.1,
         epoch: '2000.0',
-        source: 'test',
-        object_type: 'test',
+        source: 'cache',
+        object_type: 'planet',
       }),
     } as unknown as jest.Mocked<EphemerisService>;
 
@@ -114,8 +114,8 @@ describe('EphemerisWarmupService', () => {
           dec: 0,
           accuracy_arcsec: 0.1,
           epoch: '2000.0',
-          source: 'test',
-          object_type: 'test',
+          source: 'cache',
+          object_type: 'planet',
         });
 
       await service.handleDailyWarmup();
@@ -242,8 +242,8 @@ describe('EphemerisWarmupService', () => {
         dec: 0,
         accuracy_arcsec: 0.1,
         epoch: '2000.0',
-        source: 'test',
-        object_type: 'test',
+        source: 'cache',
+        object_type: 'planet',
       });
 
       await service.handleDailyWarmup();
@@ -267,8 +267,8 @@ describe('EphemerisWarmupService', () => {
           dec: 0,
           accuracy_arcsec: 0.1,
           epoch: '2000.0',
-          source: 'test',
-          object_type: 'test',
+          source: 'cache',
+          object_type: 'planet',
         };
       });
 
