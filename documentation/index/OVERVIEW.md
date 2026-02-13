@@ -2,6 +2,7 @@
 
 **Cosmic Horizons**: Independent, open-source radio astronomy collaboration portal  
 **Status**: MVP Complete (Feb 2026) | Phase 2 Planning  
+**Status date: 2026-02-13**  
 **Last Updated**: 2026-02-12
 
 ## Mission

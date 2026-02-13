@@ -1,6 +1,16 @@
 # API Routes Reference
 
+**⚠️ DISCLAIMER: This project is not affiliated with VLA/NRAO and operates as an independent research portal.**
+
 Complete reference of all available API endpoints in Cosmic Horizons.
+
+## Source of Truth Models
+
+All data models used in these API endpoints are defined in the shared models library:
+
+- **Shared Models**: `libs/shared/models/` - TypeScript interfaces and data models
+- **Entity Definitions**: `apps/cosmic-horizons-api/src/app/database/entities/`
+- **API DTOs**: Request/Response data transfer objects
 
 ## Base URL
 

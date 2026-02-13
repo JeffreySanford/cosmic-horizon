@@ -1,6 +1,21 @@
 # Source of Truth - Cosmic Horizons
 
+**⚠️ DISCLAIMER: This project is not affiliated with VLA/NRAO and operates as an independent research portal.**
+
 This document establishes the authoritative sources and decision-making frameworks for the Cosmic Horizons project.
+
+## Related Governance Documents
+
+- **[SCOPE-LOCK.md](../../SCOPE-LOCK.md)** - Project scope and boundaries
+- **[PRODUCT-CHARTER.md](../../PRODUCT-CHARTER.md)** - Product vision and strategic charter
+
+## Source of Truth Models
+
+All shared data models and types are defined in centralized locations to ensure consistency:
+
+- **Application Models**: `libs/shared/models/` - Nx shared library containing all TypeScript interfaces and data models
+- **API Contracts**: OpenAPI specifications generated from NestJS decorators
+- **Database Schema**: TypeORM entities in `apps/cosmic-horizons-api/src/app/database/entities/`
 
 ## Project Governance
 

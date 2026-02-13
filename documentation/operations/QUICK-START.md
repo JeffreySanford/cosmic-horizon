@@ -1,5 +1,7 @@
 # Quick Start Guide
 
+**⚠️ DISCLAIMER: This project is not affiliated with VLA/NRAO and operates as an independent research portal.**
+
 Get up and running with Cosmic Horizons in minutes!
 
 ## Prerequisites
