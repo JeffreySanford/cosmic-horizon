@@ -32,6 +32,43 @@ describe('LoggingService - Error Paths & Branch Coverage', () => {
       expect((service as any).buffer).toEqual([]);
       expect(typeof ((service as any).buffer instanceof Map ? 'map' : 'array')).toBe('string');
     });
+
+    it('should initialize Redis when enabled', () => {
+      process.env['LOGS_REDIS_ENABLED'] = 'true';
+      process.env['REDIS_HOST'] = 'localhost';
+      process.env['REDIS_PORT'] = '6379';
+
+      service = new LoggingService();
+
+      expect((service as any).redis).not.toBeNull();
+      expect((service as any).redis).toBeDefined();
+
+      delete process.env['LOGS_REDIS_ENABLED'];
+      delete process.env['REDIS_HOST'];
+      delete process.env['REDIS_PORT'];
+    });
+
+    it('should handle Redis connection error', () => {
+      process.env['LOGS_REDIS_ENABLED'] = 'true';
+      process.env['REDIS_HOST'] = 'invalid-host';
+      process.env['REDIS_PORT'] = '99999';
+
+      // Make Redis constructor throw
+      (Redis as jest.MockedClass<typeof Redis>).mockImplementationOnce(() => {
+        throw new Error('Connection refused');
+      });
+
+      // Suppress logger output for this test
+      jest.spyOn(global.console, 'warn').mockImplementationOnce(() => {});
+
+      service = new LoggingService();
+
+      expect((service as any).redis).toBeNull();
+
+      delete process.env['LOGS_REDIS_ENABLED'];
+      delete process.env['REDIS_HOST'];
+      delete process.env['REDIS_PORT'];
+    });
   });
 
   describe('add - Logging to Buffer', () => {
@@ -179,6 +216,36 @@ describe('LoggingService - Error Paths & Branch Coverage', () => {
 
       expect(parsed.message).toBe('Cache operation');
       expect(parsed.data.hitRate).toBe(95);
+    });
+
+    it('should handle buffer at exact maxBuffer limit', async () => {
+      const maxBuffer = (service as any).maxBuffer;
+      redisMock.lpush.mockResolvedValue(1);
+      redisMock.ltrim.mockResolvedValue('OK');
+
+      // Add entries exactly to maxBuffer
+      for (let i = 0; i < maxBuffer; i++) {
+        await service.add({
+          type: 'http',
+          severity: 'info',
+          message: `Log ${i}`,
+        });
+      }
+
+      const buffer = (service as any).buffer;
+      expect(buffer).toHaveLength(maxBuffer);
+
+      // Add one more - should trigger splice
+      await service.add({
+        type: 'http',
+        severity: 'info',
+        message: 'Overflow',
+      });
+
+      // Buffer should still be at maxBuffer (oldest removed)
+      expect(buffer).toHaveLength(maxBuffer);
+      expect(buffer[0].message).toBe('Log 1'); // First entry removed
+      expect(buffer[maxBuffer - 1].message).toBe('Overflow');
     });
   });
 
