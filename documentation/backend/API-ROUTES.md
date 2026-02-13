@@ -21,37 +21,44 @@ Authorization: Bearer <jwt-token>
 ### Authentication
 
 #### POST /auth/register
+
 Register a new user account.
 
 - **Body**: `{ email, password, username }`
 - **Response**: `{ id, email, username, createdAt }`
 
 #### POST /auth/login
+
 Login with email and password.
 
 - **Body**: `{ email, password }`
 - **Response**: `{ accessToken, refreshToken, user }`
 
 #### POST /auth/refresh
+
 Refresh JWT token.
 
 - **Body**: `{ refreshToken }`
 - **Response**: `{ accessToken }`
 
 #### POST /auth/logout
+
 Logout current user.
 
 - **Response**: `{ message: "Logged out successfully" }`
 
 #### GET /auth/github
+
 GitHub OAuth login (redirects to GitHub).
 
 #### GET /auth/github/callback
+
 GitHub OAuth callback (handled automatically).
 
 ### Users
 
 #### GET /users/:id
+
 Get user profile.
 
 - **Params**: `id` (user ID)
@@ -59,6 +66,7 @@ Get user profile.
 - **Response**: `{ id, email, username, profile, createdAt }`
 
 #### PUT /users/:id
+
 Update user profile.
 
 - **Params**: `id` (user ID)
@@ -67,6 +75,7 @@ Update user profile.
 - **Response**: `{ id, email, username, profile }`
 
 #### GET /users/:id/posts
+
 Get user's posts.
 
 - **Params**: `id` (user ID)  
@@ -76,12 +85,14 @@ Get user's posts.
 ### Posts
 
 #### GET /posts
+
 List all posts.
 
 - **Query**: `page` (default: 1), `limit` (default: 20), `search`
 - **Response**: `{ items: Post[], total, page, limit }`
 
 #### POST /posts
+
 Create a new post.
 
 - **Body**: `{ title, content, tags }`
@@ -89,12 +100,14 @@ Create a new post.
 - **Response**: `{ id, title, content, author, createdAt }`
 
 #### GET /posts/:id
+
 Get single post.
 
 - **Params**: `id` (post ID)
 - **Response**: Full post object with author and comments
 
 #### PUT /posts/:id
+
 Update post.
 
 - **Params**: `id` (post ID)
@@ -103,6 +116,7 @@ Update post.
 - **Response**: Updated post object
 
 #### DELETE /posts/:id
+
 Delete post.
 
 - **Params**: `id` (post ID)
@@ -112,6 +126,7 @@ Delete post.
 ### Comments
 
 #### GET /posts/:postId/comments
+
 Get post comments.
 
 - **Params**: `postId`
@@ -119,6 +134,7 @@ Get post comments.
 - **Response**: `{ items: Comment[], total }`
 
 #### POST /posts/:postId/comments
+
 Create comment on post.
 
 - **Params**: `postId`
@@ -127,6 +143,7 @@ Create comment on post.
 - **Response**: Comment object
 
 #### PUT /comments/:id
+
 Update comment.
 
 - **Params**: `id` (comment ID)
@@ -135,6 +152,7 @@ Update comment.
 - **Response**: Updated comment
 
 #### DELETE /comments/:id
+
 Delete comment.
 
 - **Params**: `id` (comment ID)
@@ -143,13 +161,15 @@ Delete comment.
 
 ### Jobs (TACC Integration)
 
-####GET /jobs
+#### GET /jobs
+
 List all jobs.
 
 - **Query**: `page`, `limit`, `status`, `userId`
 - **Response**: `{ items: Job[], total }`
 
 #### POST /jobs
+
 Submit a new job.
 
 - **Body**: `{ name, description, parameters, type }`
@@ -157,6 +177,7 @@ Submit a new job.
 - **Response**: `{ jobId, status, createdAt }`
 
 #### GET /jobs/:jobId
+
 Get job status and details.
 
 - **Params**: `jobId`
@@ -164,6 +185,7 @@ Get job status and details.
 - **Response**: Job object with logs and status
 
 #### DELETE /jobs/:jobId
+
 Cancel running job.
 
 - **Params**: `jobId`
@@ -173,12 +195,14 @@ Cancel running job.
 ### Ephemeris & Astronomy
 
 #### POST /ephemeris/position
+
 Calculate celestial object position.
 
 - **Body**: `{ objectName, ra, dec, time }`
 - **Response**: `{ ra, dec, altitude, azimuth, visibility }`
 
 #### GET /ephemeris/objects
+
 List available objects for calculation.
 
 - **Response**: `{ objects: string[] }`
@@ -186,6 +210,7 @@ List available objects for calculation.
 ### Logging & Monitoring
 
 #### GET /logs
+
 Admin-only access to system logs.
 
 - **Query**: `level`, `service`, `limit`

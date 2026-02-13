@@ -16,6 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NX_DAEMON: "false"
+      JWT_SECRET: "e2e-test-jwt-secret-min-32-characters-long"
+      SESSION_SECRET: "e2e-test-session-secret-min-32-characters"
+      NODE_ENV: "development"
     steps:
       - uses: actions/checkout@v4
         with:
