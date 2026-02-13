@@ -97,9 +97,20 @@ mat-card-content {
 }
 
 .subtitle {
-  margin: 0 0 0.8rem;
+  margin: 0 0 0.35rem;
   color: rgba(233, 241, 255, 0.9);
 }
+
+.affiliation-note {
+  margin: 0 0 0.9rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 226, 157, 0.45);
+  background: rgba(26, 17, 7, 0.35);
+  color: #ffe29d;
+  font-size: 0.82rem;
+}
+
 
 .preview-controls {
   margin: 0 0 0.9rem;

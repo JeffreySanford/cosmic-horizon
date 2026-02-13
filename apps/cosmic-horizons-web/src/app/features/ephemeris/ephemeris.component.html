@@ -5,46 +5,58 @@
     <span class="spacer"></span>
     @if (user.username) {
       <a mat-button routerLink="/profile">
-        <mat-icon>account_circle</mat-icon> My Profile
+        <mat-icon>account_circle</mat-icon>
+        My Profile
       </a>
     }
     <button mat-flat-button color="warn" (click)="logout()">
-      <mat-icon>logout</mat-icon> Logout
+      <mat-icon>logout</mat-icon>
+      Logout
     </button>
   </mat-toolbar>
 
   <div class="content-wrapper">
     <section class="page-header">
-      <h1>Scientific Ephemeris & Target Search</h1>
+      <h1>Ephemeris Search</h1>
       <p class="subtitle">
-        Search for celestial objects and calculate their positions at specified epochs using JPL Horizons data
+        Resolve live coordinates for planets, moons, and small bodies, then preview the sky position instantly.
       </p>
     </section>
 
-    <mat-card class="search-card">
+    <mat-card class="panel search-card">
       <mat-card-header>
-        <mat-card-title>Target Search</mat-card-title>
+        <mat-card-title>Target Query</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
         @if (error) {
-          <div class="error-alert" role="alert" aria-live="polite">
+          <div class="alert error" role="alert" aria-live="polite">
             <mat-icon>error</mat-icon>
-            <div class="error-content">
+            <div>
               <strong>Search Failed</strong>
               <p>{{ error }}</p>
             </div>
           </div>
         }
 
+        @if (noResultsMessage) {
+          <div class="alert warn" role="status" aria-live="polite">
+            <mat-icon>warning</mat-icon>
+            <div>
+              <strong>No Results</strong>
+              <p>{{ noResultsMessage }}</p>
+            </div>
+          </div>
+        }
+
         <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-form">
           <div class="form-row">
-            <mat-form-field class="search-field">
-              <mat-label>Target Name or Object ID</mat-label>
+            <mat-form-field class="search-field" appearance="outline">
+              <mat-label>Target</mat-label>
               <input
                 matInput
                 formControlName="target"
-                placeholder="e.g., Mars, Earth, Pluto, or JPL ID"
+                placeholder="mars, jupiter, moon, ceres"
                 [attr.aria-invalid]="f['target'].invalid && submitted"
               />
               @if (f['target'].invalid && submitted) {
@@ -52,123 +64,108 @@
               }
             </mat-form-field>
 
-            <mat-form-field class="epoch-field">
-              <mat-label>Epoch (ISO 8601)</mat-label>
-              <input
-                matInput
-                formControlName="epoch"
-                type="datetime-local"
-                placeholder="e.g., 2026-02-13T12:00:00"
-              />
-              <mat-hint>Leave blank for current time</mat-hint>
+            <mat-form-field class="epoch-field" appearance="outline">
+              <mat-label>Epoch (optional)</mat-label>
+              <input matInput formControlName="epoch" type="datetime-local" />
+              <mat-hint>Leave blank to use current UTC time</mat-hint>
             </mat-form-field>
           </div>
 
           <div class="form-actions">
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="loading"
-            >
+            <button mat-raised-button color="primary" type="submit" [disabled]="loading">
               @if (loading) {
                 <mat-spinner diameter="20"></mat-spinner>
               } @else {
                 <mat-icon>search</mat-icon>
               }
-              <span>Search</span>
+              <span>Resolve</span>
             </button>
 
-            @if (submitted && (result || error)) {
-              <button
-                mat-stroked-button
-                type="button"
-                (click)="clearSearch()"
-                [disabled]="loading"
-              >
+            @if (submitted && (result || error || noResultsMessage)) {
+              <button mat-stroked-button type="button" (click)="clearSearch()" [disabled]="loading">
                 <mat-icon>clear</mat-icon>
-                Clear
+                Reset
               </button>
             }
           </div>
         </form>
-
-        @if (result) {
-          <div class="results-section">
-            <h2>Search Results</h2>
-
-            <mat-card class="result-card">
-              <mat-card-content>
-                <div class="result-grid">
-                  <div class="result-item">
-                    <span class="label">Target</span>
-                    <span class="value">{{ result.target }}</span>
-                  </div>
-
-                  <div class="result-item">
-                    <span class="label">Epoch (UTC)</span>
-                    <span class="value">{{ result.epoch }}</span>
-                  </div>
-
-                  <div class="result-item">
-                    <span class="label">Right Ascension (RA)</span>
-                    <span class="value">{{ result.ra | number: '1.6-6' }}°</span>
-                  </div>
-
-                  <div class="result-item">
-                    <span class="label">Declination (Dec)</span>
-                    <span class="value">{{ result.dec | number: '1.6-6' }}°</span>
-                  </div>
-
-                  <div class="result-item">
-                    <span class="label">Accuracy</span>
-                    <span class="value">{{ result.accuracy_arcsec | number: '1.3-3' }}&quot;</span>
-                  </div>
-
-                  <div class="result-item">
-                    <span class="label">Object Type</span>
-                    <span class="value">{{ result.object_type | titlecase }}</span>
-                  </div>
-
-                  <div class="result-item">
-                    <span class="label">Data Source</span>
-                    <span class="value">{{ result.source | titlecase }}</span>
-                  </div>
-                </div>
-
-                <div class="result-note">
-                  <p>
-                    <strong>Data Source:</strong> {{ result.source | titlecase }}
-                    <br />
-                    <strong>Accuracy:</strong> ±{{ result.accuracy_arcsec | number: '1.2-2' }} arcseconds
-                  </p>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        }
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="info-card">
+    @if (result) {
+      <mat-card class="panel results-card">
+        <mat-card-header>
+          <mat-card-title>{{ result.target | titlecase }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="results-layout">
+            <div class="result-grid">
+              <div class="result-item">
+                <span class="label">Epoch (UTC)</span>
+                <span class="value">{{ result.epoch }}</span>
+              </div>
+              <div class="result-item">
+                <span class="label">Right Ascension</span>
+                <span class="value mono">{{ result.ra | number: '1.6-6' }}°</span>
+              </div>
+              <div class="result-item">
+                <span class="label">Declination</span>
+                <span class="value mono">{{ result.dec | number: '1.6-6' }}°</span>
+              </div>
+              <div class="result-item">
+                <span class="label">Accuracy</span>
+                <span class="value mono">±{{ result.accuracy_arcsec | number: '1.3-3' }}&quot;</span>
+              </div>
+              <div class="result-item">
+                <span class="label">Object Type</span>
+                <span class="value">{{ result.object_type | titlecase }}</span>
+              </div>
+              <div class="result-item">
+                <span class="label">Source</span>
+                <span class="value">{{ result.source | titlecase }}</span>
+              </div>
+            </div>
+
+            <div class="preview-card">
+              <h3>Sky Preview</h3>
+              @if (previewImageUrl) {
+                <img
+                  [src]="previewImageUrl"
+                  [alt]="'Sky preview around ' + result.target"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="preview-empty">Preview unavailable</div>
+              }
+              <div class="preview-actions">
+                <button mat-stroked-button type="button" (click)="openInViewer()">
+                  <mat-icon>open_in_new</mat-icon>
+                  Open In Viewer
+                </button>
+                @if (result.aladin_url) {
+                  <a mat-button [href]="result.aladin_url" target="_blank" rel="noopener noreferrer">
+                    <mat-icon>travel_explore</mat-icon>
+                    Open Aladin
+                  </a>
+                }
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-card class="panel info-card">
       <mat-card-header>
-        <mat-card-title>About Ephemeris Data</mat-card-title>
+        <mat-card-title>About This Data</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <p>
-          Ephemeris data provides precise positions of celestial objects at specific times. This tool queries the astronomy-engine library to compute accurate coordinates for planets, moons, and other solar system bodies.
-        </p>
         <ul>
-          <li><strong>Right Ascension (RA):</strong> Angular position east-west on the celestial sphere (0-360°)</li>
-          <li><strong>Declination (Dec):</strong> Angular position north-south on the celestial sphere (-90° to +90°)</li>
-          <li><strong>Accuracy:</strong> Typical precision of the calculation in arcseconds</li>
-          <li><strong>Object Type:</strong> Classification of the celestial object (Planet, Satellite, or Asteroid)</li>
-          <li><strong>Data Source:</strong> Whether the result was calculated fresh or retrieved from cache</li>
+          <li><strong>RA/Dec:</strong> Position on the celestial sphere in degrees.</li>
+          <li><strong>Source:</strong> Results are served from astronomy-engine, JPL Horizons fallback, or cache.</li>
+          <li><strong>Preview:</strong> The image is a sky cutout centered on computed coordinates at the selected epoch.</li>
         </ul>
-        <p>
-          For more information, visit
-          <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener noreferrer">JPL Horizons</a>
-        </p>
       </mat-card-content>
     </mat-card>
   </div>

@@ -12,6 +12,8 @@ export interface EphemerisResult {
   epoch: string;
   source: 'astronomy-engine' | 'jpl-horizons' | 'cache';
   object_type: 'planet' | 'satellite' | 'asteroid';
+  sky_preview_url?: string;
+  aladin_url?: string;
 }
 
 @Injectable()
@@ -27,14 +29,21 @@ export class EphemerisService {
     objectName: string,
     epochIso: string = new Date().toISOString()
   ): Promise<EphemerisResult | null> {
-    const object = objectName.toLowerCase();
+    const object = objectName.trim().toLowerCase();
     const dateKey = epochIso.split('T')[0];
     const cacheKey = `ephem:${object}:${dateKey}`;
 
     // Check cache first
     const cached = await this.cache.get<Omit<EphemerisResult, 'source'> | EphemerisResult>(cacheKey);
     if (cached) {
-      return { ...cached, source: 'cache' };
+      const target = cached.target ?? object;
+      return {
+        ...cached,
+        target,
+        source: 'cache',
+        sky_preview_url: cached.sky_preview_url ?? this.buildSkyPreviewUrl(cached.ra, cached.dec),
+        aladin_url: cached.aladin_url ?? this.buildAladinUrl(cached.ra, cached.dec, target),
+      };
     }
 
     // Calculate using astronomy-engine
@@ -53,15 +62,19 @@ export class EphemerisService {
 
     try {
       const equatorial = Astronomy.Equator(body, epoch, observer, false, true);
+      const raDeg = equatorial.ra * 15;
+      const decDeg = equatorial.dec;
 
       const result: EphemerisResult = {
         target: object,
-        ra: equatorial.ra * 15,          // Right ascension: convert hours (astronomy-engine) to degrees
-        dec: equatorial.dec,             // Declination in degrees
+        ra: raDeg,                       // Right ascension: convert hours (astronomy-engine) to degrees
+        dec: decDeg,                     // Declination in degrees
         accuracy_arcsec: 0.1,            // Typical accuracy of astronomy-engine
         epoch: epochIso,
         source: 'astronomy-engine',
-        object_type: this.classifyObject(object)
+        object_type: this.classifyObject(object),
+        sky_preview_url: this.buildSkyPreviewUrl(raDeg, decDeg),
+        aladin_url: this.buildAladinUrl(raDeg, decDeg, object),
       };
 
       // Cache for 24 hours
@@ -146,25 +159,29 @@ export class EphemerisService {
       // Clean up multiple spaces
       const parts = raDecLine.replace(/\s+/g, ' ').split(' ');
       // parts[0]: Date, parts[1]: Time, parts[2]: RA_H, parts[3]: RA_M, parts[4]: RA_S, parts[5]: DEC_D, parts[6]: DEC_M, parts[7]: DEC_S
-      
+
       const raHours = parseFloat(parts[2]) + parseFloat(parts[3]) / 60 + parseFloat(parts[4]) / 3600;
       const raDeg = raHours * 15;
-      
+
       const decSign = parts[5].startsWith('-') ? -1 : 1;
       const decDeg = Math.abs(parseFloat(parts[5])) + parseFloat(parts[6]) / 60 + parseFloat(parts[7]) / 3600;
       const finalDec = decDeg * decSign;
 
+      const normalizedName = name.toLowerCase();
       const result: EphemerisResult = {
+        target: normalizedName,
         ra: raDeg,
         dec: finalDec,
-        accuracy_arcsec: 1.0, 
+        accuracy_arcsec: 1.0,
         epoch: epochIso,
         source: 'jpl-horizons',
-        object_type: 'asteroid'
+        object_type: 'asteroid',
+        sky_preview_url: this.buildSkyPreviewUrl(raDeg, finalDec),
+        aladin_url: this.buildAladinUrl(raDeg, finalDec, normalizedName),
       };
 
       // Cache the successful result
-      const cacheKey = `ephem:${name.toLowerCase()}:${dateStr}`;
+      const cacheKey = `ephem:${normalizedName}:${dateStr}`;
       await this.cache.set(cacheKey, result, 86400);
 
       return result;
@@ -182,5 +199,29 @@ export class EphemerisService {
     }
     if (name.toLowerCase() === 'moon') return 'satellite';
     return 'asteroid'; // Default for future expansions
+  }
+
+  private buildSkyPreviewUrl(ra: number, dec: number): string {
+    const params = new URLSearchParams();
+    params.set('hips', 'CDS/P/DSS2/color');
+    params.set('format', 'jpg');
+    params.set('projection', 'TAN');
+    params.set('ra', ra.toFixed(6));
+    params.set('dec', dec.toFixed(6));
+    params.set('fov', (2 * Math.PI / 180).toString());
+    params.set('width', '512');
+    params.set('height', '512');
+    return `https://alasky.cds.unistra.fr/hips-image-services/hips2fits?${params.toString()}`;
+  }
+
+  private buildAladinUrl(ra: number, dec: number, target: string): string {
+    const params = new URLSearchParams();
+    params.set('target', `${ra.toFixed(6)} ${dec.toFixed(6)}`);
+    params.set('fov', '1');
+    params.set('survey', 'P/DSS2/color');
+    if (target.trim().length > 0) {
+      params.set('title', `Ephemeris:${target}`);
+    }
+    return `https://aladin.u-strasbg.fr/AladinLite/?${params.toString()}`;
   }
 }

@@ -20,7 +20,7 @@ export class EphemerisController {
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
   @HttpCode(HttpStatus.OK)
   async search(@Query() query: EphemerisSearchDto) {
-    const target = query.target || query.object_name;
+    const target = (query.target || query.object_name || '').trim();
 
     if (!target) {
       throw new NotFoundException('Target name is required.');

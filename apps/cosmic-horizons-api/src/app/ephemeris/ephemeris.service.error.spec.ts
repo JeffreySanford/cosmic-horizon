@@ -74,7 +74,7 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
 
       const result = await service.calculatePosition('sun', '2026-02-13T00:00:00.000Z');
 
-      expect(result).toEqual({ ...cached, source: 'cache' });
+      expect(result).toEqual(expect.objectContaining({ ...cached, source: 'cache' }));
       expect(cacheService.get).toHaveBeenCalledWith('ephem:sun:2026-02-13');
     });
 

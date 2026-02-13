@@ -1,6 +1,7 @@
 # Cosmic Horizon
 
 > Independent portal using public VLASS data; not affiliated with VLA/NRAO.
+> Built and operated as an independent project by Jeffrey Sanford.
 
 [![Build](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/build.yml)
 [![Unit Tests](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/unit-tests.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/unit-tests.yml)

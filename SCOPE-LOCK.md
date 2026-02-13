@@ -1,4 +1,4 @@
-# VLASS Sky Portal — MVP Scope Lock
+# Cosmic Horizon — MVP Scope Lock
 
 > Affiliation note: this is an independent portfolio/community project using public VLASS data and is not an official VLA/NRAO deliverable.
 
@@ -11,7 +11,7 @@
 
 ### ✅ Removed
 
-- **Go microservice** (`apps/vlass-go/`): Deleted entirely
+- **Go microservice** (`apps/cosmic-horizons-go/`): Deleted entirely
 - **Full FITS proxy/caching architecture**: Deferred; MVP allows only constrained cutout passthrough + link-out
 - **Two-tier audit retention**: Simplified to 90-day hot only (ADR-001)
 - **Mode B (Canvas viewer)**: Deferred; Aladin only for MVP (ADR-004 simplified)
@@ -63,7 +63,7 @@
 
 If you decide to add Rust for advanced rendering (v2+):
 
-1. Create `apps/vlass-rust/` directory
+1. Create `apps/cosmic-horizons-rust/` directory
 2. Initialize Cargo project
 3. Implement preview + snapshot rendering (from ADR-003)
 4. Add Rust tests to CI pipeline
@@ -71,13 +71,3 @@ If you decide to add Rust for advanced rendering (v2+):
 
 For now: **Rust is future-proofed but not required.**
 
----
-
-## Question for You
-
-Beyond removing Go and simplifying FITS:
-
-1. **Do you want to delete VIEWER-MODE-B.md now**, or keep it as "deferred v2" documentation?
-2. **Do you want a simplified README.md** that explains the MVP in 1 sentence + 3 pillars?
-
-Let me know, or we're done! 🚀

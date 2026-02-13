@@ -164,7 +164,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 ## Phase 4: v2.0 - NRAO Ecosystem Integration - Q3-Q4 2026
 
-**Focus**: Integration with official NRAO/VLA infrastructure
+**Focus**: Integration readiness and potential collaboration pathways with NRAO/VLA infrastructure
 
 ### Data Sources
 

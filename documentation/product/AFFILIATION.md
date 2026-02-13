@@ -26,7 +26,9 @@ It is **not**:
 
 When describing this repo publicly, use wording like:
 
-## "Independent portal using public VLASS data; not affiliated with VLA/NRAO."
+Recommended wording:
+
+`Independent portal using public VLASS data; not affiliated with VLA/NRAO.`
 
 ## Outreach Rule (Important)
 

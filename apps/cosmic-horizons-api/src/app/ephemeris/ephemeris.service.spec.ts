@@ -72,7 +72,7 @@ describe('EphemerisService', () => {
 
     const result = await service.calculatePosition('mars', '2026-02-11T12:00:00Z');
 
-    expect(result).toEqual({ ...cachedResult, source: 'cache' });
+    expect(result).toEqual(expect.objectContaining({ ...cachedResult, source: 'cache' }));
     expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
     // Calculation should not run
     expect(cacheService.set).not.toHaveBeenCalled();
@@ -243,7 +243,7 @@ $$EOE
     // Test with uppercase
     const result = await service.calculatePosition('MARS', '2026-02-11T12:00:00Z');
 
-    expect(result).toEqual({ ...cachedResult, source: 'cache' });
+    expect(result).toEqual(expect.objectContaining({ ...cachedResult, source: 'cache' }));
     expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
   });
 

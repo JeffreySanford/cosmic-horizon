@@ -1,4 +1,4 @@
-# VLASS Sky Portal — MVP Product Charter
+# Cosmic Horizon — MVP Product Charter
 
 **Date:** 2026-02-07
 **Status:** ACTIVE

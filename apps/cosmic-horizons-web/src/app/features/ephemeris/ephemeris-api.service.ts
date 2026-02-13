@@ -16,6 +16,8 @@ export interface EphemerisResult {
   accuracy_arcsec: number;
   source: 'astronomy-engine' | 'jpl-horizons' | 'cache';
   object_type: 'planet' | 'satellite' | 'asteroid';
+  sky_preview_url?: string;
+  aladin_url?: string;
 }
 
 @Injectable({

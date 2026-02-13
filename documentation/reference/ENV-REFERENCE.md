@@ -77,8 +77,8 @@ Complete reference of all environment variables used by Cosmic Horizons.
 
 | Variable | Type | Default | Required | Usage |
 |----------|------|---------|----------|-------|
-| `cosmic-horizons_API_BASE_URL` | string | `https://api.cosmic-horizons.org` | No | Cosmic Horizons data API base |
-| `cosmic-horizons_API_TIMEOUT` | number | `30000` | No | API timeout in milliseconds |
+| `COSMIC_HORIZONS_API_BASE_URL` | string | `https://api.cosmic-horizons.org` | No | Cosmic Horizons data API base |
+| `COSMIC_HORIZONS_API_TIMEOUT` | number | `30000` | No | API timeout in milliseconds |
 
 ## Examples
 
@@ -116,7 +116,7 @@ export DB_HOST=prod-database.example.com
 export DB_PASSWORD=<secure-password-from-vault>
 export JWT_SECRET=<32-char-minimum-from-vault>
 export SESSION_SECRET=<from-vault>
-export REDDIT_PASSWORD=<from-vault>
+export REDIS_PASSWORD=<from-vault>
 export FRONTEND_URL=https://cosmichorizons.org
 ```
 
