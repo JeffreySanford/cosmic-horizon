@@ -60,7 +60,7 @@ jobs:
           set -euo pipefail
           docker compose ps
           for i in {1..30}; do
-            if docker compose exec -T vlass-postgres pg_isready -U cosmic_horizons_user -d cosmic_horizons; then
+            if docker compose exec -T cosmic-horizons-postgres pg_isready -U cosmic_horizons_user -d cosmic_horizons; then
               echo "Postgres is ready"
               break
             fi
@@ -71,7 +71,7 @@ jobs:
             sleep 2
           done
           for i in {1..30}; do
-            if docker compose exec -T vlass-redis redis-cli -a cosmic_horizons_redis_dev --raw ping | grep -q PONG; then
+            if docker compose exec -T cosmic-horizons-redis redis-cli -a cosmic_horizons_redis_dev --raw ping | grep -q PONG; then
               echo "Redis is ready"
               break
             fi
