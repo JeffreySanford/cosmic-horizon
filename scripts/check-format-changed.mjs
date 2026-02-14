@@ -67,7 +67,9 @@ function collectChangedFiles() {
 const changedFiles = collectChangedFiles();
 
 if (changedFiles.length === 0) {
-  console.log('No changed Prettier-managed files found; skipping format check.');
+  console.log(
+    'No changed Prettier-managed files found; skipping format check.',
+  );
   process.exit(0);
 }
 

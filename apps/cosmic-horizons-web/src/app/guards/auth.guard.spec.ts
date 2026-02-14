@@ -30,10 +30,7 @@ describe('AuthGuard', () => {
     });
     guard = TestBed.inject(AuthGuard);
 
-    const result = guard.canActivate(
-      {} as never,
-      { url: '/landing' } as never,
-    );
+    const result = guard.canActivate({} as never, { url: '/landing' } as never);
 
     expect(result).toBe(true);
     expect(authSessionService.isAuthenticated).not.toHaveBeenCalled();
@@ -52,10 +49,7 @@ describe('AuthGuard', () => {
     });
     guard = TestBed.inject(AuthGuard);
 
-    const result = guard.canActivate(
-      {} as never,
-      { url: '/landing' } as never,
-    );
+    const result = guard.canActivate({} as never, { url: '/landing' } as never);
 
     expect(result).toBe(true);
     expect(router.navigate).not.toHaveBeenCalled();
@@ -73,10 +67,7 @@ describe('AuthGuard', () => {
     });
     guard = TestBed.inject(AuthGuard);
 
-    const result = guard.canActivate(
-      {} as never,
-      { url: '/landing' } as never,
-    );
+    const result = guard.canActivate({} as never, { url: '/landing' } as never);
 
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/auth/login'], {

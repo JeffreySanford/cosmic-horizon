@@ -112,7 +112,10 @@ describe('MessagingGateway', () => {
 
   it('accepts client with valid token and known user', async () => {
     jwtService.verify.mockReturnValue({ sub: 'user-1' });
-    authService.getCurrentUser.mockResolvedValue({ id: 'user-1', role: 'user' });
+    authService.getCurrentUser.mockResolvedValue({
+      id: 'user-1',
+      role: 'user',
+    });
 
     const disconnect = jest.fn();
     const client = {
@@ -137,7 +140,8 @@ describe('MessagingGateway', () => {
     );
     expect(authService.getCurrentUser).toHaveBeenCalledWith('user-1');
     expect(disconnect).not.toHaveBeenCalled();
-    expect((client as unknown as { data: Record<string, string> }).data['userId']).toBe('user-1');
+    expect(
+      (client as unknown as { data: Record<string, string> }).data['userId'],
+    ).toBe('user-1');
   });
 });
-

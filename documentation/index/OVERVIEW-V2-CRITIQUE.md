@@ -19,14 +19,14 @@ The MVP is demo-capable, but not yet operations-credible. The biggest risks are 
 ### P0
 
 1. WebSocket gateway was open and unauthenticated.  
-Status: RESOLVED
+   Status: RESOLVED
 
 - Current evidence: `apps/cosmic-horizons-api/src/app/messaging/messaging.gateway.ts` now enforces origin allowlist from `FRONTEND_URL`, token extraction, JWT verification, and user existence checks at connect time.
 - Validation: `apps/cosmic-horizons-api/src/app/messaging/messaging.gateway.spec.ts` covers disallowed origin, missing token, invalid token, and valid authenticated connection.
 - Residual risk: originless non-browser clients are still allowed by design in `isAllowedOrigin`; keep or tighten intentionally.
 
 2. Environment contract was fragmented and internally inconsistent (even for dev-only distribution).  
-Status: PARTIAL
+   Status: PARTIAL
 
 - Current evidence:
 - Shared loader introduced: `apps/cosmic-horizons-api/src/app/config/env-loader.ts`.
@@ -81,13 +81,13 @@ Status: PARTIAL
 ### P2
 
 8. Formatting gate is not enforced in CI scripts.  
-Status: PARTIAL
+   Status: PARTIAL
 
 - Current evidence: `package.json` now includes `format` and `format:check`, but quality/CI flow does not yet gate on `format:check`.
 - Impact: style drift remains possible until gate is added and baseline formatting debt is resolved.
 
 9. Documentation contract drift in `OVERVIEW-V2`.  
-Status: RESOLVED
+   Status: RESOLVED
 
 - Current evidence: stale links were updated to existing docs and docs-link checks pass.
 

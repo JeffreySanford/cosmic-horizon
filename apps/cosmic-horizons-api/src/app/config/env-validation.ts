@@ -21,7 +21,9 @@ type ValidationResult = {
   errors: string[];
 };
 
-function normalizeRawEnv(rawEnv: Record<string, unknown>): Record<string, string> {
+function normalizeRawEnv(
+  rawEnv: Record<string, unknown>,
+): Record<string, string> {
   const normalized: Record<string, string> = {};
   for (const [key, value] of Object.entries(rawEnv)) {
     if (value === undefined || value === null) {
@@ -49,12 +51,16 @@ function collectLegacyKeyViolations(
     LEGACY_KEY_REPLACEMENTS,
   )) {
     if (env[legacyKey]) {
-      errors.push(`Legacy env key ${legacyKey} is not supported; use ${canonicalKey}.`);
+      errors.push(
+        `Legacy env key ${legacyKey} is not supported; use ${canonicalKey}.`,
+      );
     }
   }
 }
 
-function collectValidationResult(rawEnv: Record<string, unknown>): ValidationResult {
+function collectValidationResult(
+  rawEnv: Record<string, unknown>,
+): ValidationResult {
   const errors: string[] = [];
   const env = normalizeRawEnv(rawEnv);
 
@@ -65,10 +71,14 @@ function collectValidationResult(rawEnv: Record<string, unknown>): ValidationRes
   env['API_PORT'] = env['API_PORT'] ?? '3000';
 
   if (!isValidPort(env['API_PORT'])) {
-    errors.push(`API_PORT must be an integer between 1 and 65535 (received: ${env['API_PORT']}).`);
+    errors.push(
+      `API_PORT must be an integer between 1 and 65535 (received: ${env['API_PORT']}).`,
+    );
   }
   if (env['DB_PORT'] && !isValidPort(env['DB_PORT'])) {
-    errors.push(`DB_PORT must be an integer between 1 and 65535 (received: ${env['DB_PORT']}).`);
+    errors.push(
+      `DB_PORT must be an integer between 1 and 65535 (received: ${env['DB_PORT']}).`,
+    );
   }
   if (env['REDIS_PORT'] && !isValidPort(env['REDIS_PORT'])) {
     errors.push(
@@ -100,7 +110,9 @@ function collectValidationResult(rawEnv: Record<string, unknown>): ValidationRes
 
     const sessionSecret = env['SESSION_SECRET'];
     if (sessionSecret && sessionSecret.length < 32) {
-      errors.push('SESSION_SECRET must be at least 32 characters in production.');
+      errors.push(
+        'SESSION_SECRET must be at least 32 characters in production.',
+      );
     }
   }
 
@@ -110,17 +122,23 @@ function collectValidationResult(rawEnv: Record<string, unknown>): ValidationRes
   };
 }
 
-export function validateEnvironment(rawEnv: Record<string, unknown>): Record<string, string> {
+export function validateEnvironment(
+  rawEnv: Record<string, unknown>,
+): Record<string, string> {
   const result = collectValidationResult(rawEnv);
 
   if (result.errors.length > 0) {
-    throw new Error(`Environment validation failed:\n- ${result.errors.join('\n- ')}`);
+    throw new Error(
+      `Environment validation failed:\n- ${result.errors.join('\n- ')}`,
+    );
   }
 
   return result.env;
 }
 
-export function validateAndAssignEnvironment(rawEnv: Record<string, unknown> = process.env): void {
+export function validateAndAssignEnvironment(
+  rawEnv: Record<string, unknown> = process.env,
+): void {
   const validated = validateEnvironment(rawEnv);
   for (const [key, value] of Object.entries(validated)) {
     process.env[key] = value;

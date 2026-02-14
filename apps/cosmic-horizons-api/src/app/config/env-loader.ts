@@ -34,7 +34,10 @@ export function loadEnvFromFirstAvailable(): string | null {
       continue;
     }
     const key = line.slice(0, separator).trim();
-    const value = line.slice(separator + 1).trim().replace(/^['"]|['"]$/g, '');
+    const value = line
+      .slice(separator + 1)
+      .trim()
+      .replace(/^['"]|['"]$/g, '');
     if (process.env[key] === undefined) {
       process.env[key] = value;
     }
@@ -43,4 +46,3 @@ export function loadEnvFromFirstAvailable(): string | null {
   loaded = true;
   return envPath;
 }
-

@@ -40,7 +40,9 @@ function loadFirstEnvFile() {
 
 function envValue(key, fallback) {
   const value = process.env[key];
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : fallback;
+  return typeof value === 'string' && value.trim().length > 0
+    ? value.trim()
+    : fallback;
 }
 
 function isAuthFailure(message) {
@@ -96,7 +98,9 @@ async function main() {
       'Or align apps/cosmic-horizons-api/.env.local with docker-compose DB_* values.',
     ].filter(Boolean);
 
-    console.error('Preflight failed: database connectivity check failed before starting API.');
+    console.error(
+      'Preflight failed: database connectivity check failed before starting API.',
+    );
     console.error(`Reason: ${message}`);
     for (const hint of hints) {
       console.error(`- ${hint}`);
@@ -106,4 +110,3 @@ async function main() {
 }
 
 void main();
-
