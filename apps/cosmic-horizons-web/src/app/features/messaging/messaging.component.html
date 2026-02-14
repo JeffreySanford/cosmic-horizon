@@ -12,11 +12,27 @@
       </div>
       <div class="stat-item">
         <span class="label">Active:</span>
-        <span class="value active">{{ elements.length }}</span>
+        <span class="value active">{{ getActiveElementCount() }}</span>
       </div>
       <div class="stat-item">
         <span class="label">Messaging:</span>
-        <span class="value msg-ok">RabbitMQ + Kafka Active</span>
+        <span class="value msg-ok">{{ getMessagingStatusLabel() }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Tx/sec:</span>
+        <span class="value">{{ liveStats?.packetsPerSecond ?? 0 }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Node→Hub:</span>
+        <span class="value">{{ liveStats?.nodeToHubPerSecond ?? 0 }}/s</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Hub→Hub:</span>
+        <span class="value">{{ liveStats?.hubToHubPerSecond ?? 0 }}/s</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Queue Depth:</span>
+        <span class="value">{{ liveStats?.infra?.rabbitmq?.queueDepth ?? 0 }}</span>
       </div>
     </div>
   </div>

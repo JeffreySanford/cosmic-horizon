@@ -5,10 +5,12 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { MessagingService } from './messaging.service';
-import { Logger } from '@nestjs/common';
-import { sampleTime } from 'rxjs';
+import { MessagingMonitorService } from './messaging-monitor.service';
+import { MessagingStatsService } from './messaging-stats.service';
+import { Logger, OnModuleDestroy } from '@nestjs/common';
+import { Subscription, interval } from 'rxjs';
 
 @WebSocketGateway({
   cors: {
@@ -17,28 +19,45 @@ import { sampleTime } from 'rxjs';
   namespace: 'messaging',
 })
 export class MessagingGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy
 {
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('MessagingGateway');
+  private telemetrySubscription?: Subscription;
+  private statsSubscription?: Subscription;
 
-  constructor(private readonly messagingService: MessagingService) {}
+  constructor(
+    private readonly messagingService: MessagingService,
+    private readonly monitorService: MessagingMonitorService,
+    private readonly statsService: MessagingStatsService,
+  ) {}
 
-  afterInit(server: Server) {
+  afterInit() {
     this.logger.log('Messaging WebSocket Gateway Initialized');
-    
-    // Subscribe to telemetry and broadcast to all connected clients
-    // Downsample to 30fps (33ms) to avoid overwhelming the frontend
-    this.messagingService.telemetry$.pipe(sampleTime(33)).subscribe((packet) => {
+
+    // Broadcast every transaction to keep the visual flow faithful to real traffic.
+    this.telemetrySubscription = this.messagingService.telemetry$.subscribe((packet) => {
       this.server.emit('telemetry_update', packet);
+    });
+
+    this.statsSubscription = interval(1000).subscribe(() => {
+      this.server.emit(
+        'stats_update',
+        this.statsService.getSnapshot(this.monitorService.getSnapshot()),
+      );
     });
   }
 
-  handleConnection(client: any, ...args: any[]) {
+  handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: any) {
+  handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
+  }
+
+  onModuleDestroy() {
+    this.telemetrySubscription?.unsubscribe();
+    this.statsSubscription?.unsubscribe();
   }
 }

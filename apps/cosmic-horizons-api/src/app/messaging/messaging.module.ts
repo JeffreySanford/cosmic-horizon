@@ -3,15 +3,19 @@ import { MessagingService } from './messaging.service';
 import { MessagingController } from './messaging.controller';
 import { MessagingIntegrationService } from './messaging-integration.service';
 import { MessagingGateway } from './messaging.gateway';
+import { MessagingMonitorService } from './messaging-monitor.service';
+import { MessagingStatsService } from './messaging-stats.service';
 
 @Module({
   imports: [],
-  providers: [MessagingService, MessagingIntegrationService],
+  providers: [
+    MessagingService,
+    MessagingStatsService,
+    MessagingMonitorService,
+    MessagingIntegrationService,
+    MessagingGateway,
+  ],
   controllers: [MessagingController],
   exports: [MessagingService],
 })
 export class MessagingModule {}
-
-// Export the gateway and integration service separately for manual lazy loading if needed
-export { MessagingGateway } from './messaging.gateway';
-export { MessagingIntegrationService } from './messaging-integration.service';

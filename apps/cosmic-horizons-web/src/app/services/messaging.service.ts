@@ -32,6 +32,9 @@ export interface ArraySite {
 }
 
 export interface TelemetryPacket {
+  sourceId: string;
+  targetId: string;
+  routeType: 'node_to_hub' | 'hub_to_hub';
   elementId: string;
   siteId: string;
   timestamp: string;
@@ -43,6 +46,49 @@ export interface TelemetryPacket {
   };
 }
 
+export interface MessagingLiveStats {
+  at: string;
+  packetsPerSecond: number;
+  nodeToHubPerSecond: number;
+  hubToHubPerSecond: number;
+  rabbitPublishedPerSecond: number;
+  kafkaPublishedPerSecond: number;
+  persistentWritesPerSecond: number;
+  totals: {
+    packets: number;
+    nodeToHub: number;
+    hubToHub: number;
+    rabbitPublished: number;
+    kafkaPublished: number;
+    persistentWrites: number;
+    errors: number;
+  };
+  infra: {
+    rabbitmq: {
+      connected: boolean;
+      latencyMs: number | null;
+      queueDepth: number | null;
+      consumers: number | null;
+    };
+    kafka: {
+      connected: boolean;
+      latencyMs: number | null;
+      latestOffset: number | null;
+      partitions: number | null;
+    };
+    storage: {
+      postgres: {
+        connected: boolean;
+        latencyMs: number | null;
+      };
+      redis: {
+        connected: boolean;
+        latencyMs: number | null;
+      };
+    };
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -50,6 +96,7 @@ export class MessagingService {
   private apiUrl = 'http://localhost:3000/api/messaging';
   private socket: Socket;
   private telemetrySubject = new Subject<TelemetryPacket>();
+  private statsSubject = new Subject<MessagingLiveStats>();
   private readonly http = inject(HttpClient);
   private readonly logger = inject(AppLoggerService);
 
@@ -71,10 +118,18 @@ export class MessagingService {
     this.socket.on('telemetry_update', (data: TelemetryPacket) => {
       this.telemetrySubject.next(data);
     });
+
+    this.socket.on('stats_update', (stats: MessagingLiveStats) => {
+      this.statsSubject.next(stats);
+    });
   }
 
   get telemetry$(): Observable<TelemetryPacket> {
     return this.telemetrySubject.asObservable();
+  }
+
+  get stats$(): Observable<MessagingLiveStats> {
+    return this.statsSubject.asObservable();
   }
 
   getSites(): Observable<ArraySite[]> {
@@ -87,5 +142,9 @@ export class MessagingService {
 
   getElementsBySite(siteId: string): Observable<ArrayElementStatus[]> {
     return this.http.get<ArrayElementStatus[]>(`${this.apiUrl}/sites/${siteId}/elements`);
+  }
+
+  getLiveStats(): Observable<MessagingLiveStats> {
+    return this.http.get<MessagingLiveStats>(`${this.apiUrl}/stats`);
   }
 }

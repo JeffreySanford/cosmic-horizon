@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { interval, Observable, Subject, Subscription } from 'rxjs';
 import { ArraySite, ArrayElementStatus, TelemetryPacket } from './messaging.types';
 import { LoggingService } from '../logging/logging.service';
+import { MessagingStatsService } from './messaging-stats.service';
 
 @Injectable()
 export class MessagingService implements OnModuleInit, OnModuleDestroy {
@@ -20,7 +21,10 @@ export class MessagingService implements OnModuleInit, OnModuleDestroy {
 
   private elements: ArrayElementStatus[] = [];
 
-  constructor(private readonly loggingService: LoggingService) {
+  constructor(
+    private readonly loggingService: LoggingService,
+    private readonly statsService: MessagingStatsService,
+  ) {
     this.initializeElements();
   }
 
@@ -90,6 +94,9 @@ export class MessagingService implements OnModuleInit, OnModuleDestroy {
           element.lastUpdate = new Date().toISOString();
 
           const telemetry: TelemetryPacket = {
+            sourceId: element.id,
+            targetId: element.siteId,
+            routeType: 'node_to_hub',
             elementId: element.id,
             siteId: element.siteId,
             timestamp: element.lastUpdate,
@@ -101,34 +108,53 @@ export class MessagingService implements OnModuleInit, OnModuleDestroy {
             },
           };
 
+          this.statsService.recordPacket(telemetry);
           this.telemetrySubject.next(telemetry);
         }, delay);
       });
 
-      // Inter-site telemetry - much more frequent (40% of cycles, 2-3 random routes per cycle)
-      const interSiteCount = Math.random() < 0.4 ? (2 + Math.floor(Math.random() * 2)) : 0;
-      for (let i = 0; i < interSiteCount; i++) {
-        setTimeout(() => {
-          const sourceSite = this.sites[Math.floor(Math.random() * this.sites.length)];
-          const otherSites = this.sites.filter(s => s.id !== sourceSite.id);
-          const targetSite = otherSites[Math.floor(Math.random() * otherSites.length)];
-
-          const interSiteTelemetry: TelemetryPacket = {
-            elementId: `inter-site-${sourceSite.id}`,
-            siteId: targetSite.id,
-            timestamp: new Date().toISOString(),
-            metrics: {
-              vibration: Math.random() * 0.05,
-              powerUsage: 1000 + Math.random() * 100,
-              noiseFloor: -105 + Math.random() * 5,
-              rfiLevel: Math.random() * 5,
-            },
-          };
-
-          this.telemetrySubject.next(interSiteTelemetry);
-        }, 25 + i * 15); // Stagger inter-site emissions starting at 25ms
-      }
+      this.emitHubTraffic();
     });
+  }
+
+  private emitHubTraffic(): void {
+    const remoteSites = this.sites.filter((site) => site.id !== this.centralSiteId);
+
+    // Every cycle each remote hub reports to the central hub.
+    remoteSites.forEach((site, index) => {
+      setTimeout(() => {
+        const packet = this.createHubPacket(site.id, this.centralSiteId);
+        this.statsService.recordPacket(packet);
+        this.telemetrySubject.next(packet);
+      }, 10 + index * 6);
+    });
+
+    // Every cycle central hub dispatches to one random remote hub.
+    const randomRemote = remoteSites[Math.floor(Math.random() * remoteSites.length)];
+    if (randomRemote) {
+      setTimeout(() => {
+        const packet = this.createHubPacket(this.centralSiteId, randomRemote.id);
+        this.statsService.recordPacket(packet);
+        this.telemetrySubject.next(packet);
+      }, 45);
+    }
+  }
+
+  private createHubPacket(sourceSiteId: string, targetSiteId: string): TelemetryPacket {
+    return {
+      sourceId: sourceSiteId,
+      targetId: targetSiteId,
+      routeType: 'hub_to_hub',
+      elementId: `hub-${sourceSiteId}`,
+      siteId: targetSiteId,
+      timestamp: new Date().toISOString(),
+      metrics: {
+        vibration: Math.random() * 0.05,
+        powerUsage: 1000 + Math.random() * 100,
+        noiseFloor: -105 + Math.random() * 5,
+        rfiLevel: Math.random() * 5,
+      },
+    };
   }
 
   get telemetry$(): Observable<TelemetryPacket> {

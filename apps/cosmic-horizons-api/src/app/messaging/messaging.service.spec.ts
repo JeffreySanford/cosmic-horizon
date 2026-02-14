@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { take } from 'rxjs';
 import { MessagingService } from './messaging.service';
 import { LoggingService } from '../logging/logging.service';
+import { MessagingStatsService } from './messaging-stats.service';
 
 describe('MessagingService', () => {
   let service: MessagingService;
@@ -14,6 +15,12 @@ describe('MessagingService', () => {
           provide: LoggingService,
           useValue: {
             add: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: MessagingStatsService,
+          useValue: {
+            recordPacket: jest.fn(),
           },
         },
       ],
@@ -54,6 +61,8 @@ describe('MessagingService', () => {
       take(1)
     ).subscribe(packet => {
       expect(packet.elementId).toBeDefined();
+      expect(packet.sourceId).toBeDefined();
+      expect(packet.targetId).toBeDefined();
       expect(packet.metrics).toBeDefined();
       done();
     });

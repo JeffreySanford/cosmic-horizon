@@ -20,7 +20,59 @@ describe('MessagingComponent', () => {
       getAllElements: vi.fn(() => of([
         { id: 'VLA-1', siteId: 'site-1', status: 'operational' }
       ])),
-      telemetry$: telemetrySubject.asObservable()
+      telemetry$: telemetrySubject.asObservable(),
+      stats$: of({
+        at: new Date().toISOString(),
+        packetsPerSecond: 1,
+        nodeToHubPerSecond: 1,
+        hubToHubPerSecond: 0,
+        rabbitPublishedPerSecond: 1,
+        kafkaPublishedPerSecond: 1,
+        persistentWritesPerSecond: 0,
+        totals: {
+          packets: 1,
+          nodeToHub: 1,
+          hubToHub: 0,
+          rabbitPublished: 1,
+          kafkaPublished: 1,
+          persistentWrites: 0,
+          errors: 0,
+        },
+        infra: {
+          rabbitmq: { connected: true, latencyMs: 1, queueDepth: 0, consumers: 1 },
+          kafka: { connected: true, latencyMs: 1, latestOffset: 1, partitions: 1 },
+          storage: {
+            postgres: { connected: true, latencyMs: 1 },
+            redis: { connected: true, latencyMs: 1 },
+          },
+        },
+      }),
+      getLiveStats: vi.fn(() => of({
+        at: new Date().toISOString(),
+        packetsPerSecond: 1,
+        nodeToHubPerSecond: 1,
+        hubToHubPerSecond: 0,
+        rabbitPublishedPerSecond: 1,
+        kafkaPublishedPerSecond: 1,
+        persistentWritesPerSecond: 0,
+        totals: {
+          packets: 1,
+          nodeToHub: 1,
+          hubToHub: 0,
+          rabbitPublished: 1,
+          kafkaPublished: 1,
+          persistentWrites: 0,
+          errors: 0,
+        },
+        infra: {
+          rabbitmq: { connected: true, latencyMs: 1, queueDepth: 0, consumers: 1 },
+          kafka: { connected: true, latencyMs: 1, latestOffset: 1, partitions: 1 },
+          storage: {
+            postgres: { connected: true, latencyMs: 1 },
+            redis: { connected: true, latencyMs: 1 },
+          },
+        },
+      })),
     };
 
     await TestBed.configureTestingModule({
@@ -53,6 +105,9 @@ describe('MessagingComponent', () => {
 
   it('should handle incoming telemetry', async () => {
     telemetrySubject.next({
+      sourceId: 'VLA-1',
+      targetId: 'site-1',
+      routeType: 'node_to_hub',
       elementId: 'VLA-1',
       siteId: 'site-1',
       metrics: { strength: 0.9 },

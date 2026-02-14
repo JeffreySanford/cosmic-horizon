@@ -3,6 +3,7 @@ import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservice
 import { ConfigService } from '@nestjs/config';
 import { MessagingService } from './messaging.service';
 import { LoggingService } from '../logging/logging.service';
+import { MessagingStatsService } from './messaging-stats.service';
 import { Subscription, delay } from 'rxjs';
 import { Kafka, Partitioners } from 'kafkajs';
 
@@ -16,6 +17,7 @@ export class MessagingIntegrationService implements OnModuleInit, OnModuleDestro
   constructor(
     private readonly configService: ConfigService,
     private readonly messagingService: MessagingService,
+    private readonly statsService: MessagingStatsService,
     @Optional() private readonly loggingService?: LoggingService,
   ) {
     // Defer client initialization to onModuleInit to avoid early dependency issues
@@ -69,13 +71,15 @@ export class MessagingIntegrationService implements OnModuleInit, OnModuleDestro
     try {
       await this.rabbitClient.connect();
       this.logger.log('Connected to RabbitMQ');
-      this.loggingService?.add({
+      await this.loggingService?.add({
         type: 'system',
         severity: 'info',
         message: 'MessagingIntegrationService connected to RabbitMQ',
       });
+      this.statsService.recordPersistentWrite();
     } catch (err) {
       this.logger.error('Failed to connect to RabbitMQ', err);
+      this.statsService.recordError();
     }
 
     // Explicitly create topics using Admin client to prevent metadata race conditions
@@ -100,6 +104,7 @@ export class MessagingIntegrationService implements OnModuleInit, OnModuleDestro
       await admin.disconnect();
     } catch (err) {
       this.logger.warn('Could not ensure Kafka topics via Admin client: ' + (err as Error).message);
+      this.statsService.recordError();
     }
 
     // Give Kafka broker more time to settle internal metadata after healthcheck
@@ -108,18 +113,21 @@ export class MessagingIntegrationService implements OnModuleInit, OnModuleDestro
     try {
       await this.kafkaClient.connect();
       this.logger.log('Connected to Kafka');
-      this.loggingService?.add({
+      await this.loggingService?.add({
         type: 'system',
         severity: 'info',
         message: 'MessagingIntegrationService connected to Kafka',
       });
+      this.statsService.recordPersistentWrite();
     } catch (err) {
       this.logger.error('Failed to connect to Kafka', err);
-      this.loggingService?.add({
+      await this.loggingService?.add({
         type: 'system',
         severity: 'error',
         message: `Failed to connect to Kafka: ${(err as Error).message}`,
       });
+      this.statsService.recordPersistentWrite();
+      this.statsService.recordError();
     }
 
     // Subscribe to telemetry and push to brokers
@@ -130,8 +138,12 @@ export class MessagingIntegrationService implements OnModuleInit, OnModuleDestro
       next: (packet) => {
         // Push to RabbitMQ (Management/Telemetry Plane)
         this.rabbitClient.emit('element.telemetry', packet).subscribe({
-          error: (err) => this.logger.error('RabbitMQ emit error', err)
+          error: (err) => {
+            this.statsService.recordError();
+            this.logger.error('RabbitMQ emit error', err);
+          }
         });
+        this.statsService.recordRabbitPublished();
         
         // Every packet also goes to Kafka (Data Plane simulation)
         try {
@@ -143,14 +155,20 @@ export class MessagingIntegrationService implements OnModuleInit, OnModuleDestro
               if (err.message?.includes('Metadata')) {
                 return;
               }
+              this.statsService.recordError();
               this.logger.error('Kafka emit error', err);
             }
           });
+          this.statsService.recordKafkaPublished();
         } catch (err) {
+          this.statsService.recordError();
           this.logger.error('Kafka emit synchronous error', err);
         }
       },
-      error: (err) => this.logger.error('Telemetry subscription error', err)
+      error: (err) => {
+        this.statsService.recordError();
+        this.logger.error('Telemetry subscription error', err);
+      }
     });
   }
 

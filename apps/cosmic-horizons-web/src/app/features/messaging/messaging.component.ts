@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild, OnDestroy, AfterViewInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { ArraySite, ArrayElementStatus, MessagingService } from '../../services/messaging.service';
+import { ArraySite, ArrayElementStatus, MessagingLiveStats, MessagingService, TelemetryPacket } from '../../services/messaging.service';
 import * as d3 from 'd3';
 import { Subscription, take } from 'rxjs';
 
@@ -17,6 +17,7 @@ export class MessagingComponent implements OnInit, AfterViewInit, OnDestroy {
   elements: ArrayElementStatus[] = [];
   siteOperationalCounts: Map<string, number> = new Map(); // Track operational elements per site
   siteOfflineCounts: Map<string, number> = new Map(); // Track offline elements per site
+  liveStats: MessagingLiveStats | null = null;
   
   private sitesLoaded = false;
   private elementsLoaded = false;
@@ -37,16 +38,10 @@ export class MessagingComponent implements OnInit, AfterViewInit, OnDestroy {
     // Listens for live telemetry updates at 10Hz
     this.subscription.add(
       this.messagingService.telemetry$.subscribe(update => {
-        // Check if this is inter-site telemetry (elementId starts with 'inter-site-')
-        const isInterSite = update.elementId.startsWith('inter-site-');
-        
-        if (isInterSite) {
-          // Extract source site from elementId: 'inter-site-site-1' -> 'site-1'
-          const sourceSiteId = update.elementId.replace('inter-site-', '');
-          this.animateParticle(sourceSiteId, update.siteId, true);
+        if (update.routeType === 'hub_to_hub') {
+          this.animatePacket(update);
           this.updateChartDataOnly();
         } else {
-          // Regular element-to-site telemetry
           const element = this.elements.find(r => r.id === update.elementId);
           if (element) {
             const previousStatus = element.status;
@@ -60,10 +55,24 @@ export class MessagingComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             
             this.updateChartDataOnly();
-            this.animateParticle(update.elementId, update.siteId, false);
+            this.animatePacket(update);
           }
         }
       })
+    );
+
+    this.subscription.add(
+      this.messagingService.stats$.subscribe((stats) => {
+        this.liveStats = stats;
+        this.cdr.markForCheck();
+      }),
+    );
+
+    this.subscription.add(
+      this.messagingService.getLiveStats().pipe(take(1)).subscribe((stats) => {
+        this.liveStats = stats;
+        this.cdr.markForCheck();
+      }),
     );
   }
 
@@ -88,13 +97,31 @@ export class MessagingComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.elements.filter(e => e.siteId === siteId).length;
   }
 
-  private animateParticle(elementId: string, siteId: string, isInterSite = false) {
+  getActiveElementCount(): number {
+    return this.elements.filter((element) => element.status === 'operational').length;
+  }
+
+  getMessagingStatusLabel(): string {
+    if (!this.liveStats) {
+      return 'Collecting transport stats...';
+    }
+
+    const rabbit = this.liveStats.infra.rabbitmq.connected ? 'RabbitMQ up' : 'RabbitMQ down';
+    const kafka = this.liveStats.infra.kafka.connected ? 'Kafka up' : 'Kafka down';
+    return `${rabbit} | ${kafka}`;
+  }
+
+  private animatePacket(packet: TelemetryPacket) {
+    this.animateParticle(packet.sourceId, packet.targetId, packet.routeType === 'hub_to_hub');
+  }
+
+  private animateParticle(sourceId: string, targetId: string, isInterSite = false) {
     if (!this.svg) return;
 
     // Find nodes by ID
     const nodes = this.svg.selectAll('.node').data();
-    const sourceNode: any = nodes.find((n: any) => n.id === elementId);
-    const targetNode: any = nodes.find((n: any) => n.id === siteId);
+    const sourceNode: any = nodes.find((n: any) => n.id === sourceId);
+    const targetNode: any = nodes.find((n: any) => n.id === targetId);
 
     if (!sourceNode || !targetNode) return;
 
@@ -235,19 +262,21 @@ export class MessagingComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Element-to-site links
     const elementLinks = this.elements.map(r => ({
-      source: r.siteId,
-      target: r.id,
+      source: r.id,
+      target: r.siteId,
       linkType: 'element'
     }));
 
-    // Site-to-site links (hub-and-spoke from central site)
-    const siteLinks = this.sites
-      .filter(s => s.id !== this.centralSiteId)
-      .map(s => ({
-        source: this.centralSiteId,
-        target: s.id,
-        linkType: 'site'
-      }));
+    // Site-to-site links (full mesh for hub-to-hub visibility)
+    const siteLinks = this.sites.flatMap((sourceSite, sourceIndex) =>
+      this.sites
+        .slice(sourceIndex + 1)
+        .map((targetSite) => ({
+          source: sourceSite.id,
+          target: targetSite.id,
+          linkType: 'site',
+        })),
+    );
 
     const links = [...elementLinks, ...siteLinks];
 
