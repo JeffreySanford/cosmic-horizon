@@ -13,11 +13,12 @@ import { CommentsModule } from './comments/comments.module';
 import { ProfileModule } from './profile/profile.module';
 import { CacheModule } from './cache/cache.module';
 import { JobsModule } from './jobs/jobs.module';
+import { LoggingModule } from './logging/logging.module';
+import { MessagingModule } from './messaging/messaging.module';
 import { RateLimitGuard } from './guards/rate-limit.guard';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RequestLoggerInterceptor } from './interceptors/request-logger.interceptor';
 import { AdminLogsController } from './controllers/admin-logs.controller';
-import { LoggingModule } from './logging/logging.module';
 
 const envCandidates = [
   resolve(process.cwd(), '.env.local'),
@@ -43,6 +44,7 @@ const envCandidates = [
     ProfileModule,
     CacheModule,
     LoggingModule,
+    MessagingModule,
     JobsModule,
   ],
   controllers: [AppController, AdminLogsController],

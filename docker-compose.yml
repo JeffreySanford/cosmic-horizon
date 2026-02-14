@@ -42,10 +42,71 @@ services:
       - cosmic-horizons-network
     restart: unless-stopped
 
+  cosmic-horizons-rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: cosmic-horizons-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    ports:
+      - "127.0.0.1:${RABBITMQ_PORT:-5672}:5672"
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - cosmic-horizons-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cosmic-horizons-network
+    restart: unless-stopped
+
+  cosmic-horizons-kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: cosmic-horizons-kafka
+    depends_on:
+      - cosmic-horizons-zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: cosmic-horizons-zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cosmic-horizons-kafka:29092,PLAINTEXT_HOST://127.0.0.1:${KAFKA_PORT:-9092}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    ports:
+      - "127.0.0.1:${KAFKA_PORT:-9092}:9092"
+    volumes:
+      - cosmic-horizons-kafka-data:/var/lib/kafka/data
+    networks:
+      - cosmic-horizons-network
+    restart: unless-stopped
+
+  cosmic-horizons-zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: cosmic-horizons-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "127.0.0.1:2181:2181"
+    volumes:
+      - cosmic-horizons-zookeeper-data:/var/lib/zookeeper/data
+    networks:
+      - cosmic-horizons-network
+    restart: unless-stopped
+
 volumes:
   cosmic-horizons-postgres-data:
     driver: local
   cosmic-horizons-redis-data:
+    driver: local
+  cosmic-horizons-rabbitmq-data:
+    driver: local
+  cosmic-horizons-kafka-data:
+    driver: local
+  cosmic-horizons-zookeeper-data:
     driver: local
 
 networks:

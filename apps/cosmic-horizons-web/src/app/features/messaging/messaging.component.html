@@ -1,0 +1,61 @@
+<div class="messaging-container">
+  <div class="header">
+    <h1>ngVLA Array Topology: Information Map</h1>
+    <div class="stats">
+      <div class="stat-item">
+        <span class="label">Sites:</span>
+        <span class="value">{{ sites.length }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Total Elements:</span>
+        <span class="value">{{ elements.length }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Active:</span>
+        <span class="value active">{{ elements.length }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Messaging:</span>
+        <span class="value msg-ok">RabbitMQ + Kafka Active</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <div #chartContainer class="chart-container">
+      <!-- D3 SVG will be injected here -->
+    </div>
+    
+    <div class="sidebar">
+      <h2>Remote Sites</h2>
+      <div class="site-list">
+        @for (site of sites; track site.id) {
+          <div class="site-card">
+            <div class="site-header">
+              <span class="site-name">{{ site.name }}</span>
+              <span class="cluster-badge" [class]="site.cluster">{{ site.cluster }}</span>
+            </div>
+            <div class="site-details">
+              <div class="detail">
+                <span>Data Rate:</span>
+                <span class="rate">{{ site.totalDataRateGbps | number:'1.2-2' }} Gbps</span>
+              </div>
+              <div class="detail">
+                <span>Status:</span>
+                <span class="status-text">
+                  {{ getSiteOperationalCount(site.id) }}/{{ getSiteTotalCount(site.id) }} Operational
+                </span>
+              </div>
+              @if (getSiteOfflineCount(site.id) > 0) {
+                <div class="detail">
+                  <span>Offline:</span>
+                  <span class="status-offline">{{ getSiteOfflineCount(site.id) }} elements</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

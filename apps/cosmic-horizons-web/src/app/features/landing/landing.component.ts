@@ -51,6 +51,11 @@ export class LandingComponent implements OnInit, OnDestroy {
       title: 'Community Research Notebook',
       route: '/posts',
     },
+    {
+      icon: 'hub',
+      title: 'Array Telemetry Network',
+      route: '/array-telemetry',
+    },
   ];
   routeLinks: LandingRouteLink[] = [
     {

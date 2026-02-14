@@ -67,6 +67,12 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'array-telemetry',
+    loadChildren: () =>
+      import('./features/messaging/messaging.module').then((m) => m.MessagingModule),
+    canActivate: [AuthGuard],
+  },
+  {
     path: '**',
     redirectTo: 'landing',
   },

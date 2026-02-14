@@ -1084,9 +1084,74 @@
         ]
       }
     },
+    "/api/messaging/sites": {
+      "get": {
+        "operationId": "MessagingController_getSites",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
+    "/api/messaging/elements": {
+      "get": {
+        "operationId": "MessagingController_getAllElements",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
+    "/api/messaging/sites/{siteId}/elements": {
+      "get": {
+        "operationId": "MessagingController_getElementsBySite",
+        "parameters": [
+          {
+            "name": "siteId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
     "/api/jobs/submit": {
       "post": {
         "operationId": "JobsController_submitJob",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/submit-batch": {
+      "post": {
+        "operationId": "JobsController_submitBatch",
         "parameters": [],
         "responses": {
           "201": {
@@ -1143,11 +1208,178 @@
           "Jobs"
         ]
       }
+    },
+    "/api/jobs/history/list": {
+      "get": {
+        "operationId": "JobsController_getJobHistory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/search": {
+      "get": {
+        "operationId": "JobsController_searchJobs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/optimize": {
+      "post": {
+        "operationId": "JobsController_getOptimizationTips",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/metrics": {
+      "get": {
+        "operationId": "JobsController_getResourceMetrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/resources/available": {
+      "get": {
+        "operationId": "JobsController_getAvailableResources",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/dataset/stage": {
+      "post": {
+        "operationId": "JobsController_stageDataset",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/dataset/{id}/staging-status": {
+      "get": {
+        "operationId": "JobsController_getStagingStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/dataset/{id}/validate": {
+      "get": {
+        "operationId": "JobsController_validateDataset",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/dataset/{id}/optimize": {
+      "get": {
+        "operationId": "JobsController_optimizeDataset",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/api/jobs/dataset/estimate-transfer": {
+      "post": {
+        "operationId": "JobsController_estimateTransferTime",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
     }
   },
   "info": {
-    "title": "Cosmic Horizons API",
-    "description": "Independent VLASS public-data browsing and community API (not affiliated with VLA/NRAO).",
+    "title": "Cosmic Horizon API",
+    "description": "Independent radio astronomy browsing and community API, supporting ngVLA workflows and CosmicAI docking (not affiliated with VLA/NRAO).",
     "version": "1.0.0",
     "contact": {}
   },

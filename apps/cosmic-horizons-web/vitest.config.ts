@@ -7,8 +7,8 @@ if (typeof globalThis !== 'undefined' && globalThis.navigator) {
         writable: true,
         configurable: true,
       });
-    } catch (e) {
-      (globalThis.navigator as any).platform = 'Linux x86_64';
+    } catch {
+      (globalThis.navigator as { platform?: string }).platform = 'Linux x86_64';
     }
   }
 }
@@ -25,5 +25,4 @@ export default defineConfig({
     setupFiles: [setupFile],
   },
 });
-
 
