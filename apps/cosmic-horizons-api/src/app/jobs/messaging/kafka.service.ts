@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class KafkaService {
   private readonly logger = new Logger(KafkaService.name);
-  private admin: any;
+  private admin: { connected: boolean } | null = null;
   private brokers: string[] = [];
 
   constructor(private configService: ConfigService) {}
@@ -26,12 +26,12 @@ export class KafkaService {
     this.logger.debug(`Kafka topic ${name} created`);
   }
 
-  async produce(topic: string, messages: any[]): Promise<void> {
+  async produce(topic: string, messages: Array<Record<string, unknown>>): Promise<void> {
     this.logger.debug(`Kafka produced ${messages.length} messages to ${topic}`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  async consume(groupId: string, callback: Function): Promise<void> {
+  async consume(groupId: string, callback: () => void): Promise<void> {
+    void callback;
     this.logger.debug(`Kafka consumer group ${groupId} started`);
   }
 
@@ -39,12 +39,11 @@ export class KafkaService {
     return !!this.admin;
   }
 
-  async getConsumerGroupMetadata(groupId: string): Promise<any> {
+  async getConsumerGroupMetadata(groupId: string): Promise<{ groupId: string; state: string; members: number }> {
     return { groupId, state: 'Stable', members: 1 };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getMetrics(): any {
+  getMetrics(): { connected: boolean; brokers: number; throughput: number } {
     return {
       connected: this.isConnected(),
       brokers: this.brokers.length,

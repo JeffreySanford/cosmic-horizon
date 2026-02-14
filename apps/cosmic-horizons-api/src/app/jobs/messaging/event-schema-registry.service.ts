@@ -24,7 +24,7 @@ export interface SchemaField {
   required: boolean;
   description?: string;
   enum?: string[] | number[];
-  default?: any;
+  default?: unknown;
 }
 
 export interface ValidationError {
@@ -108,7 +108,16 @@ export class EventSchemaRegistry {
     // Return latest version
     const versions = Array.from(registration.versions.keys()).sort(this.compareVersions);
     const latestVersion = versions[versions.length - 1];
-    return registration.versions.get(latestVersion)!;
+    if (!latestVersion) {
+      throw new BadRequestException(`No schema versions registered for event type: ${eventType}`);
+    }
+
+    const latestSchema = registration.versions.get(latestVersion);
+    if (!latestSchema) {
+      throw new BadRequestException(`Schema version ${latestVersion} not found for ${eventType}`);
+    }
+
+    return latestSchema;
   }
 
   /**
@@ -116,7 +125,7 @@ export class EventSchemaRegistry {
    */
   validateEvent(
     eventType: string,
-    event: any,
+    event: Record<string, unknown>,
     version?: string
   ): ValidationError[] {
     try {
@@ -150,7 +159,7 @@ export class EventSchemaRegistry {
         }
 
         // Enum validation
-        if (field.enum && Array.isArray(field.enum) && !(field.enum as any[]).includes(value)) {
+        if (field.enum && Array.isArray(field.enum) && !field.enum.includes(value as never)) {
           errors.push({
             field: field.name,
             error: `Value must be one of: ${field.enum.join(', ')}`,
@@ -235,20 +244,32 @@ export class EventSchemaRegistry {
         registration.compatibilityMatrix.set(version1, new Map());
       }
 
-      const schema1 = registration.versions.get(version1)!;
+      const schema1 = registration.versions.get(version1);
+      if (!schema1) {
+        continue;
+      }
 
       for (const version2 of versions) {
         // Same version is always compatible
         if (version1 === version2) {
-          registration.compatibilityMatrix.get(version1)!.set(version2, true);
+          const sameVersionMap = registration.compatibilityMatrix.get(version1);
+          if (sameVersionMap) {
+            sameVersionMap.set(version2, true);
+          }
           continue;
         }
 
-        const schema2 = registration.versions.get(version2)!;
+        const schema2 = registration.versions.get(version2);
+        if (!schema2) {
+          continue;
+        }
 
         // Check if version2 is a forward-compatible upgrade from version1
         const isForwardCompatible = this.checkForwardCompatibility(schema1, schema2);
-        registration.compatibilityMatrix.get(version1)!.set(version2, isForwardCompatible);
+        const compatibilityMap = registration.compatibilityMatrix.get(version1);
+        if (compatibilityMap) {
+          compatibilityMap.set(version2, isForwardCompatible);
+        }
       }
     }
   }
@@ -291,7 +312,7 @@ export class EventSchemaRegistry {
   /**
    * Internal: Validate field type
    */
-  private validateFieldType(value: any, type: string): boolean {
+  private validateFieldType(value: unknown, type: string): boolean {
     switch (type) {
       case 'string':
         return typeof value === 'string';

@@ -23,6 +23,10 @@ export interface ResourceMetrics {
   successRate: number;
 }
 
+interface CompletedJobWithTimestamp extends Job {
+  completed_at: Date;
+}
+
 @Injectable()
 export class JobOrchestratorService {
   private readonly logger = new Logger(JobOrchestratorService.name);
@@ -179,11 +183,14 @@ export class JobOrchestratorService {
   async getResourceMetrics(userId: string): Promise<ResourceMetrics> {
     const [jobs] = await this.jobRepository.findByUser(userId, 1000, 0);
 
-    const completedJobs = jobs.filter(j => j.status === 'COMPLETED' && j.completed_at);
+    const completedJobs = jobs.filter(
+      (job): job is CompletedJobWithTimestamp =>
+        job.status === 'COMPLETED' && job.completed_at instanceof Date,
+    );
     const totalGpuCount = jobs.reduce((sum, j) => sum + (j.gpu_count || 0), 0);
     
     const runtimesMs = completedJobs
-      .map(j => j.completed_at!.getTime() - j.created_at.getTime())
+      .map((job) => job.completed_at.getTime() - job.created_at.getTime())
       .filter(rt => rt > 0);
     const averageRuntime = runtimesMs.length > 0 ? runtimesMs.reduce((a, b) => a + b) / runtimesMs.length : 0;
 
@@ -244,7 +251,7 @@ export class JobOrchestratorService {
    */
   async searchJobs(
     userId: string,
-    filters: any,
+    filters: Record<string, unknown>,
     limit = 50,
     offset = 0,
   ): Promise<{ jobs: Job[]; total: number }> {

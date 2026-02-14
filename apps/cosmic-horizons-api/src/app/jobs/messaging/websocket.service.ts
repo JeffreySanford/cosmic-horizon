@@ -4,7 +4,10 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class WebSocketService {
   private readonly logger = new Logger(WebSocketService.name);
-  private clients: Map<string, any> = new Map();
+  private clients: Map<
+    string,
+    { id: string; sessionId: string; connectedAt: Date }
+  > = new Map();
   private rooms: Map<string, Set<string>> = new Map();
 
   constructor(private configService: ConfigService) {}
@@ -29,11 +32,13 @@ export class WebSocketService {
     this.logger.debug(`Client ${clientId} disconnected`);
   }
 
-  async broadcast(event: string, data: any): Promise<void> {
+  async broadcast(event: string, data: Record<string, unknown>): Promise<void> {
+    void data;
     this.logger.debug(`Broadcasting ${event} to ${this.clients.size} clients`);
   }
 
-  async sendToClient(clientId: string, event: string, data: any): Promise<void> {
+  async sendToClient(clientId: string, event: string, data: Record<string, unknown>): Promise<void> {
+    void data;
     if (this.clients.has(clientId)) {
       this.logger.debug(`Sending ${event} to client ${clientId}`);
     }
@@ -43,10 +48,13 @@ export class WebSocketService {
     if (!this.rooms.has(room)) {
       this.rooms.set(room, new Set());
     }
-    this.rooms.get(room)!.add(clientId);
+    const members = this.rooms.get(room);
+    if (members) {
+      members.add(clientId);
+    }
   }
 
-  getMetrics(): any {
+  getMetrics(): { connectedClients: number; activeRooms: number; totalMessages: number } {
     return {
       connectedClients: this.clients.size,
       activeRooms: this.rooms.size,

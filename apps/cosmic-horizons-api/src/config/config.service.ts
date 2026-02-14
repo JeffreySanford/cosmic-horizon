@@ -135,7 +135,7 @@ export class ConfigService {
    */
   isFeatureEnabled(feature: keyof typeof this.config.features): boolean {
     const featureConfig = this.config.features[feature];
-    return featureConfig && (featureConfig as any).enabled;
+    return featureConfig?.enabled ?? false;
   }
 
   /**

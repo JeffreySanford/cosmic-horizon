@@ -81,10 +81,10 @@ export class JobsController {
   @UseGuards(AuthenticatedGuard)
   async getJobHistory(
     @Request() req: AuthenticatedRequest,
-    @Query('limit') limit = 50,
-    @Query('offset') offset = 0,
+    @Query('limit') limit = '50',
+    @Query('offset') offset = '0',
   ): Promise<{ jobs: Job[]; total: number }> {
-    return this.orchestrator.getJobHistory(req.user.id, parseInt(limit as any), parseInt(offset as any));
+    return this.orchestrator.getJobHistory(req.user.id, Number(limit), Number(offset));
   }
 
   /**
@@ -94,11 +94,11 @@ export class JobsController {
   @UseGuards(AuthenticatedGuard)
   async searchJobs(
     @Request() req: AuthenticatedRequest,
-    @Query() filters: any,
-    @Query('limit') limit = 50,
-    @Query('offset') offset = 0,
+    @Query() filters: Record<string, string | undefined>,
+    @Query('limit') limit = '50',
+    @Query('offset') offset = '0',
   ): Promise<{ jobs: Job[]; total: number }> {
-    return this.orchestrator.searchJobs(req.user.id, filters, parseInt(limit as any), parseInt(offset as any));
+    return this.orchestrator.searchJobs(req.user.id, filters, Number(limit), Number(offset));
   }
 
   /**

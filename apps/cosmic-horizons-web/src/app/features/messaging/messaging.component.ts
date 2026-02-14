@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, ElementRef, OnInit, ViewChild, OnDestroy, AfterViewInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { ArraySite, ArrayElementStatus, MessagingLiveStats, MessagingService, TelemetryPacket } from '../../services/messaging.service';
 import * as d3 from 'd3';

@@ -19,7 +19,7 @@ export interface PublishOptions {
   persistent?: boolean;
   contentType?: string;
   correlationId?: string;
-  headers?: Record<string, any>;
+  headers?: Record<string, unknown>;
 }
 
 export interface ConsumeOptions {
@@ -31,8 +31,8 @@ export interface ConsumeOptions {
 }
 
 export interface RabbitMQMessage {
-  payload: any;
-  headers: Record<string, any>;
+  payload: Record<string, unknown>;
+  headers: Record<string, unknown>;
   retryCount: number;
   originalTimestamp: Date;
 }
@@ -40,9 +40,23 @@ export interface RabbitMQMessage {
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('RabbitMQService');
-  private connection: any;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  private consumerCallbacks: Map<string, Function> = new Map();
+  private connection:
+    | {
+        connected: boolean;
+        urls: string[];
+        reconnectTime: number;
+        heartbeat: number;
+        createdAt: Date;
+      }
+    | null = null;
+  private channel:
+    | {
+        exchanges: Array<{ name: string; type: string; durable: boolean }>;
+        queues: Array<{ name: string; durable: boolean; dlx?: string }>;
+        bindings: unknown[];
+      }
+    | null = null;
+  private consumerCallbacks: Map<string, (message: RabbitMQMessage) => Promise<void> | void> = new Map();
   private isConnecting = false;
 
   constructor(private configService: ConfigService) {}
@@ -118,7 +132,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   /**
    * Publish message to exchange with routing options
    */
-  async publish(message: any, options: PublishOptions): Promise<boolean> {
+  async publish(message: Record<string, unknown>, options: PublishOptions): Promise<boolean> {
     if (!this.isConnected()) {
       throw new Error('RabbitMQ connection not established');
     }
@@ -142,8 +156,10 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   /**
    * Consume messages from a queue
    */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  async consume(callback: Function, options: ConsumeOptions): Promise<string> {
+  async consume(
+    callback: (message: RabbitMQMessage) => Promise<void> | void,
+    options: ConsumeOptions,
+  ): Promise<string> {
     if (!this.isConnected()) {
       throw new Error('RabbitMQ connection not established');
     }
@@ -164,7 +180,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
    * Acknowledge message (manual ack mode)
    */
   async acknowledge(message: RabbitMQMessage): Promise<void> {
-    this.logger.debug(`Acknowledging message: ${message.headers.messageId}`);
+    this.logger.debug(`Acknowledging message: ${String(message.headers['messageId'])}`);
     // Simulated ack
   }
 
@@ -173,7 +189,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
    */
   async nack(message: RabbitMQMessage, requeue = true): Promise<void> {
     this.logger.warn(
-      `Nacking message: ${message.headers.messageId} (requeue: ${requeue})`
+      `Nacking message: ${String(message.headers['messageId'])} (requeue: ${requeue})`
     );
     // Simulated nack
   }
@@ -182,13 +198,15 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
    * Send undeliverable message to Dead Letter Queue
    */
   async sendToDLQ(message: RabbitMQMessage, reason: string): Promise<void> {
-    this.logger.error(`Sending to DLQ - Message: ${message.headers.messageId}, Reason: ${reason}`);
+      this.logger.error(
+        `Sending to DLQ - Message: ${String(message.headers['messageId'])}, Reason: ${reason}`,
+      );
 
     try {
       const dlqMessage = {
         ...message,
-        originalExchange: message.headers.exchange,
-        originalRoutingKey: message.headers.routingKey,
+        originalExchange: message.headers['exchange'],
+        originalRoutingKey: message.headers['routingKey'],
         dlqReason: reason,
         dlqTimestamp: new Date(),
         retryCount: (message.retryCount || 0) + 1,
@@ -201,7 +219,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
         persistent: true,
       });
 
-      this.logger.log(`Sent to DLQ: ${message.headers.messageId}`);
+      this.logger.log(`Sent to DLQ: ${String(message.headers['messageId'])}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to send to DLQ: ${errorMessage}`);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Test Data Builders with Strong Type Safety
  * Ensures all test mocks have complete entity structures

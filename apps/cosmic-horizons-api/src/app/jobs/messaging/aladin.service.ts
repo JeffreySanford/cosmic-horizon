@@ -3,15 +3,15 @@ import { Injectable, Logger } from '@nestjs/common';
 @Injectable()
 export class AladinService {
   private readonly logger = new Logger(AladinService.name);
-  private instances: Map<string, any> = new Map();
-  private catalogs: Map<string, any[]> = new Map();
+  private instances: Map<string, Record<string, unknown>> = new Map();
+  private catalogs: Map<string, Array<{ name: string; url: string; addedAt: Date }>> = new Map();
   private overlays: Map<string, Set<string>> = new Map();
   private instanceCounter = 0;
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
-  async initializeAladin(elementId: string, config?: any): Promise<string> {
+  async initializeAladin(elementId: string, config?: Record<string, unknown>): Promise<string> {
     const instanceId = `aladin-${Date.now()}-${this.instanceCounter++}`;
     this.instances.set(instanceId, {
       id: instanceId,
@@ -31,8 +31,14 @@ export class AladinService {
   }
 
   async addCatalog(instanceId: string, catalogUrl: string, catalogName: string): Promise<void> {
-    if (!this.catalogs.has(instanceId)) this.catalogs.set(instanceId, []);
-    this.catalogs.get(instanceId)!.push({ name: catalogName, url: catalogUrl, addedAt: new Date() });
+    if (!this.catalogs.has(instanceId)) {
+      this.catalogs.set(instanceId, []);
+    }
+    const catalogs = this.catalogs.get(instanceId);
+    if (!catalogs) {
+      return;
+    }
+    catalogs.push({ name: catalogName, url: catalogUrl, addedAt: new Date() });
   }
 
   async removeCatalog(instanceId: string, catalogName: string): Promise<void> {
@@ -42,7 +48,7 @@ export class AladinService {
     }
   }
 
-  async getMetrics(): Promise<any> {
+  async getMetrics(): Promise<{ instances: number; catalogs: number; overlays: number }> {
     let totalCatalogs = 0;
     this.catalogs.forEach((cats) => totalCatalogs += cats.length);
     return {

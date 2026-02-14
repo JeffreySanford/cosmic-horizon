@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /// <reference types="jest" />
 
 /**
@@ -13,7 +14,7 @@ import type { AdminLogsController } from '../controllers/admin-logs.controller';
 /**
  * Type-safe repository mock factory
  */
-export function createMockRepository<T extends Record<string, any>>() {
+export function createMockRepository() {
   return {
     find: jest.fn() as jest.MockedFunction<any>,
     findById: jest.fn() as jest.MockedFunction<any>,
