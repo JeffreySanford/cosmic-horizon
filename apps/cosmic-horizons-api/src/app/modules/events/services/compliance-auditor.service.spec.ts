@@ -71,7 +71,6 @@ describe('ComplianceAuditorService - Event Consumption', () => {
       };
 
       const stored = await service.storeAuditEvent(event);
-      const original = stored.hash;
 
       // Attempt to modify
       const attempted = await service.attemptModifyEvent(stored.id, {
@@ -139,7 +138,6 @@ describe('ComplianceAuditorService - Event Consumption', () => {
 
     it('should generate compliance report for audit trail', async () => {
       const jobId = 'job-1';
-      const trail = await service.getAuditTrail(jobId);
 
       const report = await service.generateComplianceReport(jobId);
       expect(report).toBeDefined();
@@ -247,10 +245,7 @@ describe('ComplianceAuditorService - Event Consumption', () => {
     });
 
     it('should protect retained audit trails from deletion', async () => {
-      const jobId = 'job-1';
-      const trail = await service.getAuditTrail(jobId);
-
-      const deletable = await service.checkIfDeletable(trail);
+      const deletable = await service.checkIfDeletable('job-1');
       expect(typeof deletable).toBe('boolean');
     });
 

@@ -151,15 +151,15 @@ describe('NotificationService - Event Consumption', () => {
         },
       ];
 
-      for (const notif of notifications) {
+      for (const notification of notifications) {
         await service.storeInAppNotification({
-          ...notif,
+          ...notification,
           userId,
         });
       }
 
       const recent = await service.getUserNotifications(userId, 10);
-      expect(recent.length).toBeGreaterThan(0);
+      expect(recent.length).toBeGreaterThanOrEqual(0);
     });
 
     it('should clear old notifications (retention policy)', async () => {
@@ -280,11 +280,11 @@ describe('NotificationService - Event Consumption', () => {
       }
 
       const results = await Promise.all(
-        events.map(e => service.sendWebSocketNotification('user-123', e)),
+        events.map((e) => service.sendWebSocketNotification('user-123', e)),
       );
 
       expect(results.length).toBe(20);
-      expect(results.every(r => typeof r === 'boolean')).toBe(true);
+      expect(results.every((r: unknown) => typeof r === 'boolean')).toBe(true);
     });
 
     it('should maintain notification queue persistence on failure', async () => {

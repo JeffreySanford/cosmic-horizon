@@ -181,10 +181,14 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async checkPredictiveAlert(consumerId: string, slaThreshold: number): Promise<any> {
+  async checkPredictiveAlert(_consumerId: string, _slaThreshold: number): Promise<any> {
     return {
       shouldAlert: false,
       reason: 'Within SLA threshold',
     };
+  }
+
+  async recordHealthStatus(consumerId: string, status: string): Promise<void> {
+    this.logger.debug(`Recording health status for ${consumerId}: ${status}`);
   }
 }

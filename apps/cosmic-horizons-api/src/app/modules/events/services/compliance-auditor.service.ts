@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 
 /**
@@ -7,7 +7,6 @@ import * as crypto from 'crypto';
  */
 @Injectable()
 export class ComplianceAuditorService {
-  private readonly logger = new Logger('ComplianceAuditorService');
   private eventChain: Map<string, any> = new Map();
   private auditTrails: Map<string, any> = new Map();
 
@@ -118,7 +117,7 @@ export class ComplianceAuditorService {
     return { retained: true, policyApplied: true };
   }
 
-  async checkIfDeletable(trail: any): Promise<boolean> {
+  async checkIfDeletable(jobId: string): Promise<boolean> {
     return false; // Audit trails should not be deletable
   }
 
