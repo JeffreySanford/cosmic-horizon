@@ -127,9 +127,10 @@ export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
 
     const dbHost = this.config.get<string>('DB_HOST') ?? 'localhost';
     const dbPort = Number(this.config.get<string>('DB_PORT') ?? '15432');
-    const dbUser = this.config.get<string>('DB_USER') ?? 'cosmic_horizons_user';
-    const dbPass =
-      this.config.get<string>('DB_PASSWORD') ?? 'cosmic_horizons_password_dev';
+    const dbUser = this.config.get<string>('DB_USER');
+    if (!dbUser) throw new Error('DB_USER is required for messaging monitor');
+    const dbPass = this.config.get<string>('DB_PASSWORD');
+    if (!dbPass) throw new Error('DB_PASSWORD is required for messaging monitor');
     const dbName = this.config.get<string>('DB_NAME') ?? 'cosmic_horizons';
     this.postgresPool = new Pool({
       host: dbHost,

@@ -29,15 +29,15 @@ const envFlag = (key: string, fallback: boolean): boolean => {
     .toLowerCase();
   return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
 };
-const requiredEnv = (key: string, fallback: string): string => {
-  const value = envValue(key, fallback).trim();
-  if (value.length > 0) {
+const requiredEnvNoFallback = (key: string): string => {
+  const value = process.env[key];
+  if (typeof value === 'string' && value.trim().length > 0) {
     return value;
   }
   if (process.env.NODE_ENV === 'test') {
-    return fallback;
+    throw new Error(`${key} is required for database configuration. Set it in .env.local or .env.example.`);
   }
-  throw new Error(`${key} is required for database configuration.`);
+  throw new Error(`${key} is required for database configuration. Set it in environment variables.`);
 };
 const loggingEnabled = envFlag('DB_LOGGING', false);
 const allowSensitiveDbLogging = envFlag('DB_ALLOW_SENSITIVE_LOGGING', false);
@@ -52,8 +52,8 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
   host: envValue('DB_HOST', 'localhost'),
   port: parseInt(envValue('DB_PORT', '15432'), 10),
-  username: envValue('DB_USER', 'cosmic_horizons_user'),
-  password: requiredEnv('DB_PASSWORD', 'cosmic_horizons_password_dev'),
+  username: requiredEnvNoFallback('DB_USER'),
+  password: requiredEnvNoFallback('DB_PASSWORD'),
   database: envValue('DB_NAME', 'cosmic_horizons'),
   entities: [
     User,
