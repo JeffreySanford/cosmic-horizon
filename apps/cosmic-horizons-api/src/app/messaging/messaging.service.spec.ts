@@ -29,6 +29,10 @@ describe('MessagingService', () => {
     service = module.get<MessagingService>(MessagingService);
   });
 
+  afterEach(() => {
+    service.onModuleDestroy();
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });

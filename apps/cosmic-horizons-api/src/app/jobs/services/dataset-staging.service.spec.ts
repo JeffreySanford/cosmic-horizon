@@ -12,6 +12,10 @@ describe('DatasetStagingService', () => {
     service = module.get<DatasetStagingService>(DatasetStagingService);
   });
 
+  afterEach(() => {
+    service.onModuleDestroy();
+  });
+
   describe('validateDataset', () => {
     it('should validate dataset and return info', async () => {
       const datasetId = 'test-dataset-1';

@@ -204,8 +204,9 @@ describe('LandingComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith('/jobs');
   });
 
-  it('dialog continue personalizes preview and expands telemetry', () => {
+  it('dialog continue personalizes preview and expands telemetry', async () => {
     component.onTelemetryControl();
+    await Promise.resolve();
 
     expect(dialogOpenSpy).toHaveBeenCalled();
     expect(component.preview.personalized).toBe(true);
@@ -241,12 +242,13 @@ describe('LandingComponent', () => {
     expect(personalizeSpy).toHaveBeenCalledWith(12.3456, -78.9012);
   });
 
-  it('dialog deny expands telemetry without coordinates', () => {
+  it('dialog deny expands telemetry without coordinates', async () => {
     dialogOpenSpy.mockReturnValueOnce({
       afterClosed: () => of(null),
     });
 
     component.onTelemetryControl();
+    await Promise.resolve();
 
     expect(dialogOpenSpy).toHaveBeenCalled();
     expect(component.preview.personalized).toBe(false);
@@ -255,12 +257,13 @@ describe('LandingComponent', () => {
     expect(snackBarOpenSpy).not.toHaveBeenCalled();
   });
 
-  it('after deny, next click toggles telemetry instead of reopening dialog', () => {
+  it('after deny, next click toggles telemetry instead of reopening dialog', async () => {
     dialogOpenSpy.mockReturnValueOnce({
       afterClosed: () => of(null),
     });
 
     component.onTelemetryControl();
+    await Promise.resolve();
     expect(component.telemetryCompact).toBe(false);
 
     component.onTelemetryControl();

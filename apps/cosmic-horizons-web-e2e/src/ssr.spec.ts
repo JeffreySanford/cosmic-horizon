@@ -20,6 +20,8 @@ test.describe('SSR preview payload', () => {
     expect(html).toContain('Login');
     // Verify application structure is present in SSR
     expect(html).toContain('app-login');
+    // Ensure SSR produced a cache-busted preview image URL.
+    expect(html).toMatch(previewImagePattern);
   });
 
   test('renders regional preview in /landing HTML (direct request path)', async ({

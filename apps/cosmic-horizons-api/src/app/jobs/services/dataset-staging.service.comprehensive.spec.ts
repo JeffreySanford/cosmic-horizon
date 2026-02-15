@@ -7,6 +7,10 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
     service = new DatasetStagingService();
   });
 
+  afterEach(() => {
+    service.onModuleDestroy();
+  });
+
   describe('validateDataset', () => {
     it('should validate a valid dataset ID', async () => {
       const result = await service.validateDataset('dataset-123');

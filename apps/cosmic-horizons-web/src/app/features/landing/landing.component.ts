@@ -226,7 +226,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       panelClass: 'gdpr-location-dialog-panel',
     }).afterClosed().subscribe((result) => {
       this.locationPromptHandled = true;
-      this.telemetryCompact = false;
+      this.expandTelemetryPanel();
       if (result) {
         this.personalizePreviewWithLocation(result.latitude, result.longitude);
       }
@@ -247,7 +247,7 @@ export class LandingComponent implements OnInit, OnDestroy {
           this.preview = preview;
           this.syncTelemetryFromPreview();
           this.locationMessage = `Sky preview personalized for coordinates LAT ${latitude.toFixed(4)} LON ${longitude.toFixed(4)}.`;
-          this.telemetryCompact = false;
+          this.expandTelemetryPanel();
           this.updateBackgroundImage();
           this.snackBar.open('Sky map personalized to your overhead location.', 'Dismiss', {
             duration: 3200,
@@ -265,6 +265,13 @@ export class LandingComponent implements OnInit, OnDestroy {
       complete: () => {
         this.locating = false;
       },
+    });
+  }
+
+  private expandTelemetryPanel(): void {
+    queueMicrotask(() => {
+      this.telemetryCompact = false;
+      this.cdr.markForCheck();
     });
   }
 

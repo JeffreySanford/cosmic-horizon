@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 
 export interface DatasetInfo {
   id: string;
@@ -30,9 +30,10 @@ export interface StagingStatus {
  * Phase 2: Real GLOBUS transfer integration
  */
 @Injectable()
-export class DatasetStagingService {
+export class DatasetStagingService implements OnModuleDestroy {
   private readonly logger = new Logger(DatasetStagingService.name);
   private stagingCache: Map<string, StagingStatus> = new Map();
+  private readonly stagingIntervals = new Map<string, ReturnType<typeof setInterval>>();
 
   /**
    * Validate dataset readiness for processing
@@ -133,6 +134,8 @@ export class DatasetStagingService {
    * Simulate staging progress over time (for demo)
    */
   private simulateStagingProgress(datasetId: string): void {
+    this.clearStagingInterval(datasetId);
+
     let progress = 0;
     const interval = setInterval(() => {
       progress += Math.random() * 15;
@@ -145,6 +148,7 @@ export class DatasetStagingService {
           status.progress = 100;
         }
         clearInterval(interval);
+        this.stagingIntervals.delete(datasetId);
       } else {
         const status = this.stagingCache.get(datasetId);
         if (status) {
@@ -152,5 +156,19 @@ export class DatasetStagingService {
         }
       }
     }, 2000);
+    this.stagingIntervals.set(datasetId, interval);
+  }
+
+  onModuleDestroy(): void {
+    this.stagingIntervals.forEach((intervalId) => clearInterval(intervalId));
+    this.stagingIntervals.clear();
+  }
+
+  private clearStagingInterval(datasetId: string): void {
+    const existing = this.stagingIntervals.get(datasetId);
+    if (existing) {
+      clearInterval(existing);
+      this.stagingIntervals.delete(datasetId);
+    }
   }
 }
