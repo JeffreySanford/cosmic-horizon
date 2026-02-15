@@ -484,7 +484,7 @@ export class MockRabbitMQPublisher {
   /**
    * Assert latency is within bounds
    */
-  assertLatencyWithinBounds(maxMs: number, percentile: number = 0.99): void {
+  assertLatencyWithinBounds(maxMs: number, percentile = 0.99): void {
     const stats = this.getLatencyStats();
     const actual =
       percentile === 0.99

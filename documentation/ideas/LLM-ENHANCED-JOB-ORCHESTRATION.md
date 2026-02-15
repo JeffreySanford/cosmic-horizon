@@ -11,11 +11,13 @@
 Rather than mocking job submissions with fake responses, we will build a **real local job orchestration engine** enhanced with **Ollama-powered LLM agents** to simulate the multi-stage CosmicAI pipeline (AlphaCal → ImageReconstruction → AnomalyDetection).
 
 **Key Insight**: Job orchestration isn't just returning random statuses—it's a **multi-agent collaboration system** where:
+
 - AgentA (AlphaCal) selects RFI mitigation strategies based on dataset characteristics
 - AgentB (ImageReconstruction) estimates processing time and resource allocation
 - AgentC (AnomalyDetection) generates intelligent anomaly descriptions and classifications
 
 By using local Ollama models (even small models like Mistral 7B), we can:
+
 1. **Validate job parameters** (is this dataset compatible? Are GPU counts reasonable?)
 2. **Generate intelligent decisions** (which RFI strategy is best for this VLASS region?)
 3. **Create realistic timelines** (not random progress bars, but LLM-estimated processing stages)
@@ -66,9 +68,11 @@ By using local Ollama models (even small models like Mistral 7B), we can:
 ## Three Implementation Phases
 
 ### Phase 1: Local Job Queue Backend (2-3 hours)
+
 **Goal**: Replace mock interceptor with real orchestration engine
 
 **Implementation**:
+
 ```
 1. Create JobQueueService in cosmic-horizons-api
    - In-memory job store (Map<jobId, Job>)
@@ -90,6 +94,7 @@ By using local Ollama models (even small models like Mistral 7B), we can:
 ```
 
 **Deliverables**:
+
 - ✅ PostGIS database schema for Job entity
 - ✅ Job state transitions with timestamps
 - ✅ API endpoints functional and tested
@@ -98,11 +103,13 @@ By using local Ollama models (even small models like Mistral 7B), we can:
 ---
 
 ### Phase 2: Ollama Integration for Intelligent Validation (3-4 hours)
+
 **Goal**: Use LLM to validate job parameters and provide feedback
 
 **Implementation**:
 
 **2a. Create OllamaService**
+
 ```typescript
 // apps/cosmic-horizons-api/src/app/shared/services/ollama.service.ts
 
@@ -164,6 +171,7 @@ export class OllamaService {
 ```
 
 **2b. Integrate into JobOrchestratorService**
+
 ```typescript
 export class JobOrchestratorService {
   constructor(
@@ -222,6 +230,7 @@ export class JobOrchestratorService {
 ```
 
 **Deliverables**:
+
 - ✅ OllamaService with validation and estimation methods
 - ✅ Integration into JobOrchestratorService
 - ✅ Job entity schema updated with LLM metadata
@@ -231,6 +240,7 @@ export class JobOrchestratorService {
 ---
 
 ### Phase 3: Multi-Stage Job Pipeline with Agent Collaboration (6-8 hours)
+
 **Goal**: Implement realistic 3-stage job processing with LLM agents
 
 **Implementation**:
@@ -494,6 +504,7 @@ export class JobExecutionEngine {
 **3c. Frontend Dashboard Updates**
 
 Update `jobs-console.component.ts` to display:
+
 - Per-stage progress bars
 - LLM validation scores
 - Agent decisions (which RFI strategy? which algorithm?)
@@ -501,6 +512,7 @@ Update `jobs-console.component.ts` to display:
 - Detailed output results and anomaly descriptions
 
 **Deliverables**:
+
 - ✅ Three agent services (AlphaCal, ImageReconstruction, AnomalyDetection)
 - ✅ JobExecutionEngine with pipeline orchestration
 - ✅ Event emission for stage transitions
@@ -513,23 +525,27 @@ Update `jobs-console.component.ts` to display:
 ## Key Design Decisions
 
 ### 1. **LLM Selection**
+
 - **Primary**: Mistral 7B (balance of speed/quality)
 - **Alternative**: Neural-Chat 7B (optimized for instruction-following)
 - **Reasoning**: Smaller models (~7B) run locally on consumer GPU (6-8GB VRAM), complete in <5s per request
 
 ### 2. **Prompt Engineering**
+
 - Use structured JSON responses to avoid parsing ambiguity
 - Include domain context (VLASS dataset characteristics, TACC GPU specs)
 - Few-shot examples of valid parameter ranges
 - Escape hatches for when Ollama is unavailable
 
 ### 3. **Async Job Execution**
+
 - Submit job → immediately get jobId (user can track)
 - Job execution runs in background (Bull queue or NestJS background tasks)
 - Poll `/api/jobs/{jobId}` for status updates
 - Events published to Kafka/RabbitMQ for real-time dashboards
 
 ### 4. **Fallback Strategy**
+
 ```
 If Ollama available:
   → Use LLM agents for validation, estimation, decisions
@@ -563,6 +579,7 @@ If Both fail:
 ## Implementation Roadmap
 
 ### Week 1 (Feb 16-20): Phase 1 Foundation
+
 - [ ] Create JobQueueService with in-memory storage
 - [ ] Update JobOrchestratorService to persist jobs
 - [ ] Test real API integration with web app
@@ -570,6 +587,7 @@ If Both fail:
 - **Outcome**: Jobs page hitting real backend, but no LLM enrichment yet
 
 ### Week 2 (Feb 23-27): Phase 2 LLM Integration
+
 - [ ] Create OllamaService with validation/estimation
 - [ ] Set up Ollama Docker container locally
 - [ ] Integrate into job submission flow
@@ -577,6 +595,7 @@ If Both fail:
 - **Outcome**: Job parameters validated by LLM, estimated duration shown
 
 ### Week 3 (Mar 2-6): Phase 3 Agent Pipeline
+
 - [ ] Create three agent services (AlphaCal, ImageReconstruction, AnomalyDetection)
 - [ ] Implement JobExecutionEngine with state machine
 - [ ] Update database schema for agent outputs
@@ -584,6 +603,7 @@ If Both fail:
 - **Outcome**: Full 3-stage pipeline working, anomalies displayed
 
 ### Post-Implementation: Production Readiness
+
 - [ ] Migrate from Ollama to real CosmicAI API when available (URL swap in config)
 - [ ] Monitor job execution performance (stage durations)
 - [ ] Collect user feedback on parameter suggestions
@@ -594,16 +614,19 @@ If Both fail:
 ## Testing Strategy
 
 ### Unit Tests
+
 - Mock Ollama responses with consistent JSON structures
 - Test job state transitions
 - Test error handling (Ollama offline, invalid parameters)
 
 ### Integration Tests
+
 - Full job submission → pipeline → completion flow
 - Stage event emissions
 - Database persistence
 
 ### E2E Tests
+
 - Angular form submission → job tracking → results display
 - Real WebSocket updates of job progress
 - Results download/export
@@ -656,10 +679,10 @@ This enhancement directly supports:
 ## Conclusion
 
 This approach transforms the Jobs Console from a "fake job simulator" into a **realistic multi-agent orchestration system** that:
+
 - Validates astronomical parameters intelligently
 - Simulates realistic processing pipelines
 - Generates meaningful results
 - Prepares UI/UX for real CosmicAI integration
 
 By leveraging local Ollama models, we get the benefits of intelligent automation without cloud dependencies, making feedback loops fast and development iteration rapid.
-

@@ -317,10 +317,10 @@ export class KafkaEventBuilder {
 export class MockKafkaPublisher {
   private readonly logger = new Logger(MockKafkaPublisher.name);
   private messages: CapturedMessage<EventBase>[] = [];
-  private failureMode: boolean = false;
+  private failureMode = false;
   private failureReason: string | null = null;
-  private latencySimulation: number = 0; // Simulated latency in ms
-  private publishCount: number = 0;
+  private latencySimulation = 0; // Simulated latency in ms
+  private publishCount = 0;
   private publishLatencies: Map<string, number[]> = new Map();
 
   /**
@@ -490,7 +490,7 @@ export class MockKafkaPublisher {
   /**
    * Enable or disable failure mode
    */
-  setFailureMode(enabled: boolean, reason: string = 'Simulated failure'): void {
+  setFailureMode(enabled: boolean, reason = 'Simulated failure'): void {
     this.failureMode = enabled;
     this.failureReason = reason;
   }
@@ -586,7 +586,7 @@ export class MockKafkaPublisher {
   /**
    * Assert throughput meets target
    */
-  assertThroughput(messagesPerSecond: number, windowSeconds: number = 1): void {
+  assertThroughput(messagesPerSecond: number, windowSeconds = 1): void {
     if (this.messages.length === 0) {
       throw new Error('No messages published');
     }

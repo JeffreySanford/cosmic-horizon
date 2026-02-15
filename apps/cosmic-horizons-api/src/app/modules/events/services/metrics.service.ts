@@ -138,7 +138,7 @@ export class MetricsService {
   /**
    * Clear old metrics (retention policy)
    */
-  async clearOldMetrics(maxAgeMinutes: number = 1440): Promise<number> {
+  async clearOldMetrics(maxAgeMinutes = 1440): Promise<number> {
     const cutoffTime = new Date(Date.now() - maxAgeMinutes * 60 * 1000);
     let clearedCount = 0;
 

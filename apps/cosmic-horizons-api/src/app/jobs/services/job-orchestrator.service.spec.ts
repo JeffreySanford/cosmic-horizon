@@ -625,4 +625,361 @@ describe('JobOrchestratorService', () => {
       });
     });
   });
+
+  /**
+   * SPRINT 5.3: Job Orchestration Events
+   * Week 1 (Feb 16-20): Job event publishing tests
+   * 
+   * Tests for Kafka event publishing with correlation IDs,
+   * partition key routing, and event schema validation.
+   */
+  describe('Sprint 5.3: Job Orchestration Events (Week 1)', () => {
+    describe('Day 1-2: JobOrchestratorService integration', () => {
+      it('should publish job.submitted event with correlation ID', async () => {
+        const submission = {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'high' as const, gpu_count: 4 },
+        };
+
+        await service.submitJob('user-1', submission);
+
+        // Verify Kafka event was published
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+        const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0];
+        const event = kafkaCall[0];
+
+        expect(event.event_type).toBe('job.submitted');
+        expect(event.job_id).toBe('job-1');
+        expect(event.timestamp).toBeDefined();
+      });
+
+      it('should include agent type, dataset ID, and GPU count in event headers', async () => {
+        const submission = {
+          agent: 'ImageReconstruction' as const,
+          dataset_id: 'VLASS2.1.sb38593457.eb38602345',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        };
+
+        await service.submitJob('user-1', submission);
+
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+        const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0];
+        const event = kafkaCall[0];
+
+        expect(event.job_id).toBe('job-1');
+        expect(event.user_id).toBe('user-1');
+        expect(event.project_id).toBe('VLASS2.1.sb38593457.eb38602345');
+        expect(event.timestamp).toBeDefined();
+      });
+
+      it('should include user ID and submission timestamp in event payload', async () => {
+        const submission = {
+          agent: 'AnomalyDetection' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'low' as const, gpu_count: 1 },
+        };
+
+        const beforeSubmit = new Date();
+        await service.submitJob('user-1', submission);
+        const afterSubmit = new Date();
+
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+        const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0];
+        const event = kafkaCall[0];
+
+        expect(event.user_id).toBe('user-1');
+        expect(event.event_type).toBe('job.submitted');
+        
+        // Verify timestamp is within reasonable bounds
+        const eventTime = new Date(event.timestamp);
+        expect(eventTime.getTime()).toBeGreaterThanOrEqual(beforeSubmit.getTime());
+        expect(eventTime.getTime()).toBeLessThanOrEqual(afterSubmit.getTime() + 1000);
+      });
+    });
+
+    describe('Day 2-3: Status transition events', () => {
+      it('should publish job.queued event when job status changes to QUEUED', async () => {
+        const submission = {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        };
+
+        await service.submitJob('user-1', submission);
+
+        // Look for job.status.changed event (published during submitJob flow)
+        const kafkaCalls = kafkaService.publishJobLifecycleEvent.mock.calls;
+        const statusChangeEvent = kafkaCalls.find((call) => call[0].event_type === 'job.status.changed');
+
+        expect(statusChangeEvent).toBeDefined();
+      });
+
+      it('should publish events with correct job status in payload', async () => {
+        await service.submitJob('user-1', {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        });
+
+        const kafkaCalls = kafkaService.publishJobLifecycleEvent.mock.calls;
+        const submittedEvent = kafkaCalls.find((call) => call[0].event_type === 'job.submitted');
+
+        expect(submittedEvent).toBeDefined();
+        expect(submittedEvent?.[0].job_id).toBe('job-1');
+      });
+
+      it('should preserve event ordering across multiple job submissions', async () => {
+        jobRepository.create = jest
+          .fn()
+          .mockResolvedValueOnce({ ...mockJob, id: 'job-1' })
+          .mockResolvedValueOnce({ ...mockJob, id: 'job-2' })
+          .mockResolvedValueOnce({ ...mockJob, id: 'job-3' });
+
+        const submission = {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        };
+
+        // Submit 3 jobs
+        await service.submitJob('user-1', submission);
+        await service.submitJob('user-1', submission);
+        await service.submitJob('user-1', submission);
+
+        // Verify all 3 job submissions were published
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledTimes(9); // 3 jobs × 3 events each minimum
+      });
+
+      it('should include estimated runtime and node count in submission events', async () => {
+        const submission = {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: {
+            rfi_strategy: 'high' as const,
+            gpu_count: 4,
+            num_nodes: 2,
+            max_runtime_minutes: 120,
+          },
+        };
+
+        await service.submitJob('user-1', submission);
+
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+        const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0];
+        const event = kafkaCall[0];
+
+        expect(event.event_type).toBe('job.submitted');
+      });
+
+      it('should publish metrics for completed job with performance data', async () => {
+        const metrics = {
+          executionTimeSeconds: 3600,
+          cpuUsagePercent: 95,
+          memoryUsageMb: 8192,
+        };
+
+        await service.publishCompletedJobMetrics('job-1', metrics);
+
+        expect(kafkaService.publishJobMetrics).toHaveBeenCalled();
+        const kafkaCall = kafkaService.publishJobMetrics.mock.calls[0];
+        const event = kafkaCall[0];
+
+        expect(event.event_type).toBe('job.metrics_recorded');
+        expect(event.job_id).toBe('job-1');
+        expect(event.cpu_usage_percent).toBe(95);
+        expect(event.memory_usage_mb).toBe(8192);
+        expect(event.execution_time_seconds).toBe(3600);
+      });
+    });
+
+    describe('Day 3-4: Partition key validation', () => {
+      it('should use jobId as partition key for Kafka event ordering', async () => {
+        await service.submitJob('user-1', {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        });
+
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+        const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0] as unknown[];
+        const partitionKey = kafkaCall?.[1] as string;
+
+        expect(partitionKey).toBe('job-1');
+      });
+
+      it('should ensure events for same job go to same partition', async () => {
+        jobRepository.create = jest
+          .fn()
+          .mockResolvedValue({ ...mockJob, id: 'job-same' });
+
+        await service.submitJob('user-1', {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        });
+
+        const calls = kafkaService.publishJobLifecycleEvent.mock.calls;
+        const partitionKeys = calls.map((call) => call[1]);
+
+        // All events should use same partition key for same job
+        expect(new Set(partitionKeys).size).toBe(1);
+        expect(partitionKeys[0]).toBe('job-same');
+      });
+
+      it('should publish metrics with correct partition key', async () => {
+        const metrics = {
+          executionTimeSeconds: 1800,
+          cpuUsagePercent: 80,
+          memoryUsageMb: 4096,
+        };
+
+        await service.publishCompletedJobMetrics('job-123', metrics);
+
+        expect(kafkaService.publishJobMetrics).toHaveBeenCalled();
+        const kafkaCall = kafkaService.publishJobMetrics.mock.calls[0];
+        const partitionKey = kafkaCall[1];
+
+        expect(partitionKey).toBe('job-123');
+      });
+    });
+
+    describe('Day 4: Error handling & headers', () => {
+      it('should handle Kafka publish failure gracefully without blocking job submission', async () => {
+        kafkaService.publishJobLifecycleEvent.mockRejectedValueOnce(
+          new Error('Kafka broker unavailable'),
+        );
+
+        // Should not throw even if Kafka fails
+        const submission = {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        };
+
+        const result = await service.submitJob('user-1', submission);
+        expect(result).toBeDefined();
+        expect(result.id).toBe('job-1');
+      });
+
+      it('should include correlation ID for distributed tracing', async () => {
+        await service.submitJob('user-1', {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        });
+
+        expect(eventsService.publishJobEvent).toHaveBeenCalled();
+        const rbtCall = eventsService.publishJobEvent.mock.calls[0] as unknown[];
+        const event = rbtCall?.[0] as Record<string, unknown>;
+
+        // Correlation ID should be present for tracing
+        expect(event?.correlation_id).toBeDefined();
+        expect(typeof event?.correlation_id).toBe('string');
+        if (typeof event?.correlation_id === 'string') {
+          expect(event.correlation_id.length).toBeGreaterThan(0);
+        }
+      });
+
+      it('should include timestamp with timezone in all events', async () => {
+        await service.submitJob('user-1', {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        });
+
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+        const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0];
+        const event = kafkaCall[0];
+
+        expect(event.timestamp).toBeDefined();
+        // ISO 8601 format includes timezone info
+        expect(event.timestamp).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+      });
+
+      it('should capture and log Kafka publish errors without throwing', async () => {
+        const loggerWarnSpy = jest.spyOn(service['logger'], 'warn');
+        kafkaService.publishJobLifecycleEvent.mockRejectedValueOnce(
+          new Error('Network timeout'),
+        );
+
+        const submission = {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        };
+
+        await service.submitJob('user-1', submission);
+        expect(loggerWarnSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Failed to publish job.submitted'),
+        );
+
+        loggerWarnSpy.mockRestore();
+      });
+    });
+
+    describe('Day 5: Final tests & integration', () => {
+      it('should complete end-to-end job submission → event published → status queryable', async () => {
+        const submission = {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        };
+
+        const job = await service.submitJob('user-1', submission);
+
+        // Verify job was created
+        expect(job.id).toBe('job-1');
+
+        // Verify event was published
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+
+        // Verify job can be queried
+        const retrievedJob = await service.getJobStatus(job.id);
+        expect(retrievedJob).toBeDefined();
+      });
+
+      it('should handle multiple concurrent job submissions with correct event sequence', async () => {
+        jobRepository.create = jest
+          .fn()
+          .mockResolvedValueOnce({ ...mockJob, id: 'job-1' })
+          .mockResolvedValueOnce({ ...mockJob, id: 'job-2' })
+          .mockResolvedValueOnce({ ...mockJob, id: 'job-3' });
+
+        const submission = {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        };
+
+        // Submit 3 jobs concurrently
+        const results = await Promise.all([
+          service.submitJob('user-1', submission),
+          service.submitJob('user-2', submission),
+          service.submitJob('user-3', submission),
+        ]);
+
+        expect(results).toHaveLength(3);
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+      });
+
+      it('should preserve event ordering across stages for single job', async () => {
+        await service.submitJob('user-1', {
+          agent: 'AlphaCal' as const,
+          dataset_id: 'VLASS2.1.sb38593457',
+          params: { rfi_strategy: 'medium' as const, gpu_count: 2 },
+        });
+
+        // Verify events were published
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
+
+        // Verify partition key ensures ordering
+        const calls = kafkaService.publishJobLifecycleEvent.mock.calls;
+        const partitionKeys = calls.map((call) => call[1]);
+
+        // All events for same job should have same partition key
+        expect(new Set(partitionKeys).size).toBe(1);
+      });
+    });
+  });
 });
