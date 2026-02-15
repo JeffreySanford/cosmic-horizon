@@ -114,7 +114,8 @@ describe('AppController', () => {
       const result = await controller.getDocumentationContent('roadmap');
 
       expect(result.docId).toBe('roadmap');
-      expect(result.sourcePath).toContain('documentation/planning/roadmap');
+      expect(result.sourcePath.toLowerCase()).toContain('roadmap');
+      expect(result.sourcePath.toLowerCase()).toContain('.md');
       expect(result.content.length).toBeGreaterThan(100);
       expect(result.content).toContain('#');
     });

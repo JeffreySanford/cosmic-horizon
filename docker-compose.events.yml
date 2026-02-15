@@ -1,233 +1,128 @@
-version: '3.9'
+# Event Brokers Configuration
+# Usage: docker compose -f docker-compose.yml -f docker-compose.events.yml up -d
+#
+# Event Infrastructure for ngVLA Phase 3.5 Broker Comparison:
+# - ZooKeeper: Coordination backend for Kafka
+# - RabbitMQ: Ephemeral real-time messaging (<10ms latency)
+# - Kafka: Durable audit trail (90-day retention, immutable log)
+# - Pulsar: Alternative async broker with distributed ledger storage
 
 services:
-  # RabbitMQ Cluster (3 nodes for quorum queues)
-  rabbitmq-1:
-    image: rabbitmq:3.13-management
-    container_name: cosmic-horizons-rabbitmq-1
-    environment:
-      RABBITMQ_ERLANG_COOKIE: cosmic-horizons-secret-cookie
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq}
-      RABBITMQ_NODENAME: rabbit@rabbitmq-1
-    ports:
-      - "5672:5672"     # AMQP port
-      - "15672:15672"   # Management UI
-    volumes:
-      - rabbitmq-1-data:/var/lib/rabbitmq
-      - ./scripts/rabbitmq-cluster.sh:/tmp/rabbitmq-cluster.sh:ro
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - cosmic-horizons-events
-    command: bash -c "rabbitmq-server"
-
-  rabbitmq-2:
-    image: rabbitmq:3.13-management
-    container_name: cosmic-horizons-rabbitmq-2
-    environment:
-      RABBITMQ_ERLANG_COOKIE: cosmic-horizons-secret-cookie
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq}
-      RABBITMQ_NODENAME: rabbit@rabbitmq-2
-    ports:
-      - "5673:5672"
-      - "15673:15672"
-    volumes:
-      - rabbitmq-2-data:/var/lib/rabbitmq
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - cosmic-horizons-events
-    depends_on:
-      rabbitmq-1:
-        condition: service_healthy
-    command: bash -c "rabbitmq-server"
-
-  rabbitmq-3:
-    image: rabbitmq:3.13-management
-    container_name: cosmic-horizons-rabbitmq-3
-    environment:
-      RABBITMQ_ERLANG_COOKIE: cosmic-horizons-secret-cookie
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq}
-      RABBITMQ_NODENAME: rabbit@rabbitmq-3
-    ports:
-      - "5674:5672"
-      - "15674:15672"
-    volumes:
-      - rabbitmq-3-data:/var/lib/rabbitmq
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - cosmic-horizons-events
-    depends_on:
-      rabbitmq-1:
-        condition: service_healthy
-    command: bash -c "rabbitmq-server"
-
-  # Kafka Cluster (3 brokers + Zookeeper)
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
+  # ============================================================================
+  # ZOOKEEPER (Coordination for Kafka)
+  # ============================================================================
+  cosmic-horizons-zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
     container_name: cosmic-horizons-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_SYNC_LIMIT: 2
-      ZOOKEEPER_INIT_LIMIT: 5
-      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2181:2181"
+      - "127.0.0.1:2181:2181"
     volumes:
-      - zookeeper-data:/var/lib/zookeeper/data
-      - zookeeper-logs:/var/lib/zookeeper/log
+      - cosmic-horizons-zookeeper-data:/var/lib/zookeeper/data
     networks:
-      - cosmic-horizons-events
+      - cosmic-horizons-network
+    restart: unless-stopped
     healthcheck:
       test: echo stat | nc localhost 2181
       interval: 10s
       timeout: 5s
       retries: 5
 
-  kafka-1:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: cosmic-horizons-kafka-1
+  # ============================================================================
+  # KAFKA (Durable Audit Trail - 90 Day Retention)
+  # ============================================================================
+  cosmic-horizons-kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: cosmic-horizons-kafka
+    depends_on:
+      cosmic-horizons-zookeeper:
+        condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:29092,PLAINTEXT_HOST://kafka-1:9092
+      KAFKA_ZOOKEEPER_CONNECT: cosmic-horizons-zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cosmic-horizons-kafka:29092,PLAINTEXT_HOST://127.0.0.1:${KAFKA_PORT:-9092}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_AUTO_OFFSET_RESET_CONFIG: earliest
-      KAFKA_LOG_RETENTION_HOURS: 720
-      KAFKA_LOG_RETENTION_BYTES: 53687091200
-      KAFKA_LOG_SEGMENT_BYTES: 1073741824
-      KAFKA_OFFSETS_RETENTION_MINUTES: 43200
-      KAFKA_COMPRESSION_TYPE: snappy
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LOG_RETENTION_HOURS: 2160
+      KAFKA_LOG_RETENTION_BYTES: 1099511627776
     ports:
-      - "9092:9092"
+      - "127.0.0.1:${KAFKA_PORT:-9092}:9092"
     volumes:
-      - kafka-1-data:/var/lib/kafka/data
+      - cosmic-horizons-kafka-data:/var/lib/kafka/data
     networks:
-      - cosmic-horizons-events
-    depends_on:
-      zookeeper:
-        condition: service_healthy
+      - cosmic-horizons-network
+    restart: unless-stopped
     healthcheck:
-      test: kafka-broker-api-versions.sh --bootstrap-server localhost:9092
+      test: ["CMD", "sh", "-c", "nc -z localhost 9092"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+
+  # ============================================================================
+  # RABBITMQ (Ephemeral Real-time Messaging)
+  # ============================================================================
+  cosmic-horizons-rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: cosmic-horizons-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "127.0.0.1:5672:5672"       # AMQP protocol
+      - "127.0.0.1:15672:15672"     # Management UI
+    volumes:
+      - cosmic-horizons-rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - cosmic-horizons-network
+    restart: unless-stopped
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
       interval: 10s
       timeout: 5s
       retries: 5
 
-  kafka-2:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: cosmic-horizons-kafka-2
+  # ============================================================================
+  # PULSAR STANDALONE (Alternative Async Broker)
+  # ============================================================================
+  pulsar-standalone:
+    image: apachepulsar/pulsar:latest
+    container_name: cosmic-horizons-pulsar-standalone
     environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:29092,PLAINTEXT_HOST://kafka-2:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_AUTO_OFFSET_RESET_CONFIG: earliest
-      KAFKA_LOG_RETENTION_HOURS: 720
-      KAFKA_LOG_RETENTION_BYTES: 53687091200
-      KAFKA_LOG_SEGMENT_BYTES: 1073741824
-      KAFKA_OFFSETS_RETENTION_MINUTES: 43200
-      KAFKA_COMPRESSION_TYPE: snappy
+      PULSAR_MEM: "-Xms1g -Xmx1g"
+      PULSAR_GC: "-XX:+UseG1GC -XX:MaxGCPauseMillis=10"
     ports:
-      - "9093:9092"
+      - "6650:6650"   # Pulsar broker protocol
+      - "8080:8080"   # HTTP REST API
+      - "8081:8081"   # WebSocket
     volumes:
-      - kafka-2-data:/var/lib/kafka/data
+      - pulsar-standalone-data:/var/lib/pulsar
     networks:
-      - cosmic-horizons-events
-    depends_on:
-      zookeeper:
-        condition: service_healthy
+      - cosmic-horizons-network
+    command: bin/pulsar standalone
+    restart: unless-stopped
     healthcheck:
-      test: kafka-broker-api-versions.sh --bootstrap-server localhost:9092
+      test: ["CMD", "curl", "-f", "http://localhost:8080/admin/v2/brokers/healthy"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  kafka-3:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: cosmic-horizons-kafka-3
-    environment:
-      KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:29092,PLAINTEXT_HOST://kafka-3:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_AUTO_OFFSET_RESET_CONFIG: earliest
-      KAFKA_LOG_RETENTION_HOURS: 720
-      KAFKA_LOG_RETENTION_BYTES: 53687091200
-      KAFKA_LOG_SEGMENT_BYTES: 1073741824
-      KAFKA_OFFSETS_RETENTION_MINUTES: 43200
-      KAFKA_COMPRESSION_TYPE: snappy
-    ports:
-      - "9094:9092"
-    volumes:
-      - kafka-3-data:/var/lib/kafka/data
-    networks:
-      - cosmic-horizons-events
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-    healthcheck:
-      test: kafka-broker-api-versions.sh --bootstrap-server localhost:9092
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Confluent Schema Registry
-  schema-registry:
-    image: confluentinc/cp-schema-registry:7.5.0
-    container_name: cosmic-horizons-schema-registry
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-1:29092,kafka-2:29092,kafka-3:29092
-      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-      SCHEMA_REGISTRY_DEBUG: "false"
-      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 3
-    ports:
-      - "8081:8081"
-    networks:
-      - cosmic-horizons-events
-    depends_on:
-      kafka-1:
-        condition: service_healthy
-      kafka-2:
-        condition: service_healthy
-      kafka-3:
-        condition: service_healthy
-    healthcheck:
-      test: curl --fail http://localhost:8081/subjects || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      start_period: 15s
 
 volumes:
-  rabbitmq-1-data:
-  rabbitmq-2-data:
-  rabbitmq-3-data:
-  zookeeper-data:
-  zookeeper-logs:
-  kafka-1-data:
-  kafka-2-data:
-  kafka-3-data:
+  cosmic-horizons-zookeeper-data:
+    driver: local
+  cosmic-horizons-rabbitmq-data:
+    driver: local
+  cosmic-horizons-kafka-data:
+    driver: local
+  pulsar-standalone-data:
+    driver: local
 
 networks:
-  cosmic-horizons-events:
+  cosmic-horizons-network:
     driver: bridge

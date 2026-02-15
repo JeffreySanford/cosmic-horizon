@@ -47,7 +47,7 @@
     </div>
   } @else {
     <div class="docs-grid">
-      @for (section of sections; track section.title) {
+      @for (section of (sections$ | async); track section.title) {
         <mat-card class="section-card">
           <mat-card-header>
             <mat-icon mat-card-avatar>{{ section.icon }}</mat-icon>

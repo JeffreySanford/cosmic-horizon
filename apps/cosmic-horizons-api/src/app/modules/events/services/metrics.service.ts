@@ -46,7 +46,10 @@ export class MetricsService {
         });
       }
 
-      const jobMetrics = this.metricsMap.get(jobId)!;
+      const jobMetrics = this.metricsMap.get(jobId);
+      if (!jobMetrics) {
+        return;
+      }
       jobMetrics.samples.push({
         cpu_usage_percent: metrics.cpu_usage_percent,
         memory_usage_mb: metrics.memory_usage_mb,

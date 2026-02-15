@@ -227,6 +227,57 @@ Admin-only access to system logs.
 - **Auth**: Required (admin only)
 - **Response**: `{ items: LogEntry[], total }`
 
+### Internal Documentation
+
+#### GET /internal-docs/catalog
+
+Returns the markdown catalog used by the `/docs` UI.
+
+- **Response**: `{ count, docs: [{ id, label, section, sourcePath }] }`
+- **Notes**:
+  - Backed by `documentation/index/DOCS-VIEW-CATALOG.json`
+  - Catalog generated from markdown source files (`documentation/**/*.md`, plus root docs)
+
+#### GET /internal-docs/content/:docId
+
+Returns markdown content for a catalog entry.
+
+- **Params**: `docId` from `/internal-docs/catalog`
+- **Response**: `{ docId, sourcePath, content }`
+
+### Event Replay and Offset Tracking
+
+#### GET /events/topics
+
+Returns supported Kafka topics for replay queries.
+
+- **Response**: `{ count, topics }`
+
+#### GET /events/history
+
+Returns tracked event history for one topic.
+
+- **Query**:
+  - `topic` (required, valid Kafka topic)
+  - `sinceTimestamp` (optional, ISO timestamp)
+  - `fromOffset` (optional, numeric offset floor)
+  - `limit` (optional, max results; clamped)
+- **Response**: `{ count, topic, events }`
+
+#### GET /events/offsets
+
+Returns tracked consumer offsets.
+
+- **Query**: `groupId` (optional)
+- **Response**: `{ count, groupId, offsets }`
+
+#### POST /events/offsets/ack
+
+Acknowledges/updates consumer offset for replay tracking.
+
+- **Body**: `{ groupId, topic, partition?, offset }`
+- **Response**: `{ ok, record }` or `{ ok: false, message }`
+
 ## Rate Limiting
 
 - Default: 100 requests per minute

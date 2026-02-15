@@ -1,5 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+interface NotificationPayload {
+  type: string;
+  job_id: string;
+  user_id: string;
+  timestamp?: string;
+  data?: Record<string, unknown>;
+}
+
+interface InAppNotification {
+  user_id: string;
+  job_id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
+type NewInAppNotification = Omit<InAppNotification, 'created_at'>;
+
 /**
  * NotificationService handles job completion and failure notifications
  * Supports multiple channels: email, in-app, WebSocket
@@ -9,7 +29,7 @@ export class NotificationService {
   private readonly logger = new Logger('NotificationService');
 
   // In-memory notification storage
-  private readonly notificationsMap = new Map<string, any[]>();
+  private readonly notificationsMap = new Map<string, InAppNotification[]>();
 
   /**
    * Send job completion email notification
@@ -56,13 +76,7 @@ export class NotificationService {
   /**
    * Broadcast notification via WebSocket to connected clients
    */
-  async broadcastViaWebSocket(notification: {
-    type: string;
-    job_id: string;
-    user_id: string;
-    timestamp?: string;
-    data?: Record<string, any>;
-  }): Promise<void> {
+  async broadcastViaWebSocket(notification: NotificationPayload): Promise<void> {
     try {
       this.logger.debug(
         `Broadcasting ${notification.type} notification for job ${notification.job_id}`,
@@ -78,24 +92,18 @@ export class NotificationService {
   /**
    * Store in-app notification in database
    */
-  async storeInAppNotification(notification: {
-    user_id: string;
-    job_id: string;
-    type: string;
-    title: string;
-    message: string;
-    read: boolean;
-  }): Promise<void> {
+  async storeInAppNotification(notification: NewInAppNotification): Promise<void> {
     try {
       if (!this.notificationsMap.has(notification.user_id)) {
         this.notificationsMap.set(notification.user_id, []);
       }
 
-      const userNotifications = this.notificationsMap.get(notification.user_id)!;
+      const userNotifications = this.notificationsMap.get(notification.user_id) ?? [];
       userNotifications.push({
         ...notification,
         created_at: new Date().toISOString(),
       });
+      this.notificationsMap.set(notification.user_id, userNotifications);
 
       this.logger.debug(
         `Stored in-app notification for user ${notification.user_id}`,
@@ -109,7 +117,7 @@ export class NotificationService {
   /**
    * Get unread notifications for user
    */
-  async getUnreadNotifications(userId: string): Promise<any[]> {
+  async getUnreadNotifications(userId: string): Promise<InAppNotification[]> {
     const notifications = this.notificationsMap.get(userId) || [];
     return notifications.filter((n) => !n.read);
   }

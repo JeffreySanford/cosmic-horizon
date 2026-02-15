@@ -25,21 +25,11 @@ import { AuthenticatedGuard } from './auth/guards/authenticated.guard';
 import { RateLimitGuard } from './guards/rate-limit.guard';
 import type { AuthenticatedRequest } from './types/http.types';
 
-const DOC_CONTENT_MAP: Record<string, string> = {
-  architecture: 'documentation/architecture/ARCHITECTURE.md',
-  roadmap: 'documentation/planning/roadmap/ROADMAP.md',
-  'overview-v2': 'documentation/index/OVERVIEW-V2.md',
-  'overview-critique': 'documentation/index/OVERVIEW-V2-CRITIQUE.md',
-  'product-charter': 'documentation/product/PRODUCT-CHARTER.md',
-  'source-of-truth': 'documentation/governance/SOURCE-OF-TRUTH.md',
-  'quick-start': 'documentation/operations/QUICK-START.md',
-  'env-reference': 'documentation/reference/ENV-REFERENCE.md',
-  'coding-standards': 'documentation/quality/CODING-STANDARDS.md',
-  'testing-strategy': 'documentation/quality/TESTING-STRATEGY.md',
-  'audit-strategy': 'documentation/architecture/AUDIT-STRATEGY-SITEWIDE.md',
-  'cosmic-datasets': 'documentation/reference/COSMIC-DATASETS.md',
-  'messaging-architecture':
-    'documentation/backend/messaging/MESSAGING-ARCHITECTURE.md',
+type InternalDocCatalogEntry = {
+  id: string;
+  label: string;
+  section: string;
+  sourcePath: string;
 };
 
 @Controller()
@@ -56,26 +46,74 @@ export class AppController {
     return this.appService.getHealthStatus();
   }
 
+  @Get('internal-docs/catalog')
+  async getDocumentationCatalog() {
+    const catalog = await this.loadDocumentationCatalog();
+    return {
+      count: catalog.length,
+      docs: catalog,
+    };
+  }
+
   @Get('internal-docs/content/:docId')
   async getDocumentationContent(@Param('docId') docId: string) {
-    const relativePath = DOC_CONTENT_MAP[docId];
-    if (!relativePath) {
+    const catalog = await this.loadDocumentationCatalog();
+    const match = catalog.find((entry) => entry.id === docId);
+    if (!match) {
       throw new BadRequestException(`Unsupported doc id: ${docId}`);
     }
 
     const workspaceRoot = this.findWorkspaceRoot();
-    const absolutePath = resolve(workspaceRoot, relativePath);
+    const absolutePath = resolve(workspaceRoot, match.sourcePath);
     try {
       const content = await readFile(absolutePath, 'utf8');
       return {
         docId,
-        sourcePath: relativePath,
+        sourcePath: match.sourcePath,
         content,
       };
     } catch {
       throw new NotFoundException(
-        `Documentation file is unavailable: ${relativePath}`,
+        `Documentation file is unavailable: ${match.sourcePath}`,
       );
+    }
+  }
+
+  private async loadDocumentationCatalog(): Promise<InternalDocCatalogEntry[]> {
+    const workspaceRoot = this.findWorkspaceRoot();
+    const catalogPath = resolve(
+      workspaceRoot,
+      'documentation/index/DOCS-VIEW-CATALOG.json',
+    );
+
+    try {
+      const raw = await readFile(catalogPath, 'utf8');
+      const parsed = JSON.parse(raw) as InternalDocCatalogEntry[];
+      if (!Array.isArray(parsed)) {
+        throw new Error('Invalid docs catalog format');
+      }
+      return parsed.filter((entry) =>
+        typeof entry.id === 'string' &&
+        typeof entry.label === 'string' &&
+        typeof entry.section === 'string' &&
+        typeof entry.sourcePath === 'string'
+      );
+    } catch {
+      // Fallback protects local dev if catalog build has not run yet.
+      return [
+        {
+          id: 'documentation--architecture--architecture',
+          label: 'Architecture',
+          section: 'Architecture',
+          sourcePath: 'documentation/architecture/ARCHITECTURE.md',
+        },
+        {
+          id: 'documentation--planning--roadmap--roadmap',
+          label: 'Roadmap',
+          section: 'Planning',
+          sourcePath: 'documentation/planning/roadmap/ROADMAP.md',
+        },
+      ];
     }
   }
 

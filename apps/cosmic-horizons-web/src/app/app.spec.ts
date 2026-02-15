@@ -7,8 +7,8 @@ import { FooterComponent } from './shared/layout/footer/footer.component';
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterModule.forRoot([]), FooterComponent],
-      declarations: [App],
+      imports: [RouterModule.forRoot([])],
+      declarations: [App, FooterComponent],
     }).compileComponents();
   });
 
@@ -20,4 +20,3 @@ describe('App', () => {
     expect(compiled.querySelector('app-footer')).toBeTruthy();
   });
 });
-

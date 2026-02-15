@@ -6,7 +6,7 @@ export interface AuditEvent {
   user_id: string;
   event_type: string;
   timestamp: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   immutable_hash?: string;
 }
 

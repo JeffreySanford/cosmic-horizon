@@ -1,0 +1,77 @@
+# DEPRECATED: Pulsar configuration has been consolidated into docker-compose.events.yml
+# 
+# This file is kept for reference only and should not be used.
+# All event brokers are now in docker-compose.events.yml:
+# - ZooKeeper
+# - RabbitMQ
+# - Kafka
+# - Pulsar Standalone
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.events.yml up -d
+#
+# Or use npm scripts:
+#   pnpm start:infra      # Start infrastructure (with event brokers)
+#   pnpm start:infra:reset # Full reset (clean volumes + rebuild)
+#   pnpm stop:infra       # Stop all infrastructure
+
+services:
+  # ============================================================================
+  # PULSAR STANDALONE (Simplified, single-container setup)
+  # ============================================================================
+  
+  # Pulsar Standalone (includes ZooKeeper, BookKeeper, and Broker in one container)
+  pulsar-standalone:
+    image: apachepulsar/pulsar:latest
+    container_name: cosmic-horizons-pulsar-standalone
+    environment:
+      PULSAR_MEM: "-Xms1g -Xmx1g"
+      PULSAR_GC: "-XX:+UseG1GC -XX:MaxGCPauseMillis=10"
+    ports:
+      - "6650:6650"   # Pulsar broker protocol
+      - "8080:8080"   # HTTP REST API
+      - "8081:8081"   # WebSocket
+    volumes:
+      - pulsar-standalone-data:/var/lib/pulsar
+    networks:
+      - cosmic-horizons-network
+    command: bin/pulsar standalone
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/admin/v2/brokers/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Pulsar Manager (WebUI for management) - DISABLED: configuration issues with environment variables
+  # To enable: fix environment variable mapping in supervisord.conf inside container
+  # pulsar-manager:
+  #   image: apachepulsar/pulsar-manager:latest
+  #   container_name: cosmic-horizons-pulsar-manager
+  #   environment:
+  #     REDIRECT_HOST: 127.0.0.1
+  #     REDIRECT_PORT: 9527
+  #     DRIVER_CLASS_NAME: org.h2.Driver
+  #     DB_URL: "jdbc:h2:mem:pulsar_manager"
+  #     DB_USER: admin
+  #     DB_PASSWORD: admin
+  #     DEFAULT_ENVIRONMENT_NAME: standalone
+  #     DEFAULT_ENVIRONMENT_SERVICE_URL: "http://pulsar-standalone:8080"
+  #     DEFAULT_ENVIRONMENT_BOOKIE_WEB_SERVICE_URL: "http://pulsar-standalone:8080"
+  #   ports:
+  #     - "9527:9527"   # Pulsar Manager UI (user: admin / pass: apachepulsar)
+  #   networks:
+  #     - cosmic-horizons-network
+  #   depends_on:
+  #     pulsar-standalone:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:9527/pulsar-manager/"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 15s
+
+volumes:
+  # Pulsar volumes
+  pulsar-standalone-data:

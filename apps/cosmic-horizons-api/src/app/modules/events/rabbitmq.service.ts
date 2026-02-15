@@ -19,8 +19,8 @@ import * as amqp from 'amqplib';
 @Injectable()
 export class RabbitMQService implements OnModuleDestroy {
   private readonly logger = new Logger(RabbitMQService.name);
-  private connection: any = null;
-  private channel: any = null;
+  private connection: amqp.Connection | null = null;
+  private channel: amqp.Channel | null = null;
   private connected = false;
   private reconnectAttempts = 0;
   private readonly maxReconnectAttempts = 5;
@@ -74,7 +74,11 @@ export class RabbitMQService implements OnModuleDestroy {
         heartbeat: 60,
       };
       // amqplib supports both single URL string and array of URLs for clustering
-      this.connection = await (amqp.connect as any)(this.brokers, connOptions);
+      const connect = amqp.connect as unknown as (
+        url: string | string[],
+        socketOptions?: unknown,
+      ) => Promise<amqp.Connection>;
+      this.connection = await connect(this.brokers, connOptions);
 
       this.logger.log('RabbitMQ connection established');
 

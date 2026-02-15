@@ -519,7 +519,10 @@ export class LatencyMeasurer {
       if (!this.measurements.has(name)) {
         this.measurements.set(name, []);
       }
-      this.measurements.get(name)!.push(duration);
+      const namedMeasurements = this.measurements.get(name);
+      if (namedMeasurements) {
+        namedMeasurements.push(duration);
+      }
     };
   }
 

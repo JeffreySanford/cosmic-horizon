@@ -11,7 +11,7 @@
  * - Easier to mock or replace UUID strategy in tests
  */
 
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 /**
  * UUID type (branded string for type safety)
@@ -24,7 +24,7 @@ export type UUID = string & { readonly __brand: 'UUID' };
  * @returns UUID v4 string
  */
 export function generateUUID(): UUID {
-  return uuidv4() as UUID;
+  return randomUUID() as UUID;
 }
 
 /**

@@ -1,0 +1,21 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { BrokerComparisonComponent } from './broker-comparison/broker-comparison.component';
+
+const routes: Routes = [
+  {
+    path: 'broker-comparison',
+    component: BrokerComparisonComponent,
+  },
+  {
+    path: '',
+    redirectTo: 'broker-comparison',
+    pathMatch: 'full',
+  },
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
+})
+export class OperationsRoutingModule {}

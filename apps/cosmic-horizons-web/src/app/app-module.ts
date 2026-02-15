@@ -12,13 +12,12 @@ import { MockApiInterceptor } from './shared/interceptors/mock-api.interceptor';
 import { FooterComponent } from './shared/layout/footer/footer.component';
 
 @NgModule({
-  declarations: [App],
+  declarations: [App, FooterComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     RouterModule,
     MaterialModule,
-    FooterComponent,
   ],
   providers: [
     provideRouter(appRoutes),

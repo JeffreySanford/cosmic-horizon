@@ -1,0 +1,241 @@
+<mat-toolbar color="primary">
+  <span class="toolbar-title">🔍 Broker Performance Comparison</span>
+  <span class="spacer"></span>
+  <button mat-icon-button matTooltip="Refresh metrics" (click)="refreshMetrics()" [disabled]="isLoading">
+    <mat-icon>refresh</mat-icon>
+  </button>
+  <button mat-raised-button color="accent" matTooltip="Run benchmark test" (click)="runBenchmark()"
+    [disabled]="isBenchmarkRunning">
+    <mat-icon>play_arrow</mat-icon>
+    {{ isBenchmarkRunning ? 'Running...' : 'Run Benchmark' }}
+  </button>
+</mat-toolbar>
+
+<div class="container">
+  <!-- Error Alert -->
+  @if (error) {
+  <div class="error-message">
+    <mat-icon>error</mat-icon>
+    {{ error }}
+  </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading && !brokerMetrics) {
+  <div class="loading-state">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading broker metrics...</p>
+  </div>
+  }
+
+  <!-- Main Content -->
+  @if (brokerMetrics && !isLoading) {
+    <!-- Header Info -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>📊 Last Updated: {{ lastRefresh | date: 'short' }}</mat-card-title>
+        <mat-card-subtitle>
+          Metrics refreshed {{ getLastRefreshText() }} • Phase 3.5 Pulsar Evaluation
+        </mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+
+    <!-- Broker Health Status -->
+    <mat-card class="status-card">
+      <mat-card-title>🔌 Broker Status</mat-card-title>
+      <mat-card-content>
+        <div class="status-grid">
+          <div class="status-item" [ngClass]="getStatusClass(brokerStatuses['rabbitmq'])">
+            <div class="status-indicator"></div>
+            <div class="status-name">RabbitMQ</div>
+            <div class="status-value">{{ brokerStatuses['rabbitmq'] | uppercase }}</div>
+          </div>
+
+          <div class="status-item" [ngClass]="getStatusClass(brokerStatuses['kafka'])">
+            <div class="status-indicator"></div>
+            <div class="status-name">Kafka</div>
+            <div class="status-value">{{ brokerStatuses['kafka'] | uppercase }}</div>
+          </div>
+
+          <div class="status-item" [ngClass]="getStatusClass(brokerStatuses['pulsar'])">
+            <div class="status-indicator"></div>
+            <div class="status-name">Pulsar</div>
+            <div class="status-value">{{ brokerStatuses['pulsar'] | uppercase }}</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Throughput Comparison -->
+    <mat-card class="metric-card">
+      <mat-card-title>📈 Throughput (messages/sec)</mat-card-title>
+      <mat-card-content>
+        <div class="metric-row">
+          <div class="broker-stat">
+            <div class="broker-label">RabbitMQ</div>
+            <div class="broker-value primary">{{ formatThroughput(brokerMetrics.brokers.rabbitmq.messagesPerSecond)
+              }}</div>
+          </div>
+
+          <div class="vs-badge">vs</div>
+
+          <div class="broker-stat">
+            <div class="broker-label">Pulsar</div>
+            <div class="broker-value accent">{{ formatThroughput(brokerMetrics.brokers.pulsar?.messagesPerSecond)
+              }}</div>
+          </div>
+        </div>
+        @if (brokerMetrics.comparison.throughputImprovement) {
+        <div class="improvement-banner"
+          [ngClass]="getImprovementClass(brokerMetrics.comparison.throughputImprovement)">
+          <mat-icon>trending_up</mat-icon>
+          Pulsar {{ brokerMetrics.comparison.throughputImprovement }} faster
+        </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Latency Comparison -->
+    <mat-card class="metric-card">
+      <mat-card-title>⚡ Latency (P99, milliseconds)</mat-card-title>
+      <mat-card-content>
+        <div class="metric-row">
+          <div class="broker-stat">
+            <div class="broker-label">RabbitMQ</div>
+            <div class="broker-value primary">{{ formatLatency(brokerMetrics.brokers.rabbitmq.p99LatencyMs) }}
+            </div>
+          </div>
+
+          <div class="vs-badge">vs</div>
+
+          <div class="broker-stat">
+            <div class="broker-label">Pulsar</div>
+            <div class="broker-value accent">{{ formatLatency(brokerMetrics.brokers.pulsar?.p99LatencyMs) }}</div>
+          </div>
+        </div>
+        @if (brokerMetrics.comparison.latencyImprovement) {
+        <div class="improvement-banner"
+          [ngClass]="getImprovementClass(brokerMetrics.comparison.latencyImprovement)">
+          <mat-icon>speed</mat-icon>
+          Pulsar {{ brokerMetrics.comparison.latencyImprovement }} latency
+        </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Memory Efficiency -->
+    <mat-card class="metric-card">
+      <mat-card-title>💾 Memory Usage (MB)</mat-card-title>
+      <mat-card-content>
+        <div class="metric-row">
+          <div class="broker-stat">
+            <div class="broker-label">RabbitMQ</div>
+            <div class="broker-value primary">{{ formatMemory(brokerMetrics.brokers.rabbitmq.memoryUsageMb) }}
+            </div>
+          </div>
+
+          <div class="vs-badge">vs</div>
+
+          <div class="broker-stat">
+            <div class="broker-label">Pulsar</div>
+            <div class="broker-value accent">{{ formatMemory(brokerMetrics.brokers.pulsar?.memoryUsageMb) }}</div>
+          </div>
+        </div>
+        @if (brokerMetrics.comparison.memoryEfficiency) {
+        <div class="improvement-banner"
+          [ngClass]="getImprovementClass(brokerMetrics.comparison.memoryEfficiency)">
+          <mat-icon>savings</mat-icon>
+          Pulsar {{ brokerMetrics.comparison.memoryEfficiency }} memory
+        </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Detailed Metrics Table -->
+    <mat-card class="details-card">
+      <mat-card-title>📋 Detailed Metrics</mat-card-title>
+      <mat-card-content>
+        <div class="table-container">
+          <table mat-table [dataSource]="getDetailedMetricsData()" class="metrics-table">
+            <!-- Metric Column -->
+            <ng-container matColumnDef="metric">
+              <th mat-header-cell *matHeaderCellDef>Metric</th>
+              <td mat-cell *matCellDef="let element">{{ element.metric }}</td>
+            </ng-container>
+
+            <!-- RabbitMQ Column -->
+            <ng-container matColumnDef="rabbitmq">
+              <th mat-header-cell *matHeaderCellDef>RabbitMQ</th>
+              <td mat-cell *matCellDef="let element">{{ element.rabbitmq || 'N/A' }}</td>
+            </ng-container>
+
+            <!-- Pulsar Column -->
+            <ng-container matColumnDef="pulsar">
+              <th mat-header-cell *matHeaderCellDef>Pulsar</th>
+              <td mat-cell *matCellDef="let element">{{ element.pulsar || 'N/A' }}</td>
+            </ng-container>
+
+            <!-- Kafka Column -->
+            <ng-container matColumnDef="kafka">
+              <th mat-header-cell *matHeaderCellDef>Kafka</th>
+              <td mat-cell *matCellDef="let element">{{ element.kafka || 'N/A' }}</td>
+            </ng-container>
+
+            <!-- Improvement Column -->
+            <ng-container matColumnDef="improvement">
+              <th mat-header-cell *matHeaderCellDef>Pulsar vs RabbitMQ</th>
+              <td mat-cell *matCellDef="let element" [ngClass]="getImprovementClass(element.improvement)">
+                {{ element.improvement || '—' }}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Uptime Info -->
+    <mat-card class="info-footer">
+      <mat-card-content>
+        <div class="uptime-grid">
+          <div class="uptime-item">
+            <div class="uptime-label">RabbitMQ Uptime</div>
+            <div class="uptime-value">{{ brokerMetrics.brokers.rabbitmq.uptime || 'N/A' }}</div>
+          </div>
+          <div class="uptime-item">
+            <div class="uptime-label">Kafka Uptime</div>
+            <div class="uptime-value">{{ brokerMetrics.brokers.kafka.uptime || 'N/A' }}</div>
+          </div>
+          <div class="uptime-item">
+            <div class="uptime-label">Pulsar Uptime</div>
+            <div class="uptime-value">{{ brokerMetrics.brokers.pulsar?.uptime || 'N/A' }}</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Info Panel -->
+    <mat-card class="info-panel">
+      <mat-card-title>ℹ️ About This Evaluation</mat-card-title>
+      <mat-card-content>
+        <p>
+          <strong>Phase 3.5: Pulsar Evaluation</strong> - This dashboard compares Apache Pulsar with your existing
+          RabbitMQ and Kafka brokers.
+        </p>
+        <p>
+          <strong>Purpose:</strong> Validate that Pulsar can consolidate both ephemeral (RabbitMQ) and durable (Kafka)
+          messaging with 30-40% performance improvement.
+        </p>
+        <p>
+          <strong>Documentation:</strong> See <a href="/docs/architecture/BROKER-COMPARISON-STRATEGY"
+            target="_blank">BROKER-COMPARISON-STRATEGY.md</a> for detailed information.
+        </p>
+        <p>
+          <strong>Next Steps:</strong> Run benchmarks, review results, and update the Event Streaming ADR with findings.
+        </p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

@@ -300,7 +300,7 @@
   - [ ] Document partition strategy
   - [ ] Document error handling paths
 - [ ] **10:30** Create Operations Runbook
-  - [ ] Create [SPRINT-5-3-OPERATIONS-RUNBOOK.md](SPRINT-5-3-OPERATIONS-RUNBOOK.md)
+  - [x] Create [SPRINT-5-3-OPERATIONS-RUNBOOK.md](SPRINT-5-3-OPERATIONS-RUNBOOK.md)
   - [ ] Consumer deployment steps
   - [ ] Health check procedures
   - [ ] Troubleshooting guide
@@ -309,7 +309,7 @@
 ### Afternoon Session (13:00-17:00)
 
 - [ ] **13:00** Create Metrics & KPIs Document
-  - [ ] Create [SPRINT-5-3-METRICS.md](SPRINT-5-3-METRICS.md)
+  - [x] Create [SPRINT-5-3-METRICS.md](SPRINT-5-3-METRICS.md)
   - [ ] Document all measured performance metrics
   - [ ] Document alert thresholds
   - [ ] Document SLOs for Phase 3

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, Logger } from '@nestjs/common';
 
 /**
@@ -7,10 +8,10 @@ import { Injectable, Logger } from '@nestjs/common';
 @Injectable()
 export class SystemHealthMonitorService {
   private readonly logger = new Logger('SystemHealthMonitorService');
-  private consumerMetrics = new Map<string, any>();
+  private consumerMetrics = new Map<string, Record<string, unknown>>();
   private consumerLags = new Map<string, number[]>();
 
-  async processHealthEvent(event: any): Promise<any> {
+  async processHealthEvent(event: { consumerId: string; status?: string }): Promise<{ consumerHealth: string; processed: boolean }> {
     this.logger.debug(`Processing health event for consumer ${event.consumerId}`);
     this.consumerMetrics.set(event.consumerId, event);
     return {
@@ -19,9 +20,14 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async calculateConsumerLag(metrics: any): Promise<any> {
-    const totalLag = metrics.partitions.reduce((sum: number, p: any) => sum + p.lag, 0);
-    const maxLag = Math.max(...metrics.partitions.map((p: any) => p.lag));
+  async calculateConsumerLag(metrics: { partitions: Array<{ lag: number }> }): Promise<{
+    totalLag: number;
+    maxLag: number;
+    partitionCount: number;
+    averageLag: number;
+  }> {
+    const totalLag = metrics.partitions.reduce((sum: number, partition) => sum + partition.lag, 0);
+    const maxLag = Math.max(...metrics.partitions.map((partition) => partition.lag));
 
     return {
       totalLag,
@@ -31,14 +37,22 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async trackOffsetProgress(event: any): Promise<any> {
+  async trackOffsetProgress(event: { lag: number; currentOffset: number; lastOffset: number }): Promise<{
+    lag: number;
+    commitPercentage: number;
+  }> {
     return {
       lag: event.lag,
       commitPercentage: ((event.currentOffset / event.lastOffset) * 100) || 0,
     };
   }
 
-  async initializeConsumerMonitoring(consumerId: string, consumerGroup: string): Promise<any> {
+  async initializeConsumerMonitoring(consumerId: string, consumerGroup: string): Promise<{
+    consumerId: string;
+    consumerGroup: string;
+    status: string;
+    createdAt: Date;
+  }> {
     return {
       consumerId,
       consumerGroup,
@@ -51,10 +65,13 @@ export class SystemHealthMonitorService {
     if (!this.consumerLags.has(consumerId)) {
       this.consumerLags.set(consumerId, []);
     }
-    this.consumerLags.get(consumerId)!.push(lag);
+    const lags = this.consumerLags.get(consumerId);
+    if (lags) {
+      lags.push(lag);
+    }
   }
 
-  async getConsumerLagStats(consumerId: string): Promise<any> {
+  async getConsumerLagStats(consumerId: string): Promise<{ avgLag: number; maxLag: number; sampleCount: number }> {
     const lags = this.consumerLags.get(consumerId) || [];
     const avgLag = lags.reduce((a, b) => a + b, 0) / (lags.length || 1);
     const maxLag = Math.max(...lags, 0);
@@ -66,15 +83,19 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async recordEventOutcome(event: any): Promise<void> {
+  async recordEventOutcome(event: { success: boolean }): Promise<void> {
     this.logger.debug(`Recording event outcome: ${event.success ? 'success' : 'failure'}`);
   }
 
-  async getEventErrorRate(eventType: string): Promise<number> {
+  async getEventErrorRate(_eventType: string): Promise<number> {
     return Math.random() * 0.05; // Simulate error rate between 0-5%
   }
 
-  async checkErrorRateAlert(consumerGroup: string, threshold: number): Promise<any> {
+  async checkErrorRateAlert(_consumerGroup: string, threshold: number): Promise<{
+    triggered: boolean;
+    currentRate: number;
+    threshold: number;
+  }> {
     const rate = Math.random() * 0.1;
     return {
       triggered: rate > threshold,
@@ -83,18 +104,24 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async detectPerformanceDegradation(consumerId: string): Promise<any> {
+  async detectPerformanceDegradation(_consumerId: string): Promise<{ degrading: boolean; severity: string }> {
     return {
       degrading: false,
       severity: 'NONE',
     };
   }
 
-  async detectFlappingService(consumerId: string): Promise<boolean> {
+  async detectFlappingService(_consumerId: string): Promise<boolean> {
     return false;
   }
 
-  async calculateAnomalyScore(metrics: any): Promise<number> {
+  async calculateAnomalyScore(metrics: {
+    lag: number;
+    errorRate: number;
+    latency: number;
+    cpuUsage: number;
+    memoryUsage: number;
+  }): Promise<number> {
     const scores = [
       metrics.lag / 10000,
       metrics.errorRate,
@@ -105,18 +132,21 @@ export class SystemHealthMonitorService {
     return Math.min(1, scores.reduce((a, b) => a + b, 0) / scores.length);
   }
 
-  async recordProcessingLatency(consumerId: string, event: any): Promise<void> {
+  async recordProcessingLatency(consumerId: string, event: { eventProcessingTimeMs: number }): Promise<void> {
     this.logger.debug(`Recording latency for ${consumerId}: ${event.eventProcessingTimeMs}ms`);
   }
 
-  async triggerPartitionRebalance(consumerGroup: string, lagThreshold: number): Promise<any> {
+  async triggerPartitionRebalance(_consumerGroup: string, _lagThreshold: number): Promise<{
+    triggered: boolean;
+    reason: string;
+  }> {
     return {
       triggered: false,
       reason: 'Lag within acceptable range',
     };
   }
 
-  async attemptConsumerRestart(consumerId: string, stalledThreshold: number): Promise<any> {
+  async attemptConsumerRestart(_consumerId: string, _stalledThreshold: number): Promise<{ restarted: boolean }> {
     return {
       restarted: false,
     };
@@ -126,22 +156,26 @@ export class SystemHealthMonitorService {
     this.logger.warn(`Recording failure for service ${serviceName}`);
   }
 
-  async getCircuitBreakerState(serviceName: string): Promise<any> {
+  async getCircuitBreakerState(_serviceName: string): Promise<{ state: string; failureCount: number }> {
     return {
       state: 'CLOSED',
       failureCount: 0,
     };
   }
 
-  async queueEventForRetry(event: any, maxRetries: number): Promise<boolean> {
+  async queueEventForRetry(_event: unknown, _maxRetries: number): Promise<boolean> {
     return true;
   }
 
-  async calculateRetryDelay(event: any, attempt: number): Promise<number> {
+  async calculateRetryDelay(event: { retryCount: number }, _attempt: number): Promise<number> {
     return Math.pow(2, event.retryCount) * 1000; // Exponential backoff
   }
 
-  async getPerformanceTrend(consumerId: string, metric: string, samples: number): Promise<any> {
+  async getPerformanceTrend(_consumerId: string, metric: string, samples: number): Promise<{
+    metric: string;
+    trend: string;
+    samples: number;
+  }> {
     return {
       metric,
       trend: 'STABLE',
@@ -149,7 +183,11 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async predictFutureMetrics(consumerId: string, minutes: number): Promise<any> {
+  async predictFutureMetrics(_consumerId: string, minutes: number): Promise<{
+    predictedLag: number;
+    confidenceScore: number;
+    timeframe: string;
+  }> {
     return {
       predictedLag: 100,
       confidenceScore: 0.85,
@@ -157,7 +195,12 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async generateSLAReport(consumerGroup: string): Promise<any> {
+  async generateSLAReport(consumerGroup: string): Promise<{
+    consumerGroup: string;
+    slaViolations: number;
+    compliant: boolean;
+    uptime: number;
+  }> {
     return {
       consumerGroup,
       slaViolations: 0,
@@ -166,14 +209,21 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async analyzePeakLoadPeriods(consumerId: string, hours: number): Promise<any> {
+  async analyzePeakLoadPeriods(_consumerId: string, _hours: number): Promise<{
+    peakHours: unknown[];
+    averageLoad: number;
+  }> {
     return {
       peakHours: [],
       averageLoad: 50,
     };
   }
 
-  async generateCapacityPlanningReport(consumerGroup: string): Promise<any> {
+  async generateCapacityPlanningReport(consumerGroup: string): Promise<{
+    consumerGroup: string;
+    recommendedPartitions: number;
+    reasoning: string;
+  }> {
     return {
       consumerGroup,
       recommendedPartitions: 3,
@@ -181,7 +231,10 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async checkPredictiveAlert(_consumerId: string, _slaThreshold: number): Promise<any> {
+  async checkPredictiveAlert(_consumerId: string, _slaThreshold: number): Promise<{
+    shouldAlert: boolean;
+    reason: string;
+  }> {
     return {
       shouldAlert: false,
       reason: 'Within SLA threshold',

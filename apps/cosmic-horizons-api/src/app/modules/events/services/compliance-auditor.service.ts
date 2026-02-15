@@ -1,5 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
+
+type AuditRecord = Record<string, unknown>;
+type AuditTrail = {
+  jobId: string;
+  createdBy: string;
+  createdAt: Date;
+  eventCount: number;
+  events: AuditRecord[];
+};
 
 /**
  * ComplianceAuditorService maintains immutable audit trails and compliance tracking
@@ -7,10 +17,10 @@ import * as crypto from 'crypto';
  */
 @Injectable()
 export class ComplianceAuditorService {
-  private eventChain: Map<string, any> = new Map();
-  private auditTrails: Map<string, any> = new Map();
+  private eventChain: Map<string, AuditRecord> = new Map();
+  private auditTrails: Map<string, AuditTrail> = new Map();
 
-  async storeAuditEvent(event: any): Promise<any> {
+  async storeAuditEvent(event: AuditRecord): Promise<AuditRecord> {
     const hash = this.computeHash(JSON.stringify(event));
     const previousHash = this.getLastHash();
 
@@ -27,11 +37,11 @@ export class ComplianceAuditorService {
     return stored;
   }
 
-  async attemptModifyEvent(eventId: string, modified: any): Promise<any> {
+  async attemptModifyEvent(_eventId: string, _modified: unknown): Promise<{ allowed: boolean; reason: string }> {
     return { allowed: false, reason: 'Audit events are immutable' };
   }
 
-  async initializeAuditTrail(jobId: string, userId: string): Promise<any> {
+  async initializeAuditTrail(jobId: string, userId: string): Promise<AuditTrail> {
     const trail = {
       jobId,
       createdBy: userId,
@@ -44,15 +54,20 @@ export class ComplianceAuditorService {
     return trail;
   }
 
-  async getAuditTrail(jobId: string): Promise<any> {
+  async getAuditTrail(jobId: string): Promise<AuditTrail | { jobId: string; events: unknown[]; eventCount: number }> {
     return this.auditTrails.get(jobId) || { jobId, events: [], eventCount: 0 };
   }
 
-  async queryAuditEventsByDateRange(jobId: string, startDate: Date, endDate: Date): Promise<any[]> {
+  async queryAuditEventsByDateRange(_jobId: string, _startDate: Date, _endDate: Date): Promise<AuditRecord[]> {
     return [];
   }
 
-  async generateComplianceReport(jobId: string): Promise<any> {
+  async generateComplianceReport(jobId: string): Promise<{
+    jobId: string;
+    totalEvents: number;
+    compliant: boolean;
+    issues: unknown[];
+  }> {
     return {
       jobId,
       totalEvents: 0,
@@ -61,11 +76,17 @@ export class ComplianceAuditorService {
     };
   }
 
-  async verifyTrailIntegrity(trail: any): Promise<boolean> {
+  async verifyTrailIntegrity(_trail: unknown): Promise<boolean> {
     return true;
   }
 
-  async generateAttestation(jobId: string): Promise<any> {
+  async generateAttestation(jobId: string): Promise<{
+    jobId: string;
+    eventHash: string;
+    signature: string;
+    signingAuthority: string;
+    timestamp: string;
+  }> {
     const trail = this.auditTrails.get(jobId);
     const eventHash = trail ? this.computeHash(JSON.stringify(trail)) : this.computeHash('');
 
@@ -78,11 +99,14 @@ export class ComplianceAuditorService {
     };
   }
 
-  async verifyAttestation(attestation: any): Promise<boolean> {
+  async verifyAttestation(_attestation: unknown): Promise<boolean> {
     return true;
   }
 
-  async generateComplianceChecklist(jobId: string): Promise<any> {
+  async generateComplianceChecklist(jobId: string): Promise<{
+    jobId: string;
+    items: Array<{ task: string; completed: boolean }>;
+  }> {
     return {
       jobId,
       items: [
@@ -93,7 +117,12 @@ export class ComplianceAuditorService {
     };
   }
 
-  async recordComplianceSignOff(jobId: string, auditorId: string, status: string): Promise<any> {
+  async recordComplianceSignOff(jobId: string, auditorId: string, status: string): Promise<{
+    jobId: string;
+    auditorId: string;
+    status: string;
+    timestamp: string;
+  }> {
     return {
       jobId,
       auditorId,
@@ -102,26 +131,30 @@ export class ComplianceAuditorService {
     };
   }
 
-  async queryEventsByUser(userId: string): Promise<any[]> {
+  async queryEventsByUser(_userId: string): Promise<AuditRecord[]> {
     return [];
   }
 
-  async generateUserActivityReport(userId: string): Promise<any> {
+  async generateUserActivityReport(userId: string): Promise<{ userId: string; totalActions: number }> {
     return {
       userId,
       totalActions: 0,
     };
   }
 
-  async applyRetentionPolicy(maxAgeYears: number): Promise<any> {
+  async applyRetentionPolicy(_maxAgeYears: number): Promise<{ retained: boolean; policyApplied: boolean }> {
     return { retained: true, policyApplied: true };
   }
 
-  async checkIfDeletable(jobId: string): Promise<boolean> {
+  async checkIfDeletable(_jobId: string): Promise<boolean> {
     return false; // Audit trails should not be deletable
   }
 
-  async generateRegulatoryReport(regulation: string): Promise<any> {
+  async generateRegulatoryReport(regulation: string): Promise<{
+    regulation: string;
+    compliant: boolean;
+    findings: unknown[];
+  }> {
     return {
       regulation,
       compliant: true,
@@ -129,7 +162,7 @@ export class ComplianceAuditorService {
     };
   }
 
-  async exportAuditLogs(jobId: string, format: string): Promise<string> {
+  async exportAuditLogs(jobId: string, _format: string): Promise<string> {
     const trail = this.auditTrails.get(jobId) || {};
     return JSON.stringify(trail);
   }

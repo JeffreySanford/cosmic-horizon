@@ -1,3 +1,5 @@
+// Required for Angular fakeAsync() and zone-based testing
+import 'zone.js/testing';
 // Polyfill for jsdom test environment
 // Ensures navigator.platform is defined for Angular Forms
 // This MUST run FIRST before any Angular modules are imported

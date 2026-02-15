@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   catchError,
+  combineLatest,
   distinctUntilChanged,
   map,
   of,
@@ -14,7 +15,13 @@ import {
 type DocEntry = {
   id: string;
   label: string;
+  section: string;
   sourcePath: string;
+};
+
+type DocsCatalogResponse = {
+  count: number;
+  docs: DocEntry[];
 };
 
 type DocViewModel = {
@@ -31,6 +38,12 @@ type DocResponse = {
   content: string;
 };
 
+type DocsSection = {
+  title: string;
+  icon: string;
+  links: Array<{ label: string; path: string }>;
+};
+
 @Component({
   selector: 'app-docs',
   templateUrl: './docs.component.html',
@@ -42,85 +55,31 @@ export class DocsComponent {
   private http = inject(HttpClient);
   private readonly apiBaseUrl = 'http://localhost:3000';
 
-  readonly docCatalog: Record<string, DocEntry> = {
-    architecture: {
-      id: 'architecture',
-      label: 'System Architecture',
-      sourcePath: 'documentation/architecture/ARCHITECTURE.md',
-    },
-    roadmap: {
-      id: 'roadmap',
-      label: 'Roadmap',
-      sourcePath: 'documentation/planning/roadmap/ROADMAP.md',
-    },
-    'overview-v2': {
-      id: 'overview-v2',
-      label: 'Overview V2',
-      sourcePath: 'documentation/index/OVERVIEW-V2.md',
-    },
-    'overview-critique': {
-      id: 'overview-critique',
-      label: 'Overview V2 Critique',
-      sourcePath: 'documentation/index/OVERVIEW-V2-CRITIQUE.md',
-    },
-    'product-charter': {
-      id: 'product-charter',
-      label: 'Product Charter',
-      sourcePath: 'documentation/product/PRODUCT-CHARTER.md',
-    },
-    'source-of-truth': {
-      id: 'source-of-truth',
-      label: 'Source of Truth',
-      sourcePath: 'documentation/governance/SOURCE-OF-TRUTH.md',
-    },
-    'quick-start': {
-      id: 'quick-start',
-      label: 'Quick Start',
-      sourcePath: 'documentation/operations/QUICK-START.md',
-    },
-    'env-reference': {
-      id: 'env-reference',
-      label: 'Environment Reference',
-      sourcePath: 'documentation/reference/ENV-REFERENCE.md',
-    },
-    'messaging-architecture': {
-      id: 'messaging-architecture',
-      label: 'Messaging Architecture',
-      sourcePath: 'documentation/backend/messaging/MESSAGING-ARCHITECTURE.md',
-    },
-    'cosmic-datasets': {
-      id: 'cosmic-datasets',
-      label: 'Cosmic Datasets',
-      sourcePath: 'documentation/reference/COSMIC-DATASETS.md',
-    },
-    'testing-strategy': {
-      id: 'testing-strategy',
-      label: 'Testing Strategy',
-      sourcePath: 'documentation/quality/TESTING-STRATEGY.md',
-    },
-    'coding-standards': {
-      id: 'coding-standards',
-      label: 'Coding Standards',
-      sourcePath: 'documentation/quality/CODING-STANDARDS.md',
-    },
-    'audit-strategy': {
-      id: 'audit-strategy',
-      label: 'Audit Strategy (ADR-style)',
-      sourcePath: 'documentation/architecture/AUDIT-STRATEGY-SITEWIDE.md',
-    },
-  };
-
   readonly docId$ = this.route.params.pipe(
     map((params) => (params['docId'] as string | undefined) ?? null),
     distinctUntilChanged(),
   );
 
-  readonly docViewModel$ = this.docId$.pipe(
-    switchMap((docId) => {
+  readonly docEntries$ = this.http
+    .get<DocsCatalogResponse>(`${this.apiBaseUrl}/api/internal-docs/catalog`)
+    .pipe(
+      map((response) => response.docs),
+      catchError(() => of([])),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+  readonly sections$ = this.docEntries$.pipe(
+    map((entries) => this.buildSections(entries)),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  readonly docViewModel$ = combineLatest([this.docId$, this.docEntries$]).pipe(
+    switchMap(([docId, entries]) => {
       if (!docId) {
         return of(null);
       }
-      const entry = this.docCatalog[docId];
+
+      const entry = entries.find((item) => item.id === docId);
       if (!entry) {
         return of({
           state: 'error',
@@ -130,10 +89,9 @@ export class DocsComponent {
           errorMessage: `Unknown documentation key: ${docId}`,
         } as DocViewModel);
       }
+
       return this.http
-        .get<DocResponse>(
-          `${this.apiBaseUrl}/api/internal-docs/content/${entry.id}`,
-        )
+        .get<DocResponse>(`${this.apiBaseUrl}/api/internal-docs/content/${entry.id}`)
         .pipe(
           map(
             (response) =>
@@ -145,16 +103,13 @@ export class DocsComponent {
                 errorMessage: '',
               }) as DocViewModel,
           ),
-          catchError((error: { status?: number }) =>
+          catchError(() =>
             of({
               state: 'error',
               title: entry.label,
               sourcePath: entry.sourcePath,
               html: '',
-              errorMessage:
-                error.status === 404
-                  ? 'The mapped markdown file was not found in this workspace.'
-                  : 'Unable to load this document from the API.',
+              errorMessage: 'Unable to load this document from the API.',
             } as DocViewModel),
           ),
           startWith({
@@ -169,51 +124,42 @@ export class DocsComponent {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  readonly sections = [
-    {
-      title: 'Project Overview',
-      icon: 'info',
-      links: [
-        { label: 'System Architecture', path: '/docs/architecture' },
-        { label: 'Product Roadmap', path: '/docs/roadmap' },
-        { label: 'Overview V2', path: '/docs/overview-v2' },
-        { label: 'Overview V2 Critique', path: '/docs/overview-critique' },
-      ],
-    },
-    {
-      title: 'Frontend & UI',
-      icon: 'web',
-      links: [
-        { label: 'Product Charter', path: '/docs/product-charter' },
-        { label: 'Quick Start', path: '/docs/quick-start' },
-        { label: 'Environment Reference', path: '/docs/env-reference' },
-      ],
-    },
-    {
-      title: 'Science & Data',
-      icon: 'science',
-      links: [
-        {
-          label: 'Messaging Architecture',
-          path: '/docs/messaging-architecture',
-        },
-        { label: 'Cosmic Datasets', path: '/docs/cosmic-datasets' },
-        { label: 'Source of Truth', path: '/docs/source-of-truth' },
-      ],
-    },
-    {
-      title: 'Quality & ADRs',
-      icon: 'verified',
-      links: [
-        { label: 'Testing Strategy', path: '/docs/testing-strategy' },
-        { label: 'Coding Standards', path: '/docs/coding-standards' },
-        {
-          label: 'Audit Strategy (ADR-style)',
-          path: '/docs/audit-strategy',
-        },
-      ],
-    },
-  ];
+  private buildSections(entries: DocEntry[]): DocsSection[] {
+    const grouped = new Map<string, Array<{ label: string; path: string }>>();
+    for (const entry of entries) {
+      if (!grouped.has(entry.section)) {
+        grouped.set(entry.section, []);
+      }
+      const sectionLinks = grouped.get(entry.section);
+      if (!sectionLinks) {
+        continue;
+      }
+      sectionLinks.push({
+        label: entry.label,
+        path: `/docs/${entry.id}`,
+      });
+    }
+
+    return Array.from(grouped.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([title, links]) => ({
+        title,
+        icon: this.iconForSection(title),
+        links: links.sort((a, b) => a.label.localeCompare(b.label)),
+      }));
+  }
+
+  private iconForSection(sectionTitle: string): string {
+    const lower = sectionTitle.toLowerCase();
+    if (lower.includes('architecture')) return 'account_tree';
+    if (lower.includes('quality')) return 'verified';
+    if (lower.includes('reference')) return 'menu_book';
+    if (lower.includes('operations')) return 'build';
+    if (lower.includes('planning')) return 'timeline';
+    if (lower.includes('product')) return 'dashboard';
+    if (lower.includes('governance')) return 'gavel';
+    return 'description';
+  }
 
   private renderMarkdown(markdown: string): string {
     const codeBlocks: string[] = [];

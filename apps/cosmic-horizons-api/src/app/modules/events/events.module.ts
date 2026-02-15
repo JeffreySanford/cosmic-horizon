@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventsService } from './events.service';
+import { EventsController } from './events.controller';
 import { RabbitMQService } from './rabbitmq.service';
 import { KafkaService } from './kafka.service';
 import { MetricsService } from './services/metrics.service';
 import { MetricsConsumer } from './consumers/metrics.consumer';
+import { EventReplayService } from './services/event-replay.service';
 
 /**
  * EventsModule
@@ -19,7 +21,15 @@ import { MetricsConsumer } from './consumers/metrics.consumer';
  */
 @Module({
   imports: [ConfigModule],
-  providers: [EventsService, RabbitMQService, KafkaService, MetricsService, MetricsConsumer],
-  exports: [EventsService, RabbitMQService, KafkaService, MetricsService],
+  controllers: [EventsController],
+  providers: [
+    EventsService,
+    RabbitMQService,
+    KafkaService,
+    MetricsService,
+    MetricsConsumer,
+    EventReplayService,
+  ],
+  exports: [EventsService, RabbitMQService, KafkaService, MetricsService, EventReplayService],
 })
 export class EventsModule {}

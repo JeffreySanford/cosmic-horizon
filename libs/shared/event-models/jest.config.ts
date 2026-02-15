@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'shared-event-models',
   preset: '../../../jest.preset.js',

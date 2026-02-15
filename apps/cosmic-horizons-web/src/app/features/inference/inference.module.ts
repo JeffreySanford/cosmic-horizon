@@ -12,7 +12,7 @@ import { PermissionModalComponent } from './permission-modal/permission-modal.co
 import { InferenceRoutingModule } from './inference-routing.module';
 
 @NgModule({
-  declarations: [InferenceComponent],
+  declarations: [InferenceComponent, PermissionModalComponent],
   imports: [
     CommonModule,
     MatButtonModule,
@@ -21,7 +21,6 @@ import { InferenceRoutingModule } from './inference-routing.module';
     MatProgressBarModule,
     MatTooltipModule,
     MatDialogModule,
-    PermissionModalComponent,
     InferenceRoutingModule,
   ],
   exports: [InferenceComponent],

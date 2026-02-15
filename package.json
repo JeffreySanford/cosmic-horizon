@@ -15,13 +15,16 @@
   "scripts": {
     "start:web": "pnpm nx serve cosmic-horizons-web",
     "start:api": "pnpm nx serve cosmic-horizons-api",
-    "start:preflight": "node scripts/check-runtime-preflight.mjs",
+    "start:preflight": "node scripts/check-runtime-preflight.mjs && pnpm docs:view:build",
     "start:ports:free": "node scripts/ensure-ports-free.mjs",
     "start:infra:check": "node scripts/ensure-docker-ready.mjs",
-    "start:infra": "pnpm run start:infra:check && docker compose up -d --wait",
-    "start:infra:reset": "pnpm run start:infra:check && docker compose down --remove-orphans --volumes && docker compose build --pull && docker compose up -d --wait",
+    "start:infra": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait",
+    "start:infra:reset": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml down --remove-orphans --volumes && docker compose -f docker-compose.yml -f docker-compose.events.yml build --pull && docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait",
+    "start:infra:brokers": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait",
+    "start:infra:brokers:reset": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml down --remove-orphans --volumes && docker compose -f docker-compose.yml -f docker-compose.events.yml build --pull && docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait",
     "start:all": "pnpm run start:ports:free && pnpm run start:infra && pnpm run start:preflight && pnpm run start:ports:free && pnpm nx run-many --target=serve --projects=cosmic-horizons-web,cosmic-horizons-api --parallel=2 --skip-nx-cache",
     "start:all:reset": "pnpm run start:ports:free && pnpm run start:infra:reset && pnpm run start:preflight && pnpm run start:ports:free && pnpm nx run-many --target=serve --projects=cosmic-horizons-web,cosmic-horizons-api --parallel=2 --skip-nx-cache",
+    "stop:infra": "docker compose -f docker-compose.yml -f docker-compose.events.yml down",
     "monitor:messaging": "node scripts/monitor-messaging.mjs",
     "start": "pnpm start:web",
     "test": "pnpm standalone:check && pnpm nx run-many --target=test --all",
@@ -45,6 +48,7 @@
     "lighthouse:summary": "node scripts/summarize-lighthouse.mjs",
     "openapi:check": "node scripts/check-openapi.mjs",
     "security:audit": "pnpm audit --prod --audit-level=high",
+    "docs:view:build": "node scripts/build-docs-view-catalog.mjs",
     "docs:check": "node scripts/check-doc-consistency.mjs",
     "quality:ci": "pnpm nx run docs-policy:check && pnpm format:check:changed && pnpm openapi:check && pnpm standalone:check && pnpm nx run-many --target=test --all && pnpm nx run mvp-gates:e2e"
   },
@@ -126,8 +130,8 @@
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/microservices": "^11.1.13",
     "@nestjs/passport": "^11.0.5",
-    "@nestjs/platform-socket.io": "^11.1.13",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/platform-socket.io": "^11.1.13",
     "@nestjs/swagger": "^11.2.6",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.1.13",
@@ -146,10 +150,12 @@
     "passport-github": "^1.1.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.18.0",
+    "pulsar-client": "^1.11.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~7.8.0",
     "socket.io": "^4.8.3",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "zone.js": "^0.16.0"
   }
 }

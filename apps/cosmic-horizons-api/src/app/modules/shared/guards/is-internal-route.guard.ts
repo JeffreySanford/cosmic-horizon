@@ -1,0 +1,30 @@
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+
+/**
+ * Guard for protecting internal API routes.
+ * Ensures only admin users can access /api/internal/* endpoints.
+ */
+@Injectable()
+export class IsInternalRoute implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+
+    // Allow requests with admin role (case-insensitive)
+    if (user) {
+      const role = typeof user.role === 'string' ? user.role.toLowerCase() : '';
+      const rolesArr = Array.isArray(user.roles) ? user.roles.map((r: string) => r.toLowerCase()) : [];
+      if (role === 'admin' || rolesArr.includes('admin')) {
+        return true;
+      }
+    }
+
+    // Allow requests from internal services (if authenticated via service token)
+    if (user && user.isInternalService) {
+      return true;
+    }
+
+    throw new ForbiddenException('Access to internal API routes is restricted to administrators');
+  }
+}

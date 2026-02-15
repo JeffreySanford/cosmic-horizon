@@ -88,6 +88,12 @@ export class LandingComponent implements OnInit, OnDestroy {
       route: '/profile',
     },
     {
+      icon: 'dns',
+      title: 'Broker Metrics',
+      route: '/operations/broker-comparison',
+      adminOnly: true,
+    },
+    {
       icon: 'gavel',
       title: 'Moderation Console',
       route: '/moderation',

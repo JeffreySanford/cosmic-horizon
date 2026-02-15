@@ -3,6 +3,17 @@ import { EachMessagePayload } from 'kafkajs';
 import { KafkaService } from '../../events/kafka.service';
 import { NotificationService } from '../services/notification.service';
 
+interface JobLifecycleEvent {
+  event_type: 'job.completed' | 'job.failed' | 'job.cancelled' | string;
+  job_id: string;
+  user_id: string;
+  timestamp?: string;
+  result_url?: string;
+  execution_time_seconds?: number;
+  error_message?: string;
+  error_code?: number;
+}
+
 /**
  * JobEventsConsumer subscribes to job lifecycle events
  * Filters for terminal events (success/failed/cancelled) and sends notifications
@@ -35,7 +46,7 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
    */
   private async handleJobEvent(payload: EachMessagePayload): Promise<void> {
     try {
-      const event = JSON.parse(payload.message.value?.toString() || '{}');
+      const event = JSON.parse(payload.message.value?.toString() || '{}') as JobLifecycleEvent;
       this.logger.debug(
         `Received job event: ${event.event_type} for job ${event.job_id}`,
       );
@@ -59,7 +70,7 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
   /**
    * Handle job completion event
    */
-  private async handleJobCompletion(event: any): Promise<void> {
+  private async handleJobCompletion(event: JobLifecycleEvent): Promise<void> {
     const { job_id, user_id, result_url, execution_time_seconds } = event;
 
     await this.notificationService.sendJobCompletionEmail({
@@ -90,7 +101,7 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
   /**
    * Handle job failure event
    */
-  private async handleJobFailure(event: any): Promise<void> {
+  private async handleJobFailure(event: JobLifecycleEvent): Promise<void> {
     const { job_id, user_id, error_message, error_code } = event;
 
     await this.notificationService.sendJobFailureNotification({
@@ -121,7 +132,7 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
   /**
    * Handle job cancellation event
    */
-  private async handleJobCancellation(event: any): Promise<void> {
+  private async handleJobCancellation(event: JobLifecycleEvent): Promise<void> {
     const { job_id, user_id } = event;
 
     await this.notificationService.broadcastViaWebSocket({

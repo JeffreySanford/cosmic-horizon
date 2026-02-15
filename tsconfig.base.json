@@ -5,7 +5,7 @@
     "isolatedModules": true,
     "lib": ["es2022"],
     "module": "esnext",
-    "moduleResolution": "bundler",
+    
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -20,6 +20,6 @@
       "@cosmic-horizons/shared/*": ["libs/shared/src/*"],
       "@cosmic-horizons/event-models": ["libs/shared/event-models/src/index.ts"]
     },
-    "customConditions": ["@cosmic-horizons/source"]
+    
   }
 }

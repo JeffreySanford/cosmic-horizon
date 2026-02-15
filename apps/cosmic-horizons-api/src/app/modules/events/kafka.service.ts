@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   Kafka,
@@ -13,6 +13,7 @@ import {
   KAFKA_TOPICS,
   KAFKA_TOPIC_CONFIG,
 } from '@cosmic-horizons/event-models';
+import { EventReplayService } from './services/event-replay.service';
 
 /**
  * KafkaService
@@ -42,7 +43,10 @@ export class KafkaService implements OnModuleDestroy {
   private consumers: Map<string, Consumer> = new Map();
   private connected = false;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @Optional() private readonly eventReplayService?: EventReplayService,
+  ) {}
 
   /**
    * Connect to Kafka cluster
@@ -242,6 +246,14 @@ export class KafkaService implements OnModuleDestroy {
       this.logger.debug(
         `Job lifecycle event published: ${event.event_type} (partition: ${result[0].partition}, offset: ${result[0].baseOffset})`
       );
+      this.eventReplayService?.recordPublishedEvent({
+        topic: KAFKA_TOPICS.JOB_LIFECYCLE,
+        partition: result[0].partition,
+        offset: result[0].baseOffset,
+        key: jobId,
+        payload: event as unknown as Record<string, unknown>,
+        timestamp: event.timestamp,
+      });
     } catch (error) {
       this.logger.error(
         `Failed to publish job lifecycle event: ${event.event_type}`,
@@ -280,6 +292,13 @@ export class KafkaService implements OnModuleDestroy {
       this.logger.debug(
         `Metrics published for job: ${jobId} (offset: ${result[0].baseOffset})`
       );
+      this.eventReplayService?.recordPublishedEvent({
+        topic: KAFKA_TOPICS.JOB_METRICS,
+        partition: result[0].partition,
+        offset: result[0].baseOffset,
+        key: jobId,
+        payload: metrics,
+      });
     } catch (error) {
       this.logger.error(`Failed to publish metrics for job: ${jobId}`, error);
       throw error;
@@ -314,6 +333,14 @@ export class KafkaService implements OnModuleDestroy {
       this.logger.debug(
         `Notification published: ${event.event_type} (offset: ${result[0].baseOffset})`
       );
+      this.eventReplayService?.recordPublishedEvent({
+        topic: KAFKA_TOPICS.NOTIFICATIONS,
+        partition: result[0].partition,
+        offset: result[0].baseOffset,
+        key: null,
+        payload: event as unknown as Record<string, unknown>,
+        timestamp: event.timestamp,
+      });
     } catch (error) {
       this.logger.error(
         `Failed to publish notification: ${event.event_type}`,
@@ -356,6 +383,14 @@ export class KafkaService implements OnModuleDestroy {
       this.logger.debug(
         `Audit event published: ${event.event_type} (offset: ${result[0].baseOffset})`
       );
+      this.eventReplayService?.recordPublishedEvent({
+        topic: KAFKA_TOPICS.AUDIT_TRAIL,
+        partition: result[0].partition,
+        offset: result[0].baseOffset,
+        key: resourceId,
+        payload: event as unknown as Record<string, unknown>,
+        timestamp: event.timestamp,
+      });
     } catch (error) {
       this.logger.error(
         `Failed to publish audit event: ${event.event_type}`,
@@ -377,7 +412,7 @@ export class KafkaService implements OnModuleDestroy {
     }
 
     try {
-      await this.producer.send({
+      const result = await this.producer.send({
         topic: KAFKA_TOPICS.SYSTEM_HEALTH,
         messages: [
           {
@@ -393,6 +428,14 @@ export class KafkaService implements OnModuleDestroy {
       });
 
       this.logger.debug(`System health event published for: ${componentId}`);
+      this.eventReplayService?.recordPublishedEvent({
+        topic: KAFKA_TOPICS.SYSTEM_HEALTH,
+        partition: result[0].partition,
+        offset: result[0].baseOffset,
+        key: componentId,
+        payload: event as unknown as Record<string, unknown>,
+        timestamp: event.timestamp,
+      });
     } catch (error) {
       this.logger.error(
         `Failed to publish system health event for ${componentId}`,
@@ -432,7 +475,15 @@ export class KafkaService implements OnModuleDestroy {
 
     await consumer.subscribe({ topics, fromBeginning: false });
     await consumer.run({
-      eachMessage: handler,
+      eachMessage: async (payload: EachMessagePayload) => {
+        await handler(payload);
+        this.eventReplayService?.ackConsumerOffset({
+          groupId,
+          topic: payload.topic,
+          partition: payload.partition,
+          offset: payload.message.offset,
+        });
+      },
       partitionsConsumedConcurrently: 3,
     });
 

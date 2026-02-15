@@ -1,0 +1,464 @@
+[
+  {
+    "id": "documentation--architecture--adr-event-streaming",
+    "label": "ADR EVENT STREAMING",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/ADR-EVENT-STREAMING.md"
+  },
+  {
+    "id": "documentation--architecture--architecture",
+    "label": "ARCHITECTURE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/ARCHITECTURE.md"
+  },
+  {
+    "id": "documentation--architecture--audit-strategy-sitewide",
+    "label": "AUDIT STRATEGY SITEWIDE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/AUDIT-STRATEGY-SITEWIDE.md"
+  },
+  {
+    "id": "documentation--architecture--broker-comparison-strategy",
+    "label": "BROKER COMPARISON STRATEGY",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/BROKER-COMPARISON-STRATEGY.md"
+  },
+  {
+    "id": "documentation--architecture--event-schema-definitions",
+    "label": "EVENT SCHEMA DEFINITIONS",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/EVENT-SCHEMA-DEFINITIONS.md"
+  },
+  {
+    "id": "documentation--architecture--event-streaming-topology",
+    "label": "EVENT STREAMING TOPOLOGY",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/EVENT-STREAMING-TOPOLOGY.md"
+  },
+  {
+    "id": "documentation--architecture--phase-3-4-completion-strategy",
+    "label": "PHASE 3 4 COMPLETION STRATEGY",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md"
+  },
+  {
+    "id": "documentation--architecture--phase-3-complete-index",
+    "label": "PHASE 3 COMPLETE INDEX",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/PHASE-3-COMPLETE-INDEX.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-2-environment-config",
+    "label": "SPRINT 5 2 ENVIRONMENT CONFIG",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-2-ENVIRONMENT-CONFIG.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-2-final-delivery",
+    "label": "SPRINT 5 2 FINAL DELIVERY",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-2-FINAL-DELIVERY.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-2-kafka-implementation",
+    "label": "SPRINT 5 2 KAFKA IMPLEMENTATION",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-2-KAFKA-IMPLEMENTATION.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-2-master-documentation-index",
+    "label": "SPRINT 5 2 MASTER DOCUMENTATION INDEX",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-2-MASTER-DOCUMENTATION-INDEX.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-2-week-1-completion",
+    "label": "SPRINT 5 2 WEEK 1 COMPLETION",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-2-WEEK-1-COMPLETION.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-2-week-2-3-completion",
+    "label": "SPRINT 5 2 WEEK 2 3 COMPLETION",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-2-WEEK-2-3-COMPLETION.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-kickoff-plan",
+    "label": "SPRINT 5 3 KICKOFF PLAN",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-KICKOFF-PLAN.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-metrics",
+    "label": "SPRINT 5 3 METRICS",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-METRICS.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-operations-runbook",
+    "label": "SPRINT 5 3 OPERATIONS RUNBOOK",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-OPERATIONS-RUNBOOK.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-progress",
+    "label": "SPRINT 5 3 PROGRESS",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-PROGRESS.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-1-daily-checklist",
+    "label": "SPRINT 5 3 WEEK 1 DAILY CHECKLIST",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-1-DAILY-CHECKLIST.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-1-documentation-index",
+    "label": "SPRINT 5 3 WEEK 1 DOCUMENTATION INDEX",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-1-DOCUMENTATION-INDEX.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-1-final-readiness-checklist",
+    "label": "SPRINT 5 3 WEEK 1 FINAL READINESS CHECKLIST",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-1-FINAL-READINESS-CHECKLIST.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-1-implementation-guide",
+    "label": "SPRINT 5 3 WEEK 1 IMPLEMENTATION GUIDE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-1-IMPLEMENTATION-GUIDE.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-1-master-launch-index",
+    "label": "SPRINT 5 3 WEEK 1 MASTER LAUNCH INDEX",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-1-MASTER-LAUNCH-INDEX.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-1-status-summary",
+    "label": "SPRINT 5 3 WEEK 1 STATUS SUMMARY",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-1-STATUS-SUMMARY.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-1-team-kickoff-brief",
+    "label": "SPRINT 5 3 WEEK 1 TEAM KICKOFF BRIEF",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-1-TEAM-KICKOFF-BRIEF.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-1-test-additions",
+    "label": "SPRINT 5 3 WEEK 1 TEST ADDITIONS",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-1-TEST-ADDITIONS.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-2-daily-checklist",
+    "label": "SPRINT 5 3 WEEK 2 DAILY CHECKLIST",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-2-DAILY-CHECKLIST.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-2-documentation-index",
+    "label": "SPRINT 5 3 WEEK 2 DOCUMENTATION INDEX",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-2-DOCUMENTATION-INDEX.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-2-implementation-guide",
+    "label": "SPRINT 5 3 WEEK 2 IMPLEMENTATION GUIDE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-2-IMPLEMENTATION-GUIDE.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-2-test-additions",
+    "label": "SPRINT 5 3 WEEK 2 TEST ADDITIONS",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-2-TEST-ADDITIONS.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-3-daily-checklist",
+    "label": "SPRINT 5 3 WEEK 3 DAILY CHECKLIST",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-3-DAILY-CHECKLIST.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-3-implementation-guide",
+    "label": "SPRINT 5 3 WEEK 3 IMPLEMENTATION GUIDE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-3-IMPLEMENTATION-GUIDE.md"
+  },
+  {
+    "id": "documentation--architecture--sprint-5-3-week-3-test-additions",
+    "label": "SPRINT 5 3 WEEK 3 TEST ADDITIONS",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/SPRINT-5-3-WEEK-3-TEST-ADDITIONS.md"
+  },
+  {
+    "id": "documentation--backend--api-routes",
+    "label": "API ROUTES",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/API-ROUTES.md"
+  },
+  {
+    "id": "documentation--backend--logging-system-design",
+    "label": "LOGGING SYSTEM DESIGN",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/LOGGING-SYSTEM-DESIGN.md"
+  },
+  {
+    "id": "documentation--backend--messaging--array-monitoring-api",
+    "label": "ARRAY MONITORING API",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/ARRAY-MONITORING-API.md"
+  },
+  {
+    "id": "documentation--backend--messaging--configuration-fix-guide",
+    "label": "CONFIGURATION FIX GUIDE",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/CONFIGURATION-FIX-GUIDE.md"
+  },
+  {
+    "id": "documentation--backend--messaging--implementation-guide",
+    "label": "IMPLEMENTATION GUIDE",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/IMPLEMENTATION-GUIDE.md"
+  },
+  {
+    "id": "documentation--backend--messaging--kafka-setup",
+    "label": "KAFKA SETUP",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/KAFKA-SETUP.md"
+  },
+  {
+    "id": "documentation--backend--messaging--live-statistics-feb-2026",
+    "label": "LIVE STATISTICS FEB 2026",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/LIVE-STATISTICS-FEB-2026.md"
+  },
+  {
+    "id": "documentation--backend--messaging--messaging-architecture",
+    "label": "MESSAGING ARCHITECTURE",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/MESSAGING-ARCHITECTURE.md"
+  },
+  {
+    "id": "documentation--backend--messaging--rabbitmq-setup",
+    "label": "RABBITMQ SETUP",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/RABBITMQ-SETUP.md"
+  },
+  {
+    "id": "documentation--backend--messaging--readme",
+    "label": "README",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/README.md"
+  },
+  {
+    "id": "documentation--backend--messaging--troubleshooting",
+    "label": "TROUBLESHOOTING",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/messaging/TROUBLESHOOTING.md"
+  },
+  {
+    "id": "documentation--backend--rate-limiting",
+    "label": "RATE LIMITING",
+    "section": "Backend",
+    "sourcePath": "documentation/backend/RATE-LIMITING.md"
+  },
+  {
+    "id": "documentation--governance--source-of-truth",
+    "label": "SOURCE OF TRUTH",
+    "section": "Governance",
+    "sourcePath": "documentation/governance/SOURCE-OF-TRUTH.md"
+  },
+  {
+    "id": "documentation--guides--testing-guide",
+    "label": "TESTING GUIDE",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/TESTING_GUIDE.md"
+  },
+  {
+    "id": "documentation--ideas--llm-enhanced-job-orchestration",
+    "label": "LLM ENHANCED JOB ORCHESTRATION",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/LLM-ENHANCED-JOB-ORCHESTRATION.md"
+  },
+  {
+    "id": "documentation--ideas--remaining-work-summary",
+    "label": "REMAINING WORK SUMMARY",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/REMAINING-WORK-SUMMARY.md"
+  },
+  {
+    "id": "documentation--index--overview-v2-critique",
+    "label": "OVERVIEW V2 CRITIQUE",
+    "section": "Index",
+    "sourcePath": "documentation/index/OVERVIEW-V2-CRITIQUE.md"
+  },
+  {
+    "id": "documentation--index--overview-v2",
+    "label": "OVERVIEW V2",
+    "section": "Index",
+    "sourcePath": "documentation/index/OVERVIEW-V2.md"
+  },
+  {
+    "id": "documentation--index--overview",
+    "label": "OVERVIEW",
+    "section": "Index",
+    "sourcePath": "documentation/index/OVERVIEW.md"
+  },
+  {
+    "id": "documentation--integration--pulsar-local-evaluation",
+    "label": "PULSAR LOCAL EVALUATION",
+    "section": "Integration",
+    "sourcePath": "documentation/integration/PULSAR-LOCAL-EVALUATION.md"
+  },
+  {
+    "id": "documentation--integration--pulsar-quickstart",
+    "label": "PULSAR QUICKSTART",
+    "section": "Integration",
+    "sourcePath": "documentation/integration/PULSAR-QUICKSTART.md"
+  },
+  {
+    "id": "documentation--integration--pulsar-setup-index",
+    "label": "PULSAR SETUP INDEX",
+    "section": "Integration",
+    "sourcePath": "documentation/integration/PULSAR-SETUP-INDEX.md"
+  },
+  {
+    "id": "documentation--operations--github-actions-monitoring",
+    "label": "GITHUB ACTIONS MONITORING",
+    "section": "Operations",
+    "sourcePath": "documentation/operations/GITHUB-ACTIONS-MONITORING.md"
+  },
+  {
+    "id": "documentation--operations--quick-start",
+    "label": "QUICK START",
+    "section": "Operations",
+    "sourcePath": "documentation/operations/QUICK-START.md"
+  },
+  {
+    "id": "documentation--overview--exascale-deck-wording-patch-2026-02-11",
+    "label": "EXASCALE DECK WORDING PATCH 2026 02 11",
+    "section": "Overview",
+    "sourcePath": "documentation/overview/EXASCALE-DECK-WORDING-PATCH-2026-02-11.md"
+  },
+  {
+    "id": "documentation--overview--external-asset-metadata-2026-02-11",
+    "label": "EXTERNAL ASSET METADATA 2026 02 11",
+    "section": "Overview",
+    "sourcePath": "documentation/overview/EXTERNAL-ASSET-METADATA-2026-02-11.md"
+  },
+  {
+    "id": "documentation--overview--external-claims-references-appendix-2026-02-11",
+    "label": "EXTERNAL CLAIMS REFERENCES APPENDIX 2026 02 11",
+    "section": "Overview",
+    "sourcePath": "documentation/overview/EXTERNAL-CLAIMS-REFERENCES-APPENDIX-2026-02-11.md"
+  },
+  {
+    "id": "documentation--overview--overview-asset-alignment-audit-2026-02-11",
+    "label": "OVERVIEW ASSET ALIGNMENT AUDIT 2026 02 11",
+    "section": "Overview",
+    "sourcePath": "documentation/overview/OVERVIEW-ASSET-ALIGNMENT-AUDIT-2026-02-11.md"
+  },
+  {
+    "id": "documentation--planning--roadmap--roadmap",
+    "label": "ROADMAP",
+    "section": "Planning",
+    "sourcePath": "documentation/planning/roadmap/ROADMAP.md"
+  },
+  {
+    "id": "documentation--product--affiliation",
+    "label": "AFFILIATION",
+    "section": "Product",
+    "sourcePath": "documentation/product/AFFILIATION.md"
+  },
+  {
+    "id": "documentation--product--product-charter",
+    "label": "PRODUCT CHARTER",
+    "section": "Product",
+    "sourcePath": "documentation/product/PRODUCT-CHARTER.md"
+  },
+  {
+    "id": "documentation--pulsar--local-evaluation",
+    "label": "LOCAL EVALUATION",
+    "section": "Pulsar",
+    "sourcePath": "documentation/pulsar/LOCAL-EVALUATION.md"
+  },
+  {
+    "id": "documentation--pulsar--quickstart",
+    "label": "QUICKSTART",
+    "section": "Pulsar",
+    "sourcePath": "documentation/pulsar/QUICKSTART.md"
+  },
+  {
+    "id": "documentation--pulsar--readme",
+    "label": "README",
+    "section": "Pulsar",
+    "sourcePath": "documentation/pulsar/README.md"
+  },
+  {
+    "id": "documentation--quality--coding-standards",
+    "label": "CODING STANDARDS",
+    "section": "Quality",
+    "sourcePath": "documentation/quality/CODING-STANDARDS.md"
+  },
+  {
+    "id": "documentation--quality--coverage-setup",
+    "label": "COVERAGE SETUP",
+    "section": "Quality",
+    "sourcePath": "documentation/quality/COVERAGE-SETUP.md"
+  },
+  {
+    "id": "documentation--quality--e2e-code-coverage-guide",
+    "label": "E2E CODE COVERAGE GUIDE",
+    "section": "Quality",
+    "sourcePath": "documentation/quality/E2E_CODE_COVERAGE_GUIDE.md"
+  },
+  {
+    "id": "documentation--quality--testing-strategy",
+    "label": "TESTING STRATEGY",
+    "section": "Quality",
+    "sourcePath": "documentation/quality/TESTING-STRATEGY.md"
+  },
+  {
+    "id": "documentation--reference--cosmic-datasets",
+    "label": "COSMIC DATASETS",
+    "section": "Reference",
+    "sourcePath": "documentation/reference/COSMIC-DATASETS.md"
+  },
+  {
+    "id": "documentation--reference--env-reference",
+    "label": "ENV REFERENCE",
+    "section": "Reference",
+    "sourcePath": "documentation/reference/ENV-REFERENCE.md"
+  },
+  {
+    "id": "documentation--setup--environment-config",
+    "label": "ENVIRONMENT CONFIG",
+    "section": "Setup",
+    "sourcePath": "documentation/setup/ENVIRONMENT-CONFIG.md"
+  },
+  {
+    "id": "readme",
+    "label": "README",
+    "section": "Project",
+    "sourcePath": "README.md"
+  },
+  {
+    "id": "roadmap",
+    "label": "ROADMAP",
+    "section": "Project",
+    "sourcePath": "ROADMAP.md"
+  },
+  {
+    "id": "todo",
+    "label": "TODO",
+    "section": "Project",
+    "sourcePath": "TODO.md"
+  }
+]

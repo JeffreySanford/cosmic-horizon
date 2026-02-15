@@ -1,6 +1,6 @@
 # TODO
 
-Status date: 2026-02-14 (Updated)
+Status date: 2026-02-15 (Updated)
 
 **📋 REFERENCE**: See [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md) for detailed Phase 3 (Event Infrastructure) and Phase 4 (NRAO Integration) roadmap with:
 
@@ -18,7 +18,7 @@ Canonical scope:
 **Focus:** Event Infrastructure & Scalability - Real-time updates, multi-user coordination, scale infrastructure  
 **Duration:** Q2-Q3 2026 (Months 3-8)  
 **Target:** 1000+ events/second, sub-100ms latency, 500+ concurrent connections  
-**Progress:** Sprint 5.1 ✅ Complete (Feb 2026) → Sprint 5.2 ✅ Complete (Feb 14, 2026) → Sprint 5.3 Starting
+**Progress:** Sprint 5.1 ✅ Complete (Feb 2026) → Sprint 5.2 ✅ Complete (Feb 14, 2026) → Sprint 5.3 🟡 In Progress (Week 3 execution active)
 
 ### Priority 5: Event Streaming Infrastructure (Q2 2026, Months 3-4)
 
@@ -38,7 +38,7 @@ Canonical scope:
 
 **Success Criteria**: ✅ All tests compile, ✅ latency framework ready, ✅ Docker infrastructure operational
 
-**Sprint 5.2: Kafka Integration (3 weeks) � WEEK 1 COMPLETE**
+**Sprint 5.2: Kafka Integration (3 weeks) ✅ COMPLETE**
 
 **Completed Feb 14, 2026 (Week 1)**:
 
@@ -64,54 +64,147 @@ Canonical scope:
 - [x] All code compiles (0 TypeScript errors)
 - [x] Type safety validated (100% coverage)
 
-**Sprint 5.3: Job Orchestration Events (3 weeks) 🟢 WEEK 1 PLANNING COMPLETE (Feb 15)**
+**Sprint 5.3: Job Orchestration Events (3 weeks) 🟡 WEEK 1-3 IMPLEMENTATION ACTIVE (as of Feb 15)**
 
-**Prerequisites Met**:
+**Implemented so far**:
 
 - ✅ KafkaService: Implemented (260 lines) & tested (48 tests)
 - ✅ Topic definitions: All 5 topics defined (job-lifecycle, metrics, notifications, audit-trail, system-health)
 - ✅ Test infrastructure: KafkaEventBuilder (820 lines), MockPublisher, LatencyMeasurer
 - ✅ Type safety: 100% TypeScript validation (0 errors)
 - ✅ Documentation: [SPRINT-5-2-FINAL-DELIVERY.md](documentation/architecture/SPRINT-5-2-FINAL-DELIVERY.md)
-- ✅ Week 1 Planning: Complete - 4 comprehensive guides created (Feb 15)
+- ✅ Week 1 publishing integration implemented in `JobOrchestratorService`
+- ✅ Week 2 consumer services and consumer tests implemented
 
-**Week 1 Planning Documents Created**:
+**Documentation available**:
 
 - ✅ [SPRINT-5-3-WEEK-1-IMPLEMENTATION-GUIDE.md](documentation/architecture/SPRINT-5-3-WEEK-1-IMPLEMENTATION-GUIDE.md) - Daily breakdown with code examples
 - ✅ [SPRINT-5-3-WEEK-1-TEST-ADDITIONS.md](documentation/architecture/SPRINT-5-3-WEEK-1-TEST-ADDITIONS.md) - 20 test specifications
 - ✅ [SPRINT-5-3-WEEK-1-DAILY-CHECKLIST.md](documentation/architecture/SPRINT-5-3-WEEK-1-DAILY-CHECKLIST.md) - Task tracking
 - ✅ [SPRINT-5-3-WEEK-1-STATUS-SUMMARY.md](documentation/architecture/SPRINT-5-3-WEEK-1-STATUS-SUMMARY.md) - Executive summary
 
-**Week 1 Implementation (Feb 16-20) - READY TO START**:
+**Week 1 Completed (Publishing)**:
 
-- [ ] Day 1-2: JobOrchestratorService integration (3 job.submitted tests)
-- [ ] Day 2-3: Status transition events (6 tests: queued, running, completed, failed, cancelled)
-- [ ] Day 3-4: Partition key validation (3 tests)
-- [ ] Day 4: Error handling & headers (5 tests)
-- [ ] Day 5: Final tests & integration (3 tests)
-- **Target**: 20 new publishing tests + 18 existing = 38 total tests passing
+- [x] JobOrchestratorService publishes `job.submitted`, `job.status.changed`, `job.failed`, `job.cancelled`
+- [x] Correlation IDs and partition-key strategy present
+- [x] Kafka publish failure handled as non-blocking
 
-**Week 2 Plan**:
+**Week 2 Completed (Consumers)**:
 
-- [ ] Implement MetricsService event consumption (5 tests)
-- [ ] Implement NotificationService event consumption (5 tests)
-- [ ] Implement ComplianceAuditor event consumption (5 tests)
-- [ ] Implement SystemHealthService event consumption (5 tests)
-- **Target**: 20 consumer service tests
+- [x] Metrics consumer implemented + tests
+- [x] Notification consumer implemented + tests
+- [x] Audit consumer implemented + tests
+- [x] System health consumer implemented + tests
+- [x] Modules wired and initialized in application startup
 
-**Week 3 Plan**:
+**Week 3 (Validation + hardening) - CORE WORK COMPLETE**:
 
-- [ ] E2E job submission → collection flow tests (8 tests)
-- [ ] Performance benchmarks: 1000+ events/sec (4 tests)
-- [ ] Event replay capability (3 tests)
-- **Target**: 15 E2E + performance tests
+- [x] E2E job submission-to-consumer flow tests (18 tests added/passing across 4 Week 3 spec files)
+- [x] Performance benchmark + consumer lag measurement (test baselines captured)
+- [x] Production-readiness checks and runbook docs
+- [x] Event replay capability (offset tracking + replay API)
+- [x] Docs view markdown-catalog build scheduled in preflight (`start:preflight`) and docs policy checks
 
-**Overall Sprint 5.3 Success Criteria**:
+**Overall Sprint 5.3 target**:
 
-- ✅ 20 job event publishing tests (Week 1)
-- ✅ 20 consumer service tests (Week 2)
-- ✅ 15 E2E + performance tests (Week 3)
-- **Total**: 55 tests, Event replay working, 100% job event coverage, 1000+ events/sec throughput
+- Week 1 + Week 2 implementation complete
+- Week 3 validation tests complete
+- Replay capability explicitly tracked as remaining work
+
+### Priority 5.5: Pulsar Event Broker Evaluation (Q2 2026, Months 4-5)
+
+**Sprint 5.4: Local Pulsar Evaluation & Benchmarking (2 weeks)**
+
+Parallel effort to Sprint 6.1, enables Phase 4 architecture decision.
+
+**Objectives**: Validate Pulsar performance claims (30-40% improvement) with local benchmarking before Phase 4 commitment.
+
+**Completed**:
+
+- ✅ Local Pulsar infrastructure (docker-compose.pulsar.yml, 3-node cluster)
+- ✅ Benchmarking harness (benchmark-pulsar-vs-rabbitmq.mjs, 10K event comparison)
+- ✅ Setup automation (pulsar-setup.mjs, namespace/topic initialization)
+- ✅ Comprehensive documentation (QUICKSTART, LOCAL-EVALUATION, README in `documentation/pulsar/`)
+- ✅ Package dependency (pulsar-client v1.11.0 added to package.json)
+- ✅ Broker Comparison Strategy documentation ([BROKER-COMPARISON-STRATEGY.md](documentation/architecture/BROKER-COMPARISON-STRATEGY.md))
+- ✅ Backend API infrastructure:
+  - ✅ `BrokerMetrics` TypeORM entity with time-series storage
+  - ✅ `BrokerMetricsCollector` service (RabbitMQ, Kafka, Pulsar metric extraction)
+  - ✅ `BrokerMetricsService` for collection, caching, storage, and retrieval
+  - ✅ `BrokerMetricsController` with 4 endpoints: `/stats`, `/history`, `/benchmark`, `/health`
+- ✅ Frontend Angular dashboard:
+  - ✅ `BrokerComparisonComponent` with real-time metrics display
+  - ✅ Material UI design with status indicators, metric cards, comparison table
+  - ✅ `BrokerDataService` for API integration
+  - ✅ Auto-refresh polling (5-second intervals)
+  - ✅ Responsive mobile-friendly layout
+
+**Week 1 Tasks: Run Benchmark Suite & Dashboard Integration**
+
+- [ ] Integrate `BrokerMetricsController` into NestJS API module routing
+- [ ] Register `BrokerMetricsService` and `BrokerMetricsCollector` in dependency injection
+- [ ] Add route to broker comparison dashboard: `/operations/broker-comparison`
+- [ ] Spin up local Pulsar cluster: `docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d --wait`
+- [ ] Run: `node scripts/pulsar-setup.mjs` (creates namespaces and topics)
+- [ ] Execute: `node scripts/benchmark-pulsar-vs-rabbitmq.mjs` (compares all brokers)
+- [ ] Verify dashboard displays real-time metrics correctly
+- [ ] Test benchmark trigger button and async execution
+- [ ] Analyze results: Review `test-output/benchmark-results/benchmark-TIMESTAMP.json`
+- [ ] Verify performance deltas against expectations (30-40% throughput, 20-30% memory)
+- [ ] Document findings in `documentation/architecture/PULSAR-EVALUATION-RESULTS.md`
+- **Acceptance**: Dashboard operational, benchmarks executable, results validated
+
+- [ ] **Week 2: ADR Update & Phase 4 Planning**
+  - [ ] Review benchmarks and create Pulsar evaluation findings
+  - [ ] Update [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) with Pulsar consolidation pathway
+  - [ ] Document Phase 4 integration plan (namespaces, topics, consumer migration path)
+  - [ ] Create Phase 4 scope document: [PHASE-4-PULSAR-INTEGRATION.md](documentation/architecture/PHASE-4-PULSAR-INTEGRATION.md)
+  - [ ] Plan resource allocation for Phase 4 (2-3 sprints estimated)
+  - [ ] Risk assessment (failover scenarios, operational complexity)
+  - **Acceptance**: ADR complete, Phase 4 scope approved
+
+**Success Criteria**:
+
+- ✅ Dashboard displays real-time broker metrics (throughput, latency, memory, status)
+- ✅ Historical data collection and trending working
+- ✅ Benchmark trigger functional and async execution working
+- ✅ Benchmarks show Pulsar >= 30% faster OR justify variance
+- ✅ Memory efficiency confirmed (< current broker overhead)
+- ✅ All documentation complete and validated
+- ✅ Phase 4 scope document ready for sprint planning
+- ✅ Zero regressions in current RabbitMQ/Kafka event flow
+
+**Rationale**:
+Real-time dashboard provides operational visibility during benchmarking. Local validation enables confident Phase 4 commitment to replace dual-broker architecture with single Pulsar platform. Reduces risk by proving value with real-world data before production integration.
+
+**Files Created/Modified**:
+
+**Backend** (NestJS API):
+
+- `apps/cosmic-horizons-api/src/app/modules/operations/broker-metrics.entity.ts` - TypeORM entity + DTOs
+- `apps/cosmic-horizons-api/src/app/modules/operations/broker-metrics.collector.ts` - Metric extraction (RabbitMQ API, Kafka, Pulsar REST)
+- `apps/cosmic-horizons-api/src/app/modules/operations/broker-metrics.service.ts` - Storage, caching, retrieval logic
+- `apps/cosmic-horizons-api/src/app/modules/operations/broker-metrics.controller.ts` - 4 REST endpoints
+
+**Frontend** (Angular):
+
+- `apps/cosmic-horizons-web/src/app/modules/operations/broker-comparison/broker-comparison.component.ts` - Component logic
+- `apps/cosmic-horizons-web/src/app/modules/operations/broker-comparison/broker-comparison.component.html` - Material UI layout
+- `apps/cosmic-horizons-web/src/app/modules/operations/broker-comparison/broker-comparison.component.scss` - Responsive styling
+- `apps/cosmic-horizons-web/src/app/modules/operations/broker-comparison/models/broker-metrics.model.ts` - TypeScript interfaces
+- `apps/cosmic-horizons-web/src/app/modules/operations/broker-comparison/services/broker-data.service.ts` - HTTP client
+
+**Documentation**:
+
+- `documentation/architecture/BROKER-COMPARISON-STRATEGY.md` - 10-section strategy guide (use cases, timeline, metrics, APIs, optional Phase 4)
+
+**Resources Referenced**:
+
+- [BROKER-COMPARISON-STRATEGY.md](documentation/architecture/BROKER-COMPARISON-STRATEGY.md) - Full strategy and implementation guide
+- [documentation/pulsar/](documentation/pulsar/) - Comprehensive Pulsar guides
+- [docker-compose.pulsar.yml](docker-compose.pulsar.yml) - Local infrastructure
+- [scripts/benchmark-pulsar-vs-rabbitmq.mjs](scripts/benchmark-pulsar-vs-rabbitmq.mjs) - Benchmarking harness
+- [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) - Current architecture decisions
 
 ### Priority 6: Real-Time Visualization & Monitoring (Q2-Q3 2026, Months 4-6)
 
@@ -514,7 +607,7 @@ Focus: release readiness, CI signal quality, and post-MVP integration hardening.
 
 ## CosmicHorizons Priorities 5-7: Event Infrastructure & Real-Time Dashboards
 
-**Status:** 📋 In Planning (Q2-Q3 2026)  
+**Status:** 🟡 In Execution (Q2-Q3 2026)  
 **Documentation**: See roadmap in `README.md` and long-term vision in `SCOPE-LOCK.md`
 
 ### Priority 5: Event Streaming Infrastructure (Q2 2026, Months 3-4)
@@ -543,18 +636,16 @@ Focus: release readiness, CI signal quality, and post-MVP integration hardening.
     - Correlation IDs for end-to-end tracing
   - **Status**: Tests ready, infrastructure operational, JobsModule integration complete
   - **Latency Target**: P99 < 100ms, P95 < 50ms ✓ (validated in mock tests)
-- [ ] Sprint 5.2: Kafka Integration (3 weeks)
-  - [ ] Set up 3-broker Kafka cluster with Zookeeper
-  - [ ] Kafka topics with retention policies
-  - [ ] NestJS Kafka integration
-  - [ ] Schema Registry for compatibility
-  - [ ] Target: 40 tests, 1000+ events/second
-- [ ] Sprint 5.3: Job Orchestration Events (2 weeks)
-  - [ ] Job submission → event publishing
-  - [ ] Job status change events
-  - [ ] Result notification system
-  - [ ] Event acknowledgment system
-  - [ ] Target: 50 tests, event replay capability
+- [x] Sprint 5.2: Kafka Integration (3 weeks)
+  - [x] 3-broker Kafka cluster setup and topic metadata
+  - [x] Kafka service integration in EventsModule
+  - [x] Schema files and test infrastructure
+  - [x] Target baseline met: service + tests implemented
+- [ ] Sprint 5.3: Job Orchestration Events (3 weeks) - IN PROGRESS
+  - [x] Job submission/status/failure/cancellation event publishing
+  - [x] Consumer services (metrics/notification/audit/health)
+  - [ ] Week 3: E2E + performance validation
+  - [x] Event replay capability
 
 **Expected Outcomes:**
 

@@ -12,6 +12,7 @@ import {
   AuditLog,
   CosmicTileCache,
 } from './entities';
+import { BrokerMetrics } from './modules/operations/broker-metrics.entity';
 import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository } from './repositories';
 
 @Module({
@@ -27,6 +28,7 @@ import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository 
       ViewerSnapshot,
       AuditLog,
       CosmicTileCache,
+      BrokerMetrics,
     ]),
   ],
   providers: [UserRepository, PostRepository, AuditLogRepository, RevisionRepository],

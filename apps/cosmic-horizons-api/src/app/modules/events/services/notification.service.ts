@@ -1,4 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, Logger } from '@nestjs/common';
+
+type NotificationEvent = Record<string, unknown> & {
+  jobId?: string;
+  severity?: string;
+};
 
 /**
  * NotificationService handles job completion notifications, failures, and WebSocket broadcasts
@@ -8,21 +14,21 @@ import { Injectable, Logger } from '@nestjs/common';
 export class NotificationService {
   private readonly logger = new Logger('NotificationService');
 
-  async sendJobCompletionNotification(event: any): Promise<boolean> {
+  async sendJobCompletionNotification(event: NotificationEvent): Promise<boolean> {
     this.logger.debug(`Sending completion notification for job ${event.jobId}`);
     return true;
   }
 
-  async formatCompletionNotification(event: any): Promise<string> {
+  async formatCompletionNotification(event: NotificationEvent): Promise<string> {
     return `Job ${event.jobId} completed successfully`;
   }
 
-  async sendJobFailureAlert(event: any): Promise<boolean> {
+  async sendJobFailureAlert(event: NotificationEvent): Promise<boolean> {
     this.logger.debug(`Sending failure alert for job ${event.jobId}`);
     return true;
   }
 
-  async checkEscalationRequired(event: any): Promise<boolean> {
+  async checkEscalationRequired(event: NotificationEvent): Promise<boolean> {
     return event.severity === 'CRITICAL';
   }
 
@@ -30,61 +36,61 @@ export class NotificationService {
     this.logger.debug(`Marking notification ${notificationId} as read`);
   }
 
-  async getNotification(notificationId: string): Promise<any> {
+  async getNotification(notificationId: string): Promise<{ id: string; read: boolean }> {
     return { id: notificationId, read: true };
   }
 
-  async broadcastStatusUpdate(event: any): Promise<any> {
+  async broadcastStatusUpdate(event: NotificationEvent): Promise<{ broadcast: boolean }> {
     this.logger.debug(`Broadcasting status update for job ${event.jobId}`);
     return { broadcast: true };
   }
 
-  async sendWebSocketNotification(userId: string, event: any): Promise<boolean> {
+  async sendWebSocketNotification(userId: string, _event: NotificationEvent): Promise<boolean> {
     this.logger.debug(`Sending WebSocket notification to user ${userId}`);
     return true;
   }
 
-  async storeInAppNotification(notification: any): Promise<any> {
+  async storeInAppNotification(notification: NotificationEvent): Promise<NotificationEvent & { id: string; read: boolean }> {
     return { id: `notif-${Date.now()}`, ...notification, read: false };
   }
 
-  async getUserNotifications(userId: string, limit: number): Promise<any[]> {
+  async getUserNotifications(_userId: string, _limit: number): Promise<NotificationEvent[]> {
     return [];
   }
 
-  async clearOldNotifications(maxAgeMinutes: number): Promise<number> {
+  async clearOldNotifications(_maxAgeMinutes: number): Promise<number> {
     return 0;
   }
 
-  async aggregateNotifications(userId: string, events: any[]): Promise<any> {
+  async aggregateNotifications(_userId: string, events: NotificationEvent[]): Promise<{ eventCount: number; aggregated: boolean }> {
     return { eventCount: events.length, aggregated: true };
   }
 
-  async batchNotifications(userId: string, events: any[]): Promise<any> {
+  async batchNotifications(_userId: string, _events: NotificationEvent[]): Promise<{ batches: unknown[]; batchCount: number }> {
     return { batches: [], batchCount: 0 };
   }
 
-  async checkQuietHours(userPrefs: any): Promise<boolean> {
+  async checkQuietHours(_userPrefs: unknown): Promise<boolean> {
     return false;
   }
 
-  async generateDailyDigest(userId: string): Promise<any> {
+  async generateDailyDigest(_userId: string): Promise<{ period: string; jobsCompleted: number; jobsFailed: number }> {
     return { period: 'DAILY', jobsCompleted: 0, jobsFailed: 0 };
   }
 
-  async attemptNotificationWithFallback(event: any): Promise<any> {
+  async attemptNotificationWithFallback(_event: NotificationEvent): Promise<{ success: boolean }> {
     return { success: true };
   }
 
-  async broadcastWithRetry(event: any, retries: number): Promise<any> {
+  async broadcastWithRetry(_event: NotificationEvent, _retries: number): Promise<{ attempts: number; success: boolean }> {
     return { attempts: 1, success: true };
   }
 
-  async queueNotificationIfUnavailable(event: any): Promise<any> {
+  async queueNotificationIfUnavailable(_event: NotificationEvent): Promise<{ queued: boolean }> {
     return { queued: true };
   }
 
-  async persistQueuedNotification(event: any): Promise<any> {
+  async persistQueuedNotification(_event: NotificationEvent): Promise<{ queued: boolean; persisted: boolean }> {
     return { queued: true, persisted: true };
   }
 }

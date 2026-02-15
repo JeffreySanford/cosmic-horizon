@@ -5,5 +5,10 @@
     "types": ["vitest/globals"],
     "lib": ["es2022", "dom"]
   },
+  "references": [
+    {
+      "path": "../../libs/shared/event-models/tsconfig.lib.json"
+    }
+  ],
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/test-setup.ts"]
 }

@@ -442,6 +442,8 @@ describe('KafkaService Tests', () => {
     });
 
     it('should track latency for batch publishing (100 messages)', async () => {
+      mockPublisher.setSimulatedLatency(1);
+
       const messages = KafkaEventBuilder.buildBatch(100, (index) =>
         KafkaEventBuilder.jobSubmittedEvent()
           .withPartitionKey(`job-perf-${index}`)
@@ -453,7 +455,7 @@ describe('KafkaService Tests', () => {
 
       const stats = mockPublisher.getLatencyStats();
       expect(stats.count).toBe(100);
-      expect(stats.mean).toBeGreaterThan(0);
+      expect(stats.mean).toBeGreaterThanOrEqual(1);
     });
 
     it('should validate throughput (50+ msgs/sec minimum)', async () => {
@@ -555,8 +557,10 @@ describe('KafkaService Tests', () => {
       expect(mockPublisher.getMessageCount()).toBe(1);
     });
 
-    it('should handle assertion failures gracefully', () => {
-      // This test just validates that assertion throws on failure - no action needed
+    it('should handle assertion failures gracefully', async () => {
+      mockPublisher.setSimulatedLatency(5);
+      await mockPublisher.publish(KafkaEventBuilder.jobSubmittedEvent().build());
+
       expect(() => {
         mockPublisher.assertLatencyWithinBounds(1); // Very strict bound
       }).toThrow();

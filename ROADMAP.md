@@ -1,8 +1,8 @@
 # Project Roadmap
 
 **Cosmic Horizons Collaboration Platform**  
-**Status**: MVP Enhanced (Feb 2026) → Phase 2 Planning  
-**Last Updated**: 2026-02-13  
+**Status**: MVP Enhanced (Feb 2026) → Phase 3 Execution  
+**Last Updated**: 2026-02-15  
 
 ## Vision
 
@@ -137,7 +137,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 ## Phase 3: Event Infrastructure & Scalability - Q2-Q3 2026
 
 **Focus**: Real-time updates, multi-user coordination, scale infrastructure  
-**Status**: Sprint 5.1 ✅ Complete | Sprint 5.2 ✅ Complete (Feb 14, 2026) | Sprint 5.3 🟢 Ready to Start  
+**Status**: Sprint 5.1 ✅ Complete | Sprint 5.2 ✅ Complete (Feb 14, 2026) | Sprint 5.3 🟡 In Progress (Week 3 execution active)  
 **📋 Detailed Strategy**: [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md)
 
 ### Architecture Framework ✅
@@ -147,6 +147,18 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 - [x] **ADR: Event Streaming Strategy** ([ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md))
   - Dual-broker architecture (RabbitMQ for ephemeral events, Kafka for durable audit trail)
   - Decision rationale, trade-offs, and alternative approaches documented
+
+**Architectural Rationale**:
+
+| Tier | Technology | Purpose | Retention | Latency |
+|------|-----------|---------|-----------|---------|
+| **Ephemeral** | RabbitMQ (3-node) | Real-time notifications, WebSocket pushes, live dashboards | In-memory | <10ms |
+| **Durable** | Kafka (3-broker) | Compliance audit trail, event replay, 90-day retention, analytics | 30-90 days on disk | 50-100ms |
+
+**Key Point**: Kafka provides immutable append-only log for audit/compliance; RabbitMQ provides low-latency fan-out. Both are **permanent parts of Phase 3**.
+
+**Phase 3.5 Evaluation**: Apache Pulsar consolidates both capabilities (ephemeral + durable) in a single platform with 30-40% performance improvement. Evaluation planned before Phase 4 commitment—Kafka remains operational during benchmarking to ensure zero compliance risk.
+
 - [x] **Event Schema Definitions** ([EVENT-SCHEMA-DEFINITIONS.md](documentation/architecture/EVENT-SCHEMA-DEFINITIONS.md))
   - EventBase interface with event_id, correlation_id, timestamp, payload
   - Job lifecycle events (submitted, status changed, completed, failed, cancelled)
@@ -299,40 +311,35 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 - [ ] Broker replication: 3x with ISR > 2
 - [ ] Offset management functional (replay enabled)
 
-#### Sprint 5.3: Job Orchestration Events (2 weeks)
+#### Sprint 5.3: Job Orchestration Events (3 weeks) 🟡 IN PROGRESS
 
-**Objectives**:
+**Completed (Week 1-2)**:
 
-- Wire EventsService to JobsModule
-- Publish full job lifecycle events
-- Enable event replay for auditing
+- [x] JobsModule event publishing wired
+  - `job.submitted`, `job.status.changed`, `job.failed`, `job.cancelled`
+  - Correlation IDs included for traceability
+  - Kafka publish path added alongside existing event publishing
+- [x] Consumer services implemented and registered
+  - Metrics consumer (`job-metrics`)
+  - Notification consumer (`job-lifecycle`)
+  - Audit consumer (`audit-trail`)
+  - System health consumer (`system-health`)
+- [x] Module integration active in `AppModule` and startup logs
 
-**Tasks**:
+**Week 3 Implementation Snapshot (Feb 15, 2026)**:
 
-- [ ] Integrate EventsService into JobsModule:
-  - Publish job.submitted on job creation
-  - Publish job.status.changed on state transitions
-  - Add correlation IDs for tracing job → status → notification chain
-  - Include TACC job IDs and performance metrics in events
-- [ ] Implement notification system:
-  - Consume notification events
-  - Route to email/WebSocket by user preference
-  - Add acknowledgment tracking
-- [ ] Event replay capability:
-  - Implement offset tracking in PostgreSQL
-  - Enable "replay from timestamp" for auditing
-  - Build event history API endpoint
-- [ ] Test coverage:
-  - Full job lifecycle scenario tests (50+)
-  - Event correlation and tracing tests
-  - Replay and offset management tests
+- [x] E2E workflow validation across publisher + all consumers
+- [x] Performance and lag benchmarks for event flow
+- [x] Production-readiness checks and operations documentation
+- [x] Event replay capability (offset tracking + replay API)
+- [x] Markdown-source docs catalog API for `/docs` view (`/api/internal-docs/catalog`)
 
-**Success Criteria**:
+**Sprint 5.3 Exit Criteria**:
 
-- 100% of job lifecycle events published
-- Event replay working for 30+ day window
-- All 50+ tests passing
-- Audit trail complete and queryable
+- 100% of lifecycle transitions publish events consistently
+- Consumer processing validated end-to-end
+- Performance and reliability baselines documented
+- Replay/audit backlog explicitly tracked if deferred
 
 ### Priority 6: Real-Time Dashboards (Weeks 9-18)
 
@@ -389,14 +396,89 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 ---
 
+## Phase 3.5: Pulsar Evaluation & Broker Consolidation Strategy (Feb-Mar 2026)
+
+**Status**: Planning (Sprint 5.4) | See [BROKER-COMPARISON-STRATEGY.md](documentation/architecture/BROKER-COMPARISON-STRATEGY.md)  
+**Duration**: 2-3 weeks parallel to Sprint 6.1  
+**Purpose**: Validate Apache Pulsar as Phase 4 consolidation candidate; keep Kafka operational
+
+### Phase 3.5 Objectives
+
+1. **Local Benchmarking** (Week 1)
+   - Run `docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d`
+   - Execute 10K-message benchmark comparing RabbitMQ, Pulsar, and Kafka
+   - Validate performance claims: Pulsar ≥30% faster, ≤20% memory overhead
+   - Capture baseline metrics in `test-output/benchmark-results/`
+
+2. **Operational Visibility** (Week 1-2)
+   - Build **Broker Comparison Dashboard** ([BROKER-COMPARISON-STRATEGY.md](documentation/architecture/BROKER-COMPARISON-STRATEGY.md))
+     - Real-time metrics: throughput, latency P99, memory usage, connection count
+     - Time-series charts (24-hour history)
+     - Comparison deltas (percentage improvement)
+     - Health status table
+   - API endpoints: `/api/internal/brokers/stats`, `/api/internal/brokers/history`, `/api/internal/brokers/benchmark`
+   - Angular UI component at `/operations/broker-comparison`
+
+3. **ADR & Phase 4 Planning** (Week 2)
+   - Update [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) with Pulsar consolidation option
+   - Document Phase 4 migration path: Kafka consumers → Pulsar, RabbitMQ topics → Pulsar
+   - Create [PHASE-4-PULSAR-INTEGRATION.md](documentation/architecture/PHASE-4-PULSAR-INTEGRATION.md) scope document
+   - Risk assessment and rollback strategy
+
+### Kafka's Role During Phase 3.5
+
+**Status**: Fully operational, not deprecated
+
+| Aspect | Phase 3 | Phase 3.5 | Phase 4 |
+|--------|---------|----------|---------|
+| **Audit Trail** | ✅ Active (90-day retention) | ✅ Keep running | → Migrate to Pulsar OR keep for cold archive |
+| **Event Publishing** | Publishing all 5 topics | Publishing all 5 topics | Cease (migrate to Pulsar) |
+| **Compliance Role** | Essential | Reference baseline | Optional (Pulsar takes over) |
+| **Consumer Groups** | 4 active | 4 active | Migrate to Pulsar or decommission |
+
+**Why Keep Kafka**:
+
+- Zero compliance risk (known, battle-tested)
+- Baseline for Pulsar comparison
+- Rollback option if Pulsar evaluation fails
+- Preserve 90-day audit trail during transition
+
+### Success Criteria
+
+| Gate | Target | Outcome |
+|------|--------|---------|
+| **Throughput** | Pulsar ≥+30% | GREEN: Proceed to Phase 4 |
+| **Latency** | Pulsar ≥-25% | YELLOW: Analyze trade-offs |
+| **Reliability** | ≥99.9% uptime | RED: Stay with dual-broker |
+| **Ops Overhead** | ≥50% reduction | Go/No-Go decision |
+
+### Phase 4 Contingency Plans
+
+**IF Pulsar passes all gates**:
+→ Migrate to Pulsar-only architecture (replaces both RabbitMQ + Kafka)  
+→ Implement geo-replication to TACC  
+→ Decommission separate Kafka cluster
+
+**IF Pulsar partially passes**:
+→ Adopt hybrid model (Pulsar for ephemeral, Kafka for audit)  
+→ Keep Kafka for cold archive and compliance
+
+**IF Pulsar fails evaluation**:
+→ Expand Kafka investment (more partitions, replication)  
+→ Keep dual-broker RabbitMQ + Kafka indefinitely  
+→ Explore Redis Streams as additional tier
+
+---
+
 ## Phase 4: v2.0 - NRAO Ecosystem Integration - Q3-Q4 2026
 
 **Focus**: Integration readiness and collaboration pathways with NRAO/VLA  
 **Status**: Planning (Q4 2026) | Detailed in [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md)  
-**Duration**: 12 weeks (after Phase 3 complete)
+**Duration**: 12 weeks (after Phase 3 complete and Phase 3.5 evaluation passes)
 
 ### Strategic Importance
 
+- **Conditional on Phase 3.5**: Event broker consolidation (Pulsar evaluation)
 - NRAO collaboration potential for operational integration
 - Symposium 2026 demonstration (April - deadline April 1 for abstract)
 - Production-ready platform for VLA/NRAO observation workflows
@@ -551,6 +633,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow, branch strategy
 
 ---
 
-*Last Updated: February 14, 2026 (Sprint 5.1 Complete - Kafka Sprint Starting)*  
+*Last Updated: February 15, 2026 (Sprint 5.3 Week 3 core implementation landed; final hardening continues)*  
 *Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*  
 *Independent portal using public VLASS data; not affiliated with VLA/NRAO.*

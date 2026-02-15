@@ -48,7 +48,7 @@ export class JobOrchestratorService {
   private async publishJobEventToKafka(
     eventType: string,
     jobId: string,
-    payload: Record<string, any>,
+    payload: Record<string, unknown>,
   ): Promise<void> {
     try {
       await this.kafkaService.publishJobLifecycleEvent(

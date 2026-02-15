@@ -22,9 +22,9 @@ export class MockApiInterceptor implements HttpInterceptor {
   private jobCounter = 0;
 
   intercept(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<unknown>> {
     // Mock job submission
     if (req.url.includes('/api/jobs/submit') && req.method === 'POST') {
       this.jobCounter++;

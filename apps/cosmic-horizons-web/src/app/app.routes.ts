@@ -85,6 +85,12 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'operations',
+    loadChildren: () =>
+      import('./modules/operations/operations.module').then((m) => m.OperationsModule),
+    canActivate: [AuthGuard, AdminGuard],
+  },
+  {
     path: '**',
     redirectTo: 'landing',
   },

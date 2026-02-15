@@ -355,7 +355,10 @@ export class MockKafkaPublisher {
     if (!this.publishLatencies.has(message.topic)) {
       this.publishLatencies.set(message.topic, []);
     }
-    this.publishLatencies.get(message.topic)!.push(elapsed);
+    const topicLatencies = this.publishLatencies.get(message.topic);
+    if (topicLatencies) {
+      topicLatencies.push(elapsed);
+    }
 
     this.logger.debug(
       `Published to ${message.topic} (latency: ${elapsed}ms, total: ${this.publishCount})`
@@ -633,7 +636,10 @@ export class LatencyMeasurer {
       if (!this.measurements.has(name)) {
         this.measurements.set(name, []);
       }
-      this.measurements.get(name)!.push(elapsed);
+      const namedMeasurements = this.measurements.get(name);
+      if (namedMeasurements) {
+        namedMeasurements.push(elapsed);
+      }
     };
   }
 
