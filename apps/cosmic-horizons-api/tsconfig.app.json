@@ -3,6 +3,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "types": ["node"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["es2022", "dom"],
 
     "skipLibCheck": true,
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",

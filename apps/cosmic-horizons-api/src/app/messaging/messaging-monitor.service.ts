@@ -221,7 +221,7 @@ export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
       const offsets =
         await this.kafkaAdmin.fetchTopicOffsets('element.raw_data');
       const latestOffset = offsets.reduce(
-        (acc, item) => acc + Number(item.offset),
+        (acc: number, item: { offset: string }) => acc + Number(item.offset),
         0,
       );
 

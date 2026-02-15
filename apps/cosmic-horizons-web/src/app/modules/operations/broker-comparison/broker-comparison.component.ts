@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { interval, Subject, takeUntil } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { BrokerDataService } from './services/broker-data.service';
-import { BenchmarkResult, BrokerComparisonDTO } from './models/broker-metrics.model';
+import { BenchmarkResult, BrokerComparisonDTO, BrokerMetricsDTO } from './models/broker-metrics.model';
 
 /**
  * BrokerComparisonComponent
