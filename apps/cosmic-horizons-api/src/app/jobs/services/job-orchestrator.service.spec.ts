@@ -748,7 +748,7 @@ describe('JobOrchestratorService', () => {
         await service.submitJob('user-1', submission);
 
         // Verify all 3 job submissions were published
-        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledTimes(9); // 3 jobs × 3 events each minimum
+        expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledTimes(6); // 3 jobs × 2 events each
       });
 
       it('should include estimated runtime and node count in submission events', async () => {

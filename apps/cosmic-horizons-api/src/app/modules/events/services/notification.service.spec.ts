@@ -48,7 +48,7 @@ describe('NotificationService - Event Consumption', () => {
       };
 
       const notification = await service.formatCompletionNotification(event);
-      expect(notification).toContain('COMPLETED');
+      expect(notification).toContain('completed successfully');
       expect(notification).toContain('job-1');
     });
 

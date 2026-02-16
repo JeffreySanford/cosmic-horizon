@@ -149,23 +149,10 @@ export class BrokerMetricsCollector {
       } catch (_restProxyError) {
         // Fall back to direct broker connection attempt
         this.logger.debug('Kafka REST proxy unavailable, attempting direct connection');
-
-        return {
-          connected: true,
-          messagesPerSecond: 9847, // Real-time statistic from instrumentation
-          p99LatencyMs: 42.8,
-          memoryUsageMb: 523.4,
-          connectionCount: 15,
-          uptime: '5h 23m 15s',
-          partitionCount: 33,
-          brokerCount: 3,
-          topicStats: {
-            topicCount: 12,
-            replicationFactor: 3,
-            totalMessages: 2848793,
-            consumerGroups: 8,
-          },
-        };
+        
+        // For now, if REST proxy fails, we cannot determine connectivity
+        // In a real implementation, would attempt direct broker connection
+        throw new Error('Kafka REST proxy unavailable and direct connection not implemented');
       }
     } catch (error) {
       this.logger.warn(`Failed to collect Kafka metrics: ${error instanceof Error ? error.message : String(error)}`);

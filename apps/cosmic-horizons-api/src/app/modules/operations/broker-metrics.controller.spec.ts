@@ -53,18 +53,19 @@ describe('BrokerMetricsController', () => {
   };
 
   beforeEach(async () => {
-    serviceMock = {
+    const mockService = {
       getCurrentMetrics: jest.fn().mockResolvedValue(mockComparisonDTO),
       getHistoricalMetrics: jest.fn().mockResolvedValue(mockHistoryDTO),
       pruneOldMetrics: jest.fn().mockResolvedValue(10),
-    } as any;
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BrokerMetricsController],
-      providers: [{ provide: BrokerMetricsService, useValue: serviceMock }],
+      providers: [{ provide: BrokerMetricsService, useValue: mockService }],
     }).compile();
 
     controller = module.get<BrokerMetricsController>(BrokerMetricsController);
+    serviceMock = module.get(BrokerMetricsService);
   });
 
   describe('GET /stats', () => {

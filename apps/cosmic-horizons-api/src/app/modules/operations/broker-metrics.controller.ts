@@ -112,7 +112,7 @@ export class BrokerMetricsController {
   })
   async getHistory(@Query('hours') hours?: number): Promise<BrokerHistoryDTO> {
     try {
-      const hoursToQuery = hours ? Math.max(1, Math.min(168, hours)) : 24; // Cap at 7 days
+      const hoursToQuery = hours !== undefined ? Math.max(1, Math.min(168, hours)) : 24; // Cap at 7 days
       return await this.brokerMetricsService.getHistoricalMetrics(hoursToQuery);
     } catch (error) {
       this.logger.error(`Failed to get broker history: ${error instanceof Error ? error.message : String(error)}`);
