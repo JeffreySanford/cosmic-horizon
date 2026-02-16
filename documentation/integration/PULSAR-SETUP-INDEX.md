@@ -11,11 +11,10 @@
 ### 1. Docker Infrastructure
 
 ```text
-docker-compose.pulsar.yml                    (372 lines)
-├─ 3x Pulsar Brokers (6650, 8082, 8084)
-├─ 3x BookKeepers (tiered storage layer)
-├─ ZooKeeper (cluster coordination)
-└─ Pulsar Manager UI (port 9527)
+docker-compose.events.yml (Pulsar section)   (129 lines)
+├─ Pulsar Standalone (6650, 8080, 8081)
+├─ Includes ZooKeeper, BookKeeper, Broker
+└─ Health checks and networking
 ```
 
 **Size estimate**: 1.5-2 GB RAM when running  
@@ -95,13 +94,13 @@ docker-compose.pulsar.yml                    (372 lines)
 
 - Docker & Docker Compose (you already have this)
 - Node.js 18+ (you already have this)
-- ~6GB free RAM (or adjust JVM heap in docker-compose.pulsar.yml)
+- ~2GB free RAM (Pulsar standalone uses less memory than cluster)
 
 ### Commands
 
 ```bash
 # 1️⃣  Start infrastructure (2 min)
-docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d --wait
+docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait
 
 # 2️⃣  Install dependencies (1 min)
 pnpm install
@@ -173,9 +172,8 @@ curl http://localhost:15672/api/overview -u guest:guest
 
 ```text
 cosmic-horizons/
-├── docker-compose.pulsar.yml              ← NEW: Pulsar infrastructure
+├── docker-compose.events.yml              ← UPDATED: Added Pulsar infrastructure
 ├── docker-compose.yml                     ← Existing: Main DB/Redis
-├── docker-compose.events.yml              ← Existing: RabbitMQ/Kafka
 ├── package.json                           ← UPDATED: Added pulsar-client
 │
 ├── scripts/
@@ -234,13 +232,14 @@ docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml down
 ### Option 2: Full reset (remove all volumes)
 
 ```bash
-docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml down --volumes
+docker compose -f docker-compose.yml -f docker-compose.events.yml down --volumes
 ```
 
 ### Option 3: Remove only Pulsar (keep RabbitMQ/Kafka)
 
 ```bash
-docker compose -f docker-compose.pulsar.yml down --volumes
+# Pulsar is now part of docker-compose.events.yml, so this removes all event brokers
+docker compose -f docker-compose.yml -f docker-compose.events.yml down --volumes
 ```
 
 ### Option 4: Reset Pulsar topics (keep container running)
@@ -291,7 +290,7 @@ docker compose ps | grep pulsar
 docker compose logs pulsar-broker-1 | tail -20
 
 # Restart
-docker compose -f docker-compose.pulsar.yml restart
+docker compose -f docker-compose.yml -f docker-compose.events.yml restart pulsar-standalone
 ```
 
 ### Benchmark hangs on consume phase

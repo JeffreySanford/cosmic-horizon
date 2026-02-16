@@ -11,7 +11,7 @@
  * Usage: node scripts/benchmark-pulsar-vs-rabbitmq.mjs
  * 
  * Prerequisites:
- * - Both docker-compose.events.yml and docker-compose.pulsar.yml running
+ * - docker-compose.events.yml running (includes Pulsar)
  * - RabbitMQ: localhost:5672
  * - Pulsar: localhost:6650 (broker protocol)
  */
@@ -327,7 +327,7 @@ async function benchmarkPulsar() {
 
   } catch (error) {
     console.error('Pulsar benchmark error:', error.message);
-    console.error('Note: Ensure Pulsar is running with: docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up');
+    console.error('Note: Ensure Pulsar is running with: docker compose -f docker-compose.yml -f docker-compose.events.yml up');
     return null;
   } finally {
     if (consumer) await consumer.close();

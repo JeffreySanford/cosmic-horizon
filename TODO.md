@@ -121,7 +121,7 @@ Parallel effort to Sprint 6.1, enables Phase 4 architecture decision.
 
 **Completed**:
 
-- ✅ Local Pulsar infrastructure (docker-compose.pulsar.yml, 3-node cluster)
+- ✅ Local Pulsar infrastructure (docker-compose.events.yml, standalone instance)
 - ✅ Benchmarking harness (benchmark-pulsar-vs-rabbitmq.mjs, 10K event comparison)
 - ✅ Setup automation (pulsar-setup.mjs, namespace/topic initialization)
 - ✅ Comprehensive documentation (QUICKSTART, LOCAL-EVALUATION, README in `documentation/pulsar/`)
@@ -144,7 +144,7 @@ Parallel effort to Sprint 6.1, enables Phase 4 architecture decision.
 - [ ] Integrate `BrokerMetricsController` into NestJS API module routing
 - [ ] Register `BrokerMetricsService` and `BrokerMetricsCollector` in dependency injection
 - [ ] Add route to broker comparison dashboard: `/operations/broker-comparison`
-- [ ] Spin up local Pulsar cluster: `docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d --wait`
+- [ ] Spin up local Pulsar cluster: `docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait`
 - [ ] Run: `node scripts/pulsar-setup.mjs` (creates namespaces and topics)
 - [ ] Execute: `node scripts/benchmark-pulsar-vs-rabbitmq.mjs` (compares all brokers)
 - [ ] Verify dashboard displays real-time metrics correctly
@@ -202,7 +202,7 @@ Real-time dashboard provides operational visibility during benchmarking. Local v
 
 - [BROKER-COMPARISON-STRATEGY.md](documentation/architecture/BROKER-COMPARISON-STRATEGY.md) - Full strategy and implementation guide
 - [documentation/pulsar/](documentation/pulsar/) - Comprehensive Pulsar guides
-- [docker-compose.pulsar.yml](docker-compose.pulsar.yml) - Local infrastructure
+- [docker-compose.events.yml](docker-compose.events.yml) - Local infrastructure (includes Pulsar)
 - [scripts/benchmark-pulsar-vs-rabbitmq.mjs](scripts/benchmark-pulsar-vs-rabbitmq.mjs) - Benchmarking harness
 - [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) - Current architecture decisions
 

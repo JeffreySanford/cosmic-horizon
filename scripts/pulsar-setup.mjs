@@ -152,7 +152,7 @@ async function checkClusterHealth() {
     return true;
   } catch (error) {
     console.error('✗ Cluster health check failed:', error.message);
-    console.error('  Ensure Pulsar is running: docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d');
+    console.error('  Ensure Pulsar is running: docker compose -f docker-compose.yml -f docker-compose.events.yml up -d');
     return false;
   }
 }

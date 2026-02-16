@@ -11,8 +11,8 @@ See [README.md](README.md) for complete setup index and [LOCAL-EVALUATION.md](LO
 ### Step 1: Start Infrastructure (2 min)
 
 ```bash
-# Start Pulsar + your existing RabbitMQ/Kafka
-docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d --wait
+# Start all event brokers (Pulsar, RabbitMQ, Kafka) + main infrastructure
+docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait
 
 # Verify
 docker compose ps | grep -E "pulsar|rabbitmq|kafka"
@@ -84,4 +84,4 @@ After startup, visit:
 
 ---
 
-**Ready?** Start here: `docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d --wait`
+**Ready?** Start here: `docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait`

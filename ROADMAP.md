@@ -405,7 +405,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 ### Phase 3.5 Objectives
 
 1. **Local Benchmarking** (Week 1)
-   - Run `docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d`
+   - Run `docker compose -f docker-compose.yml -f docker-compose.events.yml up -d`
    - Execute 10K-message benchmark comparing RabbitMQ, Pulsar, and Kafka
    - Validate performance claims: Pulsar ≥30% faster, ≤20% memory overhead
    - Capture baseline metrics in `test-output/benchmark-results/`

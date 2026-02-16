@@ -22,12 +22,11 @@ Complete reference with setup, monitoring, performance interpretation, cost anal
 
 ### 1. Docker Infrastructure
 
-**File**: `docker-compose.pulsar.yml` (372 lines)
+**File**: `docker-compose.events.yml` (Pulsar section)
 
-- 3x Pulsar Brokers (6650, 8082, 8084)
-- 3x BookKeepers (tiered storage layer)
-- ZooKeeper (cluster coordination)
-- Pulsar Manager UI (port 9527)
+- Pulsar Standalone (includes ZooKeeper, BookKeeper, and Broker in one container)
+- Ports: 6650 (broker), 8080 (REST API), 8081 (WebSocket)
+- Health checks and proper networking
 
 **Size estimate**: 1.5-2 GB RAM when running  
 **Runs alongside** existing docker-compose.yml and docker-compose.events.yml
@@ -100,9 +99,8 @@ For your **1000 events/sec** job coordinator:
 
 ```text
 cosmic-horizons/
-├── docker-compose.pulsar.yml              ← NEW: Pulsar infrastructure
+├── docker-compose.events.yml              ← UPDATED: Added Pulsar infrastructure
 ├── docker-compose.yml                     ← Existing: Main DB/Redis
-├── docker-compose.events.yml              ← Existing: RabbitMQ/Kafka
 ├── package.json                           ← UPDATED: Added pulsar-client
 │
 ├── scripts/
@@ -137,19 +135,20 @@ cosmic-horizons/
 ### Option 1: Just stop (keep data for inspection)
 
 ```bash
-docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml down
+docker compose -f docker-compose.yml -f docker-compose.events.yml down
 ```
 
 ### Option 2: Full reset (remove all volumes)
 
 ```bash
-docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml down --volumes
+docker compose -f docker-compose.yml -f docker-compose.events.yml down --volumes
 ```
 
 ### Option 3: Remove only Pulsar (keep RabbitMQ/Kafka)
 
 ```bash
-docker compose -f docker-compose.pulsar.yml down --volumes
+# Pulsar is now part of docker-compose.events.yml, so this removes all event brokers
+docker compose -f docker-compose.yml -f docker-compose.events.yml down --volumes
 ```
 
 ### Option 4: Reset Pulsar topics (keep container running)

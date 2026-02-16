@@ -55,19 +55,16 @@ docker compose version
 docker compose -f docker-compose.yml ps
 docker compose -f docker-compose.events.yml ps
 
-# Free up ~6GB RAM for Pulsar cluster (or adjust JVM heap in docker-compose.pulsar.yml)
+# Free up ~2GB RAM for Pulsar standalone (much less than cluster)
 ```
 
 ### Step 1: Start Pulsar Infrastructure
 
 ```bash
-# Option A: Start both RabbitMQ/Kafka AND Pulsar together
-docker compose -f docker-compose.events.yml -f docker-compose.pulsar.yml up -d --wait
+# Start all infrastructure including Pulsar
+docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait
 
-# Option B: Start only Pulsar (if you want isolated testing)
-docker compose -f docker-compose.pulsar.yml up -d --wait
-
-# Wait for cluster to stabilize (~1-2 minutes)
+# Wait for services to stabilize (~1-2 minutes)
 docker compose logs -f pulsar-broker-1 | grep "Broker started"
 ```
 
