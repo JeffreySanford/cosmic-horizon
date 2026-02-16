@@ -157,5 +157,9 @@
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.28",
     "zone.js": "^0.16.0"
+  },
+  "resolutions": {
+    "@mapbox/node-pre-gyp": "^2.0.2",
+    "tar": "^7.5.7"
   }
 }

@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Kafka, logLevel } from 'kafkajs';
 import Redis from 'ioredis';
 import { Pool } from 'pg';
+// @ts-ignore: No type definitions for 'pg' module
 import type { MessagingInfraSnapshot } from './messaging.types';
 
 const POLL_INTERVAL_MS = 2000;
