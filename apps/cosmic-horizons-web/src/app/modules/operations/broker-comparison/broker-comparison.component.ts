@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ViewChild, NgZone } from '@angular/core';
 import { interval, Subject, takeUntil } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { BrokerDataService } from './services/broker-data.service';
-import { BenchmarkResult, BrokerComparisonDTO, BrokerMetricsDTO } from './models/broker-metrics.model';
+import { BenchmarkResult, BrokerComparisonDTO, BrokerMetricsDTO, SystemMetrics } from './models/broker-metrics.model';
+import { SystemMetricsChartComponent } from './system-metrics-chart.component';
 
 /**
  * BrokerComparisonComponent
@@ -29,14 +30,19 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['metric', 'rabbitmq', 'pulsar', 'kafka', 'improvement'];
   brokerStatuses: Record<string, 'ok' | 'warning' | 'error'> = {};
 
+  @ViewChild(SystemMetricsChartComponent) systemMetricsChart!: SystemMetricsChartComponent;
+
   private destroy$ = new Subject<void>();
   private pollInterval$ = interval(5000); // Refresh every 5 seconds
+  private systemMetricsInterval$ = interval(2000); // System metrics every 2 seconds
 
   private readonly brokerDataService = inject(BrokerDataService);
+  private readonly ngZone = inject(NgZone);
 
   ngOnInit(): void {
     this.loadMetrics();
     this.startPolling();
+    this.startSystemMetricsPolling();
   }
 
   ngOnDestroy(): void {
@@ -86,23 +92,84 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
       });
   }
 
+  private startSystemMetricsPolling(): void {
+    this.systemMetricsInterval$
+      .pipe(
+        switchMap(() => this.brokerDataService.getSystemMetrics()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (data: SystemMetrics) => {
+          if (this.systemMetricsChart) {
+            this.systemMetricsChart.updateData(data);
+          }
+        },
+        error: (err: unknown) => {
+          console.warn('System metrics polling error:', err);
+        },
+      });
+  }
+
   /**
    * Trigger benchmark test
    */
   runBenchmark(): void {
     if (this.isBenchmarkRunning) return;
 
-    this.isBenchmarkRunning = true;
-    this.brokerDataService.runBenchmark().subscribe({
+    this.error = null;
+    // Set running state asynchronously to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.isBenchmarkRunning = true;
+      });
+    });
+
+    this.brokerDataService.runBenchmark(false).subscribe({
       next: (result: BenchmarkResult) => {
         console.log('Benchmark completed:', result);
-        this.isBenchmarkRunning = false;
+        this.ngZone.run(() => {
+          this.isBenchmarkRunning = false;
+        });
         // Reload metrics after benchmark completes
         setTimeout(() => this.loadMetrics(), 2000);
       },
       error: (err: unknown) => {
-        this.error = `Benchmark failed: ${this.getErrorMessage(err)}`;
-        this.isBenchmarkRunning = false;
+        this.ngZone.run(() => {
+          this.error = `Benchmark failed: ${this.getErrorMessage(err)}`;
+          this.isBenchmarkRunning = false;
+        });
+      },
+    });
+  }
+
+  /**
+   * Trigger stress test (high load)
+   */
+  runStressTest(): void {
+    if (this.isBenchmarkRunning) return;
+
+    this.error = null;
+    // Set running state asynchronously to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.isBenchmarkRunning = true;
+      });
+    });
+
+    this.brokerDataService.runBenchmark(true).subscribe({
+      next: (result: BenchmarkResult) => {
+        console.log('Stress test completed:', result);
+        this.ngZone.run(() => {
+          this.isBenchmarkRunning = false;
+        });
+        // Reload metrics after stress test completes (longer delay for 50K messages)
+        setTimeout(() => this.loadMetrics(), 10000);
+      },
+      error: (err: unknown) => {
+        this.ngZone.run(() => {
+          this.error = `Stress test failed: ${this.getErrorMessage(err)}`;
+          this.isBenchmarkRunning = false;
+        });
       },
     });
   }
@@ -130,24 +197,24 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
   /**
    * Format throughput for display
    */
-  formatThroughput(value: number | undefined): string {
-    if (value === undefined) return 'N/A';
+  formatThroughput(value: number | undefined | null): string {
+    if (value === undefined || value === null) return 'N/A';
     return `${value.toLocaleString()} msg/s`;
   }
 
   /**
    * Format latency for display
    */
-  formatLatency(value: number | undefined): string {
-    if (value === undefined) return 'N/A';
+  formatLatency(value: number | undefined | null): string {
+    if (value === undefined || value === null) return 'N/A';
     return `${value.toFixed(2)} ms`;
   }
 
   /**
    * Format memory for display
    */
-  formatMemory(value: number | undefined): string {
-    if (value === undefined) return 'N/A';
+  formatMemory(value: number | undefined | null): string {
+    if (value === undefined || value === null) return 'N/A';
     return `${value.toFixed(1)} MB`;
   }
 

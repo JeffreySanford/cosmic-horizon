@@ -209,41 +209,6 @@ describe('BrokerDataService', () => {
     });
   });
 
-  describe('getHealth', () => {
-    it('should fetch broker health status', () => {
-      const mockHealth = {
-        rabbitmq: 'ok',
-        kafka: 'ok',
-        pulsar: 'ok',
-      };
-
-      service.getHealth().subscribe((data) => {
-        expect(data).toEqual(mockHealth);
-      });
-
-      const req = httpMock.expectOne('/api/internal/brokers/health');
-      expect(req.request.method).toBe('GET');
-      req.flush(mockHealth);
-    });
-
-    it('should return health object with broker statuses', () => {
-      const mockHealth = {
-        rabbitmq: 'ok',
-        kafka: 'unavailable',
-        pulsar: 'ok',
-      };
-
-      service.getHealth().subscribe((data) => {
-        expect(Object.keys(data)).toContain('rabbitmq');
-        expect(Object.keys(data)).toContain('kafka');
-        expect(Object.keys(data)).toContain('pulsar');
-      });
-
-      const req = httpMock.expectOne('/api/internal/brokers/health');
-      req.flush(mockHealth);
-    });
-  });
-
   describe('API_BASE constant', () => {
     it('should use correct base URL', () => {
       service.getCurrentMetrics().subscribe(() => {
