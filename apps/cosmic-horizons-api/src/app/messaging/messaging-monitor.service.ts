@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 import { Kafka, logLevel } from 'kafkajs';
 import Redis from 'ioredis';
 import { Pool } from 'pg';
-// @ts-ignore: No type definitions for 'pg' module
 import type { MessagingInfraSnapshot } from './messaging.types';
 
 const POLL_INTERVAL_MS = 2000;
@@ -222,7 +221,7 @@ export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
       const offsets =
         await this.kafkaAdmin.fetchTopicOffsets('element.raw_data');
       const latestOffset = offsets.reduce(
-        (acc: number, item: { offset: string }) => acc + Number(item.offset),
+        (acc, item) => acc + Number(item.offset),
         0,
       );
 

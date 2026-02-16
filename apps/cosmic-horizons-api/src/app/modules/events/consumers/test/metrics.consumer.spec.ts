@@ -61,6 +61,7 @@ describe('MetricsConsumer - Event Handling', () => {
               await handler(mockPayload as EachMessagePayload);
             }),
             disconnect: jest.fn().mockResolvedValue(undefined),
+            isConnected: jest.fn().mockReturnValue(true),
           },
         },
       ],
