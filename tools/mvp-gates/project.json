@@ -14,6 +14,7 @@
     },
     "e2e-web-mvp": {
       "executor": "nx:run-commands",
+      "cache": false,
       "dependsOn": ["ports-free"],
       "options": {
         "command": "pnpm nx run cosmic-horizons-web-e2e:e2e-mvp"
@@ -21,6 +22,7 @@
     },
     "e2e-web-perf": {
       "executor": "nx:run-commands",
+      "cache": false,
       "dependsOn": ["e2e-web-mvp"],
       "options": {
         "command": "pnpm nx run cosmic-horizons-web-e2e:e2e-perf"
@@ -28,6 +30,7 @@
     },
     "e2e-api": {
       "executor": "nx:run-commands",
+      "cache": false,
       "dependsOn": ["e2e-web-perf"],
       "options": {
         "command": "pnpm nx run cosmic-horizons-api-e2e:e2e"
@@ -43,6 +46,7 @@
     },
     "perf": {
       "executor": "nx:run-commands",
+      "cache": false,
       "options": {
         "command": "pnpm nx run cosmic-horizons-web-e2e:e2e-perf"
       }

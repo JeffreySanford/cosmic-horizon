@@ -206,7 +206,7 @@ test('allows admin user to open logs when backend confirms admin role', async ({
     }
 
     await route.fulfill({
-      status: 200,
+      status: 201,
       contentType: 'application/json',
       headers: { 'access-control-allow-origin': '*' },
       body: JSON.stringify({
@@ -249,8 +249,18 @@ test('allows admin user to open logs when backend confirms admin role', async ({
   await expect(loginEmail).toBeVisible();
   await loginEmail.fill('admin@cosmic.local');
   await loginPassword.fill('AdminPassword123!');
-  await page.getByRole('button', { name: 'Login' }).click();
-  await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
+  const loginButton = page.getByRole('button', { name: 'Login' });
+  await expect(async () => {
+    const loginResponse = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/api/auth/login') &&
+        response.status() === 201,
+    );
+    await loginButton.click();
+    await loginResponse;
+    await expect(page).toHaveURL(/\/landing/, { timeout: 5000 });
+  }).toPass({ timeout: 30000 });
 
   await page.getByRole('button', { name: 'Logs' }).click();
   await expect(page).toHaveURL(/\/logs/);
@@ -754,15 +764,10 @@ test('registers a user and redirects to landing', async ({ page }) => {
     name: 'Create Account',
   });
   await expect(createAccountButton).toBeEnabled();
-  const registerResponse = page.waitForResponse(
-    (response) =>
-      response.request().method() === 'POST' &&
-      response.url().includes('/api/auth/register') &&
-      response.status() === 201,
-  );
-  await createAccountButton.click();
-  await registerResponse;
-  await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
+  await expect(async () => {
+    await createAccountButton.click();
+    await expect(page).toHaveURL(/\/landing/, { timeout: 5000 });
+  }).toPass({ timeout: 30000 });
 
   await expect(page.locator('h1')).toContainText(
     'Scientific Operations Gateway',

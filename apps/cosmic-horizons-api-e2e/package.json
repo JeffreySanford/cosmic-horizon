@@ -16,7 +16,8 @@
         ],
         "options": {
           "jestConfig": "apps/cosmic-horizons-api-e2e/jest.config.cts",
-          "passWithNoTests": true
+          "passWithNoTests": true,
+          "runInBand": true
         },
         "dependsOn": [
           "cosmic-horizons-api:build",
