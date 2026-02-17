@@ -11,6 +11,21 @@ describe('JobSubmissionFormComponent', () => {
   let mockJobService: any;
 
   beforeEach(async () => {
+    // Angular Forms checks navigator.userAgent during DefaultValueAccessor init.
+    // CI jsdom can expose it as undefined in some runners.
+    try {
+      Object.defineProperty(navigator, 'userAgent', {
+        value: navigator.userAgent || 'jsdom',
+        configurable: true,
+      });
+      Object.defineProperty(navigator, 'platform', {
+        value: navigator.platform || 'Linux',
+        configurable: true,
+      });
+    } catch {
+      // Ignore if navigator properties are non-configurable in the local runtime.
+    }
+
     mockJobService = {
       getAgents: vi.fn().mockReturnValue(of([])),
       submitJob: vi.fn().mockReturnValue(of({})),
@@ -40,7 +55,9 @@ describe('JobSubmissionFormComponent', () => {
 
   it('should validate required fields', () => {
     component.submissionForm.get('jobName')?.setValue('');
-    expect(component.submissionForm.get('jobName')?.hasError('required')).toBe(true);
+    expect(component.submissionForm.get('jobName')?.hasError('required')).toBe(
+      true,
+    );
   });
 
   it('should add parameter', () => {
