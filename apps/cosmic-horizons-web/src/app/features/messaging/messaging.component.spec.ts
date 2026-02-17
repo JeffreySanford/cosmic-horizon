@@ -115,7 +115,7 @@ describe('MessagingComponent', () => {
       timestamp: new Date().toISOString()
     });
 
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await Promise.resolve();
     
     const element = component.elements.find(r => r.id === 'VLA-1');
     expect(element?.strength).toBe(0.9);

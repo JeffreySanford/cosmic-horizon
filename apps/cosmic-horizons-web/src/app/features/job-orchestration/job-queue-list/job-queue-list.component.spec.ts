@@ -64,7 +64,7 @@ describe('JobQueueListComponent', () => {
         jobsLoaded = true;
       }
     });
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await Promise.resolve();
     expect(jobsLoaded).toBe(true);
   });
 
@@ -78,7 +78,7 @@ describe('JobQueueListComponent', () => {
         filtered = true;
       }
     });
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await Promise.resolve();
     expect(filtered).toBe(true);
   });
 

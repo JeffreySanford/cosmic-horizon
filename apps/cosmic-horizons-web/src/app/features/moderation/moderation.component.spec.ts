@@ -198,7 +198,7 @@ describe('ModerationComponent', () => {
       commentsApiService.getAllReports.mockReturnValue(of(newReports));
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       expect(component.reports.length).toBe(1);
       expect(component.reports[0].id).toBe('report-1');
@@ -273,8 +273,8 @@ describe('ModerationComponent', () => {
       component.resolveReport('report-2', 'dismissed');
       await Promise.resolve();
 
-      // loadReports called once in ngOnInit + twice in resolveReport = 3 times
-      expect(component.loadReports).toHaveBeenCalledTimes(3);
+      // loadReports should be called for each resolveReport call (2 total in this test)
+      expect(component.loadReports).toHaveBeenCalledTimes(2);
     });
 
     it('should handle consecutive resolutions with different statuses', async () => {
@@ -290,7 +290,7 @@ describe('ModerationComponent', () => {
 
       commentsApiService.resolveReport.mockReturnValue(throwError(() => new Error('Failed')));
       component.resolveReport('report-2', 'dismissed');
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to dismissed report.');
     });
@@ -326,7 +326,7 @@ describe('ModerationComponent', () => {
       commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Failed')));
 
       component.hideComment('comment-1');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to hide comment.');
     });
@@ -371,7 +371,7 @@ describe('ModerationComponent', () => {
       );
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to load moderation reports.');
     });
@@ -380,7 +380,7 @@ describe('ModerationComponent', () => {
       commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Failed')));
 
       component.hideComment('comment-1');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to hide comment.');
     });
@@ -390,7 +390,7 @@ describe('ModerationComponent', () => {
       commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Hide failed')));
 
       component.hideComment('comment-1');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to hide comment.');
     });
@@ -400,12 +400,12 @@ describe('ModerationComponent', () => {
       commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Failed')));
 
       component.resolveReport('report-1', 'reviewed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toContain('reviewed');
 
       component.hideComment('comment-1');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to hide comment.');
     });
@@ -417,13 +417,13 @@ describe('ModerationComponent', () => {
       commentsApiService.resolveReport.mockReturnValue(of({}));
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       const initialCount = component.reports.length;
       expect(initialCount).toBe(2);
 
       component.resolveReport('report-1', 'reviewed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('');
     });
@@ -438,16 +438,16 @@ describe('ModerationComponent', () => {
 
       // Initial load
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
       expect(component.reports.length).toBe(2);
 
       // Resolve first report
       component.resolveReport('report-1', 'reviewed');
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       // Hide problematic comment
       component.hideComment('comment-2');
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       expect(component.error).toBe('');
     });

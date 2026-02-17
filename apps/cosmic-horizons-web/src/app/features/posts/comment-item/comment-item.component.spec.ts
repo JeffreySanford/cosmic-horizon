@@ -243,7 +243,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.createComment.mockReturnValue(of({}));
 
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.createComment).toHaveBeenCalledWith({
         post_id: 'post-1',
@@ -432,7 +432,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.hideComment.mockReturnValue(of({}));
 
       component.hideComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.hideComment).toHaveBeenCalledWith('comment-1');
       expect(component.replied.emit).toHaveBeenCalled();
@@ -452,7 +452,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.hideComment.mockReturnValue(throwError(() => errorResponse));
 
       component.hideComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(window.alert).toHaveBeenCalledWith('Comment not found');
     });
@@ -462,7 +462,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.hideComment.mockReturnValue(throwError(() => ({})));
 
       component.hideComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(window.alert).toHaveBeenCalledWith('Failed to hide comment.');
     });
@@ -506,7 +506,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.createComment.mockReturnValue(of({}));
 
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.createComment).toHaveBeenCalledWith({
         post_id: 'post-1',
@@ -522,7 +522,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.createComment.mockReturnValue(of({}));
 
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.replied.emit).toHaveBeenCalled();
     });
@@ -534,7 +534,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.createComment.mockReturnValue(throwError(() => errorResponse));
 
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('Server error');
       expect(component.submittingReply).toBe(false);
@@ -573,7 +573,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.deleteComment.mockReturnValue(of({}));
 
       component.deleteComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.deleted.emit).toHaveBeenCalledWith('comment-1');
     });
@@ -585,7 +585,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.deleteComment.mockReturnValue(throwError(() => ({})));
 
       component.deleteComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(alertSpy).toHaveBeenCalledWith('Failed to delete comment.');
     });
@@ -621,7 +621,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.reportComment.mockReturnValue(of({}));
 
       component.reportComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.reportComment).toHaveBeenCalledWith('comment-1', {
         reason: 'Inappropriate content',
@@ -635,7 +635,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.reportComment.mockReturnValue(of({}));
 
       component.reportComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(alertSpy).toHaveBeenCalledWith('Comment reported. Thank you.');
     });
@@ -663,7 +663,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.hideComment.mockReturnValue(of({}));
 
       component.hideComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.replied.emit).toHaveBeenCalled();
     });
@@ -675,7 +675,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.hideComment.mockReturnValue(throwError(() => ({})));
 
       component.hideComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(alertSpy).toHaveBeenCalledWith('Failed to hide comment.');
     });
@@ -688,7 +688,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.hideComment.mockReturnValue(throwError(() => errorResponse));
 
       component.hideComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(alertSpy).toHaveBeenCalledWith('Comment already hidden');
     });
@@ -755,7 +755,7 @@ describe('CommentItemComponent', () => {
 
       // Submit and verify form closes and content clears
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await Promise.resolve();
 
       // After successful submission, content should clear
       expect(component.replyContent).toBe('');
@@ -778,7 +778,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.createComment.mockReturnValue(throwError(() => errorResponse));
 
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('Network error');
       expect(component.submittingReply).toBe(false);

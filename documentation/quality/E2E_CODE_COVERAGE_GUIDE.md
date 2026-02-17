@@ -258,7 +258,7 @@ In `.github/workflows/e2e.yml`:
 
 ### Default Thresholds
 
-```
+```text
 Statements: 80%  (Minimum lines of code executed)
 Functions:  80%  (Minimum functions called)
 Branches:   75%  (Minimum conditional paths taken)
@@ -267,7 +267,7 @@ Lines:      80%  (Minimum physical lines executed)
 
 ### Interpreting Results
 
-```
+```text
 ✅ 90-100% coverage    - Excellent (thorough testing)
 🟢 80-89% coverage     - Good (most paths tested)
 🟡 70-79% coverage     - Acceptable (reasonable coverage)
