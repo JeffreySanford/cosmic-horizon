@@ -29,13 +29,13 @@ const envFlag = (key: string, fallback: boolean): boolean => {
     .toLowerCase();
   return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
 };
-const requiredEnvNoFallback = (key: string): string => {
+const requiredEnvInProduction = (key: string, fallback: string): string => {
   const value = process.env[key];
   if (typeof value === 'string' && value.trim().length > 0) {
     return value;
   }
-  if (process.env.NODE_ENV === 'test') {
-    throw new Error(`${key} is required for database configuration. Set it in .env.local or .env.example.`);
+  if (!isProduction) {
+    return fallback;
   }
   throw new Error(`${key} is required for database configuration. Set it in environment variables.`);
 };
@@ -52,8 +52,8 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
   host: envValue('DB_HOST', 'localhost'),
   port: parseInt(envValue('DB_PORT', '15432'), 10),
-  username: requiredEnvNoFallback('DB_USER'),
-  password: requiredEnvNoFallback('DB_PASSWORD'),
+  username: requiredEnvInProduction('DB_USER', 'cosmic_horizons_user'),
+  password: requiredEnvInProduction('DB_PASSWORD', 'cosmic_horizons_password_dev'),
   database: envValue('DB_NAME', 'cosmic_horizons'),
   entities: [
     User,
