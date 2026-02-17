@@ -52,7 +52,9 @@ describe('KafkaService Tests', () => {
 
       await mockPublisher.publish(message);
 
-      const captured = mockPublisher.getMessagesByTopic(KAFKA_TOPICS.JOB_LIFECYCLE);
+      const captured = mockPublisher.getMessagesByTopic(
+        KAFKA_TOPICS.JOB_LIFECYCLE,
+      );
       expect(captured).toHaveLength(1);
       expect(captured[0].message.key).toBe('job-12345');
       expect(captured[0].message.topic).toBe(KAFKA_TOPICS.JOB_LIFECYCLE);
@@ -66,7 +68,9 @@ describe('KafkaService Tests', () => {
 
       await mockPublisher.publish(message);
 
-      const captured = mockPublisher.getMessagesByTopic(KAFKA_TOPICS.JOB_METRICS);
+      const captured = mockPublisher.getMessagesByTopic(
+        KAFKA_TOPICS.JOB_METRICS,
+      );
       expect(captured).toHaveLength(1);
       expect(captured[0].message.value.event_type).toBe('job.metrics');
     });
@@ -78,7 +82,9 @@ describe('KafkaService Tests', () => {
 
       await mockPublisher.publish(message);
 
-      const captured = mockPublisher.getMessagesByTopic(KAFKA_TOPICS.NOTIFICATIONS);
+      const captured = mockPublisher.getMessagesByTopic(
+        KAFKA_TOPICS.NOTIFICATIONS,
+      );
       expect(captured).toHaveLength(1);
       expect(captured[0].message.key).toBeNull();
     });
@@ -91,7 +97,9 @@ describe('KafkaService Tests', () => {
 
       await mockPublisher.publish(message);
 
-      const captured = mockPublisher.getMessagesByTopic(KAFKA_TOPICS.AUDIT_TRAIL);
+      const captured = mockPublisher.getMessagesByTopic(
+        KAFKA_TOPICS.AUDIT_TRAIL,
+      );
       expect(captured).toHaveLength(1);
       expect(captured[0].message.key).toBe('resource-abc123');
     });
@@ -103,7 +111,9 @@ describe('KafkaService Tests', () => {
 
       await mockPublisher.publish(message);
 
-      const captured = mockPublisher.getMessagesByTopic(KAFKA_TOPICS.SYSTEM_HEALTH);
+      const captured = mockPublisher.getMessagesByTopic(
+        KAFKA_TOPICS.SYSTEM_HEALTH,
+      );
       expect(captured).toHaveLength(1);
     });
 
@@ -116,7 +126,9 @@ describe('KafkaService Tests', () => {
       await mockPublisher.publish(message);
 
       const captured = mockPublisher.getMessages();
-      expect(captured[0].message.headers?.['correlation-id']).toBe(correlationId);
+      expect(captured[0].message.headers?.['correlation-id']).toBe(
+        correlationId,
+      );
     });
 
     it('should include custom headers', async () => {
@@ -135,9 +147,7 @@ describe('KafkaService Tests', () => {
     it('should preserve message ordering per partition key', async () => {
       const jobId = 'job-order-test';
       const messages = [
-        KafkaEventBuilder.jobSubmittedEvent()
-          .withPartitionKey(jobId)
-          .build(),
+        KafkaEventBuilder.jobSubmittedEvent().withPartitionKey(jobId).build(),
         KafkaEventBuilder.jobStatusChangedEvent()
           .withPartitionKey(jobId)
           .build(),
@@ -162,7 +172,7 @@ describe('KafkaService Tests', () => {
       const messages = KafkaEventBuilder.buildBatch(10, (index) =>
         KafkaEventBuilder.jobSubmittedEvent()
           .withPartitionKey(`job-batch-${index}`)
-          .mergePayload({ job_name: `Batch Job ${index}` })
+          .mergePayload({ job_name: `Batch Job ${index}` }),
       );
 
       await mockPublisher.publishBatch(messages);
@@ -199,28 +209,40 @@ describe('KafkaService Tests', () => {
       await mockPublisher.publish(
         KafkaEventBuilder.jobSubmittedEvent()
           .toTopic(KAFKA_TOPICS.JOB_LIFECYCLE)
-          .build()
+          .build(),
       );
       await mockPublisher.publish(
         KafkaEventBuilder.metricsEvent()
           .toTopic(KAFKA_TOPICS.JOB_METRICS)
-          .build()
+          .build(),
       );
       await mockPublisher.publish(
         KafkaEventBuilder.auditEvent()
           .toTopic(KAFKA_TOPICS.AUDIT_TRAIL)
-          .build()
+          .build(),
       );
 
-      expect(mockPublisher.getMessageCountByTopic(KAFKA_TOPICS.JOB_LIFECYCLE)).toBe(1);
-      expect(mockPublisher.getMessageCountByTopic(KAFKA_TOPICS.JOB_METRICS)).toBe(1);
-      expect(mockPublisher.getMessageCountByTopic(KAFKA_TOPICS.AUDIT_TRAIL)).toBe(1);
+      expect(
+        mockPublisher.getMessageCountByTopic(KAFKA_TOPICS.JOB_LIFECYCLE),
+      ).toBe(1);
+      expect(
+        mockPublisher.getMessageCountByTopic(KAFKA_TOPICS.JOB_METRICS),
+      ).toBe(1);
+      expect(
+        mockPublisher.getMessageCountByTopic(KAFKA_TOPICS.AUDIT_TRAIL),
+      ).toBe(1);
     });
 
     it('should track message count by event type', async () => {
-      await mockPublisher.publish(KafkaEventBuilder.jobSubmittedEvent().build());
-      await mockPublisher.publish(KafkaEventBuilder.jobSubmittedEvent().build());
-      await mockPublisher.publish(KafkaEventBuilder.jobStatusChangedEvent().build());
+      await mockPublisher.publish(
+        KafkaEventBuilder.jobSubmittedEvent().build(),
+      );
+      await mockPublisher.publish(
+        KafkaEventBuilder.jobSubmittedEvent().build(),
+      );
+      await mockPublisher.publish(
+        KafkaEventBuilder.jobStatusChangedEvent().build(),
+      );
 
       const stats = mockPublisher.getStats();
       expect(stats.messagesByType['job.submitted']).toBe(2);
@@ -241,7 +263,7 @@ describe('KafkaService Tests', () => {
       const message = KafkaEventBuilder.jobSubmittedEvent().build();
 
       await expect(mockPublisher.publish(message)).rejects.toThrow(
-        'Broker unavailable'
+        'Broker unavailable',
       );
     });
   });
@@ -262,7 +284,9 @@ describe('KafkaService Tests', () => {
       capture.capture(event);
 
       expect(capture.getCount()).toBe(1);
-      expect(capture.getMessages()[0].message.value.event_type).toBe('job.submitted');
+      expect(capture.getMessages()[0].message.value.event_type).toBe(
+        'job.submitted',
+      );
     });
 
     it('should capture multiple messages', () => {
@@ -282,8 +306,7 @@ describe('KafkaService Tests', () => {
       const event1 = KafkaEventBuilder.jobSubmittedEvent()
         .withCorrelationId(correlationId)
         .build().value;
-      const event2 = KafkaEventBuilder.jobStatusChangedEvent()
-        .build().value;
+      const event2 = KafkaEventBuilder.jobStatusChangedEvent().build().value;
 
       capture.capture(event1);
       capture.capture(event2);
@@ -301,7 +324,8 @@ describe('KafkaService Tests', () => {
       const submitted = capture.getMessagesByEventType('job.submitted');
       expect(submitted).toHaveLength(2);
 
-      const statusChanged = capture.getMessagesByEventType('job.status.changed');
+      const statusChanged =
+        capture.getMessagesByEventType('job.status.changed');
       expect(statusChanged).toHaveLength(1);
     });
 
@@ -446,8 +470,9 @@ describe('KafkaService Tests', () => {
       mockPublisher.setSimulatedLatency(1);
 
       const messages = KafkaEventBuilder.buildBatch(100, (index) =>
-        KafkaEventBuilder.jobSubmittedEvent()
-          .withPartitionKey(`job-perf-${index}`)
+        KafkaEventBuilder.jobSubmittedEvent().withPartitionKey(
+          `job-perf-${index}`,
+        ),
       );
 
       for (const message of messages) {
@@ -461,8 +486,9 @@ describe('KafkaService Tests', () => {
 
     it('should validate throughput (50+ msgs/sec minimum)', async () => {
       const messages = KafkaEventBuilder.buildBatch(100, (index) =>
-        KafkaEventBuilder.jobSubmittedEvent()
-          .toTopic(KAFKA_TOPICS.JOB_LIFECYCLE)
+        KafkaEventBuilder.jobSubmittedEvent().toTopic(
+          KAFKA_TOPICS.JOB_LIFECYCLE,
+        ),
       );
 
       const start = Date.now();
@@ -507,7 +533,7 @@ describe('KafkaService Tests', () => {
       const payload = message.value.payload as Record<string, unknown>;
 
       expect(Object.values(TaccSystem)).toContain(
-        (payload.tacc_system as string)
+        payload.tacc_system as string,
       );
     });
 
@@ -515,7 +541,9 @@ describe('KafkaService Tests', () => {
       const message = KafkaEventBuilder.jobStatusChangedEvent().build();
       const payload = message.value.payload as Record<string, unknown>;
 
-      expect(Object.values(JobStatus)).toContain(payload.previous_status as string);
+      expect(Object.values(JobStatus)).toContain(
+        payload.previous_status as string,
+      );
       expect(Object.values(JobStatus)).toContain(payload.new_status as string);
     });
 
@@ -523,7 +551,9 @@ describe('KafkaService Tests', () => {
       const message = KafkaEventBuilder.notificationEvent().build();
       const payload = message.value.payload as Record<string, unknown>;
 
-      expect(Object.values(NotificationChannel)).toContain(payload.channel as string);
+      expect(Object.values(NotificationChannel)).toContain(
+        payload.channel as string,
+      );
     });
   });
 
@@ -538,7 +568,7 @@ describe('KafkaService Tests', () => {
       const message = KafkaEventBuilder.jobSubmittedEvent().build();
 
       await expect(mockPublisher.publish(message)).rejects.toThrow(
-        'Broker unavailable'
+        'Broker unavailable',
       );
     });
 
@@ -560,7 +590,9 @@ describe('KafkaService Tests', () => {
 
     it('should handle assertion failures gracefully', async () => {
       mockPublisher.setSimulatedLatency(5);
-      await mockPublisher.publish(KafkaEventBuilder.jobSubmittedEvent().build());
+      await mockPublisher.publish(
+        KafkaEventBuilder.jobSubmittedEvent().build(),
+      );
 
       expect(() => {
         mockPublisher.assertLatencyWithinBounds(1); // Very strict bound
@@ -582,7 +614,7 @@ describe('KafkaService Tests', () => {
 
       const captured = mockPublisher.assertMessagePublished(
         KAFKA_TOPICS.JOB_LIFECYCLE,
-        'job.submitted'
+        'job.submitted',
       );
 
       expect(captured.message.value.event_type).toBe('job.submitted');
@@ -590,7 +622,9 @@ describe('KafkaService Tests', () => {
 
     it('should assert message count', async () => {
       for (let i = 0; i < 5; i++) {
-        await mockPublisher.publish(KafkaEventBuilder.jobSubmittedEvent().build());
+        await mockPublisher.publish(
+          KafkaEventBuilder.jobSubmittedEvent().build(),
+        );
       }
 
       mockPublisher.assertMessageCount(5);
@@ -598,7 +632,7 @@ describe('KafkaService Tests', () => {
 
     it('should assert latency within bounds', async () => {
       const messages = KafkaEventBuilder.buildBatch(10, (index) =>
-        KafkaEventBuilder.jobSubmittedEvent()
+        KafkaEventBuilder.jobSubmittedEvent(),
       );
 
       for (const message of messages) {
@@ -619,12 +653,12 @@ describe('KafkaService Tests', () => {
       await mockPublisher.publish(
         KafkaEventBuilder.jobSubmittedEvent()
           .toTopic(KAFKA_TOPICS.JOB_LIFECYCLE)
-          .build()
+          .build(),
       );
       await mockPublisher.publish(
         KafkaEventBuilder.metricsEvent()
           .toTopic(KAFKA_TOPICS.JOB_METRICS)
-          .build()
+          .build(),
       );
 
       const stats = mockPublisher.getStats();
@@ -644,11 +678,13 @@ describe('KafkaService Tests', () => {
         await mockPublisher.publish(
           KafkaEventBuilder.jobSubmittedEvent()
             .toTopic(KAFKA_TOPICS.JOB_LIFECYCLE)
-            .build()
+            .build(),
         );
       }
 
-      const stats = mockPublisher.getLatencyStatsByTopic(KAFKA_TOPICS.JOB_LIFECYCLE);
+      const stats = mockPublisher.getLatencyStatsByTopic(
+        KAFKA_TOPICS.JOB_LIFECYCLE,
+      );
       expect(stats).not.toBeNull();
       expect(stats!.count).toBe(20);
       expect(stats!.p99).toBeGreaterThan(0);
