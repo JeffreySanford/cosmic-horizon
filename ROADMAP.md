@@ -16,6 +16,8 @@ Enable the astronomy community to discover, annotate, and publish observations t
 - Job submission spec stability improved with explicit navigator setup in test bootstrap (`apps/cosmic-horizons-web/src/app/features/job-orchestration/job-submission-form/job-submission-form.component.spec.ts`).
 - E2E registration flow assertions were made more resilient (`apps/cosmic-horizons-web-e2e/src/example.spec.ts`).
 - API unit test open-handle stall was resolved locally; `cosmic-horizons-api:test` now exits clean under `--detectOpenHandles`.
+- Playwright/CI improvements: `playwright.config.ts` updated to prefer `localhost` locally and bind `0.0.0.0` in CI; `BASE_URL` set in `.github/workflows/e2e.yml` for deterministic E2E runs.
+- TypeScript build fix: `apps/cosmic-horizons-web-e2e/tsconfig.json` `rootDir` updated so shared libs (e.g. `libs/shared/event-models`) compile correctly during E2E runs.
 
 ---
 

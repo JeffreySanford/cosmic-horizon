@@ -59,6 +59,12 @@ COVERAGE=true pnpm exec nx run cosmic-horizons-web-e2e:e2e
 
 ### Configuration
 
+Edit `apps/cosmic-horizons-web-e2e/playwright.config.ts`.
+
+Important CI note: the test runner expects the frontend to be reachable at `BASE_URL` (default `http://localhost:4200`). In CI the dev server is bound to `0.0.0.0` while Playwright uses `localhost` as the test base — the workflow sets `BASE_URL` in `.github/workflows/e2e.yml` for deterministic runs.
+
+If you change `BASE_URL` in CI or locally, ensure `playwright.config.ts` `webServer`/`url` values remain consistent.
+
 Edit `apps/cosmic-horizons-web-e2e/playwright.config.ts`:
 
 ```typescript

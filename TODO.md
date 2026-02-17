@@ -20,6 +20,10 @@ Canonical scope:
 - [x] Stabilized e2e registration flow with resilient API route matching and retry assertions in `apps/cosmic-horizons-web-e2e/src/example.spec.ts`.
 - [x] Hardened messaging monitor lifecycle teardown in `apps/cosmic-horizons-api/src/app/messaging/messaging-monitor.service.ts`.
 - [x] Resolved API Jest open-handle stall in local runs (`--detectOpenHandles` now clean for `cosmic-horizons-api:test`).
+- [x] Fixed E2E TypeScript rootDir error for `cosmic-horizons-web-e2e` (`apps/cosmic-horizons-web-e2e/tsconfig.json` now points to workspace root).
+- [x] Playwright E2E config hardened: prefer `localhost` locally; CI binds frontend to `0.0.0.0` and `BASE_URL` set in workflow (`.github/workflows/e2e.yml`).
+- [x] Resolved intermittent 127.0.0.1 Playwright failures — full E2E suite verified green in CI and locally.
+- [x] CI monitoring set to immediate-failure notifications only (watcher + helper script configured for `failures`).
 
 ## Test Stability (2026-02-17)
 

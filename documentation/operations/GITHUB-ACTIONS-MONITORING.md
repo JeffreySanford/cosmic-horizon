@@ -164,15 +164,30 @@ If tests fail due to missing environment variables:
 - Star/Watch the repo for email notifications <https://github.com/JeffreySanford/cosmic-horizon>
 - Check "Releases only" or "All activity" depending on preference
 
-### Option 2: Terminal Notifications with `gh`
+### Option 2: Terminal Notifications with `gh` (Recommended for failures-only)
 
 ```bash
-# Keep a window open and poll every 10 seconds
+# Failures-only: quick check
+bash scripts/monitor-actions.sh failures
+
+# Continuous failures-only poll (runs in terminal)
 while true; do
-  clear
-  gh run list --repo JeffreySanford/cosmic-horizon --limit 5
+  bash scripts/monitor-actions.sh failures
   sleep 10
 done
+```
+
+> Note: The project monitoring preference is **immediate notifications only** — use `scripts/monitor-actions.sh failures` or `gh run watch` and inspect only failed runs. This avoids noisy updates and highlights regressions immediately.
+
+### Option 3: Using the Helper Script
+
+```bash
+# After installing gh, use our helper script:
+bash scripts/monitor-actions.sh list     - Show recent runs
+bash scripts/monitor-actions.sh latest   - Show latest run
+bash scripts/monitor-actions.sh failures - Show failed runs only
+bash scripts/monitor-actions.sh logs 1   - Show logs for run #1
+bash scripts/monitor-actions.sh retry 1  - Retry run #1
 ```
 
 ## Working with Failed E2E Tests
