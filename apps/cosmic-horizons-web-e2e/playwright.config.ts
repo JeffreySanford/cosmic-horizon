@@ -35,10 +35,10 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
-  /* Run your local dev server before starting the tests */
+  /* Run your local dev server before starting the tests. Bind to 0.0.0.0 on CI so containerized services can reach it. */
   webServer: {
-    command: 'pnpm exec nx run cosmic-horizons-web:serve --host=localhost',
-    url: 'http://localhost:4200',
+    command: `pnpm exec nx run cosmic-horizons-web:serve --host=${process.env['CI'] ? '0.0.0.0' : 'localhost'}`,
+    url: baseURL,
     reuseExistingServer: true,
     cwd: workspaceRoot,
   },
