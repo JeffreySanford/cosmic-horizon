@@ -5,6 +5,12 @@ import { DataSource } from 'typeorm';
 import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { User, Post, AuditAction, AuditEntityType, PostStatus } from './entities';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AppService - Comprehensive Coverage', () => {
   let service: AppService;
   let mockDataSource: jest.Mocked<DataSource>;
@@ -76,7 +82,7 @@ describe('AppService - Comprehensive Coverage', () => {
       create: jest.fn().mockResolvedValue({}),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AppService,
         { provide: DataSource, useValue: mockDataSource },
@@ -87,7 +93,7 @@ describe('AppService - Comprehensive Coverage', () => {
       ],
     }).compile();
 
-    service = module.get<AppService>(AppService);
+    service = testingModule.get<AppService>(AppService);
   });
 
   describe('Post Permissions - Edit', () => {

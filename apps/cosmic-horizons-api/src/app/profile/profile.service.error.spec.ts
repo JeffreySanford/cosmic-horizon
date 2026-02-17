@@ -6,6 +6,12 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Post, PostStatus } from '../entities/post.entity';
 import { User } from '../entities/user.entity';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * ProfileService - Error Path & Branch Coverage Tests
  * Focus: validation failures, repository errors, data filtering edge cases
@@ -27,7 +33,7 @@ describe('ProfileService - Error Paths & Branch Coverage', () => {
       findByUser: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         ProfileService,
         { provide: UserRepository, useValue: mockUserRepository },
@@ -35,9 +41,9 @@ describe('ProfileService - Error Paths & Branch Coverage', () => {
       ],
     }).compile();
 
-    service = module.get<ProfileService>(ProfileService);
-    userRepository = module.get(UserRepository);
-    postRepository = module.get(PostRepository);
+    service = testingModule.get<ProfileService>(ProfileService);
+    userRepository = testingModule.get(UserRepository);
+    postRepository = testingModule.get(PostRepository);
   });
 
   describe('getProfile - Error Paths', () => {

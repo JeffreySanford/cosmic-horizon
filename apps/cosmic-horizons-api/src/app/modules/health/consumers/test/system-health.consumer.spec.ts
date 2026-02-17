@@ -4,6 +4,12 @@ import { SystemHealthConsumer } from '../system-health.consumer';
 import { SystemHealthMonitorService, HealthMetric } from '../../services/system-health-monitor.service';
 import { KafkaService } from '../../../events/kafka.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('SystemHealthConsumer', () => {
   let consumer: SystemHealthConsumer;
   let kafkaService: jest.Mocked<KafkaService>;
@@ -32,7 +38,7 @@ describe('SystemHealthConsumer', () => {
       getAlerts: jest.fn().mockReturnValue([]),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         SystemHealthConsumer,
         { provide: KafkaService, useValue: kafkaService },
@@ -40,7 +46,7 @@ describe('SystemHealthConsumer', () => {
       ],
     }).compile();
 
-    consumer = module.get<SystemHealthConsumer>(SystemHealthConsumer);
+    consumer = testingModule.get<SystemHealthConsumer>(SystemHealthConsumer);
   });
 
   describe('onModuleInit', () => {

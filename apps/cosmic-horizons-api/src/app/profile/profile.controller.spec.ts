@@ -4,6 +4,12 @@ import { ProfileService } from './profile.service';
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import { RateLimitGuard } from '../guards/rate-limit.guard';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('ProfileController', () => {
   let controller: ProfileController;
   let service: jest.Mocked<ProfileService>;
@@ -14,7 +20,7 @@ describe('ProfileController', () => {
       updateProfile: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [ProfileController],
       providers: [
         {
@@ -29,8 +35,8 @@ describe('ProfileController', () => {
       .useValue({ canActivate: () => true })
       .compile();
 
-    controller = module.get<ProfileController>(ProfileController);
-    service = module.get(ProfileService);
+    controller = testingModule.get<ProfileController>(ProfileController);
+    service = testingModule.get(ProfileService);
   });
 
   it('should be defined', () => {

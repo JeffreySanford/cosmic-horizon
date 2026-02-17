@@ -4,6 +4,12 @@ import { AuditTrailConsumer } from '../audit-trail.consumer';
 import { ComplianceAuditorService, AuditEvent } from '../../services/compliance-auditor.service';
 import { KafkaService } from '../../../events/kafka.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AuditTrailConsumer', () => {
   let consumer: AuditTrailConsumer;
   let kafkaService: jest.Mocked<KafkaService>;
@@ -27,7 +33,7 @@ describe('AuditTrailConsumer', () => {
       verifyRetentionPolicy: jest.fn().mockResolvedValue(true),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AuditTrailConsumer,
         { provide: KafkaService, useValue: kafkaService },
@@ -35,7 +41,7 @@ describe('AuditTrailConsumer', () => {
       ],
     }).compile();
 
-    consumer = module.get<AuditTrailConsumer>(AuditTrailConsumer);
+    consumer = testingModule.get<AuditTrailConsumer>(AuditTrailConsumer);
   });
 
   describe('onModuleInit', () => {

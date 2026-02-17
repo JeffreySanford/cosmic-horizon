@@ -6,6 +6,12 @@ import { DatasetStagingService } from './services/dataset-staging.service';
 import { AuthenticatedRequest } from '../types/http.types';
 import { Job } from './entities/job.entity';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('JobsController', () => {
   let controller: JobsController;
   let orchestrator: jest.Mocked<JobOrchestratorService>;
@@ -28,7 +34,7 @@ describe('JobsController', () => {
   } as unknown as Job;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [JobsController],
       providers: [
         {
@@ -66,9 +72,9 @@ describe('JobsController', () => {
       ],
     }).compile();
 
-    controller = module.get<JobsController>(JobsController);
-    orchestrator = module.get(JobOrchestratorService) as jest.Mocked<JobOrchestratorService>;
-    datasetStaging = module.get(DatasetStagingService) as jest.Mocked<DatasetStagingService>;
+    controller = testingModule.get<JobsController>(JobsController);
+    orchestrator = testingModule.get(JobOrchestratorService) as jest.Mocked<JobOrchestratorService>;
+    datasetStaging = testingModule.get(DatasetStagingService) as jest.Mocked<DatasetStagingService>;
   });
 
   describe('submitJob - POST /jobs/submit', () => {

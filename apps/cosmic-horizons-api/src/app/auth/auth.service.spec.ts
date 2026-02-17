@@ -5,6 +5,12 @@ import { DataSource } from 'typeorm';
 import { AuthService } from './auth.service';
 import { UserRepository } from '../repositories';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AuthService', () => {
   let service: AuthService;
   let userRepository: {
@@ -37,7 +43,7 @@ describe('AuthService', () => {
       query: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         {
@@ -55,7 +61,7 @@ describe('AuthService', () => {
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    service = testingModule.get<AuthService>(AuthService);
   });
 
   describe('loginWithCredentials', () => {

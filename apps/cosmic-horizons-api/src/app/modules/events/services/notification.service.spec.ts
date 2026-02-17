@@ -1,6 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationService } from './notification.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * SPRINT 5.3: Job Orchestration Events
  * Week 2 (Feb 23-27): Consumer Event Tests
@@ -12,11 +18,11 @@ describe('NotificationService - Event Consumption', () => {
   let service: NotificationService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [NotificationService],
     }).compile();
 
-    service = module.get<NotificationService>(NotificationService);
+    service = testingModule.get<NotificationService>(NotificationService);
   });
 
   describe('Monday: Job completion and failure notifications', () => {

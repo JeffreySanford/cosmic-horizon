@@ -5,6 +5,12 @@ import { CommentReportRepository } from './comment-report.repository';
 import { CommentReport } from '../entities/comment-report.entity';
 import { CommentReportBuilder } from '../testing/test-builders';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('CommentReportRepository', () => {
   let repository: CommentReportRepository;
   let mockRepository: jest.Mocked<Repository<CommentReport>>;
@@ -21,7 +27,7 @@ describe('CommentReportRepository', () => {
   beforeEach(async () => {
     mockRepository = createMockCommentReportRepository();
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         CommentReportRepository,
         {
@@ -31,7 +37,7 @@ describe('CommentReportRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<CommentReportRepository>(CommentReportRepository);
+    repository = testingModule.get<CommentReportRepository>(CommentReportRepository);
   });
 
   describe('create', () => {

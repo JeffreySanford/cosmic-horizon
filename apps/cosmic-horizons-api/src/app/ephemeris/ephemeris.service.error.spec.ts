@@ -6,6 +6,12 @@ import { EphemerisService, EphemerisResult } from './ephemeris.service';
 import { CacheService } from '../cache/cache.service';
 import { of, throwError } from 'rxjs';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * EphemerisService - Error Path & Branch Coverage Tests
  * Focus: Cache failures, JPL Horizons errors, invalid input handling
@@ -26,7 +32,7 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
   let httpService: jest.Mocked<HttpService>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         EphemerisService,
         {
@@ -46,9 +52,9 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
       ],
     }).compile();
 
-    service = module.get<EphemerisService>(EphemerisService);
-    cacheService = module.get(CacheService) as jest.Mocked<CacheService>;
-    httpService = module.get(HttpService) as jest.Mocked<HttpService>;
+    service = testingModule.get<EphemerisService>(EphemerisService);
+    cacheService = testingModule.get(CacheService) as jest.Mocked<CacheService>;
+    httpService = testingModule.get(HttpService) as jest.Mocked<HttpService>;
 
     jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);

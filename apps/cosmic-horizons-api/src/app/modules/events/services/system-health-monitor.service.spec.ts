@@ -1,6 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SystemHealthMonitorService } from './system-health-monitor.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * SPRINT 5.3: Job Orchestration Events
  * Week 2 (Feb 23-27): Consumer Event Tests
@@ -12,11 +18,11 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
   let service: SystemHealthMonitorService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [SystemHealthMonitorService],
     }).compile();
 
-    service = module.get<SystemHealthMonitorService>(SystemHealthMonitorService);
+    service = testingModule.get<SystemHealthMonitorService>(SystemHealthMonitorService);
   });
 
   describe('Monday: Health event processing and consumer lag', () => {

@@ -752,10 +752,15 @@ test('registers a user and redirects to landing', async ({ page }) => {
   await registerConfirmPassword.fill('Password123!');
   const createAccountButton = page.getByRole('button', { name: 'Create Account' });
   await expect(createAccountButton).toBeEnabled();
-  await expect(async () => {
-    await createAccountButton.click();
-    await expect(page).toHaveURL(/\/landing/, { timeout: 2000 });
-  }).toPass({ timeout: 15000 });
+  const registerResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/api/auth/register') &&
+      response.status() === 201,
+  );
+  await createAccountButton.click();
+  await registerResponse;
+  await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
 
   await expect(page.locator('h1')).toContainText(
     'Scientific Operations Gateway',

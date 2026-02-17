@@ -5,6 +5,12 @@ import { AuthService } from './auth.service';
 import { AuditLogRepository } from '../repositories/audit-log.repository';
 import { AuditAction, AuditEntityType } from '../entities';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: {
@@ -32,7 +38,7 @@ describe('AuthController', () => {
       createAuditLog: jest.fn().mockResolvedValue(undefined),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         {
@@ -46,7 +52,7 @@ describe('AuthController', () => {
       ],
     }).compile();
 
-    controller = module.get<AuthController>(AuthController);
+    controller = testingModule.get<AuthController>(AuthController);
   });
 
   describe('login', () => {

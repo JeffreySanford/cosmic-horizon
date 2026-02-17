@@ -4,6 +4,12 @@ import { LoggingService } from '../logging/logging.service';
 import type { LogEntry } from '../logging/log-entry';
 import { LogEntryBuilder } from '../testing/test-builders';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AdminLogsController', () => {
   let controller: AdminLogsController;
   let service: jest.Mocked<LoggingService>;
@@ -17,7 +23,7 @@ describe('AdminLogsController', () => {
     .build() as LogEntry;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [AdminLogsController],
       providers: [
         {
@@ -30,8 +36,8 @@ describe('AdminLogsController', () => {
       ],
     }).compile();
 
-    controller = module.get<AdminLogsController>(AdminLogsController);
-    service = module.get(LoggingService) as jest.Mocked<LoggingService>;
+    controller = testingModule.get<AdminLogsController>(AdminLogsController);
+    service = testingModule.get(LoggingService) as jest.Mocked<LoggingService>;
   });
 
   describe('list() - GET /admin/logs', () => {

@@ -2,6 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BrokerMetricsCollector } from './broker-metrics.collector';
 import axios from 'axios';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 jest.mock('axios');
 
 describe('BrokerMetricsCollector', () => {
@@ -14,11 +20,11 @@ describe('BrokerMetricsCollector', () => {
     process.env['RABBITMQ_PASS'] = 'guest';
     process.env['PULSAR_ENABLED'] = 'true';
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [BrokerMetricsCollector],
     }).compile();
 
-    service = module.get<BrokerMetricsCollector>(BrokerMetricsCollector);
+    service = testingModule.get<BrokerMetricsCollector>(BrokerMetricsCollector);
   });
 
   describe('collectAllMetrics', () => {

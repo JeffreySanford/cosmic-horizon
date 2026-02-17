@@ -3,6 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { TaccIntegrationService, TaccJobSubmission } from './tacc-integration.service';
 import { Logger } from '@nestjs/common';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('TaccIntegrationService - Error Paths', () => {
   let service: TaccIntegrationService;
   let configService: jest.Mocked<ConfigService>;
@@ -18,7 +24,7 @@ describe('TaccIntegrationService - Error Paths', () => {
       }),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         TaccIntegrationService,
         {
@@ -28,8 +34,8 @@ describe('TaccIntegrationService - Error Paths', () => {
       ],
     }).compile();
 
-    service = module.get<TaccIntegrationService>(TaccIntegrationService);
-    configService = module.get(ConfigService) as jest.Mocked<ConfigService>;
+    service = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
+    configService = testingModule.get(ConfigService) as jest.Mocked<ConfigService>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
@@ -52,14 +58,14 @@ describe('TaccIntegrationService - Error Paths', () => {
         }),
       };
 
-      const module = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           TaccIntegrationService,
           { provide: ConfigService, useValue: mockConfigService },
         ],
       }).compile();
 
-      const svc = module.get<TaccIntegrationService>(TaccIntegrationService);
+      const svc = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
       expect(svc).toBeDefined();
     });
 
@@ -68,14 +74,14 @@ describe('TaccIntegrationService - Error Paths', () => {
         get: jest.fn((key: string, defaultValue?: string) => defaultValue),
       };
 
-      const module = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           TaccIntegrationService,
           { provide: ConfigService, useValue: mockConfigService },
         ],
       }).compile();
 
-      const svc = module.get<TaccIntegrationService>(TaccIntegrationService);
+      const svc = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
       expect(svc).toBeDefined();
     });
   });

@@ -5,6 +5,12 @@ import { UserRepository } from './user.repository';
 import { User } from '../entities/user.entity';
 import { UserBuilder } from '../testing/test-builders';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('UserRepository', () => {
   let repository: UserRepository;
   let mockRepository: jest.Mocked<Repository<User>>;
@@ -25,7 +31,7 @@ describe('UserRepository', () => {
   beforeEach(async () => {
     mockRepository = createMockUserRepository();
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         UserRepository,
         {
@@ -35,7 +41,7 @@ describe('UserRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<UserRepository>(UserRepository);
+    repository = testingModule.get<UserRepository>(UserRepository);
   });
 
   describe('create', () => {

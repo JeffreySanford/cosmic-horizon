@@ -3,6 +3,12 @@ import { UserRepository } from '../../repositories';
 import { User } from '../../entities';
 import { SessionSerializer } from './session.serializer';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('SessionSerializer', () => {
   let serializer: SessionSerializer;
 
@@ -27,7 +33,7 @@ describe('SessionSerializer', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         SessionSerializer,
         {
@@ -39,7 +45,7 @@ describe('SessionSerializer', () => {
       ],
     }).compile();
 
-    serializer = module.get<SessionSerializer>(SessionSerializer);
+    serializer = testingModule.get<SessionSerializer>(SessionSerializer);
   });
 
   describe('serializeUser', () => {
@@ -101,7 +107,7 @@ describe('SessionSerializer', () => {
 
   describe('deserializeUser', () => {
     it('should deserialize user ID back to user object', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -113,8 +119,8 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
-      const testUserRepository = module.get(UserRepository) as jest.Mocked<UserRepository>;
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testUserRepository = testingModule.get(UserRepository) as jest.Mocked<UserRepository>;
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', (err, user) => {
@@ -129,7 +135,7 @@ describe('SessionSerializer', () => {
     });
 
     it('should return null when user not found', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -141,7 +147,7 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('nonexistent', (err, user) => {
@@ -154,7 +160,7 @@ describe('SessionSerializer', () => {
 
     it('should handle database errors gracefully', async () => {
       const dbError = new Error('Database connection failed');
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -166,7 +172,7 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', (err, user) => {
@@ -178,7 +184,7 @@ describe('SessionSerializer', () => {
     });
 
     it('should query with correct TypeORM format', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -190,8 +196,8 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
-      const testUserRepository = module.get(UserRepository) as jest.Mocked<UserRepository>;
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testUserRepository = testingModule.get(UserRepository) as jest.Mocked<UserRepository>;
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', () => {
@@ -209,7 +215,7 @@ describe('SessionSerializer', () => {
         id: '550e8400-e29b-41d4-a716-446655440000',
       };
 
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -221,7 +227,7 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('550e8400-e29b-41d4-a716-446655440000', (err, user) => {
@@ -236,7 +242,7 @@ describe('SessionSerializer', () => {
       const timeoutError = new Error('Network timeout');
       timeoutError.name = 'ETIMEDOUT';
 
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -248,7 +254,7 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', (err, user) => {
@@ -280,7 +286,7 @@ describe('SessionSerializer', () => {
         auditLogs: [],
       };
 
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -292,7 +298,7 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-complex', (err, user) => {
@@ -311,7 +317,7 @@ describe('SessionSerializer', () => {
         deleted_at: new Date('2025-01-01'),
       };
 
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -323,7 +329,7 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', (err, user) => {
@@ -337,7 +343,7 @@ describe('SessionSerializer', () => {
 
   describe('integration behavior', () => {
     it('should round-trip user serialization/deserialization', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           SessionSerializer,
           {
@@ -349,7 +355,7 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = module.get<SessionSerializer>(SessionSerializer);
+      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         // Serialize

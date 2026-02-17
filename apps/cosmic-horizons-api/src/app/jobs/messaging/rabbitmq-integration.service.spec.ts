@@ -3,6 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * RabbitMQ Integration Tests
  * 
@@ -93,7 +99,7 @@ describe('RabbitMQ Integration Service', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         RabbitMQService,
         {
@@ -107,8 +113,8 @@ describe('RabbitMQ Integration Service', () => {
       ],
     }).compile();
 
-    service = module.get<RabbitMQService>(RabbitMQService);
-    configService = module.get(ConfigService) as jest.Mocked<ConfigService>;
+    service = testingModule.get<RabbitMQService>(RabbitMQService);
+    configService = testingModule.get(ConfigService) as jest.Mocked<ConfigService>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();

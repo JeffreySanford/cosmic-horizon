@@ -8,6 +8,12 @@ import { AuditLogRepository } from '../repositories/audit-log.repository';
 import { PostStatus } from '../entities/post.entity';
 import { AuditAction, AuditEntityType } from '../entities/audit-log.entity';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * CommentsService - Error Path & Branch Coverage Tests
  * Focus: validation failures, permission checks, repository errors, cascading failures
@@ -56,7 +62,7 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
       getAuditLogs: jest.fn(),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         CommentsService,
         { provide: CommentRepository, useValue: commentRepository },
@@ -66,7 +72,7 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
       ],
     }).compile();
 
-    service = module.get<CommentsService>(CommentsService);
+    service = testingModule.get<CommentsService>(CommentsService);
   });
 
   describe('getCommentsByPost - Error Paths', () => {

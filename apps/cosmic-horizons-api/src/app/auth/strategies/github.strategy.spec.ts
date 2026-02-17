@@ -3,6 +3,12 @@ import { AuthService } from '../auth.service';
 import { GitHubStrategy } from './github.strategy';
 import { User } from '../../entities';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('GitHubStrategy', () => {
   const mockUser: User = {
     id: 'user-1',
@@ -39,7 +45,7 @@ describe('GitHubStrategy', () => {
 
   describe('constructor', () => {
     it('should initialize with valid GitHub OAuth credentials', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -51,12 +57,12 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const strategy = module.get<GitHubStrategy>(GitHubStrategy);
+      const strategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
       expect(strategy).toBeDefined();
     });
 
     it('should use provided callback URL from env', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -68,12 +74,12 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const strategy = module.get<GitHubStrategy>(GitHubStrategy);
+      const strategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
       expect(strategy).toBeDefined();
     });
 
     it('should initialize strategy with scope user:email', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -85,7 +91,7 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const strategy = module.get<GitHubStrategy>(GitHubStrategy);
+      const strategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
       // The strategy is initialized with scope information
       expect(strategy).toBeDefined();
     });
@@ -93,7 +99,7 @@ describe('GitHubStrategy', () => {
 
   describe('validate', () => {
     it('should create new user from GitHub profile', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -105,8 +111,8 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const testStrategy = module.get<GitHubStrategy>(GitHubStrategy);
-      const testAuthService = module.get(AuthService) as jest.Mocked<AuthService>;
+      const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
+      const testAuthService = testingModule.get(AuthService) as jest.Mocked<AuthService>;
 
       const githubProfile = {
         id: '12345',
@@ -124,7 +130,7 @@ describe('GitHubStrategy', () => {
 
     it('should return existing user if already registered', async () => {
       const existingUser = { ...mockUser, id: 'existing_user_id' };
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -136,7 +142,7 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const testStrategy = module.get<GitHubStrategy>(GitHubStrategy);
+      const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
 
       const githubProfile = {
         id: '12345',
@@ -151,7 +157,7 @@ describe('GitHubStrategy', () => {
     });
 
     it('should handle profile without email gracefully', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -163,7 +169,7 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const testStrategy = module.get<GitHubStrategy>(GitHubStrategy);
+      const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
 
       const profileWithoutEmail = {
         id: '12345',
@@ -179,7 +185,7 @@ describe('GitHubStrategy', () => {
 
     it('should propagate errors from authService', async () => {
       const error = new Error('Database error');
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -191,7 +197,7 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const testStrategy = module.get<GitHubStrategy>(GitHubStrategy);
+      const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
 
       const githubProfile = {
         id: '12345',
@@ -204,7 +210,7 @@ describe('GitHubStrategy', () => {
     });
 
     it('should accept multiple email addresses from GitHub profile', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -216,8 +222,8 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const testStrategy = module.get<GitHubStrategy>(GitHubStrategy);
-      const testAuthService = module.get(AuthService) as jest.Mocked<AuthService>;
+      const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
+      const testAuthService = testingModule.get(AuthService) as jest.Mocked<AuthService>;
 
       const profileWithEmails = {
         id: '12345',
@@ -235,7 +241,7 @@ describe('GitHubStrategy', () => {
     });
 
     it('should ignore access/refresh tokens in validation', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -247,8 +253,8 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const testStrategy = module.get<GitHubStrategy>(GitHubStrategy);
-      const testAuthService = module.get(AuthService) as jest.Mocked<AuthService>;
+      const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
+      const testAuthService = testingModule.get(AuthService) as jest.Mocked<AuthService>;
 
       const githubProfile = {
         id: '12345',
@@ -262,7 +268,7 @@ describe('GitHubStrategy', () => {
     });
 
     it('should work with GitHub profile containing additional fields', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [
           GitHubStrategy,
           {
@@ -274,7 +280,7 @@ describe('GitHubStrategy', () => {
         ],
       }).compile();
 
-      const testStrategy = module.get<GitHubStrategy>(GitHubStrategy);
+      const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
 
       const extendedProfile = {
         id: '12345',

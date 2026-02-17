@@ -5,6 +5,12 @@ import { CommentsService } from './comments.service';
 import { CommentBuilder, CommentReportBuilder } from '../testing/test-builders';
 import type { AuthenticatedRequest } from '../types/http.types';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('CommentsController', () => {
   let controller: CommentsController;
   let service: jest.Mocked<CommentsService>;
@@ -43,7 +49,7 @@ describe('CommentsController', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [CommentsController],
       providers: [
         {
@@ -63,8 +69,8 @@ describe('CommentsController', () => {
       ],
     }).compile();
 
-    controller = module.get<CommentsController>(CommentsController);
-    service = module.get(CommentsService) as jest.Mocked<CommentsService>;
+    controller = testingModule.get<CommentsController>(CommentsController);
+    service = testingModule.get(CommentsService) as jest.Mocked<CommentsService>;
   });
 
   describe('getComments', () => {

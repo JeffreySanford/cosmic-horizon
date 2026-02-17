@@ -6,6 +6,12 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Post, PostStatus } from '../entities/post.entity';
 import { User } from '../entities/user.entity';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('ProfileService', () => {
   let service: ProfileService;
   let userRepository: jest.Mocked<UserRepository>;
@@ -20,7 +26,7 @@ describe('ProfileService', () => {
       findByUser: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         ProfileService,
         { provide: UserRepository, useValue: mockUserRepository },
@@ -28,9 +34,9 @@ describe('ProfileService', () => {
       ],
     }).compile();
 
-    service = module.get<ProfileService>(ProfileService);
-    userRepository = module.get(UserRepository);
-    postRepository = module.get(PostRepository);
+    service = testingModule.get<ProfileService>(ProfileService);
+    userRepository = testingModule.get(UserRepository);
+    postRepository = testingModule.get(PostRepository);
   });
 
   it('should return profile and published posts', async () => {

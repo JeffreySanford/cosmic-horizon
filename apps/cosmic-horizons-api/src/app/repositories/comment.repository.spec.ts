@@ -6,6 +6,12 @@ import { Comment } from '../entities/comment.entity';
 import { CommentBuilder } from '../testing/test-builders';
 import { TypeSafeAssertions } from '../testing/mock-factory';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('CommentRepository', () => {
   let repository: CommentRepository;
   let mockRepository: jest.Mocked<Repository<Comment>>;
@@ -24,7 +30,7 @@ describe('CommentRepository', () => {
   beforeEach(async () => {
     mockRepository = createMockCommentRepository();
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         CommentRepository,
         {
@@ -34,7 +40,7 @@ describe('CommentRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<CommentRepository>(CommentRepository);
+    repository = testingModule.get<CommentRepository>(CommentRepository);
   });
 
   describe('create', () => {

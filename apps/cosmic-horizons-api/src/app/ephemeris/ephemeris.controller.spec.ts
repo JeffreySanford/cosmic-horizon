@@ -5,6 +5,12 @@ import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import { RateLimitGuard } from '../guards/rate-limit.guard';
 import { NotFoundException } from '@nestjs/common';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('EphemerisController', () => {
   let controller: EphemerisController;
   let service: jest.Mocked<EphemerisService>;
@@ -14,7 +20,7 @@ describe('EphemerisController', () => {
       calculatePosition: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [EphemerisController],
       providers: [
         {
@@ -29,8 +35,8 @@ describe('EphemerisController', () => {
       .useValue({ canActivate: () => true })
       .compile();
 
-    controller = module.get<EphemerisController>(EphemerisController);
-    service = module.get(EphemerisService);
+    controller = testingModule.get<EphemerisController>(EphemerisController);
+    service = testingModule.get(EphemerisService);
   });
 
   it('should be defined', () => {

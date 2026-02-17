@@ -1,6 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ComplianceAuditorService } from './compliance-auditor.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * SPRINT 5.3: Job Orchestration Events
  * Week 2 (Feb 23-27): Consumer Event Tests
@@ -12,11 +18,11 @@ describe('ComplianceAuditorService - Event Consumption', () => {
   let service: ComplianceAuditorService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [ComplianceAuditorService],
     }).compile();
 
-    service = module.get<ComplianceAuditorService>(ComplianceAuditorService);
+    service = testingModule.get<ComplianceAuditorService>(ComplianceAuditorService);
   });
 
   describe('Monday: Immutable event storage and audit trail initialization', () => {

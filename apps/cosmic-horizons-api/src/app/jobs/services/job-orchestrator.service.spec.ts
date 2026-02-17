@@ -6,6 +6,12 @@ import { Job } from '../entities/job.entity';
 import { EventsService } from '../../modules/events/events.service';
 import { KafkaService } from '../../modules/events/kafka.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('JobOrchestratorService', () => {
   let service: JobOrchestratorService;
   let jobRepository: jest.Mocked<JobRepository>;
@@ -26,7 +32,7 @@ describe('JobOrchestratorService', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         JobOrchestratorService,
         {
@@ -69,11 +75,11 @@ describe('JobOrchestratorService', () => {
       ],
     }).compile();
 
-    service = module.get<JobOrchestratorService>(JobOrchestratorService);
-    jobRepository = module.get(JobRepository) as jest.Mocked<JobRepository>;
-    taccService = module.get(TaccIntegrationService) as jest.Mocked<TaccIntegrationService>;
-    eventsService = module.get(EventsService) as jest.Mocked<EventsService>;
-    kafkaService = module.get(KafkaService) as jest.Mocked<KafkaService>;
+    service = testingModule.get<JobOrchestratorService>(JobOrchestratorService);
+    jobRepository = testingModule.get(JobRepository) as jest.Mocked<JobRepository>;
+    taccService = testingModule.get(TaccIntegrationService) as jest.Mocked<TaccIntegrationService>;
+    eventsService = testingModule.get(EventsService) as jest.Mocked<EventsService>;
+    kafkaService = testingModule.get(KafkaService) as jest.Mocked<KafkaService>;
   });
 
   describe('submitJob', () => {

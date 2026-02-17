@@ -4,6 +4,12 @@ import { RequestLoggerInterceptor } from './request-logger.interceptor';
 import { LoggingService } from '../logging/logging.service';
 import { of } from 'rxjs';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('RequestLoggerInterceptor', () => {
   let interceptor: RequestLoggerInterceptor;
   let loggingService: jest.Mocked<LoggingService>;
@@ -15,7 +21,7 @@ describe('RequestLoggerInterceptor', () => {
       add: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<LoggingService>;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         RequestLoggerInterceptor,
         {
@@ -25,7 +31,7 @@ describe('RequestLoggerInterceptor', () => {
       ],
     }).compile();
 
-    interceptor = module.get<RequestLoggerInterceptor>(RequestLoggerInterceptor);
+    interceptor = testingModule.get<RequestLoggerInterceptor>(RequestLoggerInterceptor);
 
     executionContext = {
       switchToHttp: jest.fn(),

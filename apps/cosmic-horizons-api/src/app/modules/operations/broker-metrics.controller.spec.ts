@@ -3,6 +3,12 @@ import { Logger } from '@nestjs/common';
 import { BrokerMetricsController } from './broker-metrics.controller';
 import { BrokerMetricsService } from './broker-metrics.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('BrokerMetricsController', () => {
   let controller: BrokerMetricsController;
   let serviceMock: jest.Mocked<BrokerMetricsService>;
@@ -68,13 +74,13 @@ describe('BrokerMetricsController', () => {
       clearCurrentMetricsCache: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [BrokerMetricsController],
       providers: [{ provide: BrokerMetricsService, useValue: mockService }],
     }).compile();
 
-    controller = module.get<BrokerMetricsController>(BrokerMetricsController);
-    serviceMock = module.get(BrokerMetricsService);
+    controller = testingModule.get<BrokerMetricsController>(BrokerMetricsController);
+    serviceMock = testingModule.get(BrokerMetricsService);
   });
 
   afterEach(() => {

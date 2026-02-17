@@ -4,6 +4,12 @@ import { Repository } from 'typeorm';
 import { AuditLogRepository } from './audit-log.repository';
 import { AuditLog, AuditAction, AuditEntityType } from '../entities/audit-log.entity';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AuditLogRepository', () => {
   let repository: AuditLogRepository;
   let mockRepository: jest.Mocked<Repository<AuditLog>>;
@@ -20,7 +26,7 @@ describe('AuditLogRepository', () => {
   beforeEach(async () => {
     mockRepository = createMockAuditLogRepository();
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AuditLogRepository,
         {
@@ -30,7 +36,7 @@ describe('AuditLogRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<AuditLogRepository>(AuditLogRepository);
+    repository = testingModule.get<AuditLogRepository>(AuditLogRepository);
   });
 
   describe('createAuditLog - Fire-and-Forget Pattern', () => {

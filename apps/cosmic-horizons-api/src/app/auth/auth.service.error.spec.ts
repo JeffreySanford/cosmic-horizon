@@ -6,6 +6,12 @@ import { JwtService } from '@nestjs/jwt';
 import { DataSource } from 'typeorm';
 import { User } from '../entities/user.entity';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * AuthService - Error Path & Branch Coverage Tests
  * Focus: JWT validation, token refresh, authentication errors, validation failures
@@ -38,7 +44,7 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
       query: jest.fn(),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: UserRepository, useValue: userRepository },
@@ -47,7 +53,7 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    service = testingModule.get<AuthService>(AuthService);
   });
 
   describe('validateOrCreateUser - Error Paths', () => {

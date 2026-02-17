@@ -3,6 +3,12 @@ import { Logger } from '@nestjs/common';
 import { EphemerisWarmupService } from './ephemeris-warmup.service';
 import { EphemerisService } from './ephemeris.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('EphemerisWarmupService', () => {
   let service: EphemerisWarmupService;
   let mockEphemerisService: jest.Mocked<EphemerisService>;
@@ -19,7 +25,7 @@ describe('EphemerisWarmupService', () => {
       }),
     } as unknown as jest.Mocked<EphemerisService>;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         EphemerisWarmupService,
         {
@@ -29,7 +35,7 @@ describe('EphemerisWarmupService', () => {
       ],
     }).compile();
 
-    service = module.get<EphemerisWarmupService>(EphemerisWarmupService);
+    service = testingModule.get<EphemerisWarmupService>(EphemerisWarmupService);
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();
   });

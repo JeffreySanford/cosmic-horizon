@@ -5,6 +5,12 @@ import { TaccIntegrationService } from './tacc-integration.service';
 import { JobRepository } from './repositories/job.repository';
 import { Job } from './entities/job.entity';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * Job Audit Trail & Persistence Tests  
  *
@@ -40,7 +46,7 @@ describe('Job Audit Trail & Persistence', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         TaccIntegrationService,
         {
@@ -72,8 +78,8 @@ describe('Job Audit Trail & Persistence', () => {
       ],
     }).compile();
 
-    service = module.get<TaccIntegrationService>(TaccIntegrationService);
-    jobRepository = module.get(JobRepository) as jest.Mocked<JobRepository>;
+    service = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
+    jobRepository = testingModule.get(JobRepository) as jest.Mocked<JobRepository>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();

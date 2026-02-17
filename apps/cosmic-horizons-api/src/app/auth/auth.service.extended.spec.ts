@@ -5,6 +5,12 @@ import { AuthService } from './auth.service';
 import { UserRepository } from '../repositories';
 import { DataSource } from 'typeorm';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * AuthService Extended Tests - Wrapper Method Coverage
  * Tests convenience wrapper methods: refreshToken, login, register
@@ -42,7 +48,7 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
       query: jest.fn(),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: UserRepository, useValue: userRepository },
@@ -51,7 +57,7 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    service = testingModule.get<AuthService>(AuthService);
   });
 
   afterEach(() => {

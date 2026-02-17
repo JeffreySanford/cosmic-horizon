@@ -3,6 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { TaccIntegrationService } from './tacc-integration.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * Credential Management & Security Tests for TACC Integration
  *
@@ -25,7 +31,7 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         TaccIntegrationService,
         {
@@ -37,8 +43,8 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
       ],
     }).compile();
 
-    service = module.get<TaccIntegrationService>(TaccIntegrationService);
-    configService = module.get(ConfigService) as jest.Mocked<ConfigService>;
+    service = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
+    configService = testingModule.get(ConfigService) as jest.Mocked<ConfigService>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();

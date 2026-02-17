@@ -4,6 +4,12 @@ import { JobEventsConsumer } from '../job-events.consumer';
 import { NotificationService } from '../../services/notification.service';
 import { KafkaService } from '../../../events/kafka.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('JobEventsConsumer', () => {
   let consumer: JobEventsConsumer;
   let kafkaService: jest.Mocked<KafkaService>;
@@ -22,7 +28,7 @@ describe('JobEventsConsumer', () => {
       storeInAppNotification: jest.fn().mockResolvedValue(undefined),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         JobEventsConsumer,
         { provide: KafkaService, useValue: kafkaService },
@@ -30,7 +36,7 @@ describe('JobEventsConsumer', () => {
       ],
     }).compile();
 
-    consumer = module.get<JobEventsConsumer>(JobEventsConsumer);
+    consumer = testingModule.get<JobEventsConsumer>(JobEventsConsumer);
   });
 
   describe('onModuleInit', () => {

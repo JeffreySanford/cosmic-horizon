@@ -4,6 +4,12 @@ import { Repository } from 'typeorm';
 import { Job, JobStatus } from '../entities/job.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('JobRepository - Branch Coverage', () => {
   let repository: JobRepository;
   let mockTypeOrmRepository: jest.Mocked<Repository<Job>>;
@@ -34,7 +40,7 @@ describe('JobRepository - Branch Coverage', () => {
       delete: jest.fn(),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         JobRepository,
         {
@@ -44,7 +50,7 @@ describe('JobRepository - Branch Coverage', () => {
       ],
     }).compile();
 
-    repository = module.get<JobRepository>(JobRepository);
+    repository = testingModule.get<JobRepository>(JobRepository);
   });
 
   describe('create', () => {

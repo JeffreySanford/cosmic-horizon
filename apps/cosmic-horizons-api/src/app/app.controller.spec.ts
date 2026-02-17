@@ -2,6 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AppController', () => {
   let controller: AppController;
   let mockAppService: Record<string, jest.Mock>;
@@ -64,7 +70,7 @@ describe('AppController', () => {
       getPostsByUser: jest.fn().mockResolvedValue([mockPost]),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [
         {
@@ -74,7 +80,7 @@ describe('AppController', () => {
       ],
     }).compile();
 
-    controller = module.get<AppController>(AppController);
+    controller = testingModule.get<AppController>(AppController);
   });
 
   it('should be defined', () => {

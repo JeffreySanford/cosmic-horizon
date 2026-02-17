@@ -4,6 +4,12 @@ import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 jest.mock('ioredis');
 
 describe('CacheService - Comprehensive Coverage', () => {
@@ -27,14 +33,14 @@ describe('CacheService - Comprehensive Coverage', () => {
       }),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         CacheService,
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
-    service = module.get<CacheService>(CacheService);
+    service = testingModule.get<CacheService>(CacheService);
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
     jest.spyOn(Logger.prototype, 'warn').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();

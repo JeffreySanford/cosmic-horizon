@@ -1,6 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MetricsService } from './metrics.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * SPRINT 5.3: Job Orchestration Events
  * Week 2 (Feb 23-27): Consumer Event Tests
@@ -12,11 +18,11 @@ describe('MetricsService - Event Consumption', () => {
   let service: MetricsService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [MetricsService],
     }).compile();
 
-    service = module.get<MetricsService>(MetricsService);
+    service = testingModule.get<MetricsService>(MetricsService);
   });
 
   describe('Monday: Job metrics aggregation from Kafka events', () => {

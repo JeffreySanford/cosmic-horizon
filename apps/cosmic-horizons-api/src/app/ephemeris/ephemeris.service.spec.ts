@@ -5,6 +5,12 @@ import { AxiosHeaders, AxiosResponse } from 'axios';
 import { EphemerisService } from './ephemeris.service';
 import { CacheService } from '../cache/cache.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('EphemerisService', () => {
   let service: EphemerisService;
   let cacheService: jest.Mocked<CacheService>;
@@ -20,7 +26,7 @@ describe('EphemerisService', () => {
       get: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         EphemerisService,
         {
@@ -34,9 +40,9 @@ describe('EphemerisService', () => {
       ],
     }).compile();
 
-    service = module.get<EphemerisService>(EphemerisService);
-    cacheService = module.get(CacheService);
-    httpService = module.get(HttpService);
+    service = testingModule.get<EphemerisService>(EphemerisService);
+    cacheService = testingModule.get(CacheService);
+    httpService = testingModule.get(HttpService);
   });
 
   it('should be defined', () => {

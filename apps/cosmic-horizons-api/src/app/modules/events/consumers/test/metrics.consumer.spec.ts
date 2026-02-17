@@ -4,6 +4,12 @@ import { MetricsService } from '../../services/metrics.service';
 import { KafkaService } from '../../kafka.service';
 import { EachMessagePayload } from 'kafkajs';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('MetricsConsumer - Event Handling', () => {
   let consumer: MetricsConsumer;
   let metricsService: jest.Mocked<MetricsService>;
@@ -20,7 +26,7 @@ describe('MetricsConsumer - Event Handling', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         MetricsConsumer,
         {
@@ -67,9 +73,9 @@ describe('MetricsConsumer - Event Handling', () => {
       ],
     }).compile();
 
-    consumer = module.get<MetricsConsumer>(MetricsConsumer);
-    metricsService = module.get(MetricsService) as jest.Mocked<MetricsService>;
-    kafkaService = module.get(KafkaService) as jest.Mocked<KafkaService>;
+    consumer = testingModule.get<MetricsConsumer>(MetricsConsumer);
+    metricsService = testingModule.get(MetricsService) as jest.Mocked<MetricsService>;
+    kafkaService = testingModule.get(KafkaService) as jest.Mocked<KafkaService>;
   });
 
   describe('Consumer Initialization', () => {

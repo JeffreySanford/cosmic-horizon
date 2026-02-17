@@ -3,6 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { CacheService } from './cache.service';
 import Redis from 'ioredis';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 jest.mock('ioredis');
 
 describe('CacheService', () => {
@@ -30,7 +36,7 @@ describe('CacheService', () => {
 
     (Redis as unknown as jest.Mock).mockImplementation(() => mockRedisClient);
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         CacheService,
         {
@@ -40,7 +46,7 @@ describe('CacheService', () => {
       ],
     }).compile();
 
-    service = module.get<CacheService>(CacheService);
+    service = testingModule.get<CacheService>(CacheService);
 
     // Default config: Redis disabled
     configService.get.mockImplementation((key: string, defaultValue?: unknown) => {

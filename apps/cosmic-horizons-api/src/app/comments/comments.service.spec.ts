@@ -9,6 +9,12 @@ import { PostStatus } from '../entities/post.entity';
 import { AuditAction, AuditEntityType } from '../entities/audit-log.entity';
 import { CommentBuilder, PostBuilder, CommentReportBuilder } from '../testing/test-builders';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('CommentsService', () => {
   let service: CommentsService;
   let commentRepository: jest.Mocked<CommentRepository>;
@@ -48,7 +54,7 @@ describe('CommentsService', () => {
     .build();
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         CommentsService,
         {
@@ -86,11 +92,11 @@ describe('CommentsService', () => {
       ],
     }).compile();
 
-    service = module.get<CommentsService>(CommentsService);
-    commentRepository = module.get(CommentRepository) as jest.Mocked<CommentRepository>;
-    postRepository = module.get(PostRepository) as jest.Mocked<PostRepository>;
-    commentReportRepository = module.get(CommentReportRepository) as jest.Mocked<CommentReportRepository>;
-    auditLogRepository = module.get(AuditLogRepository) as jest.Mocked<AuditLogRepository>;
+    service = testingModule.get<CommentsService>(CommentsService);
+    commentRepository = testingModule.get(CommentRepository) as jest.Mocked<CommentRepository>;
+    postRepository = testingModule.get(PostRepository) as jest.Mocked<PostRepository>;
+    commentReportRepository = testingModule.get(CommentReportRepository) as jest.Mocked<CommentReportRepository>;
+    auditLogRepository = testingModule.get(AuditLogRepository) as jest.Mocked<AuditLogRepository>;
   });
 
   describe('getCommentsByPost', () => {

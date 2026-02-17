@@ -5,6 +5,12 @@ import { CreateUserDto, CreatePostDto } from './dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 /**
  * Security Tests - Input Validation, XSS, SQL Injection Prevention
  * Tests for common security vulnerabilities and malicious input handling
@@ -55,7 +61,7 @@ describe('AppService - Security Tests', () => {
       query: jest.fn(),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AppService,
         { provide: DataSource, useValue: dataSource },
@@ -66,7 +72,7 @@ describe('AppService - Security Tests', () => {
       ],
     }).compile();
 
-    service = module.get<AppService>(AppService);
+    service = testingModule.get<AppService>(AppService);
   });
 
   describe('SQL Injection Prevention - User Operations', () => {

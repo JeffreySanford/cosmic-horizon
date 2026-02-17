@@ -6,6 +6,12 @@ import { BrokerMetricsCollector } from './broker-metrics.collector';
 import { BrokerMetrics } from './broker-metrics.entity';
 import { Repository } from 'typeorm';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('BrokerMetricsService', () => {
   let service: BrokerMetricsService;
   let collectorMock: jest.Mocked<BrokerMetricsCollector>;
@@ -69,7 +75,7 @@ describe('BrokerMetricsService', () => {
       delete: jest.fn().mockResolvedValue({ affected: 10 }),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         BrokerMetricsService,
         { provide: BrokerMetricsCollector, useValue: collectorMock },
@@ -77,7 +83,7 @@ describe('BrokerMetricsService', () => {
       ],
     }).compile();
 
-    service = module.get<BrokerMetricsService>(BrokerMetricsService);
+    service = testingModule.get<BrokerMetricsService>(BrokerMetricsService);
   });
 
   afterEach(() => {

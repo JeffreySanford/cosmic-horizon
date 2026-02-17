@@ -1,5 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, Logger } from '@nestjs/common';
+
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
 import {
   EventSchemaRegistry,
   EventSchema,
@@ -9,11 +15,11 @@ describe('EventSchemaRegistry', () => {
   let service: EventSchemaRegistry;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [EventSchemaRegistry],
     }).compile();
 
-    service = module.get<EventSchemaRegistry>(EventSchemaRegistry);
+    service = testingModule.get<EventSchemaRegistry>(EventSchemaRegistry);
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
     jest.spyOn(Logger.prototype, 'warn').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();

@@ -11,6 +11,12 @@ import {
 import { User } from '../entities';
 import Strategy from 'passport-github';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AuthService - Branch Coverage', () => {
   let service: AuthService;
   let userRepository: jest.Mocked<UserRepository>;
@@ -57,7 +63,7 @@ describe('AuthService - Branch Coverage', () => {
       query: jest.fn(),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: UserRepository, useValue: userRepository },
@@ -66,7 +72,7 @@ describe('AuthService - Branch Coverage', () => {
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    service = testingModule.get<AuthService>(AuthService);
   });
 
   describe('onModuleInit', () => {

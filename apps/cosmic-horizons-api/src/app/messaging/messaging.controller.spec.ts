@@ -4,12 +4,18 @@ import { MessagingService } from './messaging.service';
 import { MessagingMonitorService } from './messaging-monitor.service';
 import { MessagingStatsService } from './messaging-stats.service';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('MessagingController', () => {
   let controller: MessagingController;
   let service: MessagingService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       controllers: [MessagingController],
       providers: [
         {
@@ -67,8 +73,8 @@ describe('MessagingController', () => {
       ],
     }).compile();
 
-    controller = module.get<MessagingController>(MessagingController);
-    service = module.get<MessagingService>(MessagingService);
+    controller = testingModule.get<MessagingController>(MessagingController);
+    service = testingModule.get<MessagingService>(MessagingService);
   });
 
   it('should be defined', () => {

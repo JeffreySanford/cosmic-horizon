@@ -6,6 +6,12 @@ import { Post, PostStatus } from '../entities/post.entity';
 import { PostBuilder } from '../testing/test-builders';
 import { TypeSafeAssertions } from '../testing/mock-factory';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('PostRepository', () => {
   let repository: PostRepository;
   let mockRepository: jest.Mocked<Repository<Post>>;
@@ -25,7 +31,7 @@ describe('PostRepository', () => {
   beforeEach(async () => {
     mockRepository = createMockPostRepository();
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         PostRepository,
         {
@@ -35,7 +41,7 @@ describe('PostRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<PostRepository>(PostRepository);
+    repository = testingModule.get<PostRepository>(PostRepository);
   });
 
   describe('create', () => {

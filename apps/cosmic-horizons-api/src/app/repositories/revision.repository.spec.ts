@@ -6,6 +6,12 @@ import { Revision } from '../entities/revision.entity';
 import { RevisionBuilder } from '../testing/test-builders';
 import { TypeSafeAssertions } from '../testing/mock-factory';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('RevisionRepository', () => {
   let repository: RevisionRepository;
   let mockRepository: jest.Mocked<Repository<Revision>>;
@@ -24,7 +30,7 @@ describe('RevisionRepository', () => {
   beforeEach(async () => {
     mockRepository = createMockRevisionRepository();
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         RevisionRepository,
         {
@@ -34,7 +40,7 @@ describe('RevisionRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<RevisionRepository>(RevisionRepository);
+    repository = testingModule.get<RevisionRepository>(RevisionRepository);
   });
 
   describe('create', () => {

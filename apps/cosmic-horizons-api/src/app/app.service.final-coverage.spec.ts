@@ -5,6 +5,12 @@ import { AppService } from './app.service';
 import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository } from './repositories';
 import { Post, PostStatus, User, AuditAction, AuditEntityType } from './entities';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AppService - Final Coverage Gaps', () => {
   let service: AppService;
   let mockDataSource: jest.Mocked<DataSource>;
@@ -74,7 +80,7 @@ describe('AppService - Final Coverage Gaps', () => {
       create: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<RevisionRepository>;
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AppService,
         { provide: DataSource, useValue: mockDataSource },
@@ -85,7 +91,7 @@ describe('AppService - Final Coverage Gaps', () => {
       ],
     }).compile();
 
-    service = module.get<AppService>(AppService);
+    service = testingModule.get<AppService>(AppService);
   });
 
   describe('Health check error scenarios', () => {

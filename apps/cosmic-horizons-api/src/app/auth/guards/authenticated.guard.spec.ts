@@ -3,12 +3,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../auth.service';
 import { AuthenticatedGuard } from './authenticated.guard';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 describe('AuthenticatedGuard', () => {
   let guard: AuthenticatedGuard;
   let authService: jest.Mocked<AuthService>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [
         AuthenticatedGuard,
         {
@@ -20,8 +26,8 @@ describe('AuthenticatedGuard', () => {
       ],
     }).compile();
 
-    guard = module.get<AuthenticatedGuard>(AuthenticatedGuard);
-    authService = module.get(AuthService) as jest.Mocked<AuthService>;
+    guard = testingModule.get<AuthenticatedGuard>(AuthenticatedGuard);
+    authService = testingModule.get(AuthService) as jest.Mocked<AuthService>;
   });
 
   describe('canActivate', () => {

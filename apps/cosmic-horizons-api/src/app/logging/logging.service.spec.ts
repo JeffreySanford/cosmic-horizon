@@ -2,6 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LoggingService } from './logging.service';
 import Redis from 'ioredis';
 
+afterEach(async () => {
+  await testingModule?.close();
+});
+
+let testingModule: TestingModule | undefined;
+
 jest.mock('ioredis');
 
 describe('LoggingService', () => {
@@ -23,11 +29,11 @@ describe('LoggingService', () => {
 
     (Redis as unknown as jest.Mock).mockImplementation(() => mockRedis);
 
-    const module: TestingModule = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       providers: [LoggingService],
     }).compile();
 
-    service = module.get<LoggingService>(LoggingService);
+    service = testingModule.get<LoggingService>(LoggingService);
   });
 
   afterEach(async () => {
@@ -249,11 +255,11 @@ describe('LoggingService', () => {
       mockRedis.quit = jest.fn().mockResolvedValue('OK');
       (Redis as unknown as jest.Mock).mockImplementation(() => mockRedis);
 
-      const module: TestingModule = await Test.createTestingModule({
+      testingModule = await Test.createTestingModule({
         providers: [LoggingService],
       }).compile();
 
-      const redisService = module.get<LoggingService>(LoggingService);
+      const redisService = testingModule.get<LoggingService>(LoggingService);
       await redisService.onModuleDestroy();
 
       expect(mockRedis.quit).toHaveBeenCalled();
