@@ -2,13 +2,20 @@
 
 **Cosmic Horizons Collaboration Platform**  
 **Status**: MVP Enhanced (Feb 2026) → Phase 3 Execution  
-**Last Updated**: 2026-02-16  
+**Last Updated**: 2026-02-17  
 
 ## Vision
 
 Enable the astronomy community to discover, annotate, and publish observations through a fast, accessible collaboration platform built on public VLASS data.
 
 **Canonical Reference**: [SCOPE-LOCK.md](SCOPE-LOCK.md) + [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md)
+
+## Recent Delta (2026-02-17)
+
+- Web test infrastructure was hardened to reduce CI/jsdom instability (`apps/cosmic-horizons-web/src/test-setup.ts`).
+- Job submission spec stability improved with explicit navigator setup in test bootstrap (`apps/cosmic-horizons-web/src/app/features/job-orchestration/job-submission-form/job-submission-form.component.spec.ts`).
+- E2E registration flow assertions were made more resilient (`apps/cosmic-horizons-web-e2e/src/example.spec.ts`).
+- API unit test open-handle stall was resolved locally; `cosmic-horizons-api:test` now exits clean under `--detectOpenHandles`.
 
 ---
 
@@ -453,12 +460,13 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 | **Reliability** | ≥99.9% uptime | RED: Stay with dual-broker |
 | **Ops Overhead** | ≥50% reduction | Go/No-Go decision |
 
-### Immediate Next Steps (2026-02-16 to 2026-03-01)
+### Immediate Next Steps (2026-02-17 to 2026-03-01)
 
-1. Run clean benchmark captures for RabbitMQ, Kafka, and Pulsar under measured-only conditions and store artifacts in `test-output/benchmark-results/`.
-2. Publish `documentation/architecture/PULSAR-EVALUATION-RESULTS.md` with throughput/latency/memory deltas and fallback-rate notes.
-3. Update `documentation/architecture/ADR-EVENT-STREAMING.md` with go/no-go criteria and migration guardrails.
-4. Start Sprint 6.1 WebSocket infrastructure while keeping broker-comparison as the validation surface.
+1. Add systematic `TestingModule` teardown coverage (`module.close()`) across remaining API specs to harden against regressions.
+2. Re-run full Nx quality gates locally (lint, all unit tests, MVP e2e) and capture stable baseline timings.
+3. Run clean benchmark captures for RabbitMQ, Kafka, and Pulsar under measured-only conditions and store artifacts in `test-output/benchmark-results/`.
+4. Publish `documentation/architecture/PULSAR-EVALUATION-RESULTS.md` with throughput/latency/memory deltas and fallback-rate notes.
+5. Update `documentation/architecture/ADR-EVENT-STREAMING.md` with go/no-go criteria and migration guardrails, then begin Sprint 6.1 WebSocket infrastructure.
 
 ### Phase 4 Contingency Plans
 
@@ -641,6 +649,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow, branch strategy
 
 ---
 
-*Last Updated: February 16, 2026 (Phase 3.5 dashboard hardening complete; benchmark publication and ADR updates in progress)*  
+*Last Updated: February 17, 2026 (test-stability hardening landed; open-handle stall resolved locally; benchmark publication in progress)*  
 *Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*  
 *Independent portal using public VLASS data; not affiliated with VLA/NRAO.*

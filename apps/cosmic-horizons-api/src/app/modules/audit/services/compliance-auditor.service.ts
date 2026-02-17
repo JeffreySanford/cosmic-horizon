@@ -17,6 +17,7 @@ export interface AuditEvent {
 @Injectable()
 export class ComplianceAuditorService {
   private readonly logger = new Logger('ComplianceAuditorService');
+  private readonly isJest = process.env.JEST_WORKER_ID !== undefined;
 
   // In-memory immutable audit trail (in production: database)
   private readonly auditTrail = new Map<string, AuditEvent>();
@@ -40,9 +41,11 @@ export class ComplianceAuditorService {
 
       this.auditTrail.set(event.event_id, storedEvent);
 
-      this.logger.debug(
-        `Stored immutable audit event ${event.event_id} for job ${event.job_id}`,
-      );
+      if (!this.isJest) {
+        this.logger.debug(
+          `Stored immutable audit event ${event.event_id} for job ${event.job_id}`,
+        );
+      }
     } catch (error) {
       this.logger.error(`Failed to store immutable event: ${error}`);
       throw error;
@@ -58,7 +61,11 @@ export class ComplianceAuditorService {
         (e) => e.job_id === jobId,
       );
 
-      this.logger.debug(`Retrieved ${events.length} audit events for job ${jobId}`);
+      if (!this.isJest) {
+        this.logger.debug(
+          `Retrieved ${events.length} audit events for job ${jobId}`,
+        );
+      }
       return events;
     } catch (error) {
       this.logger.error(`Failed to query audit trail: ${error}`);
@@ -94,9 +101,11 @@ export class ComplianceAuditorService {
         retention_compliant: this.isRetentionCompliant(),
       };
 
-      this.logger.debug(
-        `Generated compliance report: ${report.total_events} events`,
-      );
+      if (!this.isJest) {
+        this.logger.debug(
+          `Generated compliance report: ${report.total_events} events`,
+        );
+      }
       return report;
     } catch (error) {
       this.logger.error(`Failed to generate compliance report: ${error}`);
@@ -127,9 +136,11 @@ export class ComplianceAuditorService {
       }
 
       const isCompliant = this.isRetentionCompliant();
-      this.logger.debug(
-        `Retention policy check complete. Compliant: ${isCompliant}`,
-      );
+      if (!this.isJest) {
+        this.logger.debug(
+          `Retention policy check complete. Compliant: ${isCompliant}`,
+        );
+      }
 
       return isCompliant;
     } catch (error) {

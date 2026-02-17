@@ -1,6 +1,6 @@
 # TODO
 
-Status date: 2026-02-16 (Updated)
+Status date: 2026-02-17 (Updated)
 
 **📋 REFERENCE**: See [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md) for detailed Phase 3 (Event Infrastructure) and Phase 4 (NRAO Integration) roadmap with:
 
@@ -12,6 +12,21 @@ Status date: 2026-02-16 (Updated)
 
 Canonical scope:
 `documentation/product/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md`.
+
+## Recent Changes (2026-02-17)
+
+- [x] Stabilized web unit test setup in CI with hardened `navigator` polyfills in `apps/cosmic-horizons-web/src/test-setup.ts`.
+- [x] Stabilized flaky job submission spec by explicitly setting jsdom browser fields in `apps/cosmic-horizons-web/src/app/features/job-orchestration/job-submission-form/job-submission-form.component.spec.ts`.
+- [x] Stabilized e2e registration flow with resilient API route matching and retry assertions in `apps/cosmic-horizons-web-e2e/src/example.spec.ts`.
+- [x] Hardened messaging monitor lifecycle teardown in `apps/cosmic-horizons-api/src/app/messaging/messaging-monitor.service.ts`.
+- [x] Resolved API Jest open-handle stall in local runs (`--detectOpenHandles` now clean for `cosmic-horizons-api:test`).
+
+## Immediate Next: Test Stall Closure
+
+- [x] Run targeted open-handle diagnosis for API tests: `pnpm nx run cosmic-horizons-api:test -- --runInBand --detectOpenHandles --forceExit=false`.
+- [x] Keep `pnpm nx run-many --target=test --all` and `pnpm nx run mvp-gates:e2e` green without `--forceExit`.
+- [ ] Add explicit teardown (`afterEach`/`afterAll`) for remaining tests creating `TestingModule` without deterministic close.
+- [ ] Verify all long-lived resources are closed in tests (timers, intervals, sockets, broker clients, DB/data-source handles, RxJS subscriptions).
 
 ## Current Execution Wave: Phase 3 (2026-Q2-Q3)
 
@@ -466,6 +481,10 @@ Focus: release readiness, CI signal quality, and post-MVP integration hardening.
 - [x] Align all documentation with source-of-truth models (SCOPE-LOCK/ROADMAP)
 
 ## Next Steps (Local Pre-Deploy)
+
+- [ ] Confirm no lingering Jest open handles across API unit + e2e targets.
+- [ ] Run full local quality gate with Nx targets only (lint, unit, e2e).
+- [ ] Publish a short test-stability note in docs after green CI reruns.
 
 ## Industry Alignment and Outreach Workflow (New)
 
