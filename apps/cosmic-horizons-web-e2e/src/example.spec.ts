@@ -250,17 +250,14 @@ test('allows admin user to open logs when backend confirms admin role', async ({
   await loginEmail.fill('admin@cosmic.local');
   await loginPassword.fill('AdminPassword123!');
   const loginButton = page.getByRole('button', { name: 'Login' });
-  await expect(async () => {
-    const loginResponse = page.waitForResponse(
-      (response) =>
-        response.request().method() === 'POST' &&
-        response.url().includes('/api/auth/login') &&
-        response.status() === 201,
-    );
-    await loginButton.click();
-    await loginResponse;
-    await expect(page).toHaveURL(/\/landing/, { timeout: 5000 });
-  }).toPass({ timeout: 30000 });
+  const loginResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/api/auth/login') &&
+      response.status() === 201,
+  );
+  await Promise.all([loginResponse, loginButton.click()]);
+  await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
 
   await page.getByRole('button', { name: 'Logs' }).click();
   await expect(page).toHaveURL(/\/logs/);
@@ -679,15 +676,15 @@ test('auto-selects higher-resolution survey when VLASS is deeply zoomed', async 
   await page.locator('input[formcontrolname="fov"]').fill('0.3');
   await page.locator('input[formcontrolname="fov"]').blur();
 
-  await expect
-    .poll(async () => {
-      return page.evaluate(() => {
-        return (
-          window as unknown as { __cosmicFakeAladin: { lastSurvey: string } }
-        ).__cosmicFakeAladin.lastSurvey;
-      });
-    })
-    .toBe('P/PanSTARRS/DR1/color-z-zg-g', { timeout: 10000 });
+  await page.waitForFunction(
+    () => {
+      return (
+        (window as unknown as { __cosmicFakeAladin: { lastSurvey: string } })
+          .__cosmicFakeAladin.lastSurvey === 'P/PanSTARRS/DR1/color-z-zg-g'
+      );
+    },
+    { timeout: 10000 },
+  );
 });
 
 test('registers a user and redirects to landing', async ({ page }) => {
@@ -764,10 +761,14 @@ test('registers a user and redirects to landing', async ({ page }) => {
     name: 'Create Account',
   });
   await expect(createAccountButton).toBeEnabled();
-  await expect(async () => {
-    await createAccountButton.click();
-    await expect(page).toHaveURL(/\/landing/, { timeout: 5000 });
-  }).toPass({ timeout: 30000 });
+  const registerResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/api/auth/register') &&
+      response.status() === 201,
+  );
+  await Promise.all([registerResponse, createAccountButton.click()]);
+  await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
 
   await expect(page.locator('h1')).toContainText(
     'Scientific Operations Gateway',

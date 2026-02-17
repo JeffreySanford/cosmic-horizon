@@ -21,6 +21,13 @@ Canonical scope:
 - [x] Hardened messaging monitor lifecycle teardown in `apps/cosmic-horizons-api/src/app/messaging/messaging-monitor.service.ts`.
 - [x] Resolved API Jest open-handle stall in local runs (`--detectOpenHandles` now clean for `cosmic-horizons-api:test`).
 
+## Test Stability (2026-02-17)
+
+- [x] Added API e2e readiness gate in `apps/cosmic-horizons-api-e2e/src/support/global-setup.ts` to wait for `/api/health` after port-open before test execution.
+- [x] Replaced temporary retry-style e2e assertions with deterministic waits in `apps/cosmic-horizons-web-e2e/src/example.spec.ts` (network response synchronization and explicit condition waits).
+- [x] Completed extended local soak for `mvp-gates:e2e-web-mvp`: 12/12 consecutive green runs.
+- [ ] Residual Nx flaky signal remains for `mvp-gates:e2e-web-mvp` despite clean runs; treat as Nx task-level flake metadata and continue monitoring/triage in CI.
+
 ## Immediate Next: Test Stall Closure
 
 - [x] Run targeted open-handle diagnosis for API tests: `pnpm nx run cosmic-horizons-api:test -- --runInBand --detectOpenHandles --forceExit=false`.
