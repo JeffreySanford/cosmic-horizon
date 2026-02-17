@@ -330,7 +330,7 @@ apps/cosmic-horizons-api/src/app/jobs/services/
 - [ ] Baseline tests passing (18/18)
 - [ ] Team notified of Monday 09:00 kickoff
 - [ ] Quick reference cards printed/shared (optional)
-- [ ] Slack channel ready for daily updates
+- [ ] Communication channel ready for daily updates
 
 **Status**: Ready to launch Monday 09:00 AM ✅
 

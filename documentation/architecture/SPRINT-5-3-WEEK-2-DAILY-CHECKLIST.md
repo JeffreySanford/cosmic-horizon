@@ -323,7 +323,7 @@ pnpm nx test cosmic-horizons-api --passWithNoTests
 **Daily Standup** (each morning 09:00):
 
 - [ ] Report progress from previous day
-- [ ] Share email/Slack updates
+- [ ] Share status updates
 - [ ] Identify blockers early
 
 **Pre-Commit Ritual**:

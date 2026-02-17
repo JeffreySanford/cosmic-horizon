@@ -46,7 +46,7 @@ Canonical scope:
   - Validation: `pnpm nx run cosmic-horizons-api:test -- --runInBand --detectOpenHandles --forceExit=false` and `pnpm nx run cosmic-horizons-api-e2e:e2e -- --runInBand --detectOpenHandles --forceExit=false` both pass without open-handle stall.
 - [x] Add a unit test to assert `MessagingMonitorService` clears its startup timeout handle on `onModuleDestroy()` (prevent future open-handle regressions).
 - [ ] Triage and patch the moderate GitHub dependence vulnerability reported by Dependabot (see repo Security alerts) — **DEFERRED TO UPSTREAM (ajv / Angular)**.
-- [ ] Add CI failure notification (Slack/Teams) for immediate alerting — coordinate webhook and secrets.
+
 - [ ] Prepare release candidate / changelog for v1.1.0 (include test stabilization & event infra notes).
 
 ## Current Execution Wave: Phase 3 (2026-Q2-Q3)
