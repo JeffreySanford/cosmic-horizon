@@ -26,7 +26,7 @@ describe('MessagingMonitorService', () => {
     jest.useFakeTimers();
 
     // spy on private poll method to detect whether it runs
-    const pollSpy = jest.spyOn(service as any, 'poll').mockImplementation(async () => {});
+    const pollSpy = jest.spyOn(service as any, 'poll').mockImplementation(() => Promise.resolve());
 
     service.onModuleInit(); // schedules startup timeout
 
