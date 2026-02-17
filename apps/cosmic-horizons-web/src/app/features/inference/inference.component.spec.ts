@@ -71,7 +71,7 @@ describe('InferenceComponent', () => {
 
       component.toggleExpanded();
 
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       expect(component.hasPermission).toBe(true);
       expect(component.isExpanded).toBe(true);
@@ -88,7 +88,7 @@ describe('InferenceComponent', () => {
 
       component.toggleExpanded();
 
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       expect(component.hasPermission).toBe(false);
       expect(component.isExpanded).toBe(false);

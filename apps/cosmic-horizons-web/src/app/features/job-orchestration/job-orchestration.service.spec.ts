@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { JobOrchestrationService } from './job-orchestration.service';
 import { describe, it, expect, beforeEach } from 'vitest';
+import { firstValueFrom } from 'rxjs';
 
 describe('JobOrchestrationService', () => {
   let service: JobOrchestrationService;
@@ -17,14 +18,9 @@ describe('JobOrchestrationService', () => {
   });
 
   it('should get agents', async () => {
-    let agentsLoaded = false;
-    service.getAgents().subscribe(agents => {
-      if (agents.length === 3 && agents[0].name === 'AlphaCal') {
-        agentsLoaded = true;
-      }
-    });
-    await new Promise(resolve => setTimeout(resolve, 50));
-    expect(agentsLoaded).toBe(true);
+    const agents = await firstValueFrom(service.getAgents());
+    expect(agents.length).toBe(3);
+    expect(agents[0].name).toBe('AlphaCal');
   });
 
   it('should submit job', async () => {
@@ -34,23 +30,14 @@ describe('JobOrchestrationService', () => {
       parameters: {},
     };
 
-    let submitted = false;
-    service.submitJob(request).subscribe(response => {
-      expect(response.jobId).toBeTruthy();
-      expect(response.status).toBe('queued');
-      submitted = true;
-    });
-    await new Promise(resolve => setTimeout(resolve, 50));
-    expect(submitted).toBe(true);
+    const response = await firstValueFrom(service.submitJob(request));
+    expect(response.jobId).toBeTruthy();
+    expect(response.status).toBe('queued');
   });
 
   it('should retrieve jobs', async () => {
-    let retrieved = false;
-    service.getJobs().subscribe(jobs => {
-      retrieved = Array.isArray(jobs);
-    });
-    await new Promise(resolve => setTimeout(resolve, 50));
-    expect(retrieved).toBe(true);
+    const jobs = await firstValueFrom(service.getJobs());
+    expect(Array.isArray(jobs)).toBe(true);
   });
 
   it('should cancel job', async () => {
@@ -60,17 +47,9 @@ describe('JobOrchestrationService', () => {
       parameters: {},
     };
 
-    let cancelled = false;
-    service.submitJob(request).subscribe(response => {
-      service.cancelJob(response.jobId).subscribe(() => {
-        service.getJobById(response.jobId).subscribe(job => {
-          if (job?.status === 'cancelled') {
-            cancelled = true;
-          }
-        });
-      });
-    });
-    await new Promise(resolve => setTimeout(resolve, 100));
-    expect(cancelled).toBe(true);
+    const resp = await firstValueFrom(service.submitJob(request));
+    await firstValueFrom(service.cancelJob(resp.jobId));
+    const job = await firstValueFrom(service.getJobById(resp.jobId));
+    expect(job?.status).toBe('cancelled');
   });
 });

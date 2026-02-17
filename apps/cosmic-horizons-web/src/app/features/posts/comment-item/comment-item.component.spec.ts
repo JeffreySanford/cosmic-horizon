@@ -276,7 +276,7 @@ describe('CommentItemComponent', () => {
       const repliedSpy = vi.spyOn(component.replied, 'emit');
 
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(repliedSpy).toHaveBeenCalled();
     });
@@ -286,7 +286,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.createComment.mockReturnValue(throwError(() => errorResponse));
 
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.submittingReply).toBe(false);
       expect(component.error).toBe('Server error');
@@ -296,7 +296,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.createComment.mockReturnValue(throwError(() => ({})));
 
       component.submitReply();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to post reply.');
     });
@@ -314,7 +314,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.deleteComment.mockReturnValue(of({}));
 
       component.deleteComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.deleteComment).toHaveBeenCalledWith('comment-1');
     });
@@ -341,7 +341,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.deleteComment.mockReturnValue(of({}));
 
       component.deleteComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(deletedSpy).toHaveBeenCalledWith('comment-1');
     });
@@ -353,7 +353,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.deleteComment.mockReturnValue(throwError(() => errorResponse));
 
       component.deleteComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(alertSpy).toHaveBeenCalledWith('Cannot delete');
     });
@@ -364,7 +364,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.deleteComment.mockReturnValue(throwError(() => ({})));
 
       component.deleteComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(alertSpy).toHaveBeenCalledWith('Failed to delete comment.');
     });
@@ -383,7 +383,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.reportComment.mockReturnValue(of({}));
 
       component.reportComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.reportComment).toHaveBeenCalledWith('comment-1', {
         reason: 'Inappropriate content',
@@ -404,7 +404,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.reportComment.mockReturnValue(throwError(() => errorResponse));
 
       component.reportComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(window.alert).toHaveBeenCalledWith('Already reported');
     });
@@ -413,7 +413,7 @@ describe('CommentItemComponent', () => {
       commentsApiService.reportComment.mockReturnValue(throwError(() => ({})));
 
       component.reportComment();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(window.alert).toHaveBeenCalledWith('Failed to report comment.');
     });

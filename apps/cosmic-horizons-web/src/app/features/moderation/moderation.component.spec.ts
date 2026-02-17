@@ -139,7 +139,7 @@ describe('ModerationComponent', () => {
       commentsApiService.getAllReports.mockReturnValue(of(mockReports));
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       expect(component.reports).toEqual(mockReports);
     });
@@ -148,7 +148,7 @@ describe('ModerationComponent', () => {
       commentsApiService.getAllReports.mockReturnValue(of(mockReports));
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       expect(component.loading).toBe(false);
     });
@@ -157,7 +157,7 @@ describe('ModerationComponent', () => {
       commentsApiService.getAllReports.mockReturnValue(of([]));
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       expect(component.reports).toEqual([]);
       expect(component.loading).toBe(false);
@@ -169,7 +169,7 @@ describe('ModerationComponent', () => {
       );
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to load moderation reports.');
     });
@@ -180,7 +180,7 @@ describe('ModerationComponent', () => {
       );
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       expect(component.loading).toBe(false);
     });
@@ -189,7 +189,7 @@ describe('ModerationComponent', () => {
       commentsApiService.getAllReports.mockReturnValue(of(mockReports));
 
       component.loadReports();
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await Promise.resolve();
 
       expect(component.reports.length).toBe(2);
 
@@ -216,7 +216,7 @@ describe('ModerationComponent', () => {
       vi.spyOn(component, 'loadReports');
 
       component.resolveReport('report-1', 'reviewed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.resolveReport).toHaveBeenCalledWith('report-1', 'reviewed');
     });
@@ -226,7 +226,7 @@ describe('ModerationComponent', () => {
       commentsApiService.getAllReports.mockReturnValue(of(mockReports));
 
       component.resolveReport('report-1', 'dismissed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.resolveReport).toHaveBeenCalledWith('report-1', 'dismissed');
     });
@@ -237,7 +237,7 @@ describe('ModerationComponent', () => {
       vi.spyOn(component, 'loadReports');
 
       component.resolveReport('report-1', 'reviewed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.loadReports).toHaveBeenCalled();
     });
@@ -246,7 +246,7 @@ describe('ModerationComponent', () => {
       commentsApiService.resolveReport.mockReturnValue(throwError(() => new Error('Failed')));
 
       component.resolveReport('report-1', 'reviewed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to reviewed report.');
     });
@@ -255,7 +255,7 @@ describe('ModerationComponent', () => {
       commentsApiService.resolveReport.mockReturnValue(throwError(() => new Error('Failed')));
 
       component.resolveReport('report-1', 'dismissed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.error).toContain('dismissed');
     });
@@ -268,10 +268,10 @@ describe('ModerationComponent', () => {
       });
 
       component.resolveReport('report-1', 'reviewed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       component.resolveReport('report-2', 'dismissed');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       // loadReports called once in ngOnInit + twice in resolveReport = 3 times
       expect(component.loadReports).toHaveBeenCalledTimes(3);
@@ -284,7 +284,7 @@ describe('ModerationComponent', () => {
       vi.spyOn(component, 'loadReports').mockImplementation(() => {});
 
       component.resolveReport('report-1', 'reviewed');
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       expect(component.error).toBe('');
 
@@ -306,7 +306,7 @@ describe('ModerationComponent', () => {
       commentsApiService.getAllReports.mockReturnValue(of(mockReports));
 
       component.hideComment('comment-1');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(commentsApiService.hideComment).toHaveBeenCalledWith('comment-1');
     });
@@ -317,7 +317,7 @@ describe('ModerationComponent', () => {
       vi.spyOn(component, 'loadReports');
 
       component.hideComment('comment-1');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await Promise.resolve();
 
       expect(component.loadReports).toHaveBeenCalled();
     });
@@ -338,10 +338,10 @@ describe('ModerationComponent', () => {
       vi.spyOn(component, 'loadReports').mockImplementation(() => {});
 
       component.hideComment('comment-1');
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       component.hideComment('comment-2');
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       expect(component.hideComment).toBeDefined();
       expect(commentsApiService.hideComment).toHaveBeenCalledTimes(2);
@@ -352,13 +352,13 @@ describe('ModerationComponent', () => {
       commentsApiService.getAllReports.mockReturnValue(of(mockReports));
 
       component.hideComment('comment-1');
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       expect(component.error).toBe('');
 
       commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Not found')));
       component.hideComment('comment-99');
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Promise.resolve();
 
       expect(component.error).toBe('Failed to hide comment.');
     });
