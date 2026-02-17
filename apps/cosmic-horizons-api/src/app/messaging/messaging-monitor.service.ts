@@ -12,6 +12,8 @@ import type { MessagingInfraSnapshot } from './messaging.types';
 
 const POLL_INTERVAL_MS = 2000;
 const STARTUP_GRACE_MS = 8000;
+const DEFAULT_DB_USER = 'cosmic_horizons_user';
+const DEFAULT_DB_PASSWORD = 'cosmic_horizons_password_dev';
 
 @Injectable()
 export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
@@ -127,10 +129,9 @@ export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
 
     const dbHost = this.config.get<string>('DB_HOST') ?? 'localhost';
     const dbPort = Number(this.config.get<string>('DB_PORT') ?? '15432');
-    const dbUser = this.config.get<string>('DB_USER');
-    if (!dbUser) throw new Error('DB_USER is required for messaging monitor');
-    const dbPass = this.config.get<string>('DB_PASSWORD');
-    if (!dbPass) throw new Error('DB_PASSWORD is required for messaging monitor');
+    const dbUser = this.config.get<string>('DB_USER') ?? DEFAULT_DB_USER;
+    const dbPass =
+      this.config.get<string>('DB_PASSWORD') ?? DEFAULT_DB_PASSWORD;
     const dbName = this.config.get<string>('DB_NAME') ?? 'cosmic_horizons';
     this.postgresPool = new Pool({
       host: dbHost,

@@ -17,6 +17,15 @@ if (typeof navigator !== 'undefined') {
       });
       console.log('[TEST SETUP] navigator.platform polyfilled successfully');
     }
+
+    if (!navigator.userAgent || navigator.userAgent === '') {
+      Object.defineProperty(navigator, 'userAgent', {
+        value: 'jsdom',
+        writable: true,
+        configurable: true,
+      });
+      console.log('[TEST SETUP] navigator.userAgent polyfilled successfully');
+    }
   } catch (e) {
     // Silently ignore if defineProperty fails (in case of strict mode)
     console.warn('[TEST SETUP] Could not set navigator.platform polyfill:', e);
