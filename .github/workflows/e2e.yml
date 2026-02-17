@@ -96,6 +96,31 @@ jobs:
             e2e-docker-ps.log
             e2e-docker-logs.log
           if-no-files-found: ignore
+
+      - name: Notify Slack / Teams on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          SUMMARY="E2E failure — $GITHUB_REPOSITORY (${GITHUB_REF#refs/heads/})"
+
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            payload="{\"text\":\"${SUMMARY}\\nWorkflow: $GITHUB_WORKFLOW \\nJob: $GITHUB_JOB \\nRun: ${RUN_URL}\"}"
+            curl -s -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL" || true
+            echo "Slack notification sent"
+          fi
+          if [ -n "$TEAMS_WEBHOOK_URL" ]; then
+            payload="{\"text\":\"${SUMMARY}\\nWorkflow: $GITHUB_WORKFLOW \\nJob: $GITHUB_JOB \\nRun: ${RUN_URL}\"}"
+            curl -s -X POST -H 'Content-type: application/json' --data "$payload" "$TEAMS_WEBHOOK_URL" || true
+            echo "Teams notification sent"
+          fi
+          if [ -z "$SLACK_WEBHOOK_URL" ] && [ -z "$TEAMS_WEBHOOK_URL" ]; then
+            echo "No webhook secrets set (SLACK_WEBHOOK_URL / TEAMS_WEBHOOK_URL) — skipping notification"
+          fi
+
       - name: Stop infra
         if: always()
         run: docker compose down --remove-orphans --volumes
