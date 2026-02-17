@@ -2,7 +2,7 @@
 
 **Cosmic Horizons Collaboration Platform**  
 **Status**: MVP Enhanced (Feb 2026) → Phase 3 Execution  
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-17
 
 ## Vision
 
@@ -157,10 +157,10 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 **Architectural Rationale**:
 
-| Tier | Technology | Purpose | Retention | Latency |
-|------|-----------|---------|-----------|---------|
-| **Ephemeral** | RabbitMQ (3-node) | Real-time notifications, WebSocket pushes, live dashboards | In-memory | <10ms |
-| **Durable** | Kafka (3-broker) | Compliance audit trail, event replay, 90-day retention, analytics | 30-90 days on disk | 50-100ms |
+| Tier          | Technology        | Purpose                                                           | Retention          | Latency  |
+| ------------- | ----------------- | ----------------------------------------------------------------- | ------------------ | -------- |
+| **Ephemeral** | RabbitMQ (3-node) | Real-time notifications, WebSocket pushes, live dashboards        | In-memory          | <10ms    |
+| **Durable**   | Kafka (3-broker)  | Compliance audit trail, event replay, 90-day retention, analytics | 30-90 days on disk | 50-100ms |
 
 **Key Point**: Kafka provides immutable append-only log for audit/compliance; RabbitMQ provides low-latency fan-out. Both are **permanent parts of Phase 3**.
 
@@ -392,14 +392,14 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 ### Success Criteria (Full Phase 3)
 
-| Metric | Target | Type |
-|--------|--------|------|
-| Events/second | 1000+ | Throughput |
-| P99 Latency | <100ms | Performance |
-| Availability | 99.99% | Reliability |
-| Concurrent Connections | 500+ | Scale |
-| Event Replay Window | 30+ days | Auditability |
-| Test Coverage | 200+ integration tests | Quality |
+| Metric                 | Target                 | Type         |
+| ---------------------- | ---------------------- | ------------ |
+| Events/second          | 1000+                  | Throughput   |
+| P99 Latency            | <100ms                 | Performance  |
+| Availability           | 99.99%                 | Reliability  |
+| Concurrent Connections | 500+                   | Scale        |
+| Event Replay Window    | 30+ days               | Auditability |
+| Test Coverage          | 200+ integration tests | Quality      |
 
 ---
 
@@ -437,12 +437,12 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 **Status**: Fully operational, not deprecated
 
-| Aspect | Phase 3 | Phase 3.5 | Phase 4 |
-|--------|---------|----------|---------|
-| **Audit Trail** | ✅ Active (90-day retention) | ✅ Keep running | → Migrate to Pulsar OR keep for cold archive |
-| **Event Publishing** | Publishing all 5 topics | Publishing all 5 topics | Cease (migrate to Pulsar) |
-| **Compliance Role** | Essential | Reference baseline | Optional (Pulsar takes over) |
-| **Consumer Groups** | 4 active | 4 active | Migrate to Pulsar or decommission |
+| Aspect               | Phase 3                      | Phase 3.5               | Phase 4                                      |
+| -------------------- | ---------------------------- | ----------------------- | -------------------------------------------- |
+| **Audit Trail**      | ✅ Active (90-day retention) | ✅ Keep running         | → Migrate to Pulsar OR keep for cold archive |
+| **Event Publishing** | Publishing all 5 topics      | Publishing all 5 topics | Cease (migrate to Pulsar)                    |
+| **Compliance Role**  | Essential                    | Reference baseline      | Optional (Pulsar takes over)                 |
+| **Consumer Groups**  | 4 active                     | 4 active                | Migrate to Pulsar or decommission            |
 
 **Why Keep Kafka**:
 
@@ -453,12 +453,12 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 ### Success Criteria
 
-| Gate | Target | Outcome |
-|------|--------|---------|
-| **Throughput** | Pulsar ≥+30% | GREEN: Proceed to Phase 4 |
-| **Latency** | Pulsar ≥-25% | YELLOW: Analyze trade-offs |
-| **Reliability** | ≥99.9% uptime | RED: Stay with dual-broker |
-| **Ops Overhead** | ≥50% reduction | Go/No-Go decision |
+| Gate             | Target         | Outcome                    |
+| ---------------- | -------------- | -------------------------- |
+| **Throughput**   | Pulsar ≥+30%   | GREEN: Proceed to Phase 4  |
+| **Latency**      | Pulsar ≥-25%   | YELLOW: Analyze trade-offs |
+| **Reliability**  | ≥99.9% uptime  | RED: Stay with dual-broker |
+| **Ops Overhead** | ≥50% reduction | Go/No-Go decision          |
 
 ### Immediate Next Steps (2026-02-17 to 2026-03-01)
 
@@ -574,37 +574,37 @@ pnpm nx affected --target=lighthouse       # Performance
 
 ### Coverage Targets
 
-| Metric | Minimum | Current |
-|--------|---------|---------|
-| Statements | 80% | 82.5% |
-| Functions | 80% | 74.8% |
-| Branches | 75% | 61.8% |
-| Lines | 80% | 82.5% |
+| Metric     | Minimum | Current |
+| ---------- | ------- | ------- |
+| Statements | 80%     | 82.5%   |
+| Functions  | 80%     | 74.8%   |
+| Branches   | 75%     | 61.8%   |
+| Lines      | 80%     | 82.5%   |
 
 ### Performance Targets
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| FCP | 2.5s | ✅ Phase 2 |
-| TBT | 100ms | ✅ Phase 2 |
-| Ephemeris p95 | 500ms | ✅ Phase 2 |
-| Events/sec | 1000+ | 📋 Phase 3 (Sprint 5.2) |
-| Event Latency (P99) | <100ms | 📋 Phase 3 (Sprint 5.1) |
-| Concurrent WebSocket | 500+ | 📋 Phase 3 (Sprint 6.1) |
+| Metric               | Target | Status                  |
+| -------------------- | ------ | ----------------------- |
+| FCP                  | 2.5s   | ✅ Phase 2              |
+| TBT                  | 100ms  | ✅ Phase 2              |
+| Ephemeris p95        | 500ms  | ✅ Phase 2              |
+| Events/sec           | 1000+  | 📋 Phase 3 (Sprint 5.2) |
+| Event Latency (P99)  | <100ms | 📋 Phase 3 (Sprint 5.1) |
+| Concurrent WebSocket | 500+   | 📋 Phase 3 (Sprint 6.1) |
 
 ---
 
 ## Documentation Structure
 
-| Document | Scope |
-|----------|-------|
-| [SCOPE-LOCK.md](SCOPE-LOCK.md) | What's in/out (canonical) |
-| [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md) | Product vision & strategy |
-| [ARCHITECTURE.md](documentation/architecture/ARCHITECTURE.md) | System design & components |
-| [Project Overview](documentation/index/OVERVIEW-V2.md) | Current status & features |
-| [Testing Strategy](documentation/quality/TESTING-STRATEGY.md) | Test layers & quality gates |
+| Document                                                               | Scope                           |
+| ---------------------------------------------------------------------- | ------------------------------- |
+| [SCOPE-LOCK.md](SCOPE-LOCK.md)                                         | What's in/out (canonical)       |
+| [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md)         | Product vision & strategy       |
+| [ARCHITECTURE.md](documentation/architecture/ARCHITECTURE.md)          | System design & components      |
+| [Project Overview](documentation/index/OVERVIEW-V2.md)                 | Current status & features       |
+| [Testing Strategy](documentation/quality/TESTING-STRATEGY.md)          | Test layers & quality gates     |
 | [E2E Coverage Guide](documentation/quality/E2E_CODE_COVERAGE_GUIDE.md) | Coverage testing infrastructure |
-| [Quick Start](documentation/operations/QUICK-START.md) | Local development setup |
+| [Quick Start](documentation/operations/QUICK-START.md)                 | Local development setup         |
 
 ---
 
@@ -649,6 +649,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow, branch strategy
 
 ---
 
-*Last Updated: February 17, 2026 (test-stability hardening landed; open-handle stall resolved locally; benchmark publication in progress)*  
-*Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*  
-*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*
+_Last Updated: February 17, 2026 (test-stability hardening landed; open-handle stall resolved locally; benchmark publication in progress)_  
+_Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved._  
+_Independent portal using public VLASS data; not affiliated with VLA/NRAO._
