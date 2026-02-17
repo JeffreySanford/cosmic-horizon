@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthApiService } from '../features/auth/auth-api.service';
 import { AuthSessionService } from '../services/auth-session.service';
@@ -51,14 +51,8 @@ describe('AdminGuard', () => {
       }),
     );
 
-    const result = await new Promise<boolean>((resolve) => {
-      const stream = guard.canActivate();
-      if (typeof stream === 'boolean') {
-        resolve(stream);
-        return;
-      }
-      stream.subscribe(resolve);
-    });
+    const stream = guard.canActivate();
+    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
 
     expect(result).toBe(true);
     expect(authApiService.getMe).toHaveBeenCalledWith();
@@ -81,14 +75,8 @@ describe('AdminGuard', () => {
       }),
     );
 
-    const result = await new Promise<boolean>((resolve) => {
-      const stream = guard.canActivate();
-      if (typeof stream === 'boolean') {
-        resolve(stream);
-        return;
-      }
-      stream.subscribe(resolve);
-    });
+    const stream = guard.canActivate();
+    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
 
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/landing']);
@@ -107,14 +95,8 @@ describe('AdminGuard', () => {
     authSessionService.getRole.mockReturnValue('user');
     authApiService.getMe.mockReturnValue(throwError(() => new Error('unauthorized')));
 
-    const result = await new Promise<boolean>((resolve) => {
-      const stream = guard.canActivate();
-      if (typeof stream === 'boolean') {
-        resolve(stream);
-        return;
-      }
-      stream.subscribe(resolve);
-    });
+    const stream = guard.canActivate();
+    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
 
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);

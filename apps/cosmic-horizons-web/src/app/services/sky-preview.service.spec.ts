@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID, REQUEST } from '@angular/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SkyPreviewService } from './sky-preview.service';
+import { firstValueFrom } from 'rxjs';
 
 describe('SkyPreviewService', () => {
   afterEach(() => {
@@ -65,7 +66,7 @@ describe('SkyPreviewService', () => {
     expect(preview.source).toBe('default');
   });
 
-  it('stores browser-derived location as coarse geohash cookie', () => {
+  it('stores browser-derived location as coarse geohash cookie', async () => {
     const geolocationMock = {
       getCurrentPosition: (success: (position: GeolocationPosition) => void) => {
         success({
@@ -91,13 +92,10 @@ describe('SkyPreviewService', () => {
     });
 
     const service = TestBed.inject(SkyPreviewService);
-    service.personalizeFromBrowserLocation().subscribe({
-      next: (preview) => {
-        expect(preview).not.toBeNull();
-        expect(preview?.source).toBe('browser');
-        expect(preview?.geohash).toHaveLength(4);
-        expect(document.cookie).toContain('cosmic_region=');
-      },
-    });
+    const preview = await firstValueFrom(service.personalizeFromBrowserLocation());
+    expect(preview).not.toBeNull();
+    expect(preview?.source).toBe('browser');
+    expect(preview?.geohash).toHaveLength(4);
+    expect(document.cookie).toContain('cosmic_region=');
   });
 });

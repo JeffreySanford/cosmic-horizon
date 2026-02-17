@@ -3,7 +3,7 @@ import { JobQueueListComponent } from './job-queue-list.component';
 import { JobOrchestrationModule } from '../job-orchestration.module';
 import { JobOrchestrationService } from '../job-orchestration.service';
 import { Job } from '../job.models';
-import { of } from 'rxjs';
+import { of, firstValueFrom } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('JobQueueListComponent', () => {
@@ -58,28 +58,16 @@ describe('JobQueueListComponent', () => {
   });
 
   it('should load jobs on init', async () => {
-    let jobsLoaded = false;
-    component.filteredJobs$.subscribe(jobs => {
-      if (jobs.length > 0) {
-        jobsLoaded = true;
-      }
-    });
-    await Promise.resolve();
-    expect(jobsLoaded).toBe(true);
+    const jobs = await firstValueFrom(component.filteredJobs$);
+    expect(jobs.length).toBeGreaterThan(0);
   });
 
   it('should filter jobs by status', async () => {
     component.selectedStatus = 'running';
     component.ngOnChanges();
-    
-    let filtered = false;
-    component.filteredJobs$.subscribe(jobs => {
-      if (jobs.every(job => job.status === 'running')) {
-        filtered = true;
-      }
-    });
-    await Promise.resolve();
-    expect(filtered).toBe(true);
+
+    const jobs = await firstValueFrom(component.filteredJobs$);
+    expect(jobs.every(job => job.status === 'running')).toBe(true);
   });
 
   it('should return correct status color', () => {

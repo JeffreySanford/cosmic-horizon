@@ -3,6 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { BrokerDataService } from './broker-data.service';
 import { BrokerComparisonDTO } from '../models/broker-metrics.model';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { firstValueFrom } from 'rxjs';
 
 describe('BrokerDataService', () => {
   let service: BrokerDataService;
@@ -65,31 +66,30 @@ describe('BrokerDataService', () => {
   });
 
   describe('getCurrentMetrics', () => {
-    it('should fetch current broker metrics', () => {
-      service.getCurrentMetrics().subscribe((data) => {
-        expect(data).toEqual(mockBrokerData);
-        expect(data.brokers.rabbitmq.connected).toBe(true);
-      });
+    it('should fetch current broker metrics', async () => {
+      const p = firstValueFrom(service.getCurrentMetrics());
 
       const req = httpMock.expectOne('/api/internal/brokers/stats');
       expect(req.request.method).toBe('GET');
       req.flush(mockBrokerData);
+
+      const data = await p;
+      expect(data).toEqual(mockBrokerData);
+      expect(data.brokers.rabbitmq.connected).toBe(true);
     });
 
-    it('should use correct API endpoint', () => {
-      service.getCurrentMetrics().subscribe(() => {
-        expect(true).toBe(true);
-      });
+    it('should use correct API endpoint', async () => {
+      const p = firstValueFrom(service.getCurrentMetrics());
 
       const req = httpMock.expectOne('/api/internal/brokers/stats');
       expect(req.request.url).toContain('/api/internal/brokers/stats');
       req.flush(mockBrokerData);
+
+      await p;
     });
 
-    it('should include forceRefresh query when requested', () => {
-      service.getCurrentMetrics(true).subscribe(() => {
-        expect(true).toBe(true);
-      });
+    it('should include forceRefresh query when requested', async () => {
+      const p = firstValueFrom(service.getCurrentMetrics(true));
 
       const req = httpMock.expectOne((request) =>
         request.url === '/api/internal/brokers/stats' &&
@@ -97,24 +97,17 @@ describe('BrokerDataService', () => {
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockBrokerData);
+
+      await p;
     });
 
-    it('should handle API errors', () => {
-      let errorOccurred = false;
-
-      service.getCurrentMetrics().subscribe(
-        () => {
-          expect(false).toBe(true); // Force failure
-        },
-        (error) => {
-          errorOccurred = true;
-          expect(error.status).toBe(500);
-        },
-      );
+    it('should handle API errors', async () => {
+      const p = firstValueFrom(service.getCurrentMetrics());
 
       const req = httpMock.expectOne('/api/internal/brokers/stats');
       req.flush('Server error', { status: 500, statusText: 'Server Error' });
-      expect(errorOccurred).toBe(true);
+
+      await expect(p).rejects.toBeTruthy();
     });
   });
 
