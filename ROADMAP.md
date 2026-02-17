@@ -2,13 +2,13 @@
 
 **Cosmic Horizons Collaboration Platform**  
 **Status**: MVP Enhanced (Feb 2026) → Phase 3 Execution  
-**Last Updated**: 2026-02-15  
+**Last Updated**: 2026-02-16  
 
 ## Vision
 
 Enable the astronomy community to discover, annotate, and publish observations through a fast, accessible collaboration platform built on public VLASS data.
 
-**Canonical Reference**: [SCOPE-LOCK.md](../SCOPE-LOCK.md) + [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md)
+**Canonical Reference**: [SCOPE-LOCK.md](SCOPE-LOCK.md) + [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md)
 
 ---
 
@@ -398,7 +398,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 ## Phase 3.5: Pulsar Evaluation & Broker Consolidation Strategy (Feb-Mar 2026)
 
-**Status**: Planning (Sprint 5.4) | See [BROKER-COMPARISON-STRATEGY.md](documentation/architecture/BROKER-COMPARISON-STRATEGY.md)  
+**Status**: Active execution (Sprint 5.4 hardening + benchmark publication) | See [BROKER-COMPARISON-STRATEGY.md](documentation/architecture/BROKER-COMPARISON-STRATEGY.md)  
 **Duration**: 2-3 weeks parallel to Sprint 6.1  
 **Purpose**: Validate Apache Pulsar as Phase 4 consolidation candidate; keep Kafka operational
 
@@ -418,6 +418,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
      - Health status table
    - API endpoints: `/api/internal/brokers/stats`, `/api/internal/brokers/history`, `/api/internal/brokers/benchmark`
    - Angular UI component at `/operations/broker-comparison`
+   - Current state: dashboard route + warmup prefetch + warm-start cache are live; remaining work is benchmark result publication and ADR update
 
 3. **ADR & Phase 4 Planning** (Week 2)
    - Update [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) with Pulsar consolidation option
@@ -451,6 +452,13 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 | **Latency** | Pulsar ≥-25% | YELLOW: Analyze trade-offs |
 | **Reliability** | ≥99.9% uptime | RED: Stay with dual-broker |
 | **Ops Overhead** | ≥50% reduction | Go/No-Go decision |
+
+### Immediate Next Steps (2026-02-16 to 2026-03-01)
+
+1. Run clean benchmark captures for RabbitMQ, Kafka, and Pulsar under measured-only conditions and store artifacts in `test-output/benchmark-results/`.
+2. Publish `documentation/architecture/PULSAR-EVALUATION-RESULTS.md` with throughput/latency/memory deltas and fallback-rate notes.
+3. Update `documentation/architecture/ADR-EVENT-STREAMING.md` with go/no-go criteria and migration guardrails.
+4. Start Sprint 6.1 WebSocket infrastructure while keeping broker-comparison as the validation surface.
 
 ### Phase 4 Contingency Plans
 
@@ -585,7 +593,7 @@ pnpm nx affected --target=lighthouse       # Performance
 | [SCOPE-LOCK.md](SCOPE-LOCK.md) | What's in/out (canonical) |
 | [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md) | Product vision & strategy |
 | [ARCHITECTURE.md](documentation/architecture/ARCHITECTURE.md) | System design & components |
-| [Project Overview](documentation/index/OVERVIEW.md) | Current status & features |
+| [Project Overview](documentation/index/OVERVIEW-V2.md) | Current status & features |
 | [Testing Strategy](documentation/quality/TESTING-STRATEGY.md) | Test layers & quality gates |
 | [E2E Coverage Guide](documentation/quality/E2E_CODE_COVERAGE_GUIDE.md) | Coverage testing infrastructure |
 | [Quick Start](documentation/operations/QUICK-START.md) | Local development setup |
@@ -633,6 +641,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow, branch strategy
 
 ---
 
-*Last Updated: February 15, 2026 (Sprint 5.3 Week 3 core implementation landed; final hardening continues)*  
+*Last Updated: February 16, 2026 (Phase 3.5 dashboard hardening complete; benchmark publication and ADR updates in progress)*  
 *Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*  
 *Independent portal using public VLASS data; not affiliated with VLA/NRAO.*

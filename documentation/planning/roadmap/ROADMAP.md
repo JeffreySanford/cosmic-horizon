@@ -1,6 +1,6 @@
 # Roadmap
 
-Status date: 2026-02-14
+Status date: 2026-02-16
 
 Canonical scope: `documentation/product/PRODUCT-CHARTER.md` and `SCOPE-LOCK.md`.
 Industry/external references: `documentation/overview/EXTERNAL-CLAIMS-REFERENCES-APPENDIX-2026-02-11.md` and `documentation/overview/EXTERNAL-ASSET-METADATA-2026-02-11.md`.
@@ -16,6 +16,11 @@ Tracking rule:
 ## Near-Term Sprint (2026-02-15 to 2026-02-28): Release Readiness and Integration Hardening
 
 Objective: preserve deterministic local execution while finishing release-facing quality and integration tasks.
+
+Execution note (2026-02-16):
+
+- Broker comparison dashboard hardening is complete (warmup prefetch, warm-start rendering, and change-detection stability work).
+- Remaining broker-evaluation work is benchmark artifact publication and ADR/consolidation decision updates.
 
 1. Release readiness
 
@@ -41,15 +46,16 @@ Objective: preserve deterministic local execution while finishing release-facing
 - Keep roadmap references constrained to existing docs paths.
 - Keep canonical scope docs synchronized with delivered post-MVP features.
 
-## Recently Completed (2026-02-14)
+## Recently Completed (2026-02-16)
 
 - Completed reliability and contract hardening sprint goals (security boundary, env unification, messaging reliability, docs consistency, CI formatting gate).
 - Hardened WebSocket `/messaging` gateway (JWT handshake auth + origin allowlist + gateway tests).
 - Unified API env loading with shared loader and removed duplicated parsing paths.
 - Standardized canonical backend env keys in `.env.example` (`DB_USER`, `DB_NAME`, `API_PORT`) with transitional aliases.
 - Aligned env docs to canonical backend key names.
+- **Broker comparison dashboard hardening completed**: startup warmup, warm-start cache, measured/fallback quality tagging, and runtime stabilization for broker polling updates.
+- **Broker integration evaluation stack operational**: Pulsar, RabbitMQ, and Kafka infrastructure available with real-time monitoring dashboard.
 - Restored `documentation/index/OVERVIEW-V2.md`.
-- Added critical execution guide: `documentation/index/OVERVIEW-V2-CRITIQUE.md`.
 - Added runtime env schema validation and canonical/alias conflict checks.
 - Removed fixed messaging sleeps and metadata suppression; added retry/backoff publish path.
 - Accepted and regenerated OpenAPI contract delta for `/api/messaging/stats`.
@@ -207,6 +213,7 @@ To keep external positioning grounded in executable work:
 - **Next High-Priority**: Transition from simulation to live TACC API headers; Job-to-Snapshot provenance linkage.
 
 ## Funding & Cost Strategy
+
 Funding-specific artifacts are tracked separately and should be re-linked here only when their canonical file paths are restored.
 
 ## v2 (Deferred to Post-Phase 3)

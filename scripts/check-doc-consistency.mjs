@@ -11,7 +11,7 @@ const checks = [
     required: [/PRODUCT-CHARTER\.md/i, /SCOPE-LOCK\.md/i, /libs\/shared\/models/i],
   },
   {
-    file: 'documentation/index/OVERVIEW.md',
+    file: 'documentation/index/OVERVIEW-V2.md',
     required: [/Status date:/i],
     banned: [
       /Mode B.*part of MVP/i,

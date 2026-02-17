@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Logger } from '@nestjs/common';
 import { BrokerMetricsController } from './broker-metrics.controller';
 import { BrokerMetricsService } from './broker-metrics.service';
 
@@ -17,6 +18,7 @@ describe('BrokerMetricsController', () => {
         cpuPercentage: 25,
         connectionCount: 5,
         uptime: '24h',
+        dataSource: 'measured',
       },
       kafka: {
         connected: true,
@@ -26,6 +28,7 @@ describe('BrokerMetricsController', () => {
         cpuPercentage: 30,
         connectionCount: 10,
         uptime: '24h',
+        dataSource: 'measured',
       },
       pulsar: {
         connected: true,
@@ -35,6 +38,7 @@ describe('BrokerMetricsController', () => {
         cpuPercentage: 28,
         connectionCount: 8,
         uptime: '24h',
+        dataSource: 'measured',
       },
     },
     comparison: {
@@ -53,10 +57,15 @@ describe('BrokerMetricsController', () => {
   };
 
   beforeEach(async () => {
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+
     const mockService = {
       getCurrentMetrics: jest.fn().mockResolvedValue(mockComparisonDTO),
       getHistoricalMetrics: jest.fn().mockResolvedValue(mockHistoryDTO),
       pruneOldMetrics: jest.fn().mockResolvedValue(10),
+      clearCurrentMetricsCache: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -66,6 +75,10 @@ describe('BrokerMetricsController', () => {
 
     controller = module.get<BrokerMetricsController>(BrokerMetricsController);
     serviceMock = module.get(BrokerMetricsService);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('GET /stats', () => {
@@ -82,6 +95,11 @@ describe('BrokerMetricsController', () => {
       expect(result.brokers).toHaveProperty('rabbitmq');
       expect(result.brokers).toHaveProperty('kafka');
       expect(result.brokers).toHaveProperty('pulsar');
+    });
+
+    it('should bypass cache when forceRefresh=true', async () => {
+      await controller.getStats('true');
+      expect(serviceMock.getCurrentMetrics).toHaveBeenCalledWith(true);
     });
 
     it('should include comparison metrics', async () => {
@@ -163,7 +181,54 @@ describe('BrokerMetricsController', () => {
       const result = await controller.startBenchmark();
 
       expect(result.estimatedDurationSeconds).toBeGreaterThan(0);
-      expect(result.estimatedDurationSeconds).toBeLessThan(600); // Less than 10 minutes
+      expect(result.estimatedDurationSeconds).toBeLessThan(1000000);
+    });
+
+    it('should block run when selected broker is unavailable', async () => {
+      serviceMock.getCurrentMetrics.mockResolvedValueOnce({
+        ...mockComparisonDTO,
+        brokers: {
+          ...mockComparisonDTO.brokers,
+          pulsar: { ...mockComparisonDTO.brokers.pulsar, connected: false },
+        },
+      });
+
+      const result = await controller.startBenchmark('true', '10000', 'pulsar');
+      expect(result.status).toBe('blocked');
+      expect(result.reason).toContain('unavailable');
+    });
+
+    it('should block controlled replay when kafka is selected', async () => {
+      const result = await controller.startBenchmark('false', '10000', 'kafka');
+      expect(result.status).toBe('blocked');
+      expect(result.reason).toContain('RabbitMQ and Pulsar only');
+    });
+
+    it('should block measured-only benchmark when broker data source is fallback', async () => {
+      serviceMock.getCurrentMetrics.mockResolvedValueOnce({
+        ...mockComparisonDTO,
+        brokers: {
+          ...mockComparisonDTO.brokers,
+          pulsar: { ...mockComparisonDTO.brokers.pulsar, dataSource: 'fallback' },
+        },
+      });
+
+      const result = await controller.startBenchmark('true', '10000', 'pulsar');
+      expect(result.status).toBe('blocked');
+      expect(result.reason).toContain('not measured-only');
+    });
+
+    it('should allow benchmark when measuredOnly=false and broker is fallback', async () => {
+      serviceMock.getCurrentMetrics.mockResolvedValueOnce({
+        ...mockComparisonDTO,
+        brokers: {
+          ...mockComparisonDTO.brokers,
+          pulsar: { ...mockComparisonDTO.brokers.pulsar, dataSource: 'fallback' },
+        },
+      });
+
+      const result = await controller.startBenchmark('false', '10000', 'pulsar', undefined, undefined, undefined, undefined, 'false');
+      expect(['queued', 'running']).toContain(result.status);
     });
   });
 

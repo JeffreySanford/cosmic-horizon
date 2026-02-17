@@ -7,6 +7,7 @@ import { NotificationService } from '../../notifications/services/notification.s
 import { KafkaService } from '../kafka.service';
 
 describe('Week 3 Error and Recovery Scenarios', () => {
+  let moduleRef: TestingModule;
   let metricsConsumer: MetricsConsumer;
   let jobEventsConsumer: JobEventsConsumer;
   let kafkaService: jest.Mocked<KafkaService>;
@@ -52,7 +53,7 @@ describe('Week 3 Error and Recovery Scenarios', () => {
       storeInAppNotification: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<NotificationService>;
 
-    const module: TestingModule = await Test.createTestingModule({
+    moduleRef = await Test.createTestingModule({
       providers: [
         MetricsConsumer,
         JobEventsConsumer,
@@ -62,10 +63,14 @@ describe('Week 3 Error and Recovery Scenarios', () => {
       ],
     }).compile();
 
-    metricsConsumer = module.get(MetricsConsumer);
-    jobEventsConsumer = module.get(JobEventsConsumer);
+    metricsConsumer = moduleRef.get(MetricsConsumer);
+    jobEventsConsumer = moduleRef.get(JobEventsConsumer);
     await metricsConsumer.onModuleInit();
     await jobEventsConsumer.onModuleInit();
+  });
+
+  afterEach(async () => {
+    await moduleRef.close();
   });
 
   it('recovers from metrics aggregation errors and continues consuming', async () => {

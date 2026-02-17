@@ -2,11 +2,12 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { BrokerDataService } from './broker-data.service';
 import { BrokerComparisonDTO } from '../models/broker-metrics.model';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('BrokerDataService', () => {
   let service: BrokerDataService;
   let httpMock: HttpTestingController;
+  const warmStartCacheKey = 'broker-comparison:last-metrics';
 
   const mockBrokerData: BrokerComparisonDTO = {
     timestamp: new Date(),
@@ -47,6 +48,8 @@ describe('BrokerDataService', () => {
   };
 
   beforeEach(() => {
+    localStorage.removeItem(warmStartCacheKey);
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [BrokerDataService],
@@ -58,6 +61,7 @@ describe('BrokerDataService', () => {
 
   afterEach(() => {
     httpMock.verify();
+    localStorage.removeItem(warmStartCacheKey);
   });
 
   describe('getCurrentMetrics', () => {
@@ -79,6 +83,19 @@ describe('BrokerDataService', () => {
 
       const req = httpMock.expectOne('/api/internal/brokers/stats');
       expect(req.request.url).toContain('/api/internal/brokers/stats');
+      req.flush(mockBrokerData);
+    });
+
+    it('should include forceRefresh query when requested', () => {
+      service.getCurrentMetrics(true).subscribe(() => {
+        expect(true).toBe(true);
+      });
+
+      const req = httpMock.expectOne((request) =>
+        request.url === '/api/internal/brokers/stats' &&
+        request.params.get('forceRefresh') === 'true',
+      );
+      expect(req.request.method).toBe('GET');
       req.flush(mockBrokerData);
     });
 
@@ -207,6 +224,49 @@ describe('BrokerDataService', () => {
       });
       expect(errorOccurred).toBe(true);
     });
+
+    it('should include advanced benchmark options in query params', () => {
+      service.runBenchmark(true, 5000000, {
+        brokers: ['rabbitmq', 'pulsar'],
+        payloadKb: 64,
+        inflight: 3000,
+        trials: 5,
+        seed: 42,
+        measuredOnly: true,
+      }).subscribe(() => {
+        expect(true).toBe(true);
+      });
+
+      const req = httpMock.expectOne((request) =>
+        request.url === '/api/internal/brokers/benchmark' &&
+        request.params.get('stressTest') === 'true' &&
+        request.params.get('messageCount') === '5000000' &&
+        request.params.get('brokers') === 'rabbitmq,pulsar' &&
+        request.params.get('payloadKb') === '64' &&
+        request.params.get('inflight') === '3000' &&
+        request.params.get('trials') === '5' &&
+        request.params.get('seed') === '42' &&
+        request.params.get('measuredOnly') === 'true',
+      );
+      expect(req.request.method).toBe('POST');
+      req.flush({ status: 'queued', jobId: 'bm-123', estimatedDurationSeconds: 60 });
+    });
+
+    it('should include measuredOnly=false when explicitly disabled', () => {
+      service.runBenchmark(false, 10000, {
+        brokers: ['rabbitmq', 'pulsar'],
+        measuredOnly: false,
+      }).subscribe(() => {
+        expect(true).toBe(true);
+      });
+
+      const req = httpMock.expectOne((request) =>
+        request.url === '/api/internal/brokers/benchmark' &&
+        request.params.get('measuredOnly') === 'false',
+      );
+      expect(req.request.method).toBe('POST');
+      req.flush({ status: 'queued', jobId: 'bm-456', estimatedDurationSeconds: 20 });
+    });
   });
 
   describe('API_BASE constant', () => {
@@ -218,6 +278,41 @@ describe('BrokerDataService', () => {
       const req = httpMock.expectOne('/api/internal/brokers/stats');
       expect(req.request.url).toBe('/api/internal/brokers/stats');
       req.flush(mockBrokerData);
+    });
+  });
+
+  describe('warm start cache', () => {
+    it('should cache latest metrics for warm start on successful fetch', () => {
+      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
+
+      service.getCurrentMetrics().subscribe(() => {
+        const warm = service.getWarmStartMetrics();
+        expect(warm).toBeTruthy();
+        expect(warm?.brokers.rabbitmq.messagesPerSecond).toBe(1000);
+        expect(setItemSpy).toHaveBeenCalled();
+      });
+
+      const req = httpMock.expectOne('/api/internal/brokers/stats');
+      req.flush(mockBrokerData);
+      setItemSpy.mockRestore();
+    });
+
+    it('should hydrate warm start metrics from localStorage', () => {
+      localStorage.setItem(
+        warmStartCacheKey,
+        JSON.stringify({
+          cachedAt: Date.now(),
+          data: {
+            ...mockBrokerData,
+            timestamp: new Date().toISOString(),
+          },
+        }),
+      );
+
+      const warm = service.getWarmStartMetrics();
+      expect(warm).toBeTruthy();
+      expect(warm?.timestamp instanceof Date).toBe(true);
+      expect(warm?.brokers.kafka.connected).toBe(true);
     });
   });
 });

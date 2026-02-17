@@ -1,6 +1,6 @@
 # TODO
 
-Status date: 2026-02-15 (Updated)
+Status date: 2026-02-16 (Updated)
 
 **📋 REFERENCE**: See [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md) for detailed Phase 3 (Event Infrastructure) and Phase 4 (NRAO Integration) roadmap with:
 
@@ -138,17 +138,22 @@ Parallel effort to Sprint 6.1, enables Phase 4 architecture decision.
   - ✅ `BrokerDataService` for API integration
   - ✅ Auto-refresh polling (5-second intervals)
   - ✅ Responsive mobile-friendly layout
+- ✅ Dashboard hardening pass (2026-02-16):
+  - ✅ Startup warmup + warm-start cache hydration for faster first paint
+  - ✅ Pulsar measured fallback path (`/metrics`) added before simulation fallback
+  - ✅ Runtime stabilization: `NG0100` reduction via deferred state commits + `OnPush` change detection
+  - ✅ Feed-state UX clarified: broker connectivity separated from feed ON/OFF
 
 **Week 1 Tasks: Run Benchmark Suite & Dashboard Integration**
 
-- [ ] Integrate `BrokerMetricsController` into NestJS API module routing
-- [ ] Register `BrokerMetricsService` and `BrokerMetricsCollector` in dependency injection
-- [ ] Add route to broker comparison dashboard: `/operations/broker-comparison`
+- [x] Integrate `BrokerMetricsController` into NestJS API module routing
+- [x] Register `BrokerMetricsService` and `BrokerMetricsCollector` in dependency injection
+- [x] Add route to broker comparison dashboard: `/operations/broker-comparison`
 - [ ] Spin up local Pulsar cluster: `docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait`
 - [ ] Run: `node scripts/pulsar-setup.mjs` (creates namespaces and topics)
 - [ ] Execute: `node scripts/benchmark-pulsar-vs-rabbitmq.mjs` (compares all brokers)
-- [ ] Verify dashboard displays real-time metrics correctly
-- [ ] Test benchmark trigger button and async execution
+- [x] Verify dashboard displays real-time metrics correctly
+- [x] Test benchmark trigger button and async execution
 - [ ] Analyze results: Review `test-output/benchmark-results/benchmark-TIMESTAMP.json`
 - [ ] Verify performance deltas against expectations (30-40% throughput, 20-30% memory)
 - [ ] Document findings in `documentation/architecture/PULSAR-EVALUATION-RESULTS.md`
@@ -809,7 +814,7 @@ Completed on 2026-02-14:
   - Added `scripts/check-format-changed.mjs`
   - Wired `format:check:changed` into `quality:ci` and `.github/workflows/ci.yml`
 - [x] Restore deleted overview document: `documentation/index/OVERVIEW-V2.md`
-- [x] Create execution critique: `documentation/index/OVERVIEW-V2-CRITIQUE.md`
+- [x] Address MVP critique issues and remove critique document
 - [x] Fix OpenAPI check runner to use one-shot target:
       `scripts/check-openapi.mjs` now runs `pnpm nx run cosmic-horizons-api:openapi`
 - [x] Stabilize duplicate-registration e2e assertion:

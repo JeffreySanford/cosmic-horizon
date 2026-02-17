@@ -12,6 +12,7 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     service.onModuleDestroy();
   });
 
@@ -183,10 +184,12 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
         priority: 'normal',
       };
 
+      jest.useFakeTimers();
       await service.stageDataset(request);
 
-      // Small delay to allow progress simulation
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Advance simulated staging without waiting in real time
+      jest.advanceTimersByTime(100);
+      jest.useRealTimers();
 
       const status = await service.getStagingStatus('dataset-1');
       expect(status).toBeDefined();
@@ -476,6 +479,7 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
     });
 
     it('should maintain status throughout staging', async () => {
+      jest.useFakeTimers();
       await service.stageDataset({
         dataset_id: 'dataset-1',
         target_resource: 'tacc_scratch',
@@ -483,7 +487,8 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
       });
 
       const status1 = await service.getStagingStatus('dataset-1');
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      jest.advanceTimersByTime(100);
+      jest.useRealTimers();
       const status2 = await service.getStagingStatus('dataset-1');
 
       // Both should still be in_progress (Phase 1 simulates indefinitely or until completion)
@@ -496,6 +501,7 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
     });
 
     it('should progress over time', async () => {
+      jest.useFakeTimers();
       const result = await service.stageDataset({
         dataset_id: 'dataset-1',
         target_resource: 'tacc_scratch',
@@ -504,7 +510,8 @@ describe('DatasetStagingService - Comprehensive Coverage', () => {
 
       expect(result.progress).toBe(0);
 
-      await new Promise((resolve) => setTimeout(resolve, 2500));
+      jest.advanceTimersByTime(2500);
+      jest.useRealTimers();
 
       const status = await service.getStagingStatus('dataset-1');
       if (status && status.progress !== undefined) {

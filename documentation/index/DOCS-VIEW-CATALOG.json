@@ -294,40 +294,10 @@
     "sourcePath": "documentation/ideas/REMAINING-WORK-SUMMARY.md"
   },
   {
-    "id": "documentation--index--overview-v2-critique",
-    "label": "OVERVIEW V2 CRITIQUE",
-    "section": "Index",
-    "sourcePath": "documentation/index/OVERVIEW-V2-CRITIQUE.md"
-  },
-  {
     "id": "documentation--index--overview-v2",
     "label": "OVERVIEW V2",
     "section": "Index",
     "sourcePath": "documentation/index/OVERVIEW-V2.md"
-  },
-  {
-    "id": "documentation--index--overview",
-    "label": "OVERVIEW",
-    "section": "Index",
-    "sourcePath": "documentation/index/OVERVIEW.md"
-  },
-  {
-    "id": "documentation--integration--pulsar-local-evaluation",
-    "label": "PULSAR LOCAL EVALUATION",
-    "section": "Integration",
-    "sourcePath": "documentation/integration/PULSAR-LOCAL-EVALUATION.md"
-  },
-  {
-    "id": "documentation--integration--pulsar-quickstart",
-    "label": "PULSAR QUICKSTART",
-    "section": "Integration",
-    "sourcePath": "documentation/integration/PULSAR-QUICKSTART.md"
-  },
-  {
-    "id": "documentation--integration--pulsar-setup-index",
-    "label": "PULSAR SETUP INDEX",
-    "section": "Integration",
-    "sourcePath": "documentation/integration/PULSAR-SETUP-INDEX.md"
   },
   {
     "id": "documentation--operations--github-actions-monitoring",

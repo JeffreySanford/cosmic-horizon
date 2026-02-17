@@ -156,6 +156,13 @@ describe('ComplianceAuditorService - Event Consumption', () => {
 
     it('should detect tampering attempts in audit trail', async () => {
       const jobId = 'job-1';
+      await service.storeAuditEvent({
+        eventId: 'evt-seed-1',
+        jobId,
+        userId: 'user-123',
+        eventType: 'job.submitted',
+        timestamp: new Date().toISOString(),
+      });
       const trail = await service.getAuditTrail(jobId);
 
       // Simulate tampering
@@ -237,7 +244,6 @@ describe('ComplianceAuditorService - Event Consumption', () => {
     });
 
     it('should enforce audit trail retention policy', async () => {
-      const jobId = 'job-1';
       const maxAgeYears = 7;
 
       const retained = await service.applyRetentionPolicy(maxAgeYears);

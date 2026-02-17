@@ -18,4 +18,5 @@ onlyBuiltDependencies:
   - lmdb
   - msgpackr-extract
   - nx
+  - pulsar-client
   - unrs-resolver

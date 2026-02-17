@@ -135,6 +135,9 @@ importers:
       typeorm:
         specifier: ^0.3.28
         version: 0.3.28(babel-plugin-macros@3.1.0)(ioredis@5.9.3)(pg@8.18.0)(ts-node@10.9.1(@swc/core@1.5.29(@swc/helpers@0.5.18))(@types/node@20.19.9)(typescript@5.9.3))
+      uuid:
+        specifier: ^8.3.2
+        version: 8.3.2
       zone.js:
         specifier: ^0.16.0
         version: 0.16.0

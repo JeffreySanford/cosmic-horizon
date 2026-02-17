@@ -157,6 +157,7 @@
     "socket.io": "^4.8.3",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.28",
+    "uuid": "^8.3.2",
     "zone.js": "^0.16.0"
   },
   "resolutions": {

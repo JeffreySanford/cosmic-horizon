@@ -10,6 +10,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrokerComparisonComponent } from './broker-comparison.component';
+import { SystemMetricsChartComponent } from './system-metrics-chart.component';
 import { BrokerDataService } from './services/broker-data.service';
 import { of, throwError } from 'rxjs';
 import { Observable } from 'rxjs';
@@ -76,6 +77,7 @@ describe('BrokerComparisonComponent', () => {
         expect(serviceMock.runBenchmark).not.toHaveBeenCalled();
       });
       it('should enable runBenchmark after completion', async () => {
+        vi.useFakeTimers();
         // Prevent polling from running timers in this test
         // Mock startPolling to prevent timers; no-op function for lint compliance
         vi.spyOn(component as any, 'startPolling').mockImplementation(function startPollingNoop() {/* intentionally empty for test */});
@@ -86,9 +88,10 @@ describe('BrokerComparisonComponent', () => {
         component.runBenchmark();
         // Should be true immediately after starting
         expect(component.isBenchmarkRunning).toBe(true);
-        // Wait for the async observable to complete
-        await new Promise(resolve => setTimeout(resolve, 5));
+        vi.advanceTimersByTime(300);
+        await Promise.resolve();
         expect(component.isBenchmarkRunning).toBe(false);
+        vi.useRealTimers();
       });
     });
   let component: BrokerComparisonComponent;
@@ -134,15 +137,24 @@ describe('BrokerComparisonComponent', () => {
   };
 
   beforeEach(async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
     serviceMock = {
       getCurrentMetrics: vi.fn().mockReturnValue(of(mockBrokerData)),
+      getWarmStartMetrics: vi.fn().mockReturnValue(null),
+      getSystemMetrics: vi.fn().mockReturnValue(of({
+        timestamp: new Date(),
+        cpu: { usage: 25 },
+        memory: { percentage: 42 },
+        disk: { percentage: 18 },
+      })),
       getHistoricalMetrics: vi.fn().mockReturnValue(of({ timeRange: {}, samples: [] })),
       runBenchmark: vi.fn().mockReturnValue(of({})),
       getHealth: vi.fn().mockReturnValue(of({})),
     } as any;
 
     await TestBed.configureTestingModule({
-      declarations: [BrokerComparisonComponent],
+      declarations: [BrokerComparisonComponent, SystemMetricsChartComponent],
       imports: [
         CommonModule,
         HttpClientModule,
@@ -165,6 +177,7 @@ describe('BrokerComparisonComponent', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     fixture.destroy();
   });
 
@@ -192,6 +205,16 @@ describe('BrokerComparisonComponent', () => {
 
       expect(component.isLoading).toBe(false);
       expect(component.brokerMetrics).toBeTruthy();
+    });
+
+    it('should hydrate warm-start metrics before live fetch', () => {
+      serviceMock.getWarmStartMetrics.mockReturnValue(mockBrokerData);
+
+      fixture.detectChanges();
+
+      expect(serviceMock.getWarmStartMetrics).toHaveBeenCalled();
+      expect(component.brokerMetrics).toEqual(mockBrokerData);
+      expect(component.isLoading).toBe(false);
     });
   });
 
@@ -245,6 +268,7 @@ describe('BrokerComparisonComponent', () => {
 
     it('should handle polling errors gracefully', async () => {
       vi.useFakeTimers();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       serviceMock.getCurrentMetrics.mockReturnValue(
         throwError(() => new Error('Poll error')),
       );
@@ -252,6 +276,8 @@ describe('BrokerComparisonComponent', () => {
       vi.advanceTimersByTime(5000);
       await Promise.resolve();
       expect(component).toBeTruthy();
+      expect(warnSpy).toHaveBeenCalled();
+      warnSpy.mockRestore();
       vi.useRealTimers();
     });
   });
@@ -273,11 +299,16 @@ describe('BrokerComparisonComponent', () => {
   });
 
   describe('runBenchmark', () => {
-    it('should trigger benchmark and update state', () => {
+    it('should trigger benchmark and update state', async () => {
+      vi.useFakeTimers();
       component.runBenchmark();
 
       expect(serviceMock.runBenchmark).toHaveBeenCalled();
-      expect(component.isBenchmarkRunning).toBe(false); // Should be false after completion
+      expect(component.isBenchmarkRunning).toBe(true);
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+      expect(component.isBenchmarkRunning).toBe(false);
+      vi.useRealTimers();
     });
 
     it('should prevent concurrent benchmarks', () => {
@@ -294,6 +325,54 @@ describe('BrokerComparisonComponent', () => {
       vi.advanceTimersByTime(2000);
       await Promise.resolve();
       expect(serviceMock.getCurrentMetrics).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+  });
+
+  describe('runStressTest', () => {
+    it('should trigger stress test with stressTest=true parameter', async () => {
+      vi.useFakeTimers();
+      component.runStressTest();
+
+      expect(serviceMock.runBenchmark).toHaveBeenCalledWith(true, 5000000, {
+        brokers: ['rabbitmq', 'kafka', 'pulsar'],
+        payloadKb: 64,
+        inflight: 3000,
+        trials: 5,
+        seed: 42,
+        measuredOnly: true,
+      });
+      expect(component.isBenchmarkRunning).toBe(true);
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+      expect(component.isBenchmarkRunning).toBe(false);
+      vi.useRealTimers();
+    });
+
+    it('should prevent concurrent stress tests', () => {
+      component.isBenchmarkRunning = true;
+      component.runStressTest();
+
+      expect(serviceMock.runBenchmark).not.toHaveBeenCalled();
+    });
+
+    it('should reload metrics after longer delay for stress test', async () => {
+      vi.useFakeTimers();
+      component.runStressTest();
+      vi.advanceTimersByTime(10000);
+      await Promise.resolve();
+      expect(serviceMock.getCurrentMetrics).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it('should handle stress test errors', () => {
+      vi.useFakeTimers();
+      serviceMock.runBenchmark.mockReturnValueOnce(throwError(() => new Error('Stress test failed')));
+      component.runStressTest();
+      vi.advanceTimersByTime(300);
+
+      expect(component.error).toContain('Stress test failed');
+      expect(component.isBenchmarkRunning).toBe(false);
       vi.useRealTimers();
     });
   });
@@ -338,6 +417,16 @@ describe('BrokerComparisonComponent', () => {
       const cls = component.getImprovementClass('-10%');
       expect(cls).toContain('negative');
     });
+
+    it('should generate throughput wording for positive and negative deltas', () => {
+      expect(component.getThroughputSummaryText('+10.0%')).toContain('faster');
+      expect(component.getThroughputSummaryText('-10.0%')).toContain('slower');
+    });
+
+    it('should generate latency wording for positive and negative deltas', () => {
+      expect(component.getLatencySummaryText('+10.0%')).toContain('higher latency (worse)');
+      expect(component.getLatencySummaryText('-10.0%')).toContain('lower latency (better)');
+    });
   });
 
   describe('getDetailedMetricsData', () => {
@@ -373,6 +462,30 @@ describe('BrokerComparisonComponent', () => {
       const latencyRow = data.find((d) => d.metric.includes('Latency'));
 
       expect(latencyRow).toBeTruthy();
+    });
+
+    it('should append metric quality tags in detail rows', () => {
+      component.brokerMetrics = {
+        ...mockBrokerData,
+        brokers: {
+          ...mockBrokerData.brokers,
+          rabbitmq: {
+            ...mockBrokerData.brokers.rabbitmq,
+            dataSource: 'measured',
+            metricQuality: { messagesPerSecond: 'measured' },
+          },
+          pulsar: {
+            ...mockBrokerData.brokers.pulsar,
+            dataSource: 'fallback',
+            metricQuality: { messagesPerSecond: 'fallback' },
+          },
+        },
+      } as any;
+
+      const data = component.getDetailedMetricsData();
+      const throughputRow = data.find((d) => d.metric.includes('Throughput'));
+      expect(throughputRow?.rabbitmq).toContain('(measured)');
+      expect(throughputRow?.pulsar).toContain('(fallback)');
     });
   });
 
@@ -431,6 +544,12 @@ describe('BrokerComparisonComponent', () => {
 
       expect(component.brokerStatuses['pulsar']).toBe('error');
     });
+
+    it('should toggle broker feed state from tile action', () => {
+      expect(component.isBrokerFeedEnabled('kafka')).toBe(true);
+      component.toggleBrokerFeed('kafka');
+      expect(component.isBrokerFeedEnabled('kafka')).toBe(false);
+    });
   });
 
   describe('last refresh text', () => {
@@ -452,6 +571,24 @@ describe('BrokerComparisonComponent', () => {
       const text = component.getLastRefreshText();
       expect(text).toContain('m ago');
       vi.useRealTimers();
+    });
+  });
+
+  describe('data quality view state', () => {
+    it('should set data quality banner when fallback data is present', () => {
+      component.brokerMetrics = {
+        ...mockBrokerData,
+        dataQuality: {
+          hasFallbackData: true,
+          measuredBrokers: ['rabbitmq'],
+          fallbackBrokers: ['pulsar'],
+          summary: 'fallback active',
+        },
+      } as any;
+
+      component['updateCurrentFindings']();
+      expect(component.dataQualityBanner).toContain('fallback/simulated metrics detected');
+      expect(component.currentFindings.join(' ')).toContain('dynamic polling every 5s');
     });
   });
 });

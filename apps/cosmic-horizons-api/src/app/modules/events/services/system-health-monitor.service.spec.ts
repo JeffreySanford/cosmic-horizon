@@ -120,7 +120,7 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
       const threshold = 0.05; // 5% error rate
 
       for (let i = 0; i < 100; i++) {
-        const isError = i > 94; // 6 errors out of 100 = 6% error rate
+        const isError = i >= 94; // 6 errors out of 100 = 6% error rate
         await service.recordEventOutcome({
           consumerGroup,
           success: !isError,

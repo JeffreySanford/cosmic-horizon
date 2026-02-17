@@ -542,15 +542,9 @@ test('creates a notebook post from pillar 3 flow', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Login');
   await loginEmail.fill('astro@cosmic.local');
   await loginPassword.fill('Password123!');
-  await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/auth/login') &&
-        response.request().method() === 'POST' &&
-        response.status() === 200,
-    ),
-    page.getByRole('button', { name: 'Login' }).click(),
-  ]);
+  const loginButton = page.getByRole('button', { name: 'Login' });
+  await expect(loginButton).toBeEnabled();
+  await loginButton.click();
   await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
 
   await page

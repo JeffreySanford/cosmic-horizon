@@ -1,10 +1,13 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
+import Redis from 'ioredis';
 import { ViewerService } from './viewer.service';
 import { ViewerState } from '../entities/viewer-state.entity';
 import { ViewerSnapshot } from '../entities/viewer-snapshot.entity';
 import { AuditLogRepository } from '../repositories';
 import { LoggingService } from '../logging/logging.service';
+
+jest.mock('ioredis');
 
 describe('ViewerService', () => {
   let service: ViewerService;
@@ -47,6 +50,15 @@ describe('ViewerService', () => {
       add: jest.fn().mockResolvedValue(undefined),
     };
 
+    (Redis as unknown as jest.Mock).mockImplementation(() => ({
+      connect: jest.fn().mockResolvedValue(undefined),
+      ping: jest.fn().mockResolvedValue('PONG'),
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue('OK'),
+      quit: jest.fn().mockResolvedValue('OK'),
+      disconnect: jest.fn().mockResolvedValue(undefined),
+    }));
+
     service = new ViewerService(
       dataSource as unknown as DataSource,
       viewerStateRepository as unknown as Repository<ViewerState>,
@@ -62,7 +74,8 @@ describe('ViewerService', () => {
     } as unknown as Response);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await service.onModuleDestroy();
     jest.restoreAllMocks();
   });
 
@@ -374,17 +387,6 @@ describe('ViewerService', () => {
       process.env['REDIS_PORT'] = '6379';
       process.env['REDIS_PASSWORD'] = 'test-password';
 
-      const redisMock = {
-        connect: jest.fn().mockResolvedValue(undefined),
-        ping: jest.fn().mockResolvedValue('PONG'),
-        get: jest.fn().mockResolvedValue(null),
-        set: jest.fn().mockResolvedValue('OK'),
-        quit: jest.fn().mockResolvedValue(undefined),
-        disconnect: jest.fn().mockResolvedValue(undefined),
-      };
-
-      jest.mock('ioredis', () => jest.fn(() => redisMock));
-
       const testService = new ViewerService(
         dataSource as unknown as DataSource,
         viewerStateRepository as unknown as Repository<ViewerState>,
@@ -396,6 +398,7 @@ describe('ViewerService', () => {
       await testService.onModuleInit();
       // Service should initialize without errors when Redis is available
       expect(testService.getCutoutTelemetry()).toBeDefined();
+      await testService.onModuleDestroy();
     } finally {
       process.env['REDIS_CACHE_ENABLED'] = originalRedisEnabled;
       process.env['REDIS_HOST'] = originalRedisHost;
@@ -420,6 +423,7 @@ describe('ViewerService', () => {
       await testService.onModuleInit();
       const telemetry = testService.getCutoutTelemetry();
       expect(telemetry).toBeDefined();
+      await testService.onModuleDestroy();
     } finally {
       process.env['REDIS_CACHE_ENABLED'] = originalRedisEnabled;
     }
@@ -450,6 +454,7 @@ describe('ViewerService', () => {
       await testService.onModuleInit();
       // Should complete without errors - Redis disabled due to missing password in production
       expect(testService).toBeDefined();
+      await testService.onModuleDestroy();
     } finally {
       process.env['NODE_ENV'] = originalNodeEnv;
       process.env['REDIS_CACHE_ENABLED'] = originalRedisEnabled;

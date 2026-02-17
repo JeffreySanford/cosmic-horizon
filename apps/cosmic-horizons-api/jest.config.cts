@@ -11,6 +11,7 @@ swcJestConfig.swcrc = false;
 module.exports = {
   displayName: 'cosmic-horizons-api',
   preset: '../../jest.preset.js',
+  setupFilesAfterEnv: ['<rootDir>/src/test/testing-module-cleanup.setup.ts'],
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['@swc/jest', swcJestConfig],

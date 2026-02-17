@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Logger } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BrokerMetricsService } from './broker-metrics.service';
 import { BrokerMetricsCollector } from './broker-metrics.collector';
@@ -19,6 +20,12 @@ describe('BrokerMetricsService', () => {
       cpuPercentage: 25,
       connectionCount: 5,
       uptime: '24h',
+      dataSource: 'measured',
+      metricQuality: {
+        messagesPerSecond: 'measured',
+        p99LatencyMs: 'measured',
+        memoryUsageMb: 'measured',
+      },
     },
     kafka: {
       connected: true,
@@ -28,6 +35,7 @@ describe('BrokerMetricsService', () => {
       cpuPercentage: 30,
       connectionCount: 10,
       uptime: '24h',
+      dataSource: 'measured',
     },
     pulsar: {
       connected: true,
@@ -37,10 +45,20 @@ describe('BrokerMetricsService', () => {
       cpuPercentage: 28,
       connectionCount: 8,
       uptime: '24h',
+      dataSource: 'measured',
+      metricQuality: {
+        messagesPerSecond: 'measured',
+        p99LatencyMs: 'measured',
+        memoryUsageMb: 'measured',
+      },
     },
   };
 
   beforeEach(async () => {
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+
     collectorMock = {
       collectAllMetrics: jest.fn().mockResolvedValue(mockBrokerMetrics),
     } as any;
@@ -60,6 +78,10 @@ describe('BrokerMetricsService', () => {
     }).compile();
 
     service = module.get<BrokerMetricsService>(BrokerMetricsService);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('getCurrentMetrics', () => {
@@ -93,6 +115,42 @@ describe('BrokerMetricsService', () => {
       expect(result.comparison).toBeDefined();
       // Should contain improvement metrics
       expect(Object.keys(result.comparison).length).toBeGreaterThan(0);
+    });
+
+    it('should suppress deltas when baseline is zero', async () => {
+      collectorMock.collectAllMetrics.mockResolvedValueOnce({
+        ...mockBrokerMetrics,
+        rabbitmq: {
+          ...mockBrokerMetrics.rabbitmq,
+          messagesPerSecond: 0,
+        },
+      } as any);
+
+      const result = await service.getCurrentMetrics(true);
+      expect(result.comparison.throughputImprovement).toBeUndefined();
+      expect(result.comparison.suppressedReasons?.join(' ')).toContain('Throughput delta suppressed');
+    });
+
+    it('should suppress deltas when either side is fallback quality', async () => {
+      collectorMock.collectAllMetrics.mockResolvedValueOnce({
+        ...mockBrokerMetrics,
+        pulsar: {
+          ...mockBrokerMetrics.pulsar,
+          dataSource: 'fallback',
+          metricQuality: {
+            messagesPerSecond: 'fallback',
+            p99LatencyMs: 'fallback',
+            memoryUsageMb: 'fallback',
+          },
+        },
+      } as any);
+
+      const result = await service.getCurrentMetrics(true);
+      expect(result.comparison.throughputImprovement).toBeUndefined();
+      expect(result.comparison.latencyImprovement).toBeUndefined();
+      expect(result.comparison.memoryEfficiency).toBeUndefined();
+      expect(result.dataQuality?.hasFallbackData).toBe(true);
+      expect(result.dataQuality?.fallbackBrokers).toContain('pulsar');
     });
 
     it('should handle collector errors gracefully', async () => {
@@ -177,6 +235,19 @@ describe('BrokerMetricsService', () => {
       expect(collectorMock.collectAllMetrics).toHaveBeenCalledTimes(2);
 
       jest.useRealTimers();
+    });
+
+    it('should bypass cache when forceRefresh=true', async () => {
+      await service.getCurrentMetrics();
+      await service.getCurrentMetrics(true);
+      expect(collectorMock.collectAllMetrics).toHaveBeenCalledTimes(2);
+    });
+
+    it('should clear current metrics cache explicitly', async () => {
+      await service.getCurrentMetrics();
+      service.clearCurrentMetricsCache();
+      await service.getCurrentMetrics();
+      expect(collectorMock.collectAllMetrics).toHaveBeenCalledTimes(2);
     });
   });
 });

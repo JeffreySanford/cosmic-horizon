@@ -3,7 +3,7 @@
   border-top: 1px solid #30363d;
   padding: 2rem 1rem;
   margin-top: auto;
-  color: #8b949e;
+  color: #c9d1d9;
   font-size: 0.875rem;
   line-height: 1.5;
 
@@ -25,17 +25,16 @@
   .footer-section {
     p {
       margin: 0;
-      color: #8b949e;
+      color: #c9d1d9;
 
       &.affiliation {
         font-size: 0.8125rem;
-        color: #6e7681;
-        font-style: italic;
+        color: #b8c3cf;
       }
 
       &.copyright {
         font-size: 0.75rem;
-        color: #484f58;
+        color: #9dadbd;
         text-align: right;
 
         @media (max-width: 768px) {

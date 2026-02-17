@@ -17,10 +17,31 @@
  */
 
 import amqp from 'amqplib';
-import { PulsarClient } from 'pulsar-client';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+
+let cachedPulsarClientCtor = null;
+let pulsarClientLoadError = null;
+
+async function getPulsarClientCtor() {
+  if (cachedPulsarClientCtor || pulsarClientLoadError) {
+    if (cachedPulsarClientCtor) {
+      return cachedPulsarClientCtor;
+    }
+    throw pulsarClientLoadError;
+  }
+
+  try {
+    const module = await import('pulsar-client');
+    const pkg = module.default ?? module;
+    cachedPulsarClientCtor = pkg.PulsarClient ?? pkg.Client ?? pkg;
+    return cachedPulsarClientCtor;
+  } catch (error) {
+    pulsarClientLoadError = error;
+    throw error;
+  }
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const resultsDir = path.join(__dirname, '..', 'test-output', 'benchmark-results');
@@ -34,10 +55,42 @@ if (!fs.existsSync(resultsDir)) {
 // Configuration
 // ============================================================================
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+const messageCountArg = args.find(arg => arg.startsWith('--messages='))?.split('=')[1];
+const stressTestArg = args.find(arg => arg === '--stress-test');
+const payloadKbArg = args.find(arg => arg.startsWith('--payload-kb='))?.split('=')[1];
+const inflightArg = args.find(arg => arg.startsWith('--inflight='))?.split('=')[1];
+const brokersArg = args.find(arg => arg.startsWith('--brokers='))?.split('=')[1];
+const trialsArg = args.find(arg => arg.startsWith('--trials='))?.split('=')[1];
+const seedArg = args.find(arg => arg.startsWith('--seed='))?.split('=')[1];
+
+function toPositiveInt(value, fallback) {
+  const parsed = Number.parseInt(value ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const isStressTest = Boolean(stressTestArg);
+const payloadKb = toPositiveInt(payloadKbArg, isStressTest ? 64 : 2);
+const inflight = toPositiveInt(inflightArg, isStressTest ? 3000 : 250);
+const messageCount = toPositiveInt(messageCountArg, isStressTest ? 50000 : 10000);
+const trials = toPositiveInt(trialsArg, 1);
+const seed = toPositiveInt(seedArg, 42);
+const requestedBrokers = (brokersArg ?? 'rabbitmq,pulsar')
+  .split(',')
+  .map(value => value.trim().toLowerCase())
+  .filter(value => ['rabbitmq', 'pulsar', 'kafka'].includes(value));
+
 const CONFIG = {
-  messageCount: 10000,
-  batchSize: 100,
-  warmupMessages: 1000,
+  messageCount,
+  batchSize: isStressTest ? 500 : 100,
+  warmupMessages: isStressTest ? 5000 : 1000,
+  payloadKb,
+  payloadBytes: payloadKb * 1024,
+  inflight,
+  trials,
+  seed,
+  brokers: requestedBrokers.length > 0 ? requestedBrokers : ['rabbitmq', 'pulsar'],
   
   rabbitmq: {
     url: 'amqp://guest:guest@localhost:5672',
@@ -53,17 +106,51 @@ const CONFIG = {
   }
 };
 
+function mulberry32(initialSeed) {
+  let a = initialSeed >>> 0;
+  return function next() {
+    a += 0x6D2B79F5;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+let currentRandom = mulberry32(CONFIG.seed);
+
+function resetRandom(seedValue) {
+  currentRandom = mulberry32(seedValue);
+}
+
+function randomInt(maxExclusive) {
+  return Math.floor(currentRandom() * maxExclusive);
+}
+
+function percentile(values, p) {
+  if (!values || values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const index = Math.ceil((p / 100) * sorted.length) - 1;
+  return sorted[Math.max(0, Math.min(sorted.length - 1, index))];
+}
+
+function median(values) {
+  return percentile(values, 50);
+}
+
 // ============================================================================
 // Test Payloads (simulating real job events)
 // ============================================================================
 
 function generateJobSubmittedEvent(index) {
+  const syntheticPayload = 'X'.repeat(Math.max(0, CONFIG.payloadBytes - 1024));
+  const timestampMs = Date.UTC(2026, 0, 1, 0, 0, 0) + index * 10;
   return {
-    eventId: `evt-${Date.now()}-${index}`,
+    eventId: `evt-${CONFIG.seed}-${index}`,
     eventType: 'job.submitted',
-    timestamp: new Date().toISOString(),
+    timestamp: new Date(timestampMs).toISOString(),
     jobId: `job-${Math.floor(index / 10)}-${index}`,
-    userId: `user-${Math.floor(Math.random() * 100)}`,
+    userId: `user-${randomInt(100)}`,
     jobName: `Alpha-Cal-ngVLA-${index}`,
     computeResources: {
       gpuType: 'A100',
@@ -76,26 +163,28 @@ function generateJobSubmittedEvent(index) {
       targetName: 'M87',
       calibrationMode: 'direction-dependent',
       estimatedDuration: 14400,
-      priority: Math.floor(Math.random() * 10)
+      priority: randomInt(10)
     },
+    syntheticPayload,
     sourceSystem: 'cosmic-horizons-api'
   };
 }
 
 function generateStatusUpdateEvent(index, jobId) {
+  const timestampMs = Date.UTC(2026, 0, 1, 0, 0, 0) + index * 10;
   return {
-    eventId: `evt-${Date.now()}-${index}`,
+    eventId: `evt-status-${CONFIG.seed}-${index}`,
     eventType: 'job.status.changed',
-    timestamp: new Date().toISOString(),
+    timestamp: new Date(timestampMs).toISOString(),
     jobId: jobId,
     previousStatus: 'QUEUED',
     newStatus: 'RUNNING',
-    executionNode: `compute-${Math.floor(Math.random() * 10)}`,
+    executionNode: `compute-${randomInt(10)}`,
     metrics: {
-      cpuUsage: Math.random() * 100,
-      memoryUsage: Math.random() * 100,
-      gpuUtilization: Math.random() * 100,
-      networkBandwidth: Math.random() * 100
+      cpuUsage: currentRandom() * 100,
+      memoryUsage: currentRandom() * 100,
+      gpuUtilization: currentRandom() * 100,
+      networkBandwidth: currentRandom() * 100
     },
     sourceSystem: 'cosmic-horizons-api'
   };
@@ -122,7 +211,7 @@ async function benchmarkRabbitMQ() {
     // Connect
     console.log('Connecting to RabbitMQ...');
     connection = await amqp.connect(CONFIG.rabbitmq.url);
-    channel = await connection.createChannel();
+    channel = await connection.createConfirmChannel();
     
     // Setup exchange and queue
     await channel.assertExchange(CONFIG.rabbitmq.exchange, 'topic', { durable: true });
@@ -140,7 +229,8 @@ async function benchmarkRabbitMQ() {
       channel.publish(
         CONFIG.rabbitmq.exchange,
         CONFIG.rabbitmq.routingKey,
-        Buffer.from(JSON.stringify(event))
+        Buffer.from(JSON.stringify(event)),
+        { persistent: true, contentType: 'application/json' },
       );
       
       if ((i + 1) % CONFIG.batchSize === 0) {
@@ -236,6 +326,8 @@ async function benchmarkPulsar() {
   let client, producer, consumer;
 
   try {
+    const PulsarClient = await getPulsarClientCtor();
+
     // Connect
     console.log('Connecting to Pulsar cluster...');
     client = new PulsarClient({
@@ -255,15 +347,23 @@ async function benchmarkPulsar() {
     const pubStartMem = process.memoryUsage().heapUsed / 1024 / 1024;
     const pubStart = performance.now();
 
+    const pending = [];
     for (let i = 0; i < CONFIG.messageCount; i++) {
       const event = generateJobSubmittedEvent(i);
-      await producer.send({
+      pending.push(producer.send({
         data: Buffer.from(JSON.stringify(event))
-      });
+      }));
+
+      if (pending.length >= CONFIG.inflight) {
+        await Promise.all(pending.splice(0, pending.length));
+      }
 
       if ((i + 1) % CONFIG.batchSize === 0) {
         process.stdout.write(`\r  Published: ${i + 1}/${CONFIG.messageCount}`);
       }
+    }
+    if (pending.length > 0) {
+      await Promise.all(pending);
     }
 
     const pubDuration = performance.now() - pubStart;
@@ -377,6 +477,37 @@ function compareResults(rabbitmqResults, pulsarResults) {
   }
 }
 
+function summarizeTrials(allTrialResults) {
+  console.log('\n' + '='.repeat(70));
+  console.log('TRIAL SUMMARY (MEDIAN / P95)');
+  console.log('='.repeat(70));
+
+  const brokerNames = ['rabbitmq', 'pulsar'];
+  for (const brokerName of brokerNames) {
+    const trialBrokerResults = allTrialResults
+      .map(result => result[brokerName])
+      .filter(Boolean);
+    if (trialBrokerResults.length === 0) continue;
+
+    for (const phase of ['publish', 'consume']) {
+      const throughputs = trialBrokerResults.map(result => Number(result.phases[phase].messagesPerSecond));
+      const latencies = trialBrokerResults.map(result => Number(result.phases[phase].avgLatencyMs));
+
+      const throughputMedian = median(throughputs);
+      const throughputP95 = percentile(throughputs, 95);
+      const latencyMedian = median(latencies);
+      const latencyP95 = percentile(latencies, 95);
+
+      console.log(
+        `${brokerName.toUpperCase()} ${phase.toUpperCase()} throughput median/p95: ${throughputMedian?.toFixed(2)} / ${throughputP95?.toFixed(2)} msg/s`
+      );
+      console.log(
+        `${brokerName.toUpperCase()} ${phase.toUpperCase()} latency median/p95: ${latencyMedian?.toFixed(4)} / ${latencyP95?.toFixed(4)} ms/msg`
+      );
+    }
+  }
+}
+
 function saveResults(rabbitmqResults, pulsarResults) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const filename = `benchmark-${timestamp}.json`;
@@ -386,7 +517,12 @@ function saveResults(rabbitmqResults, pulsarResults) {
     testMetadata: {
       timestamp: new Date().toISOString(),
       messageCount: CONFIG.messageCount,
-      batchSize: CONFIG.batchSize
+      batchSize: CONFIG.batchSize,
+      payloadKb: CONFIG.payloadKb,
+      inflight: CONFIG.inflight,
+      trials: CONFIG.trials,
+      seed: CONFIG.seed,
+      brokers: CONFIG.brokers
     },
     results: {
       rabbitmq: rabbitmqResults,
@@ -403,20 +539,57 @@ function saveResults(rabbitmqResults, pulsarResults) {
 // ============================================================================
 
 async function main() {
+  const testType = isStressTest ? 'STRESS TEST' : 'STANDARD BENCHMARK';
+
   console.log('\n' + '='.repeat(70));
-  console.log('COSMIC HORIZONS: RabbitMQ vs Pulsar Performance Benchmark');
+  console.log(`COSMIC HORIZONS: RabbitMQ vs Pulsar ${testType}`);
   console.log('='.repeat(70));
   console.log(`Test Configuration:`);
-  console.log(`  Messages per test: ${CONFIG.messageCount}`);
+  console.log(`  Messages per test: ${CONFIG.messageCount.toLocaleString()}`);
   console.log(`  Batch size: ${CONFIG.batchSize}`);
-  console.log(`  Payload size: ~1.5 KB (realistic job event)`);
+  console.log(`  Payload size: ~${CONFIG.payloadKb} KB`);
+  console.log(`  In-flight publish window: ${CONFIG.inflight.toLocaleString()}`);
+  console.log(`  Selected brokers: ${CONFIG.brokers.join(', ')}`);
+  console.log(`  Trials: ${CONFIG.trials}`);
+  console.log(`  Replay seed: ${CONFIG.seed}`);
+  console.log(`  Test type: ${isStressTest ? 'High Load Stress Test' : 'Standard Performance'}`);
 
   try {
-    const rabbitmqResults = await benchmarkRabbitMQ();
-    const pulsarResults = await benchmarkPulsar();
+    const allTrialResults = [];
+    let lastRabbitmqResults = null;
+    let lastPulsarResults = null;
 
-    compareResults(rabbitmqResults, pulsarResults);
-    saveResults(rabbitmqResults, pulsarResults);
+    for (let trial = 1; trial <= CONFIG.trials; trial++) {
+      console.log(`\n--- Trial ${trial}/${CONFIG.trials} ---`);
+      resetRandom(CONFIG.seed);
+      let rabbitmqResults = null;
+      let pulsarResults = null;
+
+      if (CONFIG.brokers.includes('rabbitmq')) {
+        rabbitmqResults = await benchmarkRabbitMQ();
+      }
+
+      if (CONFIG.brokers.includes('pulsar')) {
+        pulsarResults = await benchmarkPulsar();
+      }
+
+      if (CONFIG.brokers.includes('kafka')) {
+        console.log('Kafka benchmark path not implemented in this script yet; skipping Kafka trial.');
+      }
+
+      allTrialResults.push({
+        rabbitmq: rabbitmqResults,
+        pulsar: pulsarResults,
+      });
+
+      lastRabbitmqResults = rabbitmqResults;
+      lastPulsarResults = pulsarResults;
+
+      compareResults(rabbitmqResults, pulsarResults);
+    }
+
+    summarizeTrials(allTrialResults);
+    saveResults(lastRabbitmqResults, lastPulsarResults);
 
     console.log('\n' + '='.repeat(70));
     console.log('Benchmark completed successfully!');

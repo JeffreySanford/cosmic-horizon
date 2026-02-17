@@ -15,6 +15,7 @@ import { SystemHealthConsumer } from '../../health/consumers/system-health.consu
 import { SystemHealthMonitorService } from '../../health/services/system-health-monitor.service';
 
 describe('Week 3 E2E Workflow', () => {
+  let moduleRef: TestingModule;
   let jobOrchestratorService: JobOrchestratorService;
   let kafkaService: jest.Mocked<KafkaService>;
   let metricsService: jest.Mocked<MetricsService>;
@@ -25,7 +26,7 @@ describe('Week 3 E2E Workflow', () => {
   const handlersByTopic: Record<string, (payload: EachMessagePayload) => Promise<void>> = {};
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    moduleRef = await Test.createTestingModule({
       providers: [
         JobOrchestratorService,
         MetricsConsumer,
@@ -132,17 +133,24 @@ describe('Week 3 E2E Workflow', () => {
       ],
     }).compile();
 
-    jobOrchestratorService = module.get(JobOrchestratorService);
-    kafkaService = module.get(KafkaService);
-    metricsService = module.get(MetricsService);
-    notificationService = module.get(NotificationService);
-    complianceAuditorService = module.get(ComplianceAuditorService);
-    systemHealthMonitorService = module.get(SystemHealthMonitorService);
+    jobOrchestratorService = moduleRef.get(JobOrchestratorService);
+    kafkaService = moduleRef.get(KafkaService);
+    metricsService = moduleRef.get(MetricsService);
+    notificationService = moduleRef.get(NotificationService);
+    complianceAuditorService = moduleRef.get(ComplianceAuditorService);
+    systemHealthMonitorService = moduleRef.get(SystemHealthMonitorService);
 
-    await module.get(MetricsConsumer).onModuleInit();
-    await module.get(JobEventsConsumer).onModuleInit();
-    await module.get(AuditTrailConsumer).onModuleInit();
-    await module.get(SystemHealthConsumer).onModuleInit();
+    await moduleRef.get(MetricsConsumer).onModuleInit();
+    await moduleRef.get(JobEventsConsumer).onModuleInit();
+    await moduleRef.get(AuditTrailConsumer).onModuleInit();
+    await moduleRef.get(SystemHealthConsumer).onModuleInit();
+  });
+
+  afterEach(async () => {
+    for (const topic of Object.keys(handlersByTopic)) {
+      delete handlersByTopic[topic];
+    }
+    await moduleRef.close();
   });
 
   it('processes completed workflow across metrics, notification, and audit consumers', async () => {

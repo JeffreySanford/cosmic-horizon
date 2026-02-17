@@ -15,6 +15,7 @@ export class BrokerMetricsService {
   private readonly logger = new Logger(BrokerMetricsService.name);
   private metricsCache = new Map<string, { data: BrokerComparisonDTO; expiresAt: Date }>();
   private readonly CACHE_TTL_MS = 60000; // 60 seconds
+  private persistenceAvailable = true;
 
   constructor(
     @InjectRepository(BrokerMetrics)
@@ -26,11 +27,11 @@ export class BrokerMetricsService {
    * Get current metrics for all brokers
    * Returns cached results if available (60-second cache)
    */
-  async getCurrentMetrics(): Promise<BrokerComparisonDTO> {
+  async getCurrentMetrics(forceRefresh = false): Promise<BrokerComparisonDTO> {
     const cacheKey = 'current-metrics';
     const cached = this.metricsCache.get(cacheKey);
 
-    if (cached && new Date() < cached.expiresAt) {
+    if (!forceRefresh && cached && new Date() < cached.expiresAt) {
       return cached.data as BrokerComparisonDTO;
     }
 
@@ -120,6 +121,10 @@ export class BrokerMetricsService {
     return result.affected || 0;
   }
 
+  clearCurrentMetricsCache(): void {
+    this.metricsCache.delete('current-metrics');
+  }
+
   /**
    * Helper: Store individual broker metric
    */
@@ -127,6 +132,10 @@ export class BrokerMetricsService {
     brokerName: 'rabbitmq' | 'kafka' | 'pulsar',
     metrics: BrokerMetricsDTO,
   ): Promise<void> {
+    if (!this.persistenceAvailable) {
+      return;
+    }
+
     try {
       await this.metricsRepository.insert({
         brokerName,
@@ -144,7 +153,15 @@ export class BrokerMetricsService {
         capturedAt: new Date(),
       });
     } catch (error) {
-      this.logger.warn(`Failed to store ${brokerName} metrics: ${error instanceof Error ? error.message : String(error)}`);
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('No metadata for "BrokerMetrics" was found.')) {
+        this.persistenceAvailable = false;
+        this.logger.warn(
+          'Broker metrics persistence disabled: BrokerMetrics entity metadata unavailable in this runtime.',
+        );
+        return;
+      }
+      this.logger.warn(`Failed to store ${brokerName} metrics: ${message}`);
     }
   }
 
@@ -157,23 +174,50 @@ export class BrokerMetricsService {
     pulsar?: BrokerMetricsDTO;
   }): BrokerComparisonDTO {
     const comparison: BrokerComparisonDTO['comparison'] = {};
+    const suppressedReasons: string[] = [];
 
     if (brokerMetrics.rabbitmq.connected && brokerMetrics.pulsar?.connected) {
-      const rmqThroughput = brokerMetrics.rabbitmq.messagesPerSecond || 1;
-      const pulsarThroughput = brokerMetrics.pulsar.messagesPerSecond || 1;
-      const throughputDelta = ((pulsarThroughput - rmqThroughput) / rmqThroughput) * 100;
-      comparison.throughputImprovement = `${throughputDelta >= 0 ? '+' : ''}${throughputDelta.toFixed(1)}%`;
+      if (this.canCompareMetric(brokerMetrics.rabbitmq, brokerMetrics.pulsar, 'messagesPerSecond')) {
+        const rmqThroughput = brokerMetrics.rabbitmq.messagesPerSecond as number;
+        const pulsarThroughput = brokerMetrics.pulsar.messagesPerSecond as number;
+        const throughputDelta = ((pulsarThroughput - rmqThroughput) / rmqThroughput) * 100;
+        comparison.throughputImprovement = `${throughputDelta >= 0 ? '+' : ''}${throughputDelta.toFixed(1)}%`;
+      } else {
+        suppressedReasons.push('Throughput delta suppressed: baseline or quality not valid (requires measured data on both brokers).');
+      }
 
-      const rmqLatency = brokerMetrics.rabbitmq.p99LatencyMs || 1;
-      const pulsarLatency = brokerMetrics.pulsar.p99LatencyMs || 1;
-      const latencyDelta = ((pulsarLatency - rmqLatency) / rmqLatency) * 100;
-      comparison.latencyImprovement = `${latencyDelta >= 0 ? '+' : ''}${latencyDelta.toFixed(1)}%`;
+      if (this.canCompareMetric(brokerMetrics.rabbitmq, brokerMetrics.pulsar, 'p99LatencyMs')) {
+        const rmqLatency = brokerMetrics.rabbitmq.p99LatencyMs as number;
+        const pulsarLatency = brokerMetrics.pulsar.p99LatencyMs as number;
+        const latencyDelta = ((pulsarLatency - rmqLatency) / rmqLatency) * 100;
+        comparison.latencyImprovement = `${latencyDelta >= 0 ? '+' : ''}${latencyDelta.toFixed(1)}%`;
+      } else {
+        suppressedReasons.push('Latency delta suppressed: baseline or quality not valid (requires measured data on both brokers).');
+      }
 
-      const rmqMemory = brokerMetrics.rabbitmq.memoryUsageMb || 1;
-      const pulsarMemory = brokerMetrics.pulsar.memoryUsageMb || 1;
-      const memoryDelta = ((pulsarMemory - rmqMemory) / rmqMemory) * 100;
-      comparison.memoryEfficiency = `${memoryDelta >= 0 ? '+' : ''}${memoryDelta.toFixed(1)}%`;
+      if (this.canCompareMetric(brokerMetrics.rabbitmq, brokerMetrics.pulsar, 'memoryUsageMb')) {
+        const rmqMemory = brokerMetrics.rabbitmq.memoryUsageMb as number;
+        const pulsarMemory = brokerMetrics.pulsar.memoryUsageMb as number;
+        const memoryDelta = ((pulsarMemory - rmqMemory) / rmqMemory) * 100;
+        comparison.memoryEfficiency = `${memoryDelta >= 0 ? '+' : ''}${memoryDelta.toFixed(1)}%`;
+      } else {
+        suppressedReasons.push('Memory delta suppressed: baseline or quality not valid (requires measured data on both brokers).');
+      }
     }
+
+    if (suppressedReasons.length > 0) {
+      comparison.suppressedReasons = suppressedReasons;
+    }
+
+    const brokerNames: Array<'rabbitmq' | 'kafka' | 'pulsar'> = ['rabbitmq', 'kafka', 'pulsar'];
+    const measuredBrokers = brokerNames.filter((name) => {
+      const broker = brokerMetrics[name];
+      return broker?.connected && (broker?.dataSource ?? 'missing') === 'measured';
+    });
+    const fallbackBrokers = brokerNames.filter((name) => {
+      const broker = brokerMetrics[name];
+      return broker?.connected && (broker?.dataSource ?? 'missing') === 'fallback';
+    });
 
     return {
       timestamp: new Date(),
@@ -183,7 +227,53 @@ export class BrokerMetricsService {
         ...(brokerMetrics.pulsar ? { pulsar: brokerMetrics.pulsar } : {}),
       },
       comparison,
+      dataQuality: {
+        hasFallbackData: fallbackBrokers.length > 0,
+        measuredBrokers,
+        fallbackBrokers,
+        summary:
+          fallbackBrokers.length > 0
+            ? `Fallback/simulated metrics are active for: ${fallbackBrokers.join(', ')}. Comparative deltas are suppressed when quality/baseline checks fail.`
+            : 'All connected broker metrics are measured. Deltas are computed only when baseline > 0 and values are valid.',
+      },
     };
+  }
+
+  private canCompareMetric(
+    baselineBroker: BrokerMetricsDTO,
+    candidateBroker: BrokerMetricsDTO,
+    key: 'messagesPerSecond' | 'p99LatencyMs' | 'memoryUsageMb',
+  ): boolean {
+    const baseline = baselineBroker[key];
+    const candidate = candidateBroker[key];
+    const baselineQuality = this.getMetricQuality(baselineBroker, key);
+    const candidateQuality = this.getMetricQuality(candidateBroker, key);
+
+    if (baselineQuality !== 'measured' || candidateQuality !== 'measured') {
+      return false;
+    }
+    if (baseline === undefined || baseline === null || candidate === undefined || candidate === null) {
+      return false;
+    }
+    if (!Number.isFinite(baseline) || !Number.isFinite(candidate)) {
+      return false;
+    }
+    return baseline > 0;
+  }
+
+  private getMetricQuality(
+    broker: BrokerMetricsDTO,
+    key: 'messagesPerSecond' | 'p99LatencyMs' | 'memoryUsageMb',
+  ): 'measured' | 'fallback' | 'missing' {
+    const explicit = broker.metricQuality?.[key];
+    if (explicit) {
+      return explicit;
+    }
+    const value = broker[key];
+    if (value === undefined || value === null) {
+      return 'missing';
+    }
+    return (broker.dataSource ?? 'measured') === 'fallback' ? 'fallback' : 'measured';
   }
 
   /**

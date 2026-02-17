@@ -6,9 +6,10 @@ import { MessagingStatsService } from './messaging-stats.service';
 
 describe('MessagingService', () => {
   let service: MessagingService;
+  let moduleRef: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    moduleRef = await Test.createTestingModule({
       providers: [
         MessagingService,
         {
@@ -26,11 +27,12 @@ describe('MessagingService', () => {
       ],
     }).compile();
 
-    service = module.get<MessagingService>(MessagingService);
+    service = moduleRef.get<MessagingService>(MessagingService);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     service.onModuleDestroy();
+    await moduleRef.close();
   });
 
   it('should be defined', () => {

@@ -98,6 +98,11 @@ export interface BrokerMetricsDTO {
   partitionCount?: number;
   brokerCount?: number;
   topicStats?: Record<string, unknown>;
+  dataSource?: 'measured' | 'fallback' | 'missing';
+  metricQuality?: Partial<Record<
+    'messagesPerSecond' | 'p99LatencyMs' | 'memoryUsageMb' | 'cpuPercentage' | 'connectionCount' | 'uptime',
+    'measured' | 'fallback' | 'missing'
+  >>;
 }
 
 /**
@@ -114,6 +119,13 @@ export interface BrokerComparisonDTO {
     throughputImprovement?: string; // "+36.8%"
     latencyImprovement?: string; // "-27.1%"
     memoryEfficiency?: string; // "-27.9%"
+    suppressedReasons?: string[];
+  };
+  dataQuality?: {
+    hasFallbackData: boolean;
+    measuredBrokers: Array<'rabbitmq' | 'kafka' | 'pulsar'>;
+    fallbackBrokers: Array<'rabbitmq' | 'kafka' | 'pulsar'>;
+    summary: string;
   };
 }
 

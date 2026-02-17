@@ -3,17 +3,20 @@ import { DatasetStagingService } from '../services/dataset-staging.service';
 
 describe('DatasetStagingService', () => {
   let service: DatasetStagingService;
+  let moduleRef: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    moduleRef = await Test.createTestingModule({
       providers: [DatasetStagingService],
     }).compile();
 
-    service = module.get<DatasetStagingService>(DatasetStagingService);
+    service = moduleRef.get<DatasetStagingService>(DatasetStagingService);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    jest.useRealTimers();
     service.onModuleDestroy();
+    await moduleRef.close();
   });
 
   describe('validateDataset', () => {
@@ -84,11 +87,11 @@ describe('DatasetStagingService', () => {
         priority: 'normal' as const,
       };
 
+      jest.useFakeTimers();
       await service.stageDataset(request);
-
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
+      jest.advanceTimersByTime(100);
       const status = await service.getStagingStatus('dataset-1');
+      jest.useRealTimers();
 
       expect(status).not.toBeNull();
       expect(status?.dataset_id).toBe('dataset-1');
