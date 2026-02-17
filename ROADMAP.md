@@ -320,9 +320,9 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 - [ ] Broker replication: 3x with ISR > 2
 - [ ] Offset management functional (replay enabled)
 
-#### Sprint 5.3: Job Orchestration Events (3 weeks) 🟡 IN PROGRESS
+#### Sprint 5.3: Job Orchestration Events (3 weeks) ✅ COMPLETE
 
-**Completed (Week 1-2)**:
+**Completed (Week 1-3 — Validation & hardening)**:
 
 - [x] JobsModule event publishing wired
   - `job.submitted`, `job.status.changed`, `job.failed`, `job.cancelled`
@@ -334,21 +334,24 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
   - Audit consumer (`audit-trail`)
   - System health consumer (`system-health`)
 - [x] Module integration active in `AppModule` and startup logs
-
-**Week 3 Implementation Snapshot (Feb 15, 2026)**:
-
 - [x] E2E workflow validation across publisher + all consumers
 - [x] Performance and lag benchmarks for event flow
 - [x] Production-readiness checks and operations documentation
 - [x] Event replay capability (offset tracking + replay API)
 - [x] Markdown-source docs catalog API for `/docs` view (`/api/internal-docs/catalog`)
 
-**Sprint 5.3 Exit Criteria**:
+**Exit Criteria Verified**:
 
-- 100% of lifecycle transitions publish events consistently
-- Consumer processing validated end-to-end
-- Performance and reliability baselines documented
-- Replay/audit backlog explicitly tracked if deferred
+- ✅ 100% of lifecycle transitions publish events consistently
+- ✅ Consumer processing validated end-to-end
+- ✅ Performance and reliability baselines documented
+- ✅ Replay/audit backlog explicitly tracked and accounted for (if deferred)
+
+**Short-term next steps (2 weeks)**:
+- [ ] Add unit test for `MessagingMonitorService` to assert timer cleanup on destroy
+- [ ] Complete final repo-wide conversion of remaining `subscribe()` usages in specs
+- [ ] Triage & patch Dependabot moderate vulnerability
+- [ ] Prepare release candidate (changelog + tag) and schedule code review
 
 ### Priority 6: Real-Time Dashboards (Weeks 9-18)
 

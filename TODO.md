@@ -24,6 +24,7 @@ Canonical scope:
 - [x] Playwright E2E config hardened: prefer `localhost` locally; CI binds frontend to `0.0.0.0` and `BASE_URL` set in workflow (`.github/workflows/e2e.yml`).
 - [x] Resolved intermittent 127.0.0.1 Playwright failures — full E2E suite verified green in CI and locally.
 - [x] CI monitoring set to immediate-failure notifications only (watcher + helper script configured for `failures`).
+- [x] Converted remaining `subscribe()` usages in specs to deterministic `firstValueFrom()` / `take(1)` where appropriate and removed fragile `setTimeout` waits across web & API tests; committed fixes and verified CI green.
 
 ## Test Stability (2026-02-17)
 
@@ -43,6 +44,10 @@ Canonical scope:
   - Validation: `Test.createTestingModule(...)` coverage audit shows `MISSING_CLOSE_COUNT=0` across API specs.
 - [x] Verify all long-lived resources are closed in tests (timers, intervals, sockets, broker clients, DB/data-source handles, RxJS subscriptions).
   - Validation: `pnpm nx run cosmic-horizons-api:test -- --runInBand --detectOpenHandles --forceExit=false` and `pnpm nx run cosmic-horizons-api-e2e:e2e -- --runInBand --detectOpenHandles --forceExit=false` both pass without open-handle stall.
+- [ ] Add a unit test to assert `MessagingMonitorService` clears its startup timeout handle on `onModuleDestroy()` (prevent future open-handle regressions).
+- [ ] Triage and patch the moderate GitHub dependence vulnerability reported by Dependabot (see repo Security alerts).
+- [ ] Add CI failure notification (Slack/Teams) for immediate alerting — coordinate webhook and secrets.
+- [ ] Prepare release candidate / changelog for v1.1.0 (include test stabilization & event infra notes).
 
 ## Current Execution Wave: Phase 3 (2026-Q2-Q3)
 
