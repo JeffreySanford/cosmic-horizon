@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // For CI, you may want to set BASE_URL to the deployed application.
-const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:4200';
+const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
 
 // Coverage configuration
 const enableCoverage = process.env['COVERAGE'] === 'true';
@@ -37,8 +37,8 @@ export default defineConfig({
   },
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm exec nx run cosmic-horizons-web:serve --host=127.0.0.1',
-    url: 'http://127.0.0.1:4200',
+    command: 'pnpm exec nx run cosmic-horizons-web:serve --host=localhost',
+    url: 'http://localhost:4200',
     reuseExistingServer: true,
     cwd: workspaceRoot,
   },
