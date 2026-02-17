@@ -11,6 +11,21 @@ describe('JobOrchestrationComponent', () => {
   let mockJobService: any;
 
   beforeEach(async () => {
+    // Angular Forms checks navigator.userAgent during DefaultValueAccessor init.
+    // CI jsdom can expose it as undefined in some runners.
+    try {
+      Object.defineProperty(navigator, 'userAgent', {
+        value: navigator.userAgent || 'jsdom',
+        configurable: true,
+      });
+      Object.defineProperty(navigator, 'platform', {
+        value: navigator.platform || 'Linux',
+        configurable: true,
+      });
+    } catch {
+      // Ignore if navigator properties are non-configurable in the local runtime.
+    }
+
     mockJobService = {
       getJobs: vi.fn().mockReturnValue(of([])),
       getAgents: vi.fn().mockReturnValue(of([])),
