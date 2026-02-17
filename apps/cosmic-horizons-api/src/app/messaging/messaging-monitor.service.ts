@@ -19,6 +19,7 @@ const DEFAULT_DB_PASSWORD = 'cosmic_horizons_password_dev';
 export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(MessagingMonitorService.name);
   private pollHandle: NodeJS.Timeout | null = null;
+  private startupHandle: NodeJS.Timeout | null = null;
   private kafkaAdmin: ReturnType<Kafka['admin']> | null = null;
   private kafkaAdminConnected = false;
   private redisClient: Redis | null = null;
@@ -53,15 +54,21 @@ export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit(): void {
     this.initializeClients();
-    setTimeout(() => {
+    this.startupHandle = setTimeout(() => {
       void this.poll();
       this.pollHandle = setInterval(() => {
         void this.poll();
       }, POLL_INTERVAL_MS);
+      this.startupHandle = null;
     }, STARTUP_GRACE_MS);
   }
 
   async onModuleDestroy(): Promise<void> {
+    if (this.startupHandle) {
+      clearTimeout(this.startupHandle);
+      this.startupHandle = null;
+    }
+
     if (this.pollHandle) {
       clearInterval(this.pollHandle);
       this.pollHandle = null;
