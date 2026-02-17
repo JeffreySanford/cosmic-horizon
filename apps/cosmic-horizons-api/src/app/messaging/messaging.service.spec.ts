@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { take } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { MessagingService } from './messaging.service';
 import { LoggingService } from '../logging/logging.service';
 import { MessagingStatsService } from './messaging-stats.service';
@@ -61,14 +61,12 @@ describe('MessagingService', () => {
     });
   });
 
-  it('should emit telemetry updates', (done) => {
+  it('should emit telemetry updates', async () => {
     service.onModuleInit(); // Start simulation
-    service.telemetry$.pipe(take(1)).subscribe((packet) => {
-      expect(packet.elementId).toBeDefined();
-      expect(packet.sourceId).toBeDefined();
-      expect(packet.targetId).toBeDefined();
-      expect(packet.metrics).toBeDefined();
-      done();
-    });
+    const packet = await firstValueFrom(service.telemetry$);
+    expect(packet.elementId).toBeDefined();
+    expect(packet.sourceId).toBeDefined();
+    expect(packet.targetId).toBeDefined();
+    expect(packet.metrics).toBeDefined();
   });
 });

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext, CallHandler } from '@nestjs/common';
 import { RequestLoggerInterceptor } from './request-logger.interceptor';
 import { LoggingService } from '../logging/logging.service';
-import { of } from 'rxjs';
+import { of, firstValueFrom } from 'rxjs';
 
 afterEach(async () => {
   await testingModule?.close();
@@ -45,7 +45,7 @@ describe('RequestLoggerInterceptor', () => {
   });
 
   describe('successful requests', () => {
-    it('should log successful HTTP response', (done) => {
+    it('should log successful HTTP response', async () => {
       const mockRequest = {
         method: 'GET',
         url: '/api/users',
@@ -64,27 +64,25 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            type: 'http',
-            severity: 'info',
-            message: 'http_response',
-            data: expect.objectContaining({
-              event: 'http_response',
-              method: 'GET',
-              url: '/api/users',
-              status_code: 200,
-              user_id: 'user-1',
-              user_role: 'user',
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'http',
+          severity: 'info',
+          message: 'http_response',
+          data: expect.objectContaining({
+            event: 'http_response',
+            method: 'GET',
+            url: '/api/users',
+            status_code: 200,
+            user_id: 'user-1',
+            user_role: 'user',
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
 
-    it('should log POST request with request body size', (done) => {
+    it('should log POST request with request body size', async () => {
       const mockRequest = {
         method: 'POST',
         url: '/api/comments',
@@ -103,21 +101,19 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              method: 'POST',
-              status_code: 201,
-              request_bytes: 1024,
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            method: 'POST',
+            status_code: 201,
+            request_bytes: 1024,
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
 
-    it('should log requests from anonymous users', (done) => {
+    it('should log requests from anonymous users', async () => {
       const mockRequest = {
         method: 'GET',
         url: '/api/public/data',
@@ -135,20 +131,18 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              user_id: 'anonymous',
-              user_role: 'unknown',
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            user_id: 'anonymous',
+            user_role: 'unknown',
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
 
-    it('should include duration in milliseconds', (done) => {
+    it('should include duration in milliseconds', async () => {
       const mockRequest = {
         method: 'GET',
         url: '/api/slow-endpoint',
@@ -166,23 +160,19 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              duration_ms: expect.any(Number),
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            duration_ms: expect.any(Number),
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
 
-    it('should handle different HTTP methods', (done) => {
+    it('should handle different HTTP methods', async () => {
       const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-      let completed = 0;
-
-      methods.forEach((method) => {
+      for (const method of methods) {
         const mockRequest = {
           method,
           url: '/api/test',
@@ -200,23 +190,18 @@ describe('RequestLoggerInterceptor', () => {
 
         callHandler.handle.mockReturnValue(of(mockResponse));
 
-        interceptor.intercept(executionContext, callHandler).subscribe(() => {
-          expect(loggingService.add).toHaveBeenCalledWith(
-            expect.objectContaining({
-              data: expect.objectContaining({
-                method,
-              }),
+        await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+        expect(loggingService.add).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              method,
             }),
-          );
-          completed++;
-          if (completed === methods.length) {
-            done();
-          }
-        });
-      });
+          }),
+        );
+      }
     });
 
-    it('should handle admin users correctly', (done) => {
+    it('should handle admin users correctly', async () => {
       const mockRequest = {
         method: 'GET',
         url: '/api/admin/logs',
@@ -235,20 +220,18 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              user_role: 'admin',
-              user_id: 'admin-1',
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            user_role: 'admin',
+            user_id: 'admin-1',
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
 
-    it('should handle response without statusCode property', (done) => {
+    it('should handle response without statusCode property', async () => {
       const mockRequest = {
         method: 'GET',
         url: '/api/test',
@@ -264,21 +247,19 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              status_code: 200,
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status_code: 200,
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
   });
 
   describe('correlation tracking', () => {
-    it('should include correlation ID in logs', (done) => {
+    it('should include correlation ID in logs', async () => {
       const mockRequest = {
         method: 'GET',
         url: '/api/trace',
@@ -296,21 +277,19 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              correlation_id: expect.any(String),
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            correlation_id: expect.any(String),
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
   });
 
   describe('edge cases', () => {
-    it('should handle missing content-length header', (done) => {
+    it('should handle missing content-length header', async () => {
       const mockRequest = {
         method: 'GET',
         url: '/api/test',
@@ -328,19 +307,17 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              request_bytes: null,
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            request_bytes: null,
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
 
-    it('should handle array content-length header', (done) => {
+    it('should handle array content-length header', async () => {
       const mockRequest = {
         method: 'GET',
         url: '/api/test',
@@ -358,16 +335,14 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      interceptor.intercept(executionContext, callHandler).subscribe(() => {
-        expect(loggingService.add).toHaveBeenCalledWith(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              request_bytes: 512,
-            }),
+      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      expect(loggingService.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            request_bytes: 512,
           }),
-        );
-        done();
-      });
+        }),
+      );
     });
   });
 });
