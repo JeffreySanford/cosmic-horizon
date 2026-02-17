@@ -44,8 +44,8 @@ Canonical scope:
   - Validation: `Test.createTestingModule(...)` coverage audit shows `MISSING_CLOSE_COUNT=0` across API specs.
 - [x] Verify all long-lived resources are closed in tests (timers, intervals, sockets, broker clients, DB/data-source handles, RxJS subscriptions).
   - Validation: `pnpm nx run cosmic-horizons-api:test -- --runInBand --detectOpenHandles --forceExit=false` and `pnpm nx run cosmic-horizons-api-e2e:e2e -- --runInBand --detectOpenHandles --forceExit=false` both pass without open-handle stall.
-- [ ] Add a unit test to assert `MessagingMonitorService` clears its startup timeout handle on `onModuleDestroy()` (prevent future open-handle regressions).
-- [ ] Triage and patch the moderate GitHub dependence vulnerability reported by Dependabot (see repo Security alerts).
+- [x] Add a unit test to assert `MessagingMonitorService` clears its startup timeout handle on `onModuleDestroy()` (prevent future open-handle regressions).
+- [ ] Triage and patch the moderate GitHub dependence vulnerability reported by Dependabot (see repo Security alerts) — **DEFERRED TO UPSTREAM (ajv / Angular)**.
 - [ ] Add CI failure notification (Slack/Teams) for immediate alerting — coordinate webhook and secrets.
 - [ ] Prepare release candidate / changelog for v1.1.0 (include test stabilization & event infra notes).
 

@@ -351,8 +351,6 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 - [ ] Add unit test for `MessagingMonitorService` to assert timer cleanup on destroy
 - [ ] Complete final repo-wide conversion of remaining `subscribe()` usages in specs
-- [ ] Triage & patch Dependabot moderate vulnerability — **DEFERRED TO UPSTREAM (ajv / Angular)**
-- [ ] Prepare release candidate (changelog + tag) and schedule code review
 
 ### Priority 6: Real-Time Dashboards (Weeks 9-18)
 
