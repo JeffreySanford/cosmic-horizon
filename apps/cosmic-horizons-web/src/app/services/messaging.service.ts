@@ -128,6 +128,12 @@ export class MessagingService {
       path: '/socket.io',
       transports: ['websocket'],
       withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 30000,
+      randomizationFactor: 0.5,
+      timeout: 20000,
       auth: {
         token: token,
       },

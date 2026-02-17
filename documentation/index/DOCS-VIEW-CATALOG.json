@@ -24,6 +24,12 @@
     "sourcePath": "documentation/architecture/BROKER-COMPARISON-STRATEGY.md"
   },
   {
+    "id": "documentation--architecture--cosmicai-integration-overlay",
+    "label": "COSMICAI INTEGRATION OVERLAY",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/COSMICAI-INTEGRATION-OVERLAY.md"
+  },
+  {
     "id": "documentation--architecture--event-schema-definitions",
     "label": "EVENT SCHEMA DEFINITIONS",
     "section": "Architecture",
@@ -36,6 +42,12 @@
     "sourcePath": "documentation/architecture/EVENT-STREAMING-TOPOLOGY.md"
   },
   {
+    "id": "documentation--architecture--ngvla-tri-broker-reference-architecture",
+    "label": "NGVLA TRI BROKER REFERENCE ARCHITECTURE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md"
+  },
+  {
     "id": "documentation--architecture--phase-3-4-completion-strategy",
     "label": "PHASE 3 4 COMPLETION STRATEGY",
     "section": "Architecture",
@@ -46,6 +58,18 @@
     "label": "PHASE 3 COMPLETE INDEX",
     "section": "Architecture",
     "sourcePath": "documentation/architecture/PHASE-3-COMPLETE-INDEX.md"
+  },
+  {
+    "id": "documentation--architecture--phase-4-pulsar-integration",
+    "label": "PHASE 4 PULSAR INTEGRATION",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/PHASE-4-PULSAR-INTEGRATION.md"
+  },
+  {
+    "id": "documentation--architecture--pulsar-evaluation-results",
+    "label": "PULSAR EVALUATION RESULTS",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/PULSAR-EVALUATION-RESULTS.md"
   },
   {
     "id": "documentation--architecture--sprint-5-2-environment-config",

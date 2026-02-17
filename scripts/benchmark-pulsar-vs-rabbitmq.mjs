@@ -388,8 +388,9 @@ async function benchmarkPulsar() {
     console.log('\n[Phase 2] Consuming throughput test...');
     consumer = await client.subscribe({
       topic: CONFIG.pulsar.topic,
-      subscription: 'benchmark-subscription',
-      subscriptionType: 'Exclusive'
+      subscription: `benchmark-subscription-${Date.now()}`,
+      subscriptionType: 'Exclusive',
+      subscriptionInitialPosition: 'Earliest',
     });
 
     const conStartMem = process.memoryUsage().heapUsed / 1024 / 1024;

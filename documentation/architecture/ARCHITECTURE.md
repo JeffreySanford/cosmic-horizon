@@ -22,6 +22,10 @@ Affiliation note:
 
 - Debugging guide for planet resolution: [MARS-RESOLUTION-DEBUGGING.md](MARS-RESOLUTION-DEBUGGING.md)
 
+- ngVLA tri-broker operating pattern: [NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md](NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md)
+
+- CosmicAI docking and AI control-plane integration: [COSMICAI-INTEGRATION-OVERLAY.md](COSMICAI-INTEGRATION-OVERLAY.md)
+
 ## Components
 
 - Frontend: `apps/cosmic-horizons-web` (Angular SSR)

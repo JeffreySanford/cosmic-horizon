@@ -12,9 +12,11 @@
  * Usage: node scripts/pulsar-setup.mjs [--cleanup]
  */
 
-import { PulsarClient } from 'pulsar-client';
+import PulsarPackage from 'pulsar-client';
 import axios from 'axios';
 import * as fs from 'fs';
+
+const PulsarClient = PulsarPackage.PulsarClient ?? PulsarPackage.Client ?? PulsarPackage;
 
 const PULSAR_ADMIN_URL = 'http://localhost:8080';
 const PULSAR_SERVICE_URL = 'pulsar://localhost:6650';
@@ -146,8 +148,12 @@ async function checkClusterHealth() {
     const broker = await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/brokers`);
     console.log(`✓ Active brokers: ${broker.data.join(', ')}`);
 
-    const brokerStats = await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/brokerStats`);
-    console.log(`✓ Broker metrics accessible`);
+    try {
+      await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/brokerStats`);
+      console.log(`✓ Broker metrics accessible`);
+    } catch (statsError) {
+      console.log(`ℹ Broker metrics endpoint unavailable on this Pulsar build; continuing setup`);
+    }
 
     return true;
   } catch (error) {

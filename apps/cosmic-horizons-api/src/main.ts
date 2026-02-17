@@ -14,6 +14,7 @@ import * as passportImport from 'passport';
 import helmet from 'helmet';
 import { getSessionSecret } from './app/config/security.config';
 import { loadEnvFromFirstAvailable } from './app/config/env-loader';
+import { MessagingSocketIoAdapter } from './app/messaging/messaging-socket.adapter';
 
 loadEnvFromFirstAvailable();
 
@@ -33,6 +34,7 @@ async function bootstrap() {
     }
 
     const app = await NestFactory.create(AppModule);
+    app.useWebSocketAdapter(new MessagingSocketIoAdapter(app));
     const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);
     const openApiConfig = new DocumentBuilder()

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { MessagingGateway } from '../../../messaging/messaging.gateway';
 
 interface NotificationPayload {
   type: string;
@@ -30,6 +31,8 @@ export class NotificationService {
 
   // In-memory notification storage
   private readonly notificationsMap = new Map<string, InAppNotification[]>();
+
+  constructor(private readonly messagingGateway: MessagingGateway) {}
 
   /**
    * Send job completion email notification
@@ -81,8 +84,20 @@ export class NotificationService {
       this.logger.debug(
         `Broadcasting ${notification.type} notification for job ${notification.job_id}`,
       );
-      // In production: emit via WebSocket gateway
-      // For now: mock success
+      const payload = {
+        type: notification.type,
+        job_id: notification.job_id,
+        user_id: notification.user_id,
+        timestamp: notification.timestamp ?? new Date().toISOString(),
+        data: notification.data ?? {},
+      };
+
+      this.messagingGateway.emitToUser(
+        notification.user_id,
+        'job_notification',
+        payload,
+      );
+      this.messagingGateway.emitJobUpdate(notification.job_id, payload, notification.user_id);
     } catch (error) {
       this.logger.error(`Failed to broadcast WebSocket notification: ${error}`);
       throw error;

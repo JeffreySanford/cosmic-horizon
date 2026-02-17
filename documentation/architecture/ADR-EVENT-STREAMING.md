@@ -172,6 +172,35 @@ Use a **dual-broker event architecture**:
 - Cost optimization (autoscaling brokers based on throughput)
 - Integration with CosmicAI agent lifecycle events
 
+## Phase 3.5 Addendum (2026-02-17): Pulsar Consolidation Pathway
+
+### Benchmark Findings Summary
+
+- Reference benchmark artifact: `test-output/benchmark-results/benchmark-2026-02-17T16-30-44-909Z.json`
+- Findings report: `documentation/architecture/PULSAR-EVALUATION-RESULTS.md`
+- Current local standalone result does **not** support immediate consolidation:
+  - Publish throughput delta (Pulsar vs RabbitMQ): negative
+  - Consume throughput delta (Pulsar vs RabbitMQ): negative
+  - Memory delta signal: inconclusive for decision-grade comparison
+
+### Consolidation Decision (Current)
+
+- Keep dual-broker architecture (RabbitMQ + Kafka) as production baseline.
+- Continue Pulsar in evaluation mode only until go/no-go gates pass on decision-grade runs.
+
+### Go/No-Go Gates for Phase 4 Promotion
+
+- Throughput gate: Pulsar meets or exceeds target uplift under multi-trial, production-like topology.
+- Latency gate: Pulsar P95/P99 latency is not regressed against baseline for critical streams.
+- Reliability gate: no unacceptable message loss/duplication across failover and replay drills.
+- Operations gate: measurable reduction in operational overhead without compliance regression.
+
+### Migration Guardrails
+
+- No cutover until replay parity and audit retention parity are demonstrated.
+- Maintain Kafka audit-trail path until compliance sign-off.
+- Use phased migration: non-critical streams first, critical audit and lifecycle streams last.
+
 ---
 
 **Author**: Engineering Team  

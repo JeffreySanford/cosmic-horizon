@@ -601,6 +601,8 @@ pnpm nx affected --target=lighthouse       # Performance
 | [SCOPE-LOCK.md](SCOPE-LOCK.md)                                         | What's in/out (canonical)       |
 | [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md)         | Product vision & strategy       |
 | [ARCHITECTURE.md](documentation/architecture/ARCHITECTURE.md)          | System design & components      |
+| [ngVLA Tri-Broker Reference](documentation/architecture/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md) | RabbitMQ/Kafka/Pulsar operating pattern |
+| [CosmicAI Integration Overlay](documentation/architecture/COSMICAI-INTEGRATION-OVERLAY.md) | AI agent docking and event integration model |
 | [Project Overview](documentation/index/OVERVIEW-V2.md)                 | Current status & features       |
 | [Testing Strategy](documentation/quality/TESTING-STRATEGY.md)          | Test layers & quality gates     |
 | [E2E Coverage Guide](documentation/quality/E2E_CODE_COVERAGE_GUIDE.md) | Coverage testing infrastructure |

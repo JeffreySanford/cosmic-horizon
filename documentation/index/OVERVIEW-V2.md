@@ -222,6 +222,10 @@ Required CI signals:
 
 - Current architecture: `documentation/architecture/ARCHITECTURE.md`
 
+- Tri-broker reference pattern (RabbitMQ + Kafka + Pulsar): `documentation/architecture/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md`
+
+- CosmicAI integration docking model: `documentation/architecture/COSMICAI-INTEGRATION-OVERLAY.md`
+
 - Environment contract: `documentation/reference/ENV-REFERENCE.md`
 
 - Demo flow: `documentation/operations/QUICK-START.md`

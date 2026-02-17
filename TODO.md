@@ -26,14 +26,19 @@ Canonical scope:
 - [x] Added API e2e readiness gate in `apps/cosmic-horizons-api-e2e/src/support/global-setup.ts` to wait for `/api/health` after port-open before test execution.
 - [x] Replaced temporary retry-style e2e assertions with deterministic waits in `apps/cosmic-horizons-web-e2e/src/example.spec.ts` (network response synchronization and explicit condition waits).
 - [x] Completed extended local soak for `mvp-gates:e2e-web-mvp`: 12/12 consecutive green runs.
-- [ ] Residual Nx flaky signal remains for `mvp-gates:e2e-web-mvp` despite clean runs; treat as Nx task-level flake metadata and continue monitoring/triage in CI.
+- [x] Investigated residual Nx flaky signal for `mvp-gates:e2e-web-mvp`: task remains green in repeated local runs and CI, but Nx still reports flaky metadata (`Nx detected a flaky task`).
+- [x] Captured Nx environment diagnostic (`pnpm nx report`): mixed Nx package versions (`22.4.5` + `22.5.1`) present; track as possible contributor to persistent flaky metadata signal.
+- [x] Residual Nx flaky signal remains for `mvp-gates:e2e-web-mvp` despite clean runs; classified as known Nx task-level metadata signal and moved to ongoing CI monitoring.
+  - Evidence: repeated green soak runs plus `pnpm nx report` showing mixed Nx package versions (`22.4.5` + `22.5.1`) likely contributing to signal quality noise.
 
 ## Immediate Next: Test Stall Closure
 
 - [x] Run targeted open-handle diagnosis for API tests: `pnpm nx run cosmic-horizons-api:test -- --runInBand --detectOpenHandles --forceExit=false`.
 - [x] Keep `pnpm nx run-many --target=test --all` and `pnpm nx run mvp-gates:e2e` green without `--forceExit`.
-- [ ] Add explicit teardown (`afterEach`/`afterAll`) for remaining tests creating `TestingModule` without deterministic close.
-- [ ] Verify all long-lived resources are closed in tests (timers, intervals, sockets, broker clients, DB/data-source handles, RxJS subscriptions).
+- [x] Add explicit teardown (`afterEach`/`afterAll`) for remaining tests creating `TestingModule` without deterministic close.
+  - Validation: `Test.createTestingModule(...)` coverage audit shows `MISSING_CLOSE_COUNT=0` across API specs.
+- [x] Verify all long-lived resources are closed in tests (timers, intervals, sockets, broker clients, DB/data-source handles, RxJS subscriptions).
+  - Validation: `pnpm nx run cosmic-horizons-api:test -- --runInBand --detectOpenHandles --forceExit=false` and `pnpm nx run cosmic-horizons-api-e2e:e2e -- --runInBand --detectOpenHandles --forceExit=false` both pass without open-handle stall.
 
 ## Current Execution Wave: Phase 3 (2026-Q2-Q3)
 
@@ -171,23 +176,23 @@ Parallel effort to Sprint 6.1, enables Phase 4 architecture decision.
 - [x] Integrate `BrokerMetricsController` into NestJS API module routing
 - [x] Register `BrokerMetricsService` and `BrokerMetricsCollector` in dependency injection
 - [x] Add route to broker comparison dashboard: `/operations/broker-comparison`
-- [ ] Spin up local Pulsar cluster: `docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait`
-- [ ] Run: `node scripts/pulsar-setup.mjs` (creates namespaces and topics)
-- [ ] Execute: `node scripts/benchmark-pulsar-vs-rabbitmq.mjs` (compares all brokers)
+- [x] Spin up local Pulsar cluster: `docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait`
+- [x] Run: `node scripts/pulsar-setup.mjs` (creates namespaces and topics)
+- [x] Execute: `node scripts/benchmark-pulsar-vs-rabbitmq.mjs` (compares all brokers)
 - [x] Verify dashboard displays real-time metrics correctly
 - [x] Test benchmark trigger button and async execution
-- [ ] Analyze results: Review `test-output/benchmark-results/benchmark-TIMESTAMP.json`
-- [ ] Verify performance deltas against expectations (30-40% throughput, 20-30% memory)
-- [ ] Document findings in `documentation/architecture/PULSAR-EVALUATION-RESULTS.md`
+- [x] Analyze results: Reviewed `test-output/benchmark-results/benchmark-2026-02-17T16-30-44-909Z.json`
+- [x] Verify performance deltas against expectations (30-40% throughput, 20-30% memory) - not met on current local standalone run; tracked in results doc.
+- [x] Document findings in `documentation/architecture/PULSAR-EVALUATION-RESULTS.md`
 - **Acceptance**: Dashboard operational, benchmarks executable, results validated
 
-- [ ] **Week 2: ADR Update & Phase 4 Planning**
-  - [ ] Review benchmarks and create Pulsar evaluation findings
-  - [ ] Update [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) with Pulsar consolidation pathway
-  - [ ] Document Phase 4 integration plan (namespaces, topics, consumer migration path)
-  - [ ] Create Phase 4 scope document: [PHASE-4-PULSAR-INTEGRATION.md](documentation/architecture/PHASE-4-PULSAR-INTEGRATION.md)
-  - [ ] Plan resource allocation for Phase 4 (2-3 sprints estimated)
-  - [ ] Risk assessment (failover scenarios, operational complexity)
+- [x] **Week 2: ADR Update & Phase 4 Planning**
+  - [x] Review benchmarks and create Pulsar evaluation findings
+  - [x] Update [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) with Pulsar consolidation pathway
+  - [x] Document Phase 4 integration plan (namespaces, topics, consumer migration path)
+  - [x] Create Phase 4 scope document: [PHASE-4-PULSAR-INTEGRATION.md](documentation/architecture/PHASE-4-PULSAR-INTEGRATION.md)
+  - [x] Plan resource allocation for Phase 4 (2-3 sprints estimated)
+  - [x] Risk assessment (failover scenarios, operational complexity)
   - **Acceptance**: ADR complete, Phase 4 scope approved
 
 **Success Criteria**:
