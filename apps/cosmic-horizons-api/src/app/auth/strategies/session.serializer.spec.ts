@@ -119,8 +119,11 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
-      const testUserRepository = testingModule.get(UserRepository) as jest.Mocked<UserRepository>;
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
+      const testUserRepository = testingModule.get(
+        UserRepository,
+      ) as jest.Mocked<UserRepository>;
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', (err, user) => {
@@ -147,7 +150,8 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('nonexistent', (err, user) => {
@@ -172,7 +176,8 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', (err, user) => {
@@ -196,8 +201,11 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
-      const testUserRepository = testingModule.get(UserRepository) as jest.Mocked<UserRepository>;
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
+      const testUserRepository = testingModule.get(
+        UserRepository,
+      ) as jest.Mocked<UserRepository>;
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', () => {
@@ -227,14 +235,18 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
-        testSerializer.deserializeUser('550e8400-e29b-41d4-a716-446655440000', (err, user) => {
-          expect(err).toBeNull();
-          expect(user?.id).toBe('550e8400-e29b-41d4-a716-446655440000');
-          resolve();
-        });
+        testSerializer.deserializeUser(
+          '550e8400-e29b-41d4-a716-446655440000',
+          (err, user) => {
+            expect(err).toBeNull();
+            expect(user?.id).toBe('550e8400-e29b-41d4-a716-446655440000');
+            resolve();
+          },
+        );
       });
     });
 
@@ -254,7 +266,8 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', (err, user) => {
@@ -298,7 +311,8 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-complex', (err, user) => {
@@ -329,7 +343,8 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         testSerializer.deserializeUser('user-1', (err, user) => {
@@ -355,7 +370,8 @@ describe('SessionSerializer', () => {
         ],
       }).compile();
 
-      const testSerializer = testingModule.get<SessionSerializer>(SessionSerializer);
+      const testSerializer =
+        testingModule.get<SessionSerializer>(SessionSerializer);
 
       return new Promise<void>((resolve) => {
         // Serialize

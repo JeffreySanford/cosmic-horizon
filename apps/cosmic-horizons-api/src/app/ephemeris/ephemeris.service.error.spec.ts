@@ -78,9 +78,14 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
 
       cacheService.get.mockResolvedValueOnce(cached);
 
-      const result = await service.calculatePosition('sun', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'sun',
+        '2026-02-13T00:00:00.000Z',
+      );
 
-      expect(result).toEqual(expect.objectContaining({ ...cached, source: 'cache' }));
+      expect(result).toEqual(
+        expect.objectContaining({ ...cached, source: 'cache' }),
+      );
       expect(cacheService.get).toHaveBeenCalledWith('ephem:sun:2026-02-13');
     });
 
@@ -88,7 +93,10 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
       cacheService.get.mockResolvedValueOnce(null);
       cacheService.set.mockResolvedValueOnce(undefined);
 
-      const result = await service.calculatePosition('mars', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'mars',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).not.toBeNull();
       expect(result?.source).toBe('astronomy-engine');
@@ -98,9 +106,14 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
 
     it('should return null if cache.set fails during calculation', async () => {
       cacheService.get.mockResolvedValueOnce(null);
-      cacheService.set.mockRejectedValueOnce(new Error('Redis connection lost'));
+      cacheService.set.mockRejectedValueOnce(
+        new Error('Redis connection lost'),
+      );
 
-      const result = await service.calculatePosition('mars', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'mars',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       // Service catches all errors including cache failures and returns null
       expect(result).toBeNull();
@@ -131,9 +144,14 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
 
     it('should return null for empty object name', async () => {
       cacheService.get.mockResolvedValueOnce(null);
-      httpService.get.mockReturnValueOnce(of(mockAxiosResponse({ result: 'No matches found' })));
+      httpService.get.mockReturnValueOnce(
+        of(mockAxiosResponse({ result: 'No matches found' })),
+      );
 
-      const result = await service.calculatePosition('', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        '',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       // Empty object name should fall back to asteroid and find no matches
       expect(result).toBeNull();
@@ -143,7 +161,10 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
       cacheService.get.mockResolvedValueOnce(null);
       cacheService.set.mockResolvedValueOnce(undefined);
 
-      const result = await service.calculatePosition('MARS', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'MARS',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).not.toBeNull();
       expect(result?.object_type).toBe('planet');
@@ -164,7 +185,10 @@ $$EOE
       };
       httpService.get.mockReturnValueOnce(of(mockAxiosResponse(jplResult)));
 
-      const result = await service.calculatePosition('Ceres', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Ceres',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).not.toBeNull();
       expect(result?.source).toBe('jpl-horizons');
@@ -180,7 +204,10 @@ $$EOE
       };
       httpService.get.mockReturnValueOnce(of(mockAxiosResponse(jplNoMatch)));
 
-      const result = await service.calculatePosition('XYZ123', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'XYZ123',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).toBeNull();
     });
@@ -189,9 +216,14 @@ $$EOE
   describe('handleAsteroidFallback - HTTP Errors', () => {
     it('should handle HTTP timeout from JPL Horizons', async () => {
       cacheService.get.mockResolvedValue(null);
-      httpService.get.mockReturnValueOnce(throwError(() => new Error('ETIMEDOUT')));
+      httpService.get.mockReturnValueOnce(
+        throwError(() => new Error('ETIMEDOUT')),
+      );
 
-      const result = await service.calculatePosition('Apophis', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Apophis',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).toBeNull();
     });
@@ -199,10 +231,13 @@ $$EOE
     it('should handle HTTP 400 bad request from JPL', async () => {
       cacheService.get.mockResolvedValue(null);
       httpService.get.mockReturnValueOnce(
-        throwError(() => ({ response: { status: 400 } }))
+        throwError(() => ({ response: { status: 400 } })),
       );
 
-      const result = await service.calculatePosition('asteroid-999', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'asteroid-999',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).toBeNull();
     });
@@ -210,10 +245,13 @@ $$EOE
     it('should handle HTTP 500 server error from JPL', async () => {
       cacheService.get.mockResolvedValue(null);
       httpService.get.mockReturnValueOnce(
-        throwError(() => ({ response: { status: 500 } }))
+        throwError(() => ({ response: { status: 500 } })),
       );
 
-      const result = await service.calculatePosition('asteroid-123', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'asteroid-123',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).toBeNull();
     });
@@ -222,16 +260,24 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       httpService.get.mockReturnValueOnce(of(mockAxiosResponse(null)));
 
-      const result = await service.calculatePosition('Eros', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Eros',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).toBeNull();
     });
 
     it('should handle empty response result', async () => {
       cacheService.get.mockResolvedValue(null);
-      httpService.get.mockReturnValueOnce(of(mockAxiosResponse({ result: '' })));
+      httpService.get.mockReturnValueOnce(
+        of(mockAxiosResponse({ result: '' })),
+      );
 
-      const result = await service.calculatePosition('Amor', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Amor',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).toBeNull();
     });
@@ -241,10 +287,13 @@ $$EOE
     it('should handle JPL response without SOE marker', async () => {
       cacheService.get.mockResolvedValue(null);
       httpService.get.mockReturnValueOnce(
-        of(mockAxiosResponse({ result: 'some data\nno markers\nhere' }))
+        of(mockAxiosResponse({ result: 'some data\nno markers\nhere' })),
       );
 
-      const result = await service.calculatePosition('Ida', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Ida',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).toBeNull();
     });
@@ -252,15 +301,20 @@ $$EOE
     it('should handle JPL response with only SOE marker but no EOE', async () => {
       cacheService.get.mockResolvedValue(null);
       httpService.get.mockReturnValueOnce(
-        of(mockAxiosResponse({
+        of(
+          mockAxiosResponse({
             result: `
 $$SOE
 2026-Feb-13 00:00 14 28 32.12 -15 28 42.1
             `,
-          }))
+          }),
+        ),
       );
 
-      const result = await service.calculatePosition('Vesta', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Vesta',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).not.toBeNull();
       expect(result?.source).toBe('jpl-horizons');
@@ -269,16 +323,21 @@ $$SOE
     it('should handle JPL response with malformed RA/Dec line', async () => {
       cacheService.get.mockResolvedValue(null);
       httpService.get.mockReturnValueOnce(
-        of(mockAxiosResponse({
+        of(
+          mockAxiosResponse({
             result: `
 $$SOE
 2026-Feb-13 invalid data here
 $$EOE
             `,
-          }))
+          }),
+        ),
       );
 
-      const result = await service.calculatePosition('Juno', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Juno',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       // Should handle NaN from parseFloat gracefully
       expect(result).toBeNull();
@@ -288,16 +347,21 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       cacheService.set.mockResolvedValue(undefined);
       httpService.get.mockReturnValueOnce(
-        of(mockAxiosResponse({
+        of(
+          mockAxiosResponse({
             result: `
 $$SOE
 2026-Feb-13 00:00 02 45 30.00 -35 15 22.5
 $$EOE
             `,
-          }))
+          }),
+        ),
       );
 
-      const result = await service.calculatePosition('Pallas', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Pallas',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).not.toBeNull();
       expect(result?.ra).toBeCloseTo(41.375, 2);
@@ -308,17 +372,22 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       cacheService.set.mockResolvedValue(undefined);
       httpService.get.mockReturnValueOnce(
-        of(mockAxiosResponse({
+        of(
+          mockAxiosResponse({
             result: `
 $$SOE
 2026-Feb-13 00:00 14 28 32.12 -15 28 42.1
 2026-Feb-14 00:00 14 29 15.45 -15 25 10.2
 $$EOE
             `,
-          }))
+          }),
+        ),
       );
 
-      const result = await service.calculatePosition('Flora', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Flora',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).not.toBeNull();
       // Should use the first data line
@@ -329,16 +398,21 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       cacheService.set.mockResolvedValue(undefined);
       httpService.get.mockReturnValueOnce(
-        of(mockAxiosResponse({
+        of(
+          mockAxiosResponse({
             result: `
 $$SOE
 2026-Feb-13  00:00   14   28   32.12   -15   28   42.1
 $$EOE
             `,
-          }))
+          }),
+        ),
       );
 
-      const result = await service.calculatePosition('Hygeia', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'Hygeia',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result).not.toBeNull();
       expect(result?.ra).toBeCloseTo(217.133, 2);
@@ -350,9 +424,22 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       cacheService.set.mockResolvedValue(undefined);
 
-      const planets = ['mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'sun'];
+      const planets = [
+        'mercury',
+        'venus',
+        'mars',
+        'jupiter',
+        'saturn',
+        'uranus',
+        'neptune',
+        'pluto',
+        'sun',
+      ];
       for (const planet of planets) {
-        const result = await service.calculatePosition(planet, '2026-02-13T00:00:00.000Z');
+        const result = await service.calculatePosition(
+          planet,
+          '2026-02-13T00:00:00.000Z',
+        );
         expect(result?.object_type).toBe('planet');
       }
     });
@@ -361,7 +448,10 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       cacheService.set.mockResolvedValue(undefined);
 
-      const result = await service.calculatePosition('moon', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'moon',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result?.object_type).toBe('satellite');
     });
@@ -370,16 +460,21 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       cacheService.set.mockResolvedValue(undefined);
       httpService.get.mockReturnValueOnce(
-        of(mockAxiosResponse({
+        of(
+          mockAxiosResponse({
             result: `
 $$SOE
 2026-Feb-13 00:00 14 28 32.12 -15 28 42.1
 $$EOE
             `,
-          }))
+          }),
+        ),
       );
 
-      const result = await service.calculatePosition('UnknownObject', '2026-02-13T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'UnknownObject',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       expect(result?.object_type).toBe('asteroid');
     });
@@ -439,16 +534,21 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       cacheService.set.mockResolvedValue(undefined);
       httpService.get.mockReturnValueOnce(
-        of(mockAxiosResponse({
+        of(
+          mockAxiosResponse({
             result: `
 $$SOE
 2026-Feb-13 00:00 14 28 32.12 -15 28 42.1
 $$EOE
             `,
-          }))
+          }),
+        ),
       );
 
-      await service.calculatePosition('asteroid-xyzzy', '2026-02-13T00:00:00.000Z');
+      await service.calculatePosition(
+        'asteroid-xyzzy',
+        '2026-02-13T00:00:00.000Z',
+      );
 
       const setCalls = cacheService.set.mock.calls;
       expect(setCalls[setCalls.length - 1][2]).toBe(86400);
@@ -458,9 +558,14 @@ $$EOE
   describe('Error Recovery & Resilience', () => {
     it('should handle JPL Horizons date boundary edge cases', async () => {
       cacheService.get.mockResolvedValue(null);
-      httpService.get.mockReturnValueOnce(of(mockAxiosResponse({ result: '$$SOE\n$$EOE' })));
+      httpService.get.mockReturnValueOnce(
+        of(mockAxiosResponse({ result: '$$SOE\n$$EOE' })),
+      );
 
-      const result = await service.calculatePosition('asteroid', '2026-01-01T00:00:00.000Z');
+      const result = await service.calculatePosition(
+        'asteroid',
+        '2026-01-01T00:00:00.000Z',
+      );
 
       // Empty data between markers should return null
       expect(result).toBeNull();
@@ -480,13 +585,19 @@ $$EOE
       cacheService.get.mockResolvedValueOnce(null);
       cacheService.set.mockResolvedValueOnce(undefined);
 
-      const result1 = await service.calculatePosition('venus', '2026-02-13T00:00:00.000Z');
+      const result1 = await service.calculatePosition(
+        'venus',
+        '2026-02-13T00:00:00.000Z',
+      );
       expect(result1).not.toBeNull();
 
       // Second call - hit from cache
       cacheService.get.mockResolvedValueOnce(cached);
 
-      const result2 = await service.calculatePosition('venus', '2026-02-13T00:00:00.000Z');
+      const result2 = await service.calculatePosition(
+        'venus',
+        '2026-02-13T00:00:00.000Z',
+      );
       expect(result2?.source).toBe('cache');
     });
 
@@ -494,14 +605,26 @@ $$EOE
       cacheService.get.mockResolvedValue(null);
       cacheService.set.mockResolvedValue(undefined);
 
-      const result1 = await service.calculatePosition('mars', '2026-02-13T00:00:00.000Z');
-      const result2 = await service.calculatePosition('mars', '2026-02-14T00:00:00.000Z');
+      const result1 = await service.calculatePosition(
+        'mars',
+        '2026-02-13T00:00:00.000Z',
+      );
+      const result2 = await service.calculatePosition(
+        'mars',
+        '2026-02-14T00:00:00.000Z',
+      );
 
       expect(result1).not.toBeNull();
       expect(result2).not.toBeNull();
       // Both should use astronomy-engine (cache misses on different dates)
-      expect(cacheService.get).toHaveBeenNthCalledWith(1, 'ephem:mars:2026-02-13');
-      expect(cacheService.get).toHaveBeenNthCalledWith(2, 'ephem:mars:2026-02-14');
+      expect(cacheService.get).toHaveBeenNthCalledWith(
+        1,
+        'ephem:mars:2026-02-13',
+      );
+      expect(cacheService.get).toHaveBeenNthCalledWith(
+        2,
+        'ephem:mars:2026-02-14',
+      );
     });
   });
 

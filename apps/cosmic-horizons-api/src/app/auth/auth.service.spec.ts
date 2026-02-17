@@ -66,7 +66,11 @@ describe('AuthService', () => {
 
   describe('loginWithCredentials', () => {
     it('authenticates with normalized email', async () => {
-      const user = { id: 'user-1', username: 'testuser', email: 'test@cosmic.local' };
+      const user = {
+        id: 'user-1',
+        username: 'testuser',
+        email: 'test@cosmic.local',
+      };
       userRepository.findByEmailAndPassword.mockResolvedValue(user);
 
       const result = await service.loginWithCredentials({
@@ -76,7 +80,7 @@ describe('AuthService', () => {
 
       expect(userRepository.findByEmailAndPassword).toHaveBeenCalledWith(
         'test@cosmic.local',
-        'Password123!'
+        'Password123!',
       );
       expect(result).toBe(user);
     });
@@ -88,7 +92,7 @@ describe('AuthService', () => {
         service.loginWithCredentials({
           email: 'missing@cosmic.local',
           password: 'invalid',
-        })
+        }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
   });
@@ -172,7 +176,11 @@ describe('AuthService', () => {
       expect(result.refresh_token.length).toBeGreaterThan(30);
       expect(dataSource.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO auth_refresh_tokens'),
-        expect.arrayContaining(['user-1', expect.any(String), expect.any(String)]),
+        expect.arrayContaining([
+          'user-1',
+          expect.any(String),
+          expect.any(String),
+        ]),
       );
     });
   });

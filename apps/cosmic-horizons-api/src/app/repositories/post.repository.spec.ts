@@ -26,7 +26,7 @@ describe('PostRepository', () => {
       update: jest.fn(),
       delete: jest.fn(),
       createQueryBuilder: jest.fn(),
-    } as unknown as jest.Mocked<Repository<Post>>);
+    }) as unknown as jest.Mocked<Repository<Post>>;
 
   beforeEach(async () => {
     mockRepository = createMockPostRepository();
@@ -107,7 +107,9 @@ describe('PostRepository', () => {
       mockRepository.create.mockReturnValue(postData);
       mockRepository.save.mockRejectedValue(new Error('Database error'));
 
-      await expect(repository.create(postData)).rejects.toThrow('Database error');
+      await expect(repository.create(postData)).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 
@@ -122,7 +124,7 @@ describe('PostRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user', 'revisions', 'comments', 'snapshots'],
-        })
+        }),
       );
       expect(result?.id).toBe('post-1');
     });
@@ -143,8 +145,13 @@ describe('PostRepository', () => {
 
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
-          relations: expect.arrayContaining(['user', 'revisions', 'comments', 'snapshots']),
-        })
+          relations: expect.arrayContaining([
+            'user',
+            'revisions',
+            'comments',
+            'snapshots',
+          ]),
+        }),
       );
     });
   });
@@ -164,7 +171,7 @@ describe('PostRepository', () => {
         expect.objectContaining({
           relations: ['user'],
           order: { created_at: 'DESC' },
-        })
+        }),
       );
       expect(result).toHaveLength(2);
     });
@@ -177,7 +184,7 @@ describe('PostRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           order: { created_at: 'DESC' },
-        })
+        }),
       );
     });
 
@@ -189,7 +196,7 @@ describe('PostRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user'],
-        })
+        }),
       );
     });
 
@@ -216,10 +223,14 @@ describe('PostRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           order: { created_at: 'DESC' },
-        })
+        }),
       );
       expect(result).toHaveLength(2);
-      TypeSafeAssertions.assertArrayPropertiesEqual(result, 'user_id', 'user-1');
+      TypeSafeAssertions.assertArrayPropertiesEqual(
+        result,
+        'user_id',
+        'user-1',
+      );
     });
 
     it('should return empty array when user has no posts', async () => {
@@ -238,7 +249,7 @@ describe('PostRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           order: { created_at: 'DESC' },
-        })
+        }),
       );
     });
   });
@@ -264,7 +275,7 @@ describe('PostRepository', () => {
         expect.objectContaining({
           relations: ['user'],
           order: { published_at: 'DESC' },
-        })
+        }),
       );
       expect(result).toHaveLength(2);
     });
@@ -277,7 +288,7 @@ describe('PostRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user'],
-        })
+        }),
       );
     });
 
@@ -307,7 +318,11 @@ describe('PostRepository', () => {
         .withContent('Updated content')
         .build();
 
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(updatedPost);
 
       const result = await repository.update('post-1', updateData);
@@ -317,7 +332,11 @@ describe('PostRepository', () => {
     });
 
     it('should update the updated_at timestamp', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(new PostBuilder().build());
 
       await repository.update('post-1', { title: 'New Title' });
@@ -326,7 +345,11 @@ describe('PostRepository', () => {
     });
 
     it('should return null when post not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
       const result = await repository.update('nonexistent', {
@@ -337,7 +360,11 @@ describe('PostRepository', () => {
     });
 
     it('should not update deleted posts', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
 
       await repository.update('deleted-post', { title: 'New Title' });
 
@@ -352,7 +379,11 @@ describe('PostRepository', () => {
         .withStatus(PostStatus.PUBLISHED)
         .build();
 
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(publishedPost);
 
       const result = await repository.publish('post-1');
@@ -362,9 +393,13 @@ describe('PostRepository', () => {
     });
 
     it('should not publish already published posts', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(
-        new PostBuilder().withStatus(PostStatus.PUBLISHED).build()
+        new PostBuilder().withStatus(PostStatus.PUBLISHED).build(),
       );
 
       await repository.publish('already-published');
@@ -373,7 +408,11 @@ describe('PostRepository', () => {
     });
 
     it('should return null if post not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
       const result = await repository.publish('nonexistent');
@@ -389,7 +428,11 @@ describe('PostRepository', () => {
         .withStatus(PostStatus.DRAFT)
         .build();
 
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(unpublishedPost);
 
       const result = await repository.unpublish('post-1');
@@ -399,7 +442,11 @@ describe('PostRepository', () => {
     });
 
     it('should clear published_at timestamp', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(new PostBuilder().build());
 
       await repository.unpublish('post-1');
@@ -408,7 +455,11 @@ describe('PostRepository', () => {
     });
 
     it('should return null if post not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
       const result = await repository.unpublish('nonexistent');
@@ -421,7 +472,11 @@ describe('PostRepository', () => {
     it('should mark post as hidden', async () => {
       const hiddenPost = new PostBuilder().withId('post-1').build();
 
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(hiddenPost);
 
       const result = await repository.hide('post-1');
@@ -431,7 +486,11 @@ describe('PostRepository', () => {
     });
 
     it('should hide post without deleting it', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(new PostBuilder().build());
 
       await repository.hide('post-1');
@@ -440,7 +499,11 @@ describe('PostRepository', () => {
     });
 
     it('should return null if post not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
       const result = await repository.hide('nonexistent');
@@ -453,7 +516,11 @@ describe('PostRepository', () => {
     it('should unhide a hidden post', async () => {
       const unhiddenPost = new PostBuilder().withId('post-1').build();
 
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(unhiddenPost);
 
       const result = await repository.unhide('post-1');
@@ -463,7 +530,11 @@ describe('PostRepository', () => {
     });
 
     it('should set hidden_at to null', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(new PostBuilder().build());
 
       await repository.unhide('post-1');
@@ -472,7 +543,11 @@ describe('PostRepository', () => {
     });
 
     it('should return null if post not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
       const result = await repository.unhide('nonexistent');
@@ -483,7 +558,11 @@ describe('PostRepository', () => {
 
   describe('softDelete', () => {
     it('should mark post as deleted', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
 
       const result = await repository.softDelete('post-1');
 
@@ -492,7 +571,11 @@ describe('PostRepository', () => {
     });
 
     it('should return false when post not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
 
       const result = await repository.softDelete('nonexistent');
 
@@ -500,7 +583,11 @@ describe('PostRepository', () => {
     });
 
     it('should not re-delete already deleted posts', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
 
       const result = await repository.softDelete('already-deleted');
 

@@ -79,7 +79,9 @@ describe('BrokerMetricsController', () => {
       providers: [{ provide: BrokerMetricsService, useValue: mockService }],
     }).compile();
 
-    controller = testingModule.get<BrokerMetricsController>(BrokerMetricsController);
+    controller = testingModule.get<BrokerMetricsController>(
+      BrokerMetricsController,
+    );
     serviceMock = testingModule.get(BrokerMetricsService);
   });
 
@@ -118,7 +120,9 @@ describe('BrokerMetricsController', () => {
     });
 
     it('should handle service errors', async () => {
-      serviceMock.getCurrentMetrics.mockRejectedValueOnce(new Error('Database error'));
+      serviceMock.getCurrentMetrics.mockRejectedValueOnce(
+        new Error('Database error'),
+      );
 
       await expect(controller.getStats()).rejects.toThrow('Database error');
     });
@@ -215,7 +219,10 @@ describe('BrokerMetricsController', () => {
         ...mockComparisonDTO,
         brokers: {
           ...mockComparisonDTO.brokers,
-          pulsar: { ...mockComparisonDTO.brokers.pulsar, dataSource: 'fallback' },
+          pulsar: {
+            ...mockComparisonDTO.brokers.pulsar,
+            dataSource: 'fallback',
+          },
         },
       });
 
@@ -229,11 +236,23 @@ describe('BrokerMetricsController', () => {
         ...mockComparisonDTO,
         brokers: {
           ...mockComparisonDTO.brokers,
-          pulsar: { ...mockComparisonDTO.brokers.pulsar, dataSource: 'fallback' },
+          pulsar: {
+            ...mockComparisonDTO.brokers.pulsar,
+            dataSource: 'fallback',
+          },
         },
       });
 
-      const result = await controller.startBenchmark('false', '10000', 'pulsar', undefined, undefined, undefined, undefined, 'false');
+      const result = await controller.startBenchmark(
+        'false',
+        '10000',
+        'pulsar',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'false',
+      );
       expect(['queued', 'running']).toContain(result.status);
     });
   });

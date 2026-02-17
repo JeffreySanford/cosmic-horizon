@@ -51,7 +51,7 @@ describe('EphemerisService', () => {
 
   it('should calculate Mars position correctly (cache miss)', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     // Fixed epoch for reproducible results
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('mars', epoch);
@@ -61,7 +61,7 @@ describe('EphemerisService', () => {
     expect(result?.source).toBe('astronomy-engine');
     expect(typeof result?.ra).toBe('number');
     expect(typeof result?.dec).toBe('number');
-    
+
     // Verify cache was checked and set
     expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
     expect(cacheService.set).toHaveBeenCalled();
@@ -76,9 +76,14 @@ describe('EphemerisService', () => {
     };
     cacheService.get.mockResolvedValue(cachedResult);
 
-    const result = await service.calculatePosition('mars', '2026-02-11T12:00:00Z');
+    const result = await service.calculatePosition(
+      'mars',
+      '2026-02-11T12:00:00Z',
+    );
 
-    expect(result).toEqual(expect.objectContaining({ ...cachedResult, source: 'cache' }));
+    expect(result).toEqual(
+      expect.objectContaining({ ...cachedResult, source: 'cache' }),
+    );
     expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
     // Calculation should not run
     expect(cacheService.set).not.toHaveBeenCalled();
@@ -115,7 +120,10 @@ $$EOE
     } as AxiosResponse<{ result: string }>;
     httpService.get.mockReturnValue(of(response));
 
-    const result = await service.calculatePosition('eros', '2026-02-11T12:00:00Z');
+    const result = await service.calculatePosition(
+      'eros',
+      '2026-02-11T12:00:00Z',
+    );
 
     expect(result).toBeDefined();
     expect(result?.source).toBe('jpl-horizons');
@@ -129,7 +137,7 @@ $$EOE
 
   it('should calculate Moon position correctly', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('moon', epoch);
 
@@ -142,7 +150,7 @@ $$EOE
 
   it('should calculate Venus position correctly', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('venus', epoch);
 
@@ -153,7 +161,7 @@ $$EOE
 
   it('should calculate Mercury position correctly', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('mercury', epoch);
 
@@ -163,7 +171,7 @@ $$EOE
 
   it('should calculate Jupiter position correctly', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('jupiter', epoch);
 
@@ -173,7 +181,7 @@ $$EOE
 
   it('should calculate Saturn position correctly', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('saturn', epoch);
 
@@ -183,7 +191,7 @@ $$EOE
 
   it('should calculate Uranus position correctly', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('uranus', epoch);
 
@@ -193,7 +201,7 @@ $$EOE
 
   it('should calculate Neptune position correctly', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('neptune', epoch);
 
@@ -203,7 +211,7 @@ $$EOE
 
   it('should calculate Sun position correctly', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     const result = await service.calculatePosition('sun', epoch);
 
@@ -213,7 +221,7 @@ $$EOE
 
   it('should use default current epoch when not provided', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const result = await service.calculatePosition('mars');
 
     expect(result).toBeDefined();
@@ -223,9 +231,9 @@ $$EOE
 
   it('should handle multiple cache lookups for different objects', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
-    
+
     const result1 = await service.calculatePosition('mars', epoch);
     const result2 = await service.calculatePosition('venus', epoch);
     const result3 = await service.calculatePosition('mercury', epoch);
@@ -247,23 +255,31 @@ $$EOE
     cacheService.get.mockResolvedValue(cachedResult);
 
     // Test with uppercase
-    const result = await service.calculatePosition('MARS', '2026-02-11T12:00:00Z');
+    const result = await service.calculatePosition(
+      'MARS',
+      '2026-02-11T12:00:00Z',
+    );
 
-    expect(result).toEqual(expect.objectContaining({ ...cachedResult, source: 'cache' }));
+    expect(result).toEqual(
+      expect.objectContaining({ ...cachedResult, source: 'cache' }),
+    );
     expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
   });
 
   it('should correctly parse Earth as null and return null', async () => {
     cacheService.get.mockResolvedValue(null);
-    
-    const result = await service.calculatePosition('earth', '2026-02-11T12:00:00Z');
+
+    const result = await service.calculatePosition(
+      'earth',
+      '2026-02-11T12:00:00Z',
+    );
 
     expect(result).toBeNull();
   });
 
   it('should cache results with correct TTL', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     const epoch = '2026-02-11T12:00:00Z';
     await service.calculatePosition('mars', epoch);
 
@@ -277,13 +293,13 @@ $$EOE
         object_type: 'planet',
         source: 'astronomy-engine',
       }),
-      86400
+      86400,
     );
   });
 
   it('should handle calculation errors gracefully', async () => {
     cacheService.get.mockResolvedValue(null);
-    
+
     // Mock an invalid epoch that could cause errors
     const result = await service.calculatePosition('mars', 'invalid-date');
 
@@ -300,11 +316,11 @@ $$EOE
       source: 'astronomy-engine',
       accuracy_arcsec: 0.1,
     };
-    
+
     // First call cache miss
     cacheService.get.mockResolvedValueOnce(null);
     cacheService.set.mockResolvedValueOnce(undefined);
-    
+
     const epoch1 = '2026-02-11T12:00:00Z';
     await service.calculatePosition('mars', epoch1);
 
@@ -317,4 +333,3 @@ $$EOE
     expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
   });
 });
-

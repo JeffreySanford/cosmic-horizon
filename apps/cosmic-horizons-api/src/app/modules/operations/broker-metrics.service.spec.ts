@@ -79,7 +79,10 @@ describe('BrokerMetricsService', () => {
       providers: [
         BrokerMetricsService,
         { provide: BrokerMetricsCollector, useValue: collectorMock },
-        { provide: getRepositoryToken(BrokerMetrics), useValue: repositoryMock },
+        {
+          provide: getRepositoryToken(BrokerMetrics),
+          useValue: repositoryMock,
+        },
       ],
     }).compile();
 
@@ -134,7 +137,9 @@ describe('BrokerMetricsService', () => {
 
       const result = await service.getCurrentMetrics(true);
       expect(result.comparison.throughputImprovement).toBeUndefined();
-      expect(result.comparison.suppressedReasons?.join(' ')).toContain('Throughput delta suppressed');
+      expect(result.comparison.suppressedReasons?.join(' ')).toContain(
+        'Throughput delta suppressed',
+      );
     });
 
     it('should suppress deltas when either side is fallback quality', async () => {
@@ -160,9 +165,13 @@ describe('BrokerMetricsService', () => {
     });
 
     it('should handle collector errors gracefully', async () => {
-      collectorMock.collectAllMetrics.mockRejectedValueOnce(new Error('Connection failed'));
+      collectorMock.collectAllMetrics.mockRejectedValueOnce(
+        new Error('Connection failed'),
+      );
 
-      await expect(service.getCurrentMetrics()).rejects.toThrow('Connection failed');
+      await expect(service.getCurrentMetrics()).rejects.toThrow(
+        'Connection failed',
+      );
     });
   });
 
@@ -210,7 +219,10 @@ describe('BrokerMetricsService', () => {
     });
 
     it('should default to 7 days retention', async () => {
-      repositoryMock.delete.mockResolvedValueOnce({ affected: 100, raw: {} } as any);
+      repositoryMock.delete.mockResolvedValueOnce({
+        affected: 100,
+        raw: {},
+      } as any);
 
       const result = await service.pruneOldMetrics();
 
@@ -218,7 +230,10 @@ describe('BrokerMetricsService', () => {
     });
 
     it('should log number of deleted entries', async () => {
-      repositoryMock.delete.mockResolvedValueOnce({ affected: 50, raw: {} } as any);
+      repositoryMock.delete.mockResolvedValueOnce({
+        affected: 50,
+        raw: {},
+      } as any);
 
       await service.pruneOldMetrics();
 

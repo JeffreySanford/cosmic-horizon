@@ -382,7 +382,8 @@ describe('MetricsService - Event Consumption', () => {
       expect(summary).toBeDefined();
       // Efficiency = avg_cpu / max_cpu (closer to 1.0 = more consistent)
       const efficiency = summary
-        ? (summary.avg_cpu_usage_percent || 0) / Math.max(summary.max_cpu_usage_percent || 1, 0.1)
+        ? (summary.avg_cpu_usage_percent || 0) /
+          Math.max(summary.max_cpu_usage_percent || 1, 0.1)
         : 0;
       expect(efficiency).toBeGreaterThanOrEqual(0);
       expect(efficiency).toBeLessThanOrEqual(1);

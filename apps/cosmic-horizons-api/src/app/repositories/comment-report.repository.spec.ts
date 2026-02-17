@@ -22,7 +22,7 @@ describe('CommentReportRepository', () => {
       create: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
-    } as unknown as jest.Mocked<Repository<CommentReport>>);
+    }) as unknown as jest.Mocked<Repository<CommentReport>>;
 
   beforeEach(async () => {
     mockRepository = createMockCommentReportRepository();
@@ -37,7 +37,9 @@ describe('CommentReportRepository', () => {
       ],
     }).compile();
 
-    repository = testingModule.get<CommentReportRepository>(CommentReportRepository);
+    repository = testingModule.get<CommentReportRepository>(
+      CommentReportRepository,
+    );
   });
 
   describe('create', () => {
@@ -96,7 +98,7 @@ describe('CommentReportRepository', () => {
         expect.objectContaining({
           relations: ['comment', 'user', 'resolver'],
           order: { created_at: 'DESC' },
-        })
+        }),
       );
       expect(result).toHaveLength(2);
     });
@@ -111,9 +113,7 @@ describe('CommentReportRepository', () => {
 
     it('should include resolver in relations for resolved reports', async () => {
       const reports = [
-        new CommentReportBuilder()
-          .withStatus('reviewed')
-          .build(),
+        new CommentReportBuilder().withStatus('reviewed').build(),
       ];
 
       mockRepository.find.mockResolvedValue(reports as any);
@@ -123,7 +123,7 @@ describe('CommentReportRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: expect.arrayContaining(['resolver']),
-        })
+        }),
       );
     });
   });
@@ -142,7 +142,7 @@ describe('CommentReportRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'pending' }),
-        })
+        }),
       );
       expect(result).toHaveLength(2);
     });
@@ -155,7 +155,7 @@ describe('CommentReportRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'pending' }),
-        })
+        }),
       );
     });
 
@@ -167,7 +167,7 @@ describe('CommentReportRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           order: { created_at: 'ASC' },
-        })
+        }),
       );
     });
   });
@@ -183,7 +183,7 @@ describe('CommentReportRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: 'report-1' },
-        })
+        }),
       );
       expect(result?.id).toBe('report-1');
     });
@@ -206,7 +206,7 @@ describe('CommentReportRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['comment', 'user', 'resolver'],
-        })
+        }),
       );
     });
   });
@@ -232,7 +232,7 @@ describe('CommentReportRepository', () => {
         expect.objectContaining({
           status: 'reviewed',
           resolved_by: resolverId,
-        })
+        }),
       );
       expect(result?.status).toBe('reviewed');
     });
@@ -257,7 +257,7 @@ describe('CommentReportRepository', () => {
         expect.objectContaining({
           status: 'dismissed',
           resolved_by: resolverId,
-        })
+        }),
       );
       expect(result?.status).toBe('dismissed');
     });
@@ -276,7 +276,7 @@ describe('CommentReportRepository', () => {
         expect.objectContaining({ id: reportId }),
         expect.objectContaining({
           resolved_by: resolverId,
-        })
+        }),
       );
     });
 
@@ -300,7 +300,11 @@ describe('CommentReportRepository', () => {
       mockRepository.update.mockResolvedValue({ affected: 1 } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
-      const result = await repository.resolve('nonexistent', 'admin-1', 'reviewed');
+      const result = await repository.resolve(
+        'nonexistent',
+        'admin-1',
+        'reviewed',
+      );
 
       expect(result).toBeNull();
     });

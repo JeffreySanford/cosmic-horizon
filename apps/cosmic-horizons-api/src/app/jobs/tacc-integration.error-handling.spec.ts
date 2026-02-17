@@ -38,8 +38,10 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key, defaultValue) =>
-              mockTaccConfig[key as keyof typeof mockTaccConfig] || defaultValue,
+            get: jest.fn(
+              (key, defaultValue) =>
+                mockTaccConfig[key as keyof typeof mockTaccConfig] ||
+                defaultValue,
             ),
           },
         },
@@ -47,7 +49,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     }).compile();
 
     service = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
-    configService = testingModule.get(ConfigService) as jest.Mocked<ConfigService>;
+    configService = testingModule.get(
+      ConfigService,
+    ) as jest.Mocked<ConfigService>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
@@ -82,9 +86,11 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     });
 
     it('should retry on 503 Service Unavailable', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(
-        new Error('503 Service Unavailable: TACC maintenance'),
-      );
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(
+          new Error('503 Service Unavailable: TACC maintenance'),
+        );
 
       await expect(
         service.submitJob({
@@ -96,7 +102,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     });
 
     it('should retry on 502 Bad Gateway', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error('502 Bad Gateway'));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error('502 Bad Gateway'));
 
       await expect(
         service.submitJob({
@@ -108,7 +116,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     });
 
     it('should retry on 504 Gateway Timeout', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error('504 Gateway Timeout'));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error('504 Gateway Timeout'));
 
       await expect(
         service.submitJob({
@@ -122,7 +132,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     it('should retry on connection reset', async () => {
       jest
         .spyOn(service, 'submitJob')
-        .mockRejectedValueOnce(new Error('ECONNRESET: Connection reset by peer'));
+        .mockRejectedValueOnce(
+          new Error('ECONNRESET: Connection reset by peer'),
+        );
 
       await expect(
         service.submitJob({
@@ -152,7 +164,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     it('should NOT retry on 400 Bad Request', async () => {
       jest
         .spyOn(service, 'submitJob')
-        .mockRejectedValueOnce(new Error('400 Bad Request: Invalid parameters'));
+        .mockRejectedValueOnce(
+          new Error('400 Bad Request: Invalid parameters'),
+        );
 
       await expect(
         service.submitJob({
@@ -166,7 +180,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     it('should NOT retry on 401 Unauthorized', async () => {
       jest
         .spyOn(service, 'submitJob')
-        .mockRejectedValueOnce(new Error('401 Unauthorized: Invalid credentials'));
+        .mockRejectedValueOnce(
+          new Error('401 Unauthorized: Invalid credentials'),
+        );
 
       await expect(
         service.submitJob({
@@ -208,7 +224,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     it('should NOT retry on 422 Unprocessable Entity', async () => {
       jest
         .spyOn(service, 'submitJob')
-        .mockRejectedValueOnce(new Error('422 Unprocessable Entity: Validation failed'));
+        .mockRejectedValueOnce(
+          new Error('422 Unprocessable Entity: Validation failed'),
+        );
 
       await expect(
         service.submitJob({
@@ -293,7 +311,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     });
 
     it('should succeed on retry before max retries', async () => {
-      jest.spyOn(service, 'submitJob').mockResolvedValueOnce({ jobId: 'tacc-success' });
+      jest
+        .spyOn(service, 'submitJob')
+        .mockResolvedValueOnce({ jobId: 'tacc-success' });
 
       const result = await service.submitJob({
         agent: 'AlphaCal',
@@ -336,7 +356,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     });
 
     it('should close circuit after successful operation', async () => {
-      jest.spyOn(service, 'submitJob').mockResolvedValueOnce({ jobId: 'tacc-123' });
+      jest
+        .spyOn(service, 'submitJob')
+        .mockResolvedValueOnce({ jobId: 'tacc-123' });
 
       const result = await service.submitJob({
         agent: 'AlphaCal',
@@ -355,7 +377,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
 
   describe('Idempotency', () => {
     it('should handle duplicate job submissions', async () => {
-      jest.spyOn(service, 'submitJob').mockResolvedValueOnce({ jobId: 'tacc-001' });
+      jest
+        .spyOn(service, 'submitJob')
+        .mockResolvedValueOnce({ jobId: 'tacc-001' });
 
       const submission = {
         agent: 'AlphaCal' as const,
@@ -374,7 +398,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     it('should support idempotency keys', async () => {
       const idempotencyKey = 'idempotent-key-12345';
 
-      jest.spyOn(service, 'submitJob').mockResolvedValueOnce({ jobId: 'tacc-001' });
+      jest
+        .spyOn(service, 'submitJob')
+        .mockResolvedValueOnce({ jobId: 'tacc-001' });
 
       const result = await service.submitJob({
         agent: 'AlphaCal',
@@ -386,7 +412,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     });
 
     it('should prevent duplicate processing on retry', async () => {
-      jest.spyOn(service, 'submitJob').mockResolvedValueOnce({ jobId: 'tacc-001' });
+      jest
+        .spyOn(service, 'submitJob')
+        .mockResolvedValueOnce({ jobId: 'tacc-001' });
 
       const result = await service.submitJob({
         agent: 'AlphaCal',
@@ -418,7 +446,9 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
 
     it('should queue jobs when TACC is unavailable', async () => {
       // Jobs should be queued locally and retried when service recovers
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error('TACC unavailable'));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error('TACC unavailable'));
 
       expect(service).toBeDefined();
     });
@@ -500,9 +530,11 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
 
   describe('Specific Error Scenarios', () => {
     it('should handle GPU allocation failures', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(
-        new Error('CUDA GPU unavailable: All GPUs currently in use'),
-      );
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(
+          new Error('CUDA GPU unavailable: All GPUs currently in use'),
+        );
 
       await expect(
         service.submitJob({
@@ -514,9 +546,11 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     });
 
     it('should handle memory exhaustion', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(
-        new Error('Memory allocation failed: 512GB limit exceeded'),
-      );
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(
+          new Error('Memory allocation failed: 512GB limit exceeded'),
+        );
 
       await expect(
         service.submitJob({
@@ -560,11 +594,15 @@ describe('TaccIntegrationService - Error Handling & Retry Logic', () => {
     });
 
     it('should handle timeout during execution', async () => {
-      jest.spyOn(service, 'getJobStatus').mockRejectedValueOnce(
-        new Error('Job status check timeout after 30 seconds'),
-      );
+      jest
+        .spyOn(service, 'getJobStatus')
+        .mockRejectedValueOnce(
+          new Error('Job status check timeout after 30 seconds'),
+        );
 
-      await expect(service.getJobStatus('tacc-123456')).rejects.toThrow('timeout');
+      await expect(service.getJobStatus('tacc-123456')).rejects.toThrow(
+        'timeout',
+      );
     });
   });
 });

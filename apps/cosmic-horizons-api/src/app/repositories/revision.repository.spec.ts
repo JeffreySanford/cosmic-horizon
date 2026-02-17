@@ -25,7 +25,7 @@ describe('RevisionRepository', () => {
       save: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
-    } as unknown as jest.Mocked<Repository<Revision>>);
+    }) as unknown as jest.Mocked<Repository<Revision>>;
 
   beforeEach(async () => {
     mockRepository = createMockRevisionRepository();
@@ -108,7 +108,7 @@ describe('RevisionRepository', () => {
       mockRepository.save.mockRejectedValue(new Error('Database error'));
 
       await expect(repository.create(revisionData)).rejects.toThrow(
-        'Database error'
+        'Database error',
       );
     });
   });
@@ -116,18 +116,9 @@ describe('RevisionRepository', () => {
   describe('findByPost', () => {
     it('should find all revisions for a post', async () => {
       const revisions = [
-        new RevisionBuilder()
-          .withId('revision-1')
-          .withPostId('post-1')
-          .build(),
-        new RevisionBuilder()
-          .withId('revision-2')
-          .withPostId('post-1')
-          .build(),
-        new RevisionBuilder()
-          .withId('revision-3')
-          .withPostId('post-1')
-          .build(),
+        new RevisionBuilder().withId('revision-1').withPostId('post-1').build(),
+        new RevisionBuilder().withId('revision-2').withPostId('post-1').build(),
+        new RevisionBuilder().withId('revision-3').withPostId('post-1').build(),
       ];
 
       mockRepository.find.mockResolvedValue(revisions);
@@ -138,10 +129,14 @@ describe('RevisionRepository', () => {
         expect.objectContaining({
           relations: ['user', 'post'],
           order: { created_at: 'ASC' },
-        })
+        }),
       );
       expect(result).toHaveLength(3);
-      TypeSafeAssertions.assertArrayPropertiesEqual(result, 'post_id', 'post-1');
+      TypeSafeAssertions.assertArrayPropertiesEqual(
+        result,
+        'post_id',
+        'post-1',
+      );
     });
 
     it('should order revisions by created_at ascending', async () => {
@@ -152,7 +147,7 @@ describe('RevisionRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           order: { created_at: 'ASC' },
-        })
+        }),
       );
     });
 
@@ -164,7 +159,7 @@ describe('RevisionRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user', 'post'],
-        })
+        }),
       );
     });
 
@@ -193,7 +188,7 @@ describe('RevisionRepository', () => {
         expect.objectContaining({
           relations: ['user', 'post'],
           order: { created_at: 'DESC' },
-        })
+        }),
       );
       expect(result?.id).toBe('revision-5');
     });
@@ -227,14 +222,12 @@ describe('RevisionRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           order: { created_at: 'DESC' },
-        })
+        }),
       );
     });
 
     it('should include relations for latest revision', async () => {
-      const revision = new RevisionBuilder()
-        .withId('revision-1')
-        .build();
+      const revision = new RevisionBuilder().withId('revision-1').build();
 
       mockRepository.findOne.mockResolvedValue(revision);
 
@@ -243,16 +236,14 @@ describe('RevisionRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user', 'post'],
-        })
+        }),
       );
     });
   });
 
   describe('findById', () => {
     it('should find a revision by id with relations', async () => {
-      const revision = new RevisionBuilder()
-        .withId('revision-1')
-        .build();
+      const revision = new RevisionBuilder().withId('revision-1').build();
 
       mockRepository.findOne.mockResolvedValue(revision);
 
@@ -261,7 +252,7 @@ describe('RevisionRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user', 'post'],
-        })
+        }),
       );
       expect(result?.id).toBe('revision-1');
     });
@@ -282,7 +273,7 @@ describe('RevisionRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user', 'post'],
-        })
+        }),
       );
     });
   });
@@ -369,15 +360,9 @@ describe('RevisionRepository', () => {
 
     it('should track editor information across versions', async () => {
       const revisions = [
-        new RevisionBuilder()
-          .withUserId('user-1')
-          .build(),
-        new RevisionBuilder()
-          .withUserId('user-2')
-          .build(),
-        new RevisionBuilder()
-          .withUserId('user-1')
-          .build(),
+        new RevisionBuilder().withUserId('user-1').build(),
+        new RevisionBuilder().withUserId('user-2').build(),
+        new RevisionBuilder().withUserId('user-1').build(),
       ];
 
       mockRepository.find.mockResolvedValue(revisions);

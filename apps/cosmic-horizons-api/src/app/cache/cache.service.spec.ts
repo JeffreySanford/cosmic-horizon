@@ -49,20 +49,8 @@ describe('CacheService', () => {
     service = testingModule.get<CacheService>(CacheService);
 
     // Default config: Redis disabled
-    configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-      const config: Record<string, string | number> = {
-        REDIS_CACHE_ENABLED: 'false',
-        REDIS_HOST: '127.0.0.1',
-        REDIS_PORT: 6379,
-        REDIS_CONNECT_TIMEOUT_MS: 2000,
-      };
-      return config[key] ?? defaultValue;
-    });
-  });
-
-  describe('Memory Cache (When Redis Disabled)', () => {
-    beforeEach(async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
+    configService.get.mockImplementation(
+      (key: string, defaultValue?: unknown) => {
         const config: Record<string, string | number> = {
           REDIS_CACHE_ENABLED: 'false',
           REDIS_HOST: '127.0.0.1',
@@ -70,7 +58,23 @@ describe('CacheService', () => {
           REDIS_CONNECT_TIMEOUT_MS: 2000,
         };
         return config[key] ?? defaultValue;
-      });
+      },
+    );
+  });
+
+  describe('Memory Cache (When Redis Disabled)', () => {
+    beforeEach(async () => {
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number> = {
+            REDIS_CACHE_ENABLED: 'false',
+            REDIS_HOST: '127.0.0.1',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       await service.onModuleInit();
     });
@@ -158,15 +162,17 @@ describe('CacheService', () => {
 
   describe('Redis Cache (When Redis Enabled)', () => {
     beforeEach(async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       mockRedisClient.connect.mockResolvedValue(undefined);
       mockRedisClient.ping.mockResolvedValue('PONG');
@@ -184,7 +190,11 @@ describe('CacheService', () => {
 
       await service.set('key1', 'value1', 3600);
 
-      expect(mockRedisClient.setex).toHaveBeenCalledWith('key1', 3600, '"value1"');
+      expect(mockRedisClient.setex).toHaveBeenCalledWith(
+        'key1',
+        3600,
+        '"value1"',
+      );
     });
 
     it('should store value in Redis without TTL', async () => {
@@ -226,7 +236,9 @@ describe('CacheService', () => {
       await service.set('key1', 'value1', 3600);
 
       // Now mock Redis failure for get
-      mockRedisClient.get.mockRejectedValue(new Error('Redis connection failed'));
+      mockRedisClient.get.mockRejectedValue(
+        new Error('Redis connection failed'),
+      );
 
       // Should still be available from memory despite Redis failure
       const result = await service.get('key1');
@@ -235,7 +247,9 @@ describe('CacheService', () => {
 
     it('should use memory cache fallback when Redis fails to delete', async () => {
       await service.set('key1', 'value1');
-      mockRedisClient.del.mockRejectedValue(new Error('Redis connection failed'));
+      mockRedisClient.del.mockRejectedValue(
+        new Error('Redis connection failed'),
+      );
 
       // Should still work from memory
       await service.del('key1');
@@ -271,23 +285,31 @@ describe('CacheService', () => {
 
       await service.set('key1', 'value1', 7200);
 
-      expect(mockRedisClient.setex).toHaveBeenCalledWith('key1', 7200, '"value1"');
+      expect(mockRedisClient.setex).toHaveBeenCalledWith(
+        'key1',
+        7200,
+        '"value1"',
+      );
     });
   });
 
   describe('Redis Connection Failures', () => {
     it('should fall back to memory when Redis connection fails', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
-      mockRedisClient.connect.mockRejectedValue(new Error('Connection refused'));
+      mockRedisClient.connect.mockRejectedValue(
+        new Error('Connection refused'),
+      );
 
       await service.onModuleInit();
 
@@ -299,15 +321,17 @@ describe('CacheService', () => {
     });
 
     it('should fall back to memory when Redis ping fails', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       mockRedisClient.connect.mockResolvedValue(undefined);
       mockRedisClient.ping.mockRejectedValue(new Error('Ping timeout'));
@@ -322,18 +346,20 @@ describe('CacheService', () => {
     });
 
     it('should handle Redis TLS configuration', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number | undefined> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-          REDIS_TLS_ENABLED: 'true',
-          REDIS_TLS_REJECT_UNAUTHORIZED: 'true',
-          REDIS_PASSWORD: 'secret-password',
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number | undefined> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+            REDIS_TLS_ENABLED: 'true',
+            REDIS_TLS_REJECT_UNAUTHORIZED: 'true',
+            REDIS_PASSWORD: 'secret-password',
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -342,22 +368,24 @@ describe('CacheService', () => {
           tls: expect.objectContaining({
             rejectUnauthorized: true,
           }),
-        })
+        }),
       );
     });
   });
 
   describe('Module Lifecycle', () => {
     it('should disconnect Redis on module destroy', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       await service.onModuleInit();
       await service.onModuleDestroy();
@@ -373,15 +401,17 @@ describe('CacheService', () => {
     });
 
     it('should handle destroy gracefully', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       mockRedisClient.quit.mockResolvedValue('OK' as unknown as any);
 
@@ -395,83 +425,91 @@ describe('CacheService', () => {
 
   describe('Configuration', () => {
     it('should read Redis host from config', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'redis.example.com',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'redis.example.com',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
       expect(Redis).toHaveBeenCalledWith(
         expect.objectContaining({
           host: 'redis.example.com',
-        })
+        }),
       );
     });
 
     it('should read Redis port from config', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6380,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6380,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
       expect(Redis).toHaveBeenCalledWith(
         expect.objectContaining({
           port: 6380,
-        })
+        }),
       );
     });
 
     it('should read Redis password from config', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number | undefined> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-          REDIS_PASSWORD: 'my-secret-password',
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number | undefined> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+            REDIS_PASSWORD: 'my-secret-password',
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
       expect(Redis).toHaveBeenCalledWith(
         expect.objectContaining({
           password: 'my-secret-password',
-        })
+        }),
       );
     });
 
     it('should handle missing Redis password', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const config: Record<string, string | number | undefined> = {
-          REDIS_CACHE_ENABLED: 'true',
-          REDIS_HOST: 'localhost',
-          REDIS_PORT: 6379,
-          REDIS_CONNECT_TIMEOUT_MS: 2000,
-        };
-        return config[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const config: Record<string, string | number | undefined> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'localhost',
+            REDIS_PORT: 6379,
+            REDIS_CONNECT_TIMEOUT_MS: 2000,
+          };
+          return config[key] ?? defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
       expect(Redis).toHaveBeenCalledWith(
         expect.objectContaining({
           password: undefined,
-        })
+        }),
       );
     });
   });
@@ -550,7 +588,10 @@ describe('CacheService', () => {
 
     it('should handle very large objects', async () => {
       const largeObj: { items: Array<{ id: number; name: string }> } = {
-        items: Array.from({ length: 1000 }, (_, i) => ({ id: i, name: `item${i}` })),
+        items: Array.from({ length: 1000 }, (_, i) => ({
+          id: i,
+          name: `item${i}`,
+        })),
       };
 
       await service.set('large', largeObj);
@@ -570,7 +611,8 @@ describe('CacheService', () => {
     });
 
     it('should handle special characters in values', async () => {
-      const specialValue = 'value with "quotes" and \\backslashes\\ and unicode: 你好';
+      const specialValue =
+        'value with "quotes" and \\backslashes\\ and unicode: 你好';
       await service.set('key', specialValue);
       const result = await service.get('key');
 

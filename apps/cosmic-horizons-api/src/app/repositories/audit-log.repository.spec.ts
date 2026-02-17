@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuditLogRepository } from './audit-log.repository';
-import { AuditLog, AuditAction, AuditEntityType } from '../entities/audit-log.entity';
+import {
+  AuditLog,
+  AuditAction,
+  AuditEntityType,
+} from '../entities/audit-log.entity';
 
 afterEach(async () => {
   await testingModule?.close();
@@ -21,7 +25,7 @@ describe('AuditLogRepository', () => {
       find: jest.fn(),
       findOne: jest.fn(),
       delete: jest.fn(),
-    } as unknown as jest.Mocked<Repository<AuditLog>>);
+    }) as unknown as jest.Mocked<Repository<AuditLog>>;
 
   beforeEach(async () => {
     mockRepository = createMockAuditLogRepository();
@@ -144,7 +148,7 @@ describe('AuditLogRepository', () => {
 
       mockRepository.create.mockReturnValue(logData as any);
       mockRepository.save.mockRejectedValue(
-        new Error('Database connection failed')
+        new Error('Database connection failed'),
       );
 
       // Should not throw even though save fails (fire-and-forget)
@@ -245,9 +249,10 @@ describe('AuditLogRepository', () => {
 
       mockRepository.create.mockReturnValue(logData as any);
       mockRepository.save.mockImplementation(
-        (entity: any) => new Promise((resolve) => {
-          setTimeout(() => resolve(entity), 100);
-        })
+        (entity: any) =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve(entity), 100);
+          }),
       );
 
       await repository.createAuditLog(logData);
@@ -300,12 +305,10 @@ describe('AuditLogRepository', () => {
       }));
 
       mockRepository.create.mockImplementation((data) => data as AuditLog);
-      mockRepository.save.mockRejectedValue(
-        new Error('Intermittent failure')
-      );
+      mockRepository.save.mockRejectedValue(new Error('Intermittent failure'));
 
       const promises = logDataArray.map((logData) =>
-        repository.createAuditLog(logData as any)
+        repository.createAuditLog(logData as any),
       );
 
       // Should complete without throwing even with failures

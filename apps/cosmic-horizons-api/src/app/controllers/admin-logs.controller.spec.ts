@@ -216,7 +216,9 @@ describe('AdminLogsController', () => {
     it('should propagate service errors', async () => {
       service.getRecent.mockRejectedValue(new Error('Database error'));
 
-      await expect(controller.list('0', '100')).rejects.toThrow('Database error');
+      await expect(controller.list('0', '100')).rejects.toThrow(
+        'Database error',
+      );
     });
 
     it('should preserve log entry structure', async () => {

@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EachMessagePayload } from 'kafkajs';
 import { AuditTrailConsumer } from '../audit-trail.consumer';
-import { ComplianceAuditorService, AuditEvent } from '../../services/compliance-auditor.service';
+import {
+  ComplianceAuditorService,
+  AuditEvent,
+} from '../../services/compliance-auditor.service';
 import { KafkaService } from '../../../events/kafka.service';
 
 afterEach(async () => {
@@ -37,7 +40,10 @@ describe('AuditTrailConsumer', () => {
       providers: [
         AuditTrailConsumer,
         { provide: KafkaService, useValue: kafkaService },
-        { provide: ComplianceAuditorService, useValue: complianceAuditorService },
+        {
+          provide: ComplianceAuditorService,
+          useValue: complianceAuditorService,
+        },
       ],
     }).compile();
 
@@ -163,7 +169,9 @@ describe('AuditTrailConsumer', () => {
         await handler(mockPayload);
       }
 
-      expect(complianceAuditorService.storeImmutableEvent).toHaveBeenCalledTimes(2);
+      expect(
+        complianceAuditorService.storeImmutableEvent,
+      ).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -224,7 +232,9 @@ describe('AuditTrailConsumer', () => {
       await expect(handler(mockPayload)).resolves.not.toThrow();
 
       // Should not call auditor service
-      expect(complianceAuditorService.storeImmutableEvent).not.toHaveBeenCalled();
+      expect(
+        complianceAuditorService.storeImmutableEvent,
+      ).not.toHaveBeenCalled();
     });
   });
 

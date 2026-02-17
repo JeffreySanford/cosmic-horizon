@@ -66,15 +66,23 @@ describe('JobsController', () => {
             getStagingStatus: jest.fn(),
             validateDataset: jest.fn(),
             optimizeDatasetLayout: jest.fn(),
-            estimateTransferTime: jest.fn().mockImplementation(() => Promise.resolve({ minMinutes: 0, maxMinutes: 0 })),
+            estimateTransferTime: jest
+              .fn()
+              .mockImplementation(() =>
+                Promise.resolve({ minMinutes: 0, maxMinutes: 0 }),
+              ),
           },
         },
       ],
     }).compile();
 
     controller = testingModule.get<JobsController>(JobsController);
-    orchestrator = testingModule.get(JobOrchestratorService) as jest.Mocked<JobOrchestratorService>;
-    datasetStaging = testingModule.get(DatasetStagingService) as jest.Mocked<DatasetStagingService>;
+    orchestrator = testingModule.get(
+      JobOrchestratorService,
+    ) as jest.Mocked<JobOrchestratorService>;
+    datasetStaging = testingModule.get(
+      DatasetStagingService,
+    ) as jest.Mocked<DatasetStagingService>;
   });
 
   describe('submitJob - POST /jobs/submit', () => {
@@ -90,7 +98,10 @@ describe('JobsController', () => {
       const result = await controller.submitJob(mockRequest, submission as any);
 
       expect(result).toEqual(mockJob);
-      expect(orchestrator.submitJob).toHaveBeenCalledWith(mockUser.id, submission);
+      expect(orchestrator.submitJob).toHaveBeenCalledWith(
+        mockUser.id,
+        submission,
+      );
     });
 
     it('should handle job submission for AlphaCal agent', async () => {
@@ -106,7 +117,10 @@ describe('JobsController', () => {
       const result = await controller.submitJob(mockRequest, submission as any);
 
       expect(result.agent).toBe('AlphaCal');
-      expect(orchestrator.submitJob).toHaveBeenCalledWith(mockUser.id, submission);
+      expect(orchestrator.submitJob).toHaveBeenCalledWith(
+        mockUser.id,
+        submission,
+      );
     });
 
     it('should handle job submission with different dataset', async () => {
@@ -116,7 +130,11 @@ describe('JobsController', () => {
         parameters: { modelVersion: '2.1' },
       };
 
-      const customJob = { ...mockJob, agent: 'AnomalyDetection', dataset_id: 'dataset-custom-456' };
+      const customJob = {
+        ...mockJob,
+        agent: 'AnomalyDetection',
+        dataset_id: 'dataset-custom-456',
+      };
       orchestrator.submitJob.mockResolvedValue(customJob);
 
       const result = await controller.submitJob(mockRequest, submission as any);
@@ -181,7 +199,11 @@ describe('JobsController', () => {
     });
 
     it('should return completed job status', async () => {
-      const completedJob: Job = { ...mockJob, status: 'COMPLETED', progress: 100 } as any;
+      const completedJob: Job = {
+        ...mockJob,
+        status: 'COMPLETED',
+        progress: 100,
+      } as any;
       orchestrator.getJobStatus.mockResolvedValue(completedJob);
 
       const result = await controller.getJobStatus(completedJob.id);
@@ -220,7 +242,11 @@ describe('JobsController', () => {
 
       await controller.getJobHistory(mockRequest);
 
-      expect(orchestrator.getJobHistory).toHaveBeenCalledWith(mockUser.id, 50, 0);
+      expect(orchestrator.getJobHistory).toHaveBeenCalledWith(
+        mockUser.id,
+        50,
+        0,
+      );
     });
 
     it('should respect limit and offset parameters', async () => {
@@ -234,7 +260,11 @@ describe('JobsController', () => {
       const offset: any = '5';
       await controller.getJobHistory(mockRequest, limit, offset);
 
-      expect(orchestrator.getJobHistory).toHaveBeenCalledWith(mockUser.id, 10, 5);
+      expect(orchestrator.getJobHistory).toHaveBeenCalledWith(
+        mockUser.id,
+        10,
+        5,
+      );
     });
 
     it('should return empty history for new user', async () => {
@@ -252,7 +282,12 @@ describe('JobsController', () => {
 
       await controller.searchJobs(mockRequest, filters);
 
-      expect(orchestrator.searchJobs).toHaveBeenCalledWith(mockUser.id, filters, 50, 0);
+      expect(orchestrator.searchJobs).toHaveBeenCalledWith(
+        mockUser.id,
+        filters,
+        50,
+        0,
+      );
     });
 
     it('should search jobs by agent type', async () => {
@@ -261,7 +296,12 @@ describe('JobsController', () => {
 
       await controller.searchJobs(mockRequest, filters);
 
-      expect(orchestrator.searchJobs).toHaveBeenCalledWith(mockUser.id, filters, 50, 0);
+      expect(orchestrator.searchJobs).toHaveBeenCalledWith(
+        mockUser.id,
+        filters,
+        50,
+        0,
+      );
     });
 
     it('should handle pagination in search results', async () => {
@@ -272,7 +312,12 @@ describe('JobsController', () => {
       const offset: any = '20';
       await controller.searchJobs(mockRequest, filters, limit, offset);
 
-      expect(orchestrator.searchJobs).toHaveBeenCalledWith(mockUser.id, filters, 10, 20);
+      expect(orchestrator.searchJobs).toHaveBeenCalledWith(
+        mockUser.id,
+        filters,
+        10,
+        20,
+      );
     });
   });
 
@@ -284,7 +329,11 @@ describe('JobsController', () => {
         parameters: { algorithm: 'clean' },
       };
       const tips = [
-        { category: 'runtime' as const, severity: 'info' as const, message: 'Increase iterations for better quality' },
+        {
+          category: 'runtime' as const,
+          severity: 'info' as const,
+          message: 'Increase iterations for better quality',
+        },
       ];
       orchestrator.getOptimizationTips.mockResolvedValue(tips);
 
@@ -302,7 +351,11 @@ describe('JobsController', () => {
         parameters: { gpuCount: 8 },
       };
       const tips = [
-        { category: 'cost' as const, severity: 'warning' as const, message: 'Consider using 4 GPUs instead' },
+        {
+          category: 'cost' as const,
+          severity: 'warning' as const,
+          message: 'Consider using 4 GPUs instead',
+        },
       ];
       orchestrator.getOptimizationTips.mockResolvedValue(tips);
 
@@ -329,7 +382,7 @@ describe('JobsController', () => {
       const metrics = {
         totalGpuCount: 8,
         averageRuntime: 245.5,
-        estimatedCost: 1227.50,
+        estimatedCost: 1227.5,
         successRate: 0.95,
       };
       orchestrator.getResourceMetrics.mockResolvedValue(metrics);
@@ -337,7 +390,7 @@ describe('JobsController', () => {
       const result = await controller.getResourceMetrics(mockRequest);
 
       expect(result.totalGpuCount).toBe(8);
-      expect(result.estimatedCost).toBe(1227.50);
+      expect(result.estimatedCost).toBe(1227.5);
       expect(orchestrator.getResourceMetrics).toHaveBeenCalledWith(mockUser.id);
     });
 
@@ -358,7 +411,12 @@ describe('JobsController', () => {
   describe('getAvailableResources - GET /jobs/resources/available', () => {
     it('should retrieve available GPU resource pools', async () => {
       const resources = [
-        { name: 'GPU-V100', totalGpus: 16, availableGpus: 8, queueWaitTime: 12 },
+        {
+          name: 'GPU-V100',
+          totalGpus: 16,
+          availableGpus: 8,
+          queueWaitTime: 12,
+        },
         { name: 'GPU-A100', totalGpus: 8, availableGpus: 4, queueWaitTime: 5 },
       ];
       orchestrator.getAvailableResourcePools.mockResolvedValue(resources);
@@ -371,7 +429,12 @@ describe('JobsController', () => {
 
     it('should handle resource constraints', async () => {
       const resources = [
-        { name: 'GPU-A100', totalGpus: 8, availableGpus: 0, queueWaitTime: 120 },
+        {
+          name: 'GPU-A100',
+          totalGpus: 8,
+          availableGpus: 0,
+          queueWaitTime: 120,
+        },
       ];
       orchestrator.getAvailableResourcePools.mockResolvedValue(resources);
 
@@ -434,7 +497,9 @@ describe('JobsController', () => {
       const result = await controller.getStagingStatus('dataset-789');
 
       expect(result!.status).toBe('in_progress');
-      expect(datasetStaging.getStagingStatus).toHaveBeenCalledWith('dataset-789');
+      expect(datasetStaging.getStagingStatus).toHaveBeenCalledWith(
+        'dataset-789',
+      );
     });
 
     it('should handle dataset not found', async () => {
@@ -474,7 +539,9 @@ describe('JobsController', () => {
       const result = await controller.validateDataset('dataset-789');
 
       expect(result.ready_for_processing).toBe(true);
-      expect(datasetStaging.validateDataset).toHaveBeenCalledWith('dataset-789');
+      expect(datasetStaging.validateDataset).toHaveBeenCalledWith(
+        'dataset-789',
+      );
     });
 
     it('should report validation errors', async () => {
@@ -505,7 +572,9 @@ describe('JobsController', () => {
       const result = await controller.optimizeDataset('dataset-789');
 
       expect(result.recommendations).toHaveLength(1);
-      expect(datasetStaging.optimizeDatasetLayout).toHaveBeenCalledWith('dataset-789');
+      expect(datasetStaging.optimizeDatasetLayout).toHaveBeenCalledWith(
+        'dataset-789',
+      );
     });
 
     it('should suggest data layout improvements', async () => {
@@ -527,7 +596,9 @@ describe('JobsController', () => {
         minMinutes: 120,
         maxMinutes: 180,
       };
-      (datasetStaging.estimateTransferTime as jest.Mock).mockResolvedValue(estimate);
+      (datasetStaging.estimateTransferTime as jest.Mock).mockResolvedValue(
+        estimate,
+      );
 
       const result = await controller.estimateTransferTime({ size_gb: 1000 });
 
@@ -540,7 +611,9 @@ describe('JobsController', () => {
         minMinutes: 1,
         maxMinutes: 2,
       };
-      (datasetStaging.estimateTransferTime as jest.Mock).mockResolvedValue(estimate);
+      (datasetStaging.estimateTransferTime as jest.Mock).mockResolvedValue(
+        estimate,
+      );
 
       const result = await controller.estimateTransferTime({ size_gb: 10 });
 
@@ -552,7 +625,9 @@ describe('JobsController', () => {
         minMinutes: 60,
         maxMinutes: 90,
       };
-      (datasetStaging.estimateTransferTime as jest.Mock).mockResolvedValue(estimate);
+      (datasetStaging.estimateTransferTime as jest.Mock).mockResolvedValue(
+        estimate,
+      );
 
       const result = await controller.estimateTransferTime({ size_gb: 5000 });
 

@@ -21,17 +21,35 @@ describe('MessagingController', () => {
         {
           provide: MessagingService,
           useValue: {
-            getSites: jest.fn().mockReturnValue([{ id: 'site-1', name: 'Socorro' }]),
-            getAllElements: jest.fn().mockReturnValue([{ id: 'element-1', name: 'Dish-1' }]),
-            getElementsBySite: jest.fn().mockReturnValue([{ id: 'element-1', name: 'Dish-1', siteId: 'site-1' }]),
+            getSites: jest
+              .fn()
+              .mockReturnValue([{ id: 'site-1', name: 'Socorro' }]),
+            getAllElements: jest
+              .fn()
+              .mockReturnValue([{ id: 'element-1', name: 'Dish-1' }]),
+            getElementsBySite: jest
+              .fn()
+              .mockReturnValue([
+                { id: 'element-1', name: 'Dish-1', siteId: 'site-1' },
+              ]),
           },
         },
         {
           provide: MessagingMonitorService,
           useValue: {
             getSnapshot: jest.fn().mockReturnValue({
-              rabbitmq: { connected: true, latencyMs: 1, queueDepth: 0, consumers: 1 },
-              kafka: { connected: true, latencyMs: 1, latestOffset: 10, partitions: 1 },
+              rabbitmq: {
+                connected: true,
+                latencyMs: 1,
+                queueDepth: 0,
+                consumers: 1,
+              },
+              kafka: {
+                connected: true,
+                latencyMs: 1,
+                latestOffset: 10,
+                partitions: 1,
+              },
               storage: {
                 postgres: { connected: true, latencyMs: 1 },
                 redis: { connected: true, latencyMs: 1 },
@@ -60,8 +78,18 @@ describe('MessagingController', () => {
                 errors: 0,
               },
               infra: {
-                rabbitmq: { connected: true, latencyMs: 1, queueDepth: 0, consumers: 1 },
-                kafka: { connected: true, latencyMs: 1, latestOffset: 10, partitions: 1 },
+                rabbitmq: {
+                  connected: true,
+                  latencyMs: 1,
+                  queueDepth: 0,
+                  consumers: 1,
+                },
+                kafka: {
+                  connected: true,
+                  latencyMs: 1,
+                  latestOffset: 10,
+                  partitions: 1,
+                },
                 storage: {
                   postgres: { connected: true, latencyMs: 1 },
                   redis: { connected: true, latencyMs: 1 },
@@ -87,12 +115,16 @@ describe('MessagingController', () => {
   });
 
   it('should return all elements', () => {
-    expect(controller.getAllElements()).toEqual([{ id: 'element-1', name: 'Dish-1' }]);
+    expect(controller.getAllElements()).toEqual([
+      { id: 'element-1', name: 'Dish-1' },
+    ]);
     expect(service.getAllElements).toHaveBeenCalled();
   });
 
   it('should return elements by site', () => {
-    expect(controller.getElementsBySite('site-1')).toEqual([{ id: 'element-1', name: 'Dish-1', siteId: 'site-1' }]);
+    expect(controller.getElementsBySite('site-1')).toEqual([
+      { id: 'element-1', name: 'Dish-1', siteId: 'site-1' },
+    ]);
     expect(service.getElementsBySite).toHaveBeenCalledWith('site-1');
   });
 

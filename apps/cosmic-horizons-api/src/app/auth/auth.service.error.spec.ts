@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserRepository } from '../repositories/user.repository';
 import { JwtService } from '@nestjs/jwt';
@@ -64,8 +68,12 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
         emails: [{ value: 'test@example.com' }],
       } as any;
 
-      await expect(service.validateOrCreateUser(profile)).rejects.toThrow(BadRequestException);
-      await expect(service.validateOrCreateUser(profile)).rejects.toThrow('invalid');
+      await expect(service.validateOrCreateUser(profile)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.validateOrCreateUser(profile)).rejects.toThrow(
+        'invalid',
+      );
     });
 
     it('should throw BadRequestException when GitHub account has no email', async () => {
@@ -75,8 +83,12 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
         emails: [],
       } as any;
 
-      await expect(service.validateOrCreateUser(profile)).rejects.toThrow(BadRequestException);
-      await expect(service.validateOrCreateUser(profile)).rejects.toThrow('public email');
+      await expect(service.validateOrCreateUser(profile)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.validateOrCreateUser(profile)).rejects.toThrow(
+        'public email',
+      );
     });
 
     it('should create new user when not found by GitHub ID', async () => {
@@ -162,9 +174,13 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
         emails: [{ value: 'test@example.com' }],
       } as any;
 
-      userRepository.findByGitHubId.mockRejectedValueOnce(new Error('Database connection failed'));
+      userRepository.findByGitHubId.mockRejectedValueOnce(
+        new Error('Database connection failed'),
+      );
 
-      await expect(service.validateOrCreateUser(profile)).rejects.toThrow('Database connection failed');
+      await expect(service.validateOrCreateUser(profile)).rejects.toThrow(
+        'Database connection failed',
+      );
     });
   });
 
@@ -219,7 +235,9 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
     });
 
     it('should handle repository error during login', async () => {
-      userRepository.findByEmailAndPassword.mockRejectedValueOnce(new Error('Database error'));
+      userRepository.findByEmailAndPassword.mockRejectedValueOnce(
+        new Error('Database error'),
+      );
 
       await expect(
         service.loginWithCredentials({
@@ -358,15 +376,23 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
 
   describe('refreshAuthTokens - JWT & Token Validation', () => {
     it('should throw UnauthorizedException when refresh token is empty', async () => {
-      await expect(service.refreshAuthTokens('')).rejects.toThrow(UnauthorizedException);
-      await expect(service.refreshAuthTokens('   ')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshAuthTokens('')).rejects.toThrow(
+        UnauthorizedException,
+      );
+      await expect(service.refreshAuthTokens('   ')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException when refresh token is invalid', async () => {
       dataSource.query.mockImplementation(async () => []);
 
-      await expect(service.refreshAuthTokens('invalid-token')).rejects.toThrow(UnauthorizedException);
-      await expect(service.refreshAuthTokens('invalid-token')).rejects.toThrow('invalid');
+      await expect(service.refreshAuthTokens('invalid-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
+      await expect(service.refreshAuthTokens('invalid-token')).rejects.toThrow(
+        'invalid',
+      );
     });
 
     it('should throw UnauthorizedException when refresh token is revoked', async () => {
@@ -379,8 +405,12 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
         },
       ]);
 
-      await expect(service.refreshAuthTokens('revoked-token')).rejects.toThrow(UnauthorizedException);
-      await expect(service.refreshAuthTokens('revoked-token')).rejects.toThrow('revoked');
+      await expect(service.refreshAuthTokens('revoked-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
+      await expect(service.refreshAuthTokens('revoked-token')).rejects.toThrow(
+        'revoked',
+      );
     });
 
     it('should throw UnauthorizedException when refresh token has expired', async () => {
@@ -393,8 +423,12 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
         },
       ]);
 
-      await expect(service.refreshAuthTokens('expired-token')).rejects.toThrow(UnauthorizedException);
-      await expect(service.refreshAuthTokens('expired-token')).rejects.toThrow('expired');
+      await expect(service.refreshAuthTokens('expired-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
+      await expect(service.refreshAuthTokens('expired-token')).rejects.toThrow(
+        'expired',
+      );
     });
 
     it('should throw UnauthorizedException when token user no longer exists', async () => {
@@ -416,8 +450,12 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
 
       userRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.refreshAuthTokens('valid-but-user-deleted')).rejects.toThrow(UnauthorizedException);
-      await expect(service.refreshAuthTokens('valid-but-user-deleted')).rejects.toThrow('no longer exists');
+      await expect(
+        service.refreshAuthTokens('valid-but-user-deleted'),
+      ).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.refreshAuthTokens('valid-but-user-deleted'),
+      ).rejects.toThrow('no longer exists');
     });
 
     it('should issue new tokens on valid refresh token', async () => {
@@ -635,7 +673,9 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
     it('should handle repository error', async () => {
       userRepository.findOne.mockRejectedValueOnce(new Error('Database error'));
 
-      await expect(service.getCurrentUser('u1')).rejects.toThrow('Database error');
+      await expect(service.getCurrentUser('u1')).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 
@@ -664,7 +704,9 @@ describe('AuthService - Error Paths & Branch Coverage', () => {
     it('should handle revocation error', async () => {
       dataSource.query.mockRejectedValueOnce(new Error('Database error'));
 
-      await expect(service.revokeAllRefreshTokensForUser('u1')).rejects.toThrow('Database error');
+      await expect(service.revokeAllRefreshTokensForUser('u1')).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 });

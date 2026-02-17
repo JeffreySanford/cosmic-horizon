@@ -93,7 +93,10 @@ describe('ProfileController', () => {
     };
     service.updateProfile.mockResolvedValue(mockUser);
 
-    const result = await controller.updateMyProfile({ user: { id: '1' } }, updateData);
+    const result = await controller.updateMyProfile(
+      { user: { id: '1' } },
+      updateData,
+    );
     expect(result).toEqual(mockUser);
     expect(service.updateProfile).toHaveBeenCalledWith('1', updateData);
   });
@@ -121,7 +124,10 @@ describe('ProfileController', () => {
     };
     service.updateProfile.mockResolvedValue(mockUser);
 
-    const result = await controller.updateMyProfile({ user: { id: '1' } }, updateData);
+    const result = await controller.updateMyProfile(
+      { user: { id: '1' } },
+      updateData,
+    );
     expect(result.display_name).toBe('New Display Name');
     expect(service.updateProfile).toHaveBeenCalledWith('1', updateData);
   });
@@ -149,7 +155,10 @@ describe('ProfileController', () => {
     };
     service.updateProfile.mockResolvedValue(mockUser);
 
-    const result = await controller.updateMyProfile({ user: { id: '1' } }, updateData);
+    const result = await controller.updateMyProfile(
+      { user: { id: '1' } },
+      updateData,
+    );
     expect(result.avatar_url).toBe('https://example.com/avatar.jpg');
   });
 
@@ -180,7 +189,10 @@ describe('ProfileController', () => {
     };
     service.updateProfile.mockResolvedValue(mockUser);
 
-    const result = await controller.updateMyProfile({ user: { id: '1' } }, updateData);
+    const result = await controller.updateMyProfile(
+      { user: { id: '1' } },
+      updateData,
+    );
     expect(result.display_name).toBe('Updated Name');
     expect(result.bio).toBe('Updated bio');
     expect(result.avatar_url).toBe('https://example.com/new-avatar.jpg');
@@ -313,7 +325,10 @@ describe('ProfileController', () => {
     };
     service.updateProfile.mockResolvedValue(mockUser);
 
-    const result = await controller.updateMyProfile({ user: { id: '1' } }, updateData);
+    const result = await controller.updateMyProfile(
+      { user: { id: '1' } },
+      updateData,
+    );
     expect(result.bio).toBe('');
     expect(service.updateProfile).toHaveBeenCalledWith('1', updateData);
   });
@@ -341,7 +356,10 @@ describe('ProfileController', () => {
     };
     service.updateProfile.mockResolvedValue(mockUser2);
 
-    const result = await controller.updateMyProfile({ user: { id: '2' } }, updateData);
+    const result = await controller.updateMyProfile(
+      { user: { id: '2' } },
+      updateData,
+    );
     expect(result.id).toBe('2');
     expect(service.updateProfile).toHaveBeenCalledWith('2', updateData);
   });

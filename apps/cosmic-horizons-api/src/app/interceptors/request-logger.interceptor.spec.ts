@@ -31,7 +31,9 @@ describe('RequestLoggerInterceptor', () => {
       ],
     }).compile();
 
-    interceptor = testingModule.get<RequestLoggerInterceptor>(RequestLoggerInterceptor);
+    interceptor = testingModule.get<RequestLoggerInterceptor>(
+      RequestLoggerInterceptor,
+    );
 
     executionContext = {
       switchToHttp: jest.fn(),

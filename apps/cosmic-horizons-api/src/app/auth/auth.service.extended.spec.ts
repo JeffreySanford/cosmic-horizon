@@ -66,7 +66,9 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
 
   describe('refreshToken - Wrapper Method', () => {
     it('should throw on empty refresh token', async () => {
-      await expect(service.refreshToken('')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw on null refresh token', async () => {
@@ -76,7 +78,9 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
     it('should throw when token hash not found', async () => {
       dataSource.query.mockResolvedValueOnce([]); // No token record found
 
-      await expect(service.refreshToken('invalid-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('invalid-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw when token has been revoked', async () => {
@@ -86,13 +90,17 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
           id: 'token-1',
           user_id: 'user-1',
           token_hash: 'somehash',
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          expires_at: new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
           revoked_at: now,
           last_used_at: now,
         },
       ]);
 
-      await expect(service.refreshToken('revoked-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('revoked-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw when token has expired', async () => {
@@ -105,7 +113,9 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
         },
       ]);
 
-      await expect(service.refreshToken('expired-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('expired-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw when user no longer exists', async () => {
@@ -114,7 +124,9 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
           {
             id: 'token-1',
             user_id: 'user-1',
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            expires_at: new Date(
+              Date.now() + 7 * 24 * 60 * 60 * 1000,
+            ).toISOString(),
             revoked_at: null,
           },
         ])
@@ -122,7 +134,9 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
 
       userRepository.findOne.mockResolvedValueOnce(null);
 
-      await expect(service.refreshToken('valid-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('valid-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should return new token pair on successful refresh', async () => {
@@ -138,12 +152,14 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
           {
             id: 'token-1',
             user_id: 'user-1',
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            expires_at: new Date(
+              Date.now() + 7 * 24 * 60 * 60 * 1000,
+            ).toISOString(),
             revoked_at: null,
           },
         ]) // Find token
         .mockResolvedValueOnce(undefined) // Revoke old token
-        .mockResolvedValueOnce(undefined);// Insert new token
+        .mockResolvedValueOnce(undefined); // Insert new token
 
       userRepository.findOne.mockResolvedValueOnce(mockUser);
       jwtService.sign.mockReturnValueOnce('new-access-token');
@@ -160,7 +176,9 @@ describe('AuthService - Extended (Wrapper Methods)', () => {
     it('should throw UnauthorizedException when credentials invalid', async () => {
       userRepository.findByEmailAndPassword.mockResolvedValueOnce(null);
 
-      await expect(service.login('user@example.com', 'password')).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.login('user@example.com', 'password'),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should return auth tokens on successful login', async () => {

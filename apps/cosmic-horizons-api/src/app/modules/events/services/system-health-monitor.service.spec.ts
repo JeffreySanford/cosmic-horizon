@@ -22,7 +22,9 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
       providers: [SystemHealthMonitorService],
     }).compile();
 
-    service = testingModule.get<SystemHealthMonitorService>(SystemHealthMonitorService);
+    service = testingModule.get<SystemHealthMonitorService>(
+      SystemHealthMonitorService,
+    );
   });
 
   describe('Monday: Health event processing and consumer lag', () => {
@@ -75,7 +77,10 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
       const consumerId = 'new-consumer-1';
       const consumerGroup = 'my-group';
 
-      const monitor = await service.initializeConsumerMonitoring(consumerId, consumerGroup);
+      const monitor = await service.initializeConsumerMonitoring(
+        consumerId,
+        consumerGroup,
+      );
       expect(monitor.consumerId).toBe(consumerId);
       expect(monitor.consumerGroup).toBe(consumerGroup);
       expect(monitor.status).toBe('INITIALIZED');
@@ -150,7 +155,8 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
         });
       }
 
-      const degradation = await service.detectPerformanceDegradation(consumerId);
+      const degradation =
+        await service.detectPerformanceDegradation(consumerId);
       expect(degradation.degrading).toBe(true);
     });
 
@@ -188,7 +194,10 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
       const consumerGroup = 'problem-group';
       const lagThreshold = 1000;
 
-      const rebalanced = await service.triggerPartitionRebalance(consumerGroup, lagThreshold);
+      const rebalanced = await service.triggerPartitionRebalance(
+        consumerGroup,
+        lagThreshold,
+      );
       expect(rebalanced).toBeDefined();
       expect(rebalanced.triggered).toBeDefined();
     });
@@ -197,7 +206,10 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
       const consumerId = 'stalled-consumer';
       const StalledThresholdSeconds = 300;
 
-      const restart = await service.attemptConsumerRestart(consumerId, StalledThresholdSeconds);
+      const restart = await service.attemptConsumerRestart(
+        consumerId,
+        StalledThresholdSeconds,
+      );
       expect(restart).toBeDefined();
       expect(restart.restarted).toBeDefined();
     });
@@ -256,7 +268,11 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
         });
       }
 
-      const trend = await service.getPerformanceTrend(consumerId, 'latency', 10);
+      const trend = await service.getPerformanceTrend(
+        consumerId,
+        'latency',
+        10,
+      );
       expect(trend).toBeDefined();
       expect(trend.trend).toBeDefined();
     });
@@ -291,7 +307,8 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
 
     it('should generate capacity planning recommendations', async () => {
       const consumerGroup = 'capacity-test-group';
-      const recommendations = await service.generateCapacityPlanningReport(consumerGroup);
+      const recommendations =
+        await service.generateCapacityPlanningReport(consumerGroup);
 
       expect(recommendations).toBeDefined();
       expect(recommendations.recommendedPartitions).toBeGreaterThanOrEqual(1);
@@ -302,7 +319,10 @@ describe('SystemHealthMonitorService - Event Consumption', () => {
       const consumerId = 'consumer-1';
       const slaThreshold = 300000; // 5 minute max lag
 
-      const predictiveAlert = await service.checkPredictiveAlert(consumerId, slaThreshold);
+      const predictiveAlert = await service.checkPredictiveAlert(
+        consumerId,
+        slaThreshold,
+      );
       expect(predictiveAlert).toBeDefined();
       expect([true, false]).toContain(predictiveAlert.shouldAlert);
     });

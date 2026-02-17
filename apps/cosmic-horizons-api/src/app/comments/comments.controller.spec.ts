@@ -70,7 +70,9 @@ describe('CommentsController', () => {
     }).compile();
 
     controller = testingModule.get<CommentsController>(CommentsController);
-    service = testingModule.get(CommentsService) as jest.Mocked<CommentsService>;
+    service = testingModule.get(
+      CommentsService,
+    ) as jest.Mocked<CommentsService>;
   });
 
   describe('getComments', () => {
@@ -95,7 +97,9 @@ describe('CommentsController', () => {
     it('should propagate service errors', async () => {
       service.getCommentsByPost.mockRejectedValue(new Error('Not found'));
 
-      await expect(controller.getComments('post-1')).rejects.toThrow('Not found');
+      await expect(controller.getComments('post-1')).rejects.toThrow(
+        'Not found',
+      );
     });
   });
 
@@ -152,7 +156,9 @@ describe('CommentsController', () => {
 
       service.createComment.mockRejectedValue(new Error('Post not found'));
 
-      await expect(controller.createComment(req, dto)).rejects.toThrow('Post not found');
+      await expect(controller.createComment(req, dto)).rejects.toThrow(
+        'Post not found',
+      );
     });
   });
 
@@ -170,7 +176,11 @@ describe('CommentsController', () => {
       const result = await controller.updateComment(req, 'comment-1', dto);
 
       expect(result).toEqual(updatedComment);
-      expect(service.updateComment).toHaveBeenCalledWith('comment-1', 'user-1', dto);
+      expect(service.updateComment).toHaveBeenCalledWith(
+        'comment-1',
+        'user-1',
+        dto,
+      );
     });
 
     it('should reject update by non-owner', async () => {
@@ -181,12 +191,12 @@ describe('CommentsController', () => {
       } as AuthenticatedRequest;
 
       service.updateComment.mockRejectedValue(
-        new ForbiddenException('You can only edit your own comments')
+        new ForbiddenException('You can only edit your own comments'),
       );
 
-      await expect(controller.updateComment(req, 'comment-1', dto)).rejects.toThrow(
-        ForbiddenException
-      );
+      await expect(
+        controller.updateComment(req, 'comment-1', dto),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('should propagate service errors on update', async () => {
@@ -198,7 +208,9 @@ describe('CommentsController', () => {
 
       service.updateComment.mockRejectedValue(new Error('Not found'));
 
-      await expect(controller.updateComment(req, 'comment-1', dto)).rejects.toThrow('Not found');
+      await expect(
+        controller.updateComment(req, 'comment-1', dto),
+      ).rejects.toThrow('Not found');
     });
   });
 
@@ -234,11 +246,13 @@ describe('CommentsController', () => {
       } as AuthenticatedRequest;
 
       service.deleteComment.mockRejectedValue(
-        new ForbiddenException('You do not have permission to delete this comment')
+        new ForbiddenException(
+          'You do not have permission to delete this comment',
+        ),
       );
 
       await expect(controller.deleteComment(req, 'comment-1')).rejects.toThrow(
-        ForbiddenException
+        ForbiddenException,
       );
     });
 
@@ -271,7 +285,11 @@ describe('CommentsController', () => {
       const result = await controller.reportComment(req, 'comment-1', dto);
 
       expect(result).toEqual(mockReport);
-      expect(service.reportComment).toHaveBeenCalledWith('comment-1', 'user-2', dto);
+      expect(service.reportComment).toHaveBeenCalledWith(
+        'comment-1',
+        'user-2',
+        dto,
+      );
     });
 
     it('should allow users to self-report', async () => {
@@ -303,9 +321,9 @@ describe('CommentsController', () => {
 
       service.reportComment.mockRejectedValue(new Error('Comment not found'));
 
-      await expect(controller.reportComment(req, 'comment-1', dto)).rejects.toThrow(
-        'Comment not found'
-      );
+      await expect(
+        controller.reportComment(req, 'comment-1', dto),
+      ).rejects.toThrow('Comment not found');
     });
   });
 
@@ -330,11 +348,11 @@ describe('CommentsController', () => {
       } as AuthenticatedRequest;
 
       service.hideComment.mockRejectedValue(
-        new ForbiddenException('Only the post owner can hide comments')
+        new ForbiddenException('Only the post owner can hide comments'),
       );
 
       await expect(controller.hideComment(req, 'comment-1')).rejects.toThrow(
-        ForbiddenException
+        ForbiddenException,
       );
     });
   });
@@ -360,11 +378,11 @@ describe('CommentsController', () => {
       } as AuthenticatedRequest;
 
       service.unhideComment.mockRejectedValue(
-        new ForbiddenException('Only the post owner can unhide comments')
+        new ForbiddenException('Only the post owner can unhide comments'),
       );
 
       await expect(controller.unhideComment(req, 'comment-1')).rejects.toThrow(
-        ForbiddenException
+        ForbiddenException,
       );
     });
   });
@@ -404,7 +422,7 @@ describe('CommentsController', () => {
       } as AuthenticatedRequest;
 
       expect(() => controller.getAllReports(req)).toThrow(
-        new ForbiddenException('Admin access required')
+        new ForbiddenException('Admin access required'),
       );
     });
 
@@ -448,10 +466,16 @@ describe('CommentsController', () => {
       const resolvedReport = { ...mockReport, status: 'reviewed' };
       service.resolveReport.mockResolvedValue(resolvedReport);
 
-      const result = await controller.resolveReport(req, 'report-1', { status: 'reviewed' });
+      const result = await controller.resolveReport(req, 'report-1', {
+        status: 'reviewed',
+      });
 
       expect(result).toEqual(resolvedReport);
-      expect(service.resolveReport).toHaveBeenCalledWith('report-1', 'admin-1', 'reviewed');
+      expect(service.resolveReport).toHaveBeenCalledWith(
+        'report-1',
+        'admin-1',
+        'reviewed',
+      );
     });
 
     it('should resolve report as dismissed by moderator', async () => {
@@ -462,10 +486,16 @@ describe('CommentsController', () => {
       const resolvedReport = { ...mockReport, status: 'dismissed' };
       service.resolveReport.mockResolvedValue(resolvedReport);
 
-      const result = await controller.resolveReport(req, 'report-1', { status: 'dismissed' });
+      const result = await controller.resolveReport(req, 'report-1', {
+        status: 'dismissed',
+      });
 
       expect(result).toEqual(resolvedReport);
-      expect(service.resolveReport).toHaveBeenCalledWith('report-1', 'mod-1', 'dismissed');
+      expect(service.resolveReport).toHaveBeenCalledWith(
+        'report-1',
+        'mod-1',
+        'dismissed',
+      );
     });
 
     it('should reject non-admin/moderator resolution', async () => {
@@ -473,9 +503,9 @@ describe('CommentsController', () => {
         user: mockRegularUser,
       } as AuthenticatedRequest;
 
-      expect(() => controller.resolveReport(req, 'report-1', { status: 'reviewed' })).toThrow(
-        new ForbiddenException('Admin access required')
-      );
+      expect(() =>
+        controller.resolveReport(req, 'report-1', { status: 'reviewed' }),
+      ).toThrow(new ForbiddenException('Admin access required'));
     });
 
     it('should handle resolution with reviewed status', async () => {
@@ -483,9 +513,14 @@ describe('CommentsController', () => {
         user: mockAdminUser,
       } as AuthenticatedRequest;
 
-      service.resolveReport.mockResolvedValue({ ...mockReport, status: 'reviewed' });
+      service.resolveReport.mockResolvedValue({
+        ...mockReport,
+        status: 'reviewed',
+      });
 
-      const result = await controller.resolveReport(req, 'report-1', { status: 'reviewed' });
+      const result = await controller.resolveReport(req, 'report-1', {
+        status: 'reviewed',
+      });
 
       if (result) {
         expect(result.status).toBe('reviewed');
@@ -497,9 +532,14 @@ describe('CommentsController', () => {
         user: mockAdminUser,
       } as AuthenticatedRequest;
 
-      service.resolveReport.mockResolvedValue({ ...mockReport, status: 'dismissed' });
+      service.resolveReport.mockResolvedValue({
+        ...mockReport,
+        status: 'dismissed',
+      });
 
-      const result = await controller.resolveReport(req, 'report-1', { status: 'dismissed' });
+      const result = await controller.resolveReport(req, 'report-1', {
+        status: 'dismissed',
+      });
 
       if (result) {
         expect(result.status).toBe('dismissed');
@@ -513,9 +553,9 @@ describe('CommentsController', () => {
 
       service.resolveReport.mockRejectedValue(new Error('Report not found'));
 
-      await expect(controller.resolveReport(req, 'report-1', { status: 'reviewed' })).rejects.toThrow(
-        'Report not found'
-      );
+      await expect(
+        controller.resolveReport(req, 'report-1', { status: 'reviewed' }),
+      ).rejects.toThrow('Report not found');
     });
 
     it('should track resolver admin user', async () => {
@@ -523,11 +563,18 @@ describe('CommentsController', () => {
         user: mockAdminUser,
       } as AuthenticatedRequest;
 
-      service.resolveReport.mockResolvedValue({ ...mockReport, status: 'reviewed' });
+      service.resolveReport.mockResolvedValue({
+        ...mockReport,
+        status: 'reviewed',
+      });
 
       await controller.resolveReport(req, 'report-1', { status: 'reviewed' });
 
-      expect(service.resolveReport).toHaveBeenCalledWith('report-1', 'admin-1', 'reviewed');
+      expect(service.resolveReport).toHaveBeenCalledWith(
+        'report-1',
+        'admin-1',
+        'reviewed',
+      );
     });
   });
 
@@ -548,7 +595,11 @@ describe('CommentsController', () => {
 
       await controller.updateComment(req, 'comment-456', dto);
 
-      expect(service.updateComment).toHaveBeenCalledWith('comment-456', 'user-1', dto);
+      expect(service.updateComment).toHaveBeenCalledWith(
+        'comment-456',
+        'user-1',
+        dto,
+      );
     });
 
     it('should pass correct comment ID in delete', async () => {
@@ -558,7 +609,10 @@ describe('CommentsController', () => {
 
       await controller.deleteComment(req, 'comment-789');
 
-      expect(service.deleteComment).toHaveBeenCalledWith('comment-789', 'user-1');
+      expect(service.deleteComment).toHaveBeenCalledWith(
+        'comment-789',
+        'user-1',
+      );
     });
 
     it('should pass correct report ID in resolve', async () => {
@@ -568,7 +622,11 @@ describe('CommentsController', () => {
 
       await controller.resolveReport(req, 'report-999', { status: 'reviewed' });
 
-      expect(service.resolveReport).toHaveBeenCalledWith('report-999', 'admin-1', 'reviewed');
+      expect(service.resolveReport).toHaveBeenCalledWith(
+        'report-999',
+        'admin-1',
+        'reviewed',
+      );
     });
   });
 
@@ -581,14 +639,21 @@ describe('CommentsController', () => {
       };
 
       const req = {
-        user: { id: 'special-user-id', email: 'special@example.com', role: 'user' },
+        user: {
+          id: 'special-user-id',
+          email: 'special@example.com',
+          role: 'user',
+        },
       } as AuthenticatedRequest;
 
       service.createComment.mockResolvedValue(mockComment);
 
       await controller.createComment(req, dto);
 
-      expect(service.createComment).toHaveBeenCalledWith('special-user-id', dto);
+      expect(service.createComment).toHaveBeenCalledWith(
+        'special-user-id',
+        dto,
+      );
     });
 
     it('should handle different user roles in report resolution', async () => {

@@ -52,7 +52,11 @@ describe('JobOrchestratorService', () => {
           provide: TaccIntegrationService,
           useValue: {
             submitJob: jest.fn().mockResolvedValue({ jobId: 'tacc-123' }),
-            getJobStatus: jest.fn().mockResolvedValue({ id: 'tacc-123', status: 'RUNNING', progress: 0.5 }),
+            getJobStatus: jest.fn().mockResolvedValue({
+              id: 'tacc-123',
+              status: 'RUNNING',
+              progress: 0.5,
+            }),
             cancelJob: jest.fn().mockResolvedValue(true),
           },
         },
@@ -76,9 +80,15 @@ describe('JobOrchestratorService', () => {
     }).compile();
 
     service = testingModule.get<JobOrchestratorService>(JobOrchestratorService);
-    jobRepository = testingModule.get(JobRepository) as jest.Mocked<JobRepository>;
-    taccService = testingModule.get(TaccIntegrationService) as jest.Mocked<TaccIntegrationService>;
-    eventsService = testingModule.get(EventsService) as jest.Mocked<EventsService>;
+    jobRepository = testingModule.get(
+      JobRepository,
+    ) as jest.Mocked<JobRepository>;
+    taccService = testingModule.get(
+      TaccIntegrationService,
+    ) as jest.Mocked<TaccIntegrationService>;
+    eventsService = testingModule.get(
+      EventsService,
+    ) as jest.Mocked<EventsService>;
     kafkaService = testingModule.get(KafkaService) as jest.Mocked<KafkaService>;
   });
 
@@ -114,7 +124,10 @@ describe('JobOrchestratorService', () => {
       };
 
       await expect(service.submitJob('user-1', submission)).rejects.toThrow();
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith(expect.any(String), 'FAILED');
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        expect.any(String),
+        'FAILED',
+      );
     });
   });
 
@@ -122,8 +135,16 @@ describe('JobOrchestratorService', () => {
     it('should submit multiple jobs respecting parallel limit', async () => {
       const submissions = [
         { agent: 'AlphaCal' as const, dataset_id: 'dataset-1', params: {} },
-        { agent: 'ImageReconstruction' as const, dataset_id: 'dataset-2', params: {} },
-        { agent: 'AnomalyDetection' as const, dataset_id: 'dataset-3', params: {} },
+        {
+          agent: 'ImageReconstruction' as const,
+          dataset_id: 'dataset-2',
+          params: {},
+        },
+        {
+          agent: 'AnomalyDetection' as const,
+          dataset_id: 'dataset-3',
+          params: {},
+        },
       ];
 
       const result = await service.submitBatch('user-1', {
@@ -169,7 +190,11 @@ describe('JobOrchestratorService', () => {
     });
 
     it('should fetch latest TACC status for running jobs', async () => {
-      const runningJob = { ...mockJob, status: 'RUNNING' as const, tacc_job_id: 'tacc-123' };
+      const runningJob = {
+        ...mockJob,
+        status: 'RUNNING' as const,
+        tacc_job_id: 'tacc-123',
+      };
       jobRepository.findById.mockResolvedValueOnce(runningJob);
 
       await service.getJobStatus('job-1');
@@ -188,7 +213,7 @@ describe('JobOrchestratorService', () => {
 
       const tips = await service.getOptimizationTips(submission);
 
-      expect(tips.some(t => t.category === 'cost')).toBe(true); // High GPU count triggers cost warning
+      expect(tips.some((t) => t.category === 'cost')).toBe(true); // High GPU count triggers cost warning
     });
 
     it('should warn when GPU count is missing', async () => {
@@ -200,7 +225,7 @@ describe('JobOrchestratorService', () => {
 
       const tips = await service.getOptimizationTips(submission);
 
-      expect(tips.some(t => t.category === 'gpu')).toBe(true);
+      expect(tips.some((t) => t.category === 'gpu')).toBe(true);
     });
 
     it('should recommend RFI strategy', async () => {
@@ -212,7 +237,7 @@ describe('JobOrchestratorService', () => {
 
       const tips = await service.getOptimizationTips(submission);
 
-      expect(tips.some(t => t.category === 'rfi_strategy')).toBe(true);
+      expect(tips.some((t) => t.category === 'rfi_strategy')).toBe(true);
     });
 
     it('should recommend max runtime', async () => {
@@ -224,7 +249,7 @@ describe('JobOrchestratorService', () => {
 
       const tips = await service.getOptimizationTips(submission);
 
-      expect(tips.some(t => t.category === 'runtime')).toBe(true);
+      expect(tips.some((t) => t.category === 'runtime')).toBe(true);
     });
   });
 
@@ -261,14 +286,21 @@ describe('JobOrchestratorService', () => {
 
   describe('cancelJob', () => {
     it('should cancel a running job', async () => {
-      const runningJob = { ...mockJob, status: 'RUNNING' as const, tacc_job_id: 'tacc-123' };
+      const runningJob = {
+        ...mockJob,
+        status: 'RUNNING' as const,
+        tacc_job_id: 'tacc-123',
+      };
       jobRepository.findById.mockResolvedValueOnce(runningJob);
 
       const result = await service.cancelJob('job-1');
 
       expect(result).toBe(true);
       expect(taccService.cancelJob).toHaveBeenCalledWith('tacc-123');
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith('job-1', 'CANCELLED');
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        'job-1',
+        'CANCELLED',
+      );
     });
 
     it('should not cancel completed jobs', async () => {
@@ -318,7 +350,11 @@ describe('JobOrchestratorService', () => {
         const submission = {
           agent: 'AlphaCal' as const,
           dataset_id: 'dataset-1',
-          params: { rfi_strategy: 'medium' as const, gpu_count: 2, num_nodes: 4 },
+          params: {
+            rfi_strategy: 'medium' as const,
+            gpu_count: 2,
+            num_nodes: 4,
+          },
         };
 
         await service.submitJob('user-1', submission);
@@ -393,7 +429,9 @@ describe('JobOrchestratorService', () => {
       });
 
       it('should publish job.failed event when submission fails', async () => {
-        taccService.submitJob.mockRejectedValueOnce(new Error('TACC unavailable'));
+        taccService.submitJob.mockRejectedValueOnce(
+          new Error('TACC unavailable'),
+        );
 
         const submission = {
           agent: 'AlphaCal' as const,
@@ -417,7 +455,11 @@ describe('JobOrchestratorService', () => {
       });
 
       it('should publish job.cancelled event when job is cancelled', async () => {
-        const runningJob = { ...mockJob, status: 'RUNNING' as const, tacc_job_id: 'tacc-123' };
+        const runningJob = {
+          ...mockJob,
+          status: 'RUNNING' as const,
+          tacc_job_id: 'tacc-123',
+        };
         jobRepository.findById.mockResolvedValueOnce(runningJob);
 
         await service.cancelJob('job-1');
@@ -464,7 +506,9 @@ describe('JobOrchestratorService', () => {
         // Verify job.submitted comes before job.status.changed
         const eventTypes = calls
           .map((call) => call[0].event_type)
-          .filter((type) => ['job.submitted', 'job.status.changed'].includes(type));
+          .filter((type) =>
+            ['job.submitted', 'job.status.changed'].includes(type),
+          );
 
         expect(eventTypes[0]).toBe('job.submitted');
         if (eventTypes.length > 1) {
@@ -635,7 +679,7 @@ describe('JobOrchestratorService', () => {
   /**
    * SPRINT 5.3: Job Orchestration Events
    * Week 1 (Feb 16-20): Job event publishing tests
-   * 
+   *
    * Tests for Kafka event publishing with correlation IDs,
    * partition key routing, and event schema validation.
    */
@@ -696,11 +740,15 @@ describe('JobOrchestratorService', () => {
 
         expect(event.user_id).toBe('user-1');
         expect(event.event_type).toBe('job.submitted');
-        
+
         // Verify timestamp is within reasonable bounds
         const eventTime = new Date(event.timestamp);
-        expect(eventTime.getTime()).toBeGreaterThanOrEqual(beforeSubmit.getTime());
-        expect(eventTime.getTime()).toBeLessThanOrEqual(afterSubmit.getTime() + 1000);
+        expect(eventTime.getTime()).toBeGreaterThanOrEqual(
+          beforeSubmit.getTime(),
+        );
+        expect(eventTime.getTime()).toBeLessThanOrEqual(
+          afterSubmit.getTime() + 1000,
+        );
       });
     });
 
@@ -716,7 +764,9 @@ describe('JobOrchestratorService', () => {
 
         // Look for job.status.changed event (published during submitJob flow)
         const kafkaCalls = kafkaService.publishJobLifecycleEvent.mock.calls;
-        const statusChangeEvent = kafkaCalls.find((call) => call[0].event_type === 'job.status.changed');
+        const statusChangeEvent = kafkaCalls.find(
+          (call) => call[0].event_type === 'job.status.changed',
+        );
 
         expect(statusChangeEvent).toBeDefined();
       });
@@ -729,7 +779,9 @@ describe('JobOrchestratorService', () => {
         });
 
         const kafkaCalls = kafkaService.publishJobLifecycleEvent.mock.calls;
-        const submittedEvent = kafkaCalls.find((call) => call[0].event_type === 'job.submitted');
+        const submittedEvent = kafkaCalls.find(
+          (call) => call[0].event_type === 'job.submitted',
+        );
 
         expect(submittedEvent).toBeDefined();
         expect(submittedEvent?.[0].job_id).toBe('job-1');
@@ -808,7 +860,8 @@ describe('JobOrchestratorService', () => {
         });
 
         expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
-        const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0] as unknown[];
+        const kafkaCall = kafkaService.publishJobLifecycleEvent.mock
+          .calls[0] as unknown[];
         const partitionKey = kafkaCall?.[1] as string;
 
         expect(partitionKey).toBe('job-1');
@@ -876,7 +929,8 @@ describe('JobOrchestratorService', () => {
         });
 
         expect(eventsService.publishJobEvent).toHaveBeenCalled();
-        const rbtCall = eventsService.publishJobEvent.mock.calls[0] as unknown[];
+        const rbtCall = eventsService.publishJobEvent.mock
+          .calls[0] as unknown[];
         const event = rbtCall?.[0] as Record<string, unknown>;
 
         // Correlation ID should be present for tracing

@@ -50,14 +50,22 @@ describe('ProfileService - Error Paths & Branch Coverage', () => {
     it('should throw NotFoundException when user does not exist', async () => {
       userRepository.findByUsername.mockResolvedValueOnce(null);
 
-      await expect(service.getProfile('nonexistent-user')).rejects.toThrow(NotFoundException);
-      await expect(service.getProfile('nonexistent-user')).rejects.toThrow('@nonexistent-user not found');
+      await expect(service.getProfile('nonexistent-user')).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(service.getProfile('nonexistent-user')).rejects.toThrow(
+        '@nonexistent-user not found',
+      );
     });
 
     it('should handle repository error when fetching user', async () => {
-      userRepository.findByUsername.mockRejectedValueOnce(new Error('Database connection failed'));
+      userRepository.findByUsername.mockRejectedValueOnce(
+        new Error('Database connection failed'),
+      );
 
-      await expect(service.getProfile('testuser')).rejects.toThrow('Database connection failed');
+      await expect(service.getProfile('testuser')).rejects.toThrow(
+        'Database connection failed',
+      );
     });
 
     it('should handle repository error when fetching user posts', async () => {
@@ -82,9 +90,13 @@ describe('ProfileService - Error Paths & Branch Coverage', () => {
       };
 
       userRepository.findByUsername.mockResolvedValueOnce(mockUser);
-      postRepository.findByUser.mockRejectedValueOnce(new Error('Query timeout'));
+      postRepository.findByUser.mockRejectedValueOnce(
+        new Error('Query timeout'),
+      );
 
-      await expect(service.getProfile('testuser')).rejects.toThrow('Query timeout');
+      await expect(service.getProfile('testuser')).rejects.toThrow(
+        'Query timeout',
+      );
     });
 
     it('should return empty posts array when user has no posts', async () => {
@@ -321,7 +333,9 @@ describe('ProfileService - Error Paths & Branch Coverage', () => {
     });
 
     it('should handle repository error during update', async () => {
-      userRepository.update.mockRejectedValueOnce(new Error('Database transaction failed'));
+      userRepository.update.mockRejectedValueOnce(
+        new Error('Database transaction failed'),
+      );
 
       await expect(
         service.updateProfile('u1', { display_name: 'New Name' }),
@@ -449,7 +463,9 @@ describe('ProfileService - Error Paths & Branch Coverage', () => {
 
       userRepository.update.mockResolvedValueOnce(updatedUser);
 
-      await service.updateProfile('u1', { avatar_url: '  https://example.com/avatar.jpg  ' });
+      await service.updateProfile('u1', {
+        avatar_url: '  https://example.com/avatar.jpg  ',
+      });
 
       expect(userRepository.update).toHaveBeenCalledWith('u1', {
         display_name: undefined,
@@ -622,13 +638,16 @@ describe('ProfileService - Error Paths & Branch Coverage', () => {
 
       userRepository.update.mockResolvedValueOnce(updatedUser);
 
-      const result = await service.updateProfile('u1', { display_name: longName });
+      const result = await service.updateProfile('u1', {
+        display_name: longName,
+      });
 
       expect(result.display_name).toBe(longName);
     });
 
     it('should handle special characters in bio', async () => {
-      const bioWithSpecialChars = 'Bio with special chars: @#$%^&*()[]{}|;:,.<>?`~';
+      const bioWithSpecialChars =
+        'Bio with special chars: @#$%^&*()[]{}|;:,.<>?`~';
       const updatedUser: User = {
         id: 'u1',
         username: 'testuser',
@@ -651,7 +670,9 @@ describe('ProfileService - Error Paths & Branch Coverage', () => {
 
       userRepository.update.mockResolvedValueOnce(updatedUser);
 
-      const result = await service.updateProfile('u1', { bio: bioWithSpecialChars });
+      const result = await service.updateProfile('u1', {
+        bio: bioWithSpecialChars,
+      });
 
       expect(result.bio).toBe(bioWithSpecialChars);
     });

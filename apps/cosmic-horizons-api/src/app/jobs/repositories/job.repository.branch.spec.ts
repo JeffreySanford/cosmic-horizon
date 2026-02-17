@@ -251,7 +251,12 @@ describe('JobRepository - Branch Coverage', () => {
     });
 
     it('should handle all job statuses', async () => {
-      const statuses: JobStatus[] = ['QUEUED', 'RUNNING', 'COMPLETED', 'FAILED'];
+      const statuses: JobStatus[] = [
+        'QUEUED',
+        'RUNNING',
+        'COMPLETED',
+        'FAILED',
+      ];
 
       for (const status of statuses) {
         mockTypeOrmRepository.find.mockResolvedValueOnce([]);
@@ -269,9 +274,12 @@ describe('JobRepository - Branch Coverage', () => {
 
       await repository.updateStatus('job-123', 'RUNNING');
 
-      expect(mockTypeOrmRepository.update).toHaveBeenCalledWith({ id: 'job-123' }, {
-        status: 'RUNNING',
-      });
+      expect(mockTypeOrmRepository.update).toHaveBeenCalledWith(
+        { id: 'job-123' },
+        {
+          status: 'RUNNING',
+        },
+      );
     });
 
     it('should update status with progress when provided', async () => {
@@ -279,10 +287,13 @@ describe('JobRepository - Branch Coverage', () => {
 
       await repository.updateStatus('job-123', 'RUNNING', 50);
 
-      expect(mockTypeOrmRepository.update).toHaveBeenCalledWith({ id: 'job-123' }, {
-        status: 'RUNNING',
-        progress: 50,
-      });
+      expect(mockTypeOrmRepository.update).toHaveBeenCalledWith(
+        { id: 'job-123' },
+        {
+          status: 'RUNNING',
+          progress: 50,
+        },
+      );
     });
 
     it('should NOT include progress when undefined', async () => {
@@ -498,8 +509,9 @@ describe('JobRepository - Branch Coverage', () => {
         status: 'RUNNING',
       });
 
-      const whereClause = (mockTypeOrmRepository.findAndCount.mock.calls[0][0] as any)
-        ?.where as any;
+      const whereClause = (
+        mockTypeOrmRepository.findAndCount.mock.calls[0][0] as any
+      )?.where as any;
       expect(whereClause?.user_id).toBe('user-1');
       expect(whereClause?.agent).toBe('AlphaCal');
       expect(whereClause?.status).toBe('RUNNING');
@@ -514,8 +526,9 @@ describe('JobRepository - Branch Coverage', () => {
         status: 'QUEUED',
       });
 
-      const whereClause = (mockTypeOrmRepository.findAndCount.mock.calls[0][0] as any)
-        ?.where as any;
+      const whereClause = (
+        mockTypeOrmRepository.findAndCount.mock.calls[0][0] as any
+      )?.where as any;
       expect(whereClause).toHaveProperty('user_id');
       expect(whereClause).not.toHaveProperty('agent');
       expect(whereClause).toHaveProperty('status');
@@ -532,8 +545,9 @@ describe('JobRepository - Branch Coverage', () => {
         to_date: toDate,
       });
 
-      const whereClause = (mockTypeOrmRepository.findAndCount.mock.calls[0][0] as any)
-        ?.where as any;
+      const whereClause = (
+        mockTypeOrmRepository.findAndCount.mock.calls[0][0] as any
+      )?.where as any;
       expect(whereClause).not.toHaveProperty('from_date');
       expect(whereClause).not.toHaveProperty('to_date');
     });
@@ -570,7 +584,9 @@ describe('JobRepository - Branch Coverage', () => {
 
       await repository.delete('job-123');
 
-      expect(mockTypeOrmRepository.delete).toHaveBeenCalledWith({ id: 'job-123' });
+      expect(mockTypeOrmRepository.delete).toHaveBeenCalledWith({
+        id: 'job-123',
+      });
     });
   });
 });

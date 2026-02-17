@@ -37,14 +37,20 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key, defaultValue) => mockTaccConfig[key as keyof typeof mockTaccConfig] || defaultValue),
+            get: jest.fn(
+              (key, defaultValue) =>
+                mockTaccConfig[key as keyof typeof mockTaccConfig] ||
+                defaultValue,
+            ),
           },
         },
       ],
     }).compile();
 
     service = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
-    configService = testingModule.get(ConfigService) as jest.Mocked<ConfigService>;
+    configService = testingModule.get(
+      ConfigService,
+    ) as jest.Mocked<ConfigService>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
@@ -70,8 +76,10 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
         params: {},
       });
 
-      const allLogs = logSpy.mock.calls.map(call => JSON.stringify(call));
-      const hasExposedKey = allLogs.some(log => log.includes('test-api-key-12345'));
+      const allLogs = logSpy.mock.calls.map((call) => JSON.stringify(call));
+      const hasExposedKey = allLogs.some((log) =>
+        log.includes('test-api-key-12345'),
+      );
 
       expect(hasExposedKey).toBe(false);
     });
@@ -85,19 +93,27 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
         params: {},
       });
 
-      const allLogs = logSpy.mock.calls.map(call => JSON.stringify(call));
-      const hasExposedSecret = allLogs.some(log => log.includes('test-api-secret-98765'));
+      const allLogs = logSpy.mock.calls.map((call) => JSON.stringify(call));
+      const hasExposedSecret = allLogs.some((log) =>
+        log.includes('test-api-secret-98765'),
+      );
 
       expect(hasExposedSecret).toBe(false);
     });
 
     it('should validate API URL format', () => {
-      const url = configService.get('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      const url = configService.get(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       expect(url).toMatch(/^https:\/\//);
     });
 
     it('should enforce HTTPS for API communications', () => {
-      const url = configService.get('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      const url = configService.get(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       const isHttps = url.startsWith('https://');
       expect(isHttps).toBe(true);
     });
@@ -166,27 +182,36 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
 
   describe('Secure Communication', () => {
     it('should use HTTPS for all API calls', () => {
-      const apiUrl = configService.get('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      const apiUrl = configService.get(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       expect(apiUrl).toMatch(/^https:\/\//);
     });
 
     it('should validate server certificate', () => {
       // In production, certificate validation should be enforced
-      const apiUrl = configService.get('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      const apiUrl = configService.get(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       expect(apiUrl).toContain('tacc.utexas.edu');
     });
 
     it('should not allow unencrypted HTTP', () => {
-      const apiUrl = configService.get('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      const apiUrl = configService.get(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       expect(apiUrl).not.toMatch(/^http:\/\/[^s]/);
     });
   });
 
   describe('Error Handling - Credential Failures', () => {
     it('should handle invalid API key errors', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(
-        new Error('401 Unauthorized: Invalid API key'),
-      );
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error('401 Unauthorized: Invalid API key'));
 
       await expect(
         service.submitJob({
@@ -198,9 +223,11 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
     });
 
     it('should handle expired credentials', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(
-        new Error('401 Unauthorized: Credentials expired'),
-      );
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(
+          new Error('401 Unauthorized: Credentials expired'),
+        );
 
       await expect(
         service.submitJob({
@@ -212,9 +239,11 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
     });
 
     it('should handle credential mismatch errors', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(
-        new Error('403 Forbidden: Insufficient permissions'),
-      );
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(
+          new Error('403 Forbidden: Insufficient permissions'),
+        );
 
       await expect(
         service.submitJob({
@@ -226,9 +255,9 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
     });
 
     it('should not expose credentials in error messages', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(
-        new Error('401 Unauthorized'),
-      );
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error('401 Unauthorized'));
 
       try {
         await service.submitJob({
@@ -250,7 +279,10 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
     });
 
     it('should validate credentials during health check', () => {
-      const apiUrl = configService.get('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      const apiUrl = configService.get(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       const apiKey = configService.get('TACC_API_KEY', '');
 
       expect(apiUrl).toBeTruthy();
@@ -273,7 +305,9 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
       // Service should support dynamic credential updates
       configService.get.mockImplementation((key, defaultValue) => {
         if (key === 'TACC_API_KEY') return 'updated-key';
-        return mockTaccConfig[key as keyof typeof mockTaccConfig] || defaultValue;
+        return (
+          mockTaccConfig[key as keyof typeof mockTaccConfig] || defaultValue
+        );
       });
 
       const apiKey = configService.get('TACC_API_KEY', '');
@@ -314,9 +348,13 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
       // Create new instance to trigger initialization logging
       new TaccIntegrationService(configService);
 
-      const debugCalls = debugSpy.mock.calls.map(call => JSON.stringify(call));
+      const debugCalls = debugSpy.mock.calls.map((call) =>
+        JSON.stringify(call),
+      );
       const hasCredentials = debugCalls.some(
-        call => call.includes('test-api-key-12345') || call.includes('test-api-secret-98765'),
+        (call) =>
+          call.includes('test-api-key-12345') ||
+          call.includes('test-api-secret-98765'),
       );
 
       expect(hasCredentials).toBe(false);
@@ -336,9 +374,11 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
     });
 
     it('should handle rate limit exceeded errors', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(
-        new Error('429 Too Many Requests: Rate limit exceeded'),
-      );
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(
+          new Error('429 Too Many Requests: Rate limit exceeded'),
+        );
 
       await expect(
         service.submitJob({
@@ -383,7 +423,10 @@ describe('TaccIntegrationService - Credential Management & Security', () => {
     });
 
     it('should use TLS for credential transmission', () => {
-      const apiUrl = configService.get('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      const apiUrl = configService.get(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       expect(apiUrl).toMatch(/^https:\/\//);
     });
 

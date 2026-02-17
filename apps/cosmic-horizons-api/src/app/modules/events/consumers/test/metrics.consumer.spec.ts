@@ -49,23 +49,27 @@ describe('MetricsConsumer - Event Handling', () => {
         {
           provide: KafkaService,
           useValue: {
-            subscribe: jest.fn().mockImplementation(async (_groupId: string, _topics: string[], handler) => {
-              // Simulate message delivery
-              const mockPayload: Partial<EachMessagePayload> = {
-                message: {
-                  key: Buffer.from('job-1'),
-                  value: Buffer.from(JSON.stringify(mockMetricEvent)),
-                  timestamp: Date.now().toString(),
-                  size: 100,
-                  attributes: 0,
-                  offset: '0',
-                  headers: undefined,
+            subscribe: jest
+              .fn()
+              .mockImplementation(
+                async (_groupId: string, _topics: string[], handler) => {
+                  // Simulate message delivery
+                  const mockPayload: Partial<EachMessagePayload> = {
+                    message: {
+                      key: Buffer.from('job-1'),
+                      value: Buffer.from(JSON.stringify(mockMetricEvent)),
+                      timestamp: Date.now().toString(),
+                      size: 100,
+                      attributes: 0,
+                      offset: '0',
+                      headers: undefined,
+                    },
+                    partition: 0,
+                    topic: 'job-metrics',
+                  };
+                  await handler(mockPayload as EachMessagePayload);
                 },
-                partition: 0,
-                topic: 'job-metrics',
-              };
-              await handler(mockPayload as EachMessagePayload);
-            }),
+              ),
             disconnect: jest.fn().mockResolvedValue(undefined),
             isConnected: jest.fn().mockReturnValue(true),
           },
@@ -74,7 +78,9 @@ describe('MetricsConsumer - Event Handling', () => {
     }).compile();
 
     consumer = testingModule.get<MetricsConsumer>(MetricsConsumer);
-    metricsService = testingModule.get(MetricsService) as jest.Mocked<MetricsService>;
+    metricsService = testingModule.get(
+      MetricsService,
+    ) as jest.Mocked<MetricsService>;
     kafkaService = testingModule.get(KafkaService) as jest.Mocked<KafkaService>;
   });
 
@@ -127,7 +133,9 @@ describe('MetricsConsumer - Event Handling', () => {
         sample_count: 1,
       };
 
-      metricsService.getJobMetricsSummary.mockResolvedValueOnce(aggregatedMetrics);
+      metricsService.getJobMetricsSummary.mockResolvedValueOnce(
+        aggregatedMetrics,
+      );
 
       await consumer.onModuleInit();
 

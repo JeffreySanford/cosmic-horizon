@@ -128,7 +128,9 @@ describe('JobEventsConsumer', () => {
 
       await handler(mockPayload);
 
-      expect(notificationService.sendJobFailureNotification).toHaveBeenCalledWith({
+      expect(
+        notificationService.sendJobFailureNotification,
+      ).toHaveBeenCalledWith({
         user_id: 'user-456',
         job_id: 'job-123',
         error_message: 'Calibration failed',

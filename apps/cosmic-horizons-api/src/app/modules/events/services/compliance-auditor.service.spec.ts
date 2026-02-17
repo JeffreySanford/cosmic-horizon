@@ -22,7 +22,9 @@ describe('ComplianceAuditorService - Event Consumption', () => {
       providers: [ComplianceAuditorService],
     }).compile();
 
-    service = testingModule.get<ComplianceAuditorService>(ComplianceAuditorService);
+    service = testingModule.get<ComplianceAuditorService>(
+      ComplianceAuditorService,
+    );
   });
 
   describe('Monday: Immutable event storage and audit trail initialization', () => {
@@ -107,7 +109,9 @@ describe('ComplianceAuditorService - Event Consumption', () => {
       };
 
       const stored = await service.storeAuditEvent(event);
-      expect(stored.timestamp).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/);
+      expect(stored.timestamp).toMatch(
+        /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/,
+      );
     });
   });
 
@@ -115,9 +119,21 @@ describe('ComplianceAuditorService - Event Consumption', () => {
     it('should retrieve full audit trail for job', async () => {
       const jobId = 'job-1';
       const events = [
-        { jobId, eventType: 'job.submitted', timestamp: new Date().toISOString() },
-        { jobId, eventType: 'job.queued', timestamp: new Date(Date.now() + 1000).toISOString() },
-        { jobId, eventType: 'job.running', timestamp: new Date(Date.now() + 2000).toISOString() },
+        {
+          jobId,
+          eventType: 'job.submitted',
+          timestamp: new Date().toISOString(),
+        },
+        {
+          jobId,
+          eventType: 'job.queued',
+          timestamp: new Date(Date.now() + 1000).toISOString(),
+        },
+        {
+          jobId,
+          eventType: 'job.running',
+          timestamp: new Date(Date.now() + 2000).toISOString(),
+        },
       ];
 
       for (const event of events) {
@@ -138,7 +154,11 @@ describe('ComplianceAuditorService - Event Consumption', () => {
       const startDate = new Date(Date.now() - 3600000);
       const endDate = new Date();
 
-      const events = await service.queryAuditEventsByDateRange(jobId, startDate, endDate);
+      const events = await service.queryAuditEventsByDateRange(
+        jobId,
+        startDate,
+        endDate,
+      );
       expect(Array.isArray(events)).toBe(true);
     });
 
@@ -224,7 +244,11 @@ describe('ComplianceAuditorService - Event Consumption', () => {
       const jobId = 'job-1';
       const auditorId = 'auditor-123';
 
-      const signOff = await service.recordComplianceSignOff(jobId, auditorId, 'APPROVED');
+      const signOff = await service.recordComplianceSignOff(
+        jobId,
+        auditorId,
+        'APPROVED',
+      );
       expect(signOff).toBeDefined();
       expect(signOff.auditorId).toBe(auditorId);
       expect(signOff.status).toBe('APPROVED');

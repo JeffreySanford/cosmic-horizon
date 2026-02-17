@@ -115,14 +115,14 @@ describe('AuthController', () => {
 
     it('propagates UnauthorizedException for invalid credentials', async () => {
       authService.loginWithCredentials.mockRejectedValue(
-        new UnauthorizedException('Invalid email or password')
+        new UnauthorizedException('Invalid email or password'),
       );
 
       await expect(
         controller.login({
           email: 'bad@cosmic.local',
           password: 'wrong-password',
-        })
+        }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
       expect(authService.issueAuthTokens).not.toHaveBeenCalled();
     });
@@ -218,9 +218,13 @@ describe('AuthController', () => {
         },
       });
 
-      const result = await controller.refresh({ refresh_token: 'old-refresh-token' });
+      const result = await controller.refresh({
+        refresh_token: 'old-refresh-token',
+      });
 
-      expect(authService.refreshAuthTokens).toHaveBeenCalledWith('old-refresh-token');
+      expect(authService.refreshAuthTokens).toHaveBeenCalledWith(
+        'old-refresh-token',
+      );
       expect(result).toMatchObject({
         access_token: 'new-access-token',
         refresh_token: 'new-refresh-token',
@@ -270,20 +274,28 @@ describe('AuthController', () => {
         headers: {
           'user-agent': 'jest-test',
         },
-        logout: jest.fn().mockImplementation((callback: (err: Error | null) => void) => {
-          callback(null);
-        }),
+        logout: jest
+          .fn()
+          .mockImplementation((callback: (err: Error | null) => void) => {
+            callback(null);
+          }),
       };
 
       const mockResponse = {
         json: jest.fn(),
       };
 
-      await controller.logout(mockRequest, mockResponse as never, { refresh_token: 'token-1' });
+      await controller.logout(mockRequest, mockResponse as never, {
+        refresh_token: 'token-1',
+      });
 
-      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Logged out successfully' });
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Logged out successfully',
+      });
       expect(mockRequest.logout).toHaveBeenCalled();
-      expect(authService.revokeAllRefreshTokensForUser).toHaveBeenCalledWith('user-id');
+      expect(authService.revokeAllRefreshTokensForUser).toHaveBeenCalledWith(
+        'user-id',
+      );
       expect(authService.revokeRefreshToken).toHaveBeenCalledWith('token-1');
       expect(auditLogRepository.createAuditLog).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -298,14 +310,16 @@ describe('AuthController', () => {
     it('should reject if logout fails', async () => {
       const error = new Error('Logout failed');
       const mockRequest = {
-        logout: jest.fn().mockImplementation((callback: (err: Error | null) => void) => {
-          callback(error);
-        }),
+        logout: jest
+          .fn()
+          .mockImplementation((callback: (err: Error | null) => void) => {
+            callback(error);
+          }),
       };
 
-      await expect(controller.logout(mockRequest as never, {} as never)).rejects.toThrow(
-        'Logout failed',
-      );
+      await expect(
+        controller.logout(mockRequest as never, {} as never),
+      ).rejects.toThrow('Logout failed');
     });
   });
 });

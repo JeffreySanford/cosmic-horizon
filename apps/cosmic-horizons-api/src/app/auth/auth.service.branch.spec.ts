@@ -93,7 +93,9 @@ describe('AuthService - Branch Coverage', () => {
       await service.onModuleInit();
 
       expect(dataSource.query).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS auth_refresh_tokens'),
+        expect.stringContaining(
+          'CREATE TABLE IF NOT EXISTS auth_refresh_tokens',
+        ),
       );
     });
 
@@ -338,9 +340,9 @@ describe('AuthService - Branch Coverage', () => {
       await service.validateOrCreateUser(profile);
 
       expect(existingUser.updated_at).toBeDefined();
-      expect(new Date(existingUser.updated_at).getTime()).toBeGreaterThanOrEqual(
-        beforeUpdate.getTime(),
-      );
+      expect(
+        new Date(existingUser.updated_at).getTime(),
+      ).toBeGreaterThanOrEqual(beforeUpdate.getTime());
     });
   });
 
@@ -618,7 +620,9 @@ describe('AuthService - Branch Coverage', () => {
 
   describe('refreshAuthTokens', () => {
     it('should refresh tokens for valid refresh token', async () => {
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const expiresAt = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000,
+      ).toISOString();
       dataSource.query
         .mockResolvedValueOnce([
           {
@@ -655,7 +659,9 @@ describe('AuthService - Branch Coverage', () => {
     });
 
     it('should throw UnauthorizedException when refresh token revoked', async () => {
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const expiresAt = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000,
+      ).toISOString();
       dataSource.query.mockResolvedValueOnce([
         {
           id: 'token-1',
@@ -702,7 +708,9 @@ describe('AuthService - Branch Coverage', () => {
     });
 
     it('should throw UnauthorizedException when user no longer exists', async () => {
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const expiresAt = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000,
+      ).toISOString();
       dataSource.query
         .mockResolvedValueOnce([
           {
@@ -722,7 +730,9 @@ describe('AuthService - Branch Coverage', () => {
     });
 
     it('should revoke old refresh token before issuing new one', async () => {
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const expiresAt = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000,
+      ).toISOString();
       dataSource.query
         .mockResolvedValueOnce([
           {

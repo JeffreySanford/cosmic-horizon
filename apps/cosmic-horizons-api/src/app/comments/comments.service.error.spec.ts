@@ -79,8 +79,12 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
     it('should throw NotFoundException when post does not exist', async () => {
       postRepository.findById.mockResolvedValueOnce(null);
 
-      await expect(service.getCommentsByPost('nonexistent-post')).rejects.toThrow(NotFoundException);
-      await expect(service.getCommentsByPost('nonexistent-post')).rejects.toThrow('Post with ID nonexistent-post not found');
+      await expect(
+        service.getCommentsByPost('nonexistent-post'),
+      ).rejects.toThrow(NotFoundException);
+      await expect(
+        service.getCommentsByPost('nonexistent-post'),
+      ).rejects.toThrow('Post with ID nonexistent-post not found');
     });
 
     it('should return empty array when post exists but has no comments', async () => {
@@ -97,9 +101,13 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
     });
 
     it('should handle repository error when fetching post', async () => {
-      postRepository.findById.mockRejectedValueOnce(new Error('Database connection failed'));
+      postRepository.findById.mockRejectedValueOnce(
+        new Error('Database connection failed'),
+      );
 
-      await expect(service.getCommentsByPost('post-1')).rejects.toThrow('Database connection failed');
+      await expect(service.getCommentsByPost('post-1')).rejects.toThrow(
+        'Database connection failed',
+      );
     });
 
     it('should handle repository error when fetching comments', async () => {
@@ -107,9 +115,13 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
         id: 'post-1',
         status: PostStatus.PUBLISHED,
       } as any);
-      commentRepository.findByPost.mockRejectedValueOnce(new Error('Query timeout'));
+      commentRepository.findByPost.mockRejectedValueOnce(
+        new Error('Query timeout'),
+      );
 
-      await expect(service.getCommentsByPost('post-1')).rejects.toThrow('Query timeout');
+      await expect(service.getCommentsByPost('post-1')).rejects.toThrow(
+        'Query timeout',
+      );
     });
   });
 
@@ -226,7 +238,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
         user_id: 'user-1',
         content: 'Test',
       } as any);
-      auditLogRepository.createAuditLog.mockRejectedValueOnce(new Error('Audit logging failed'));
+      auditLogRepository.createAuditLog.mockRejectedValueOnce(
+        new Error('Audit logging failed'),
+      );
 
       await expect(
         service.createComment('user-1', {
@@ -241,7 +255,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
         id: 'post-1',
         status: PostStatus.PUBLISHED,
       } as any);
-      commentRepository.create.mockRejectedValueOnce(new Error('Create failed'));
+      commentRepository.create.mockRejectedValueOnce(
+        new Error('Create failed'),
+      );
 
       await expect(
         service.createComment('user-1', {
@@ -257,7 +273,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
       commentRepository.findById.mockResolvedValueOnce(null);
 
       await expect(
-        service.updateComment('nonexistent-comment', 'user-1', { content: 'Updated' }),
+        service.updateComment('nonexistent-comment', 'user-1', {
+          content: 'Updated',
+        }),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -287,7 +305,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
       } as any);
       auditLogRepository.createAuditLog.mockResolvedValueOnce(undefined);
 
-      const result = await service.updateComment('comment-1', 'user-1', { content: 'Updated' });
+      const result = await service.updateComment('comment-1', 'user-1', {
+        content: 'Updated',
+      });
 
       expect(result.content).toBe('Updated');
       expect(auditLogRepository.createAuditLog).toHaveBeenCalledWith(
@@ -304,7 +324,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
         user_id: 'user-1',
         post_id: 'post-1',
       } as any);
-      commentRepository.update.mockRejectedValueOnce(new Error('Update failed'));
+      commentRepository.update.mockRejectedValueOnce(
+        new Error('Update failed'),
+      );
 
       await expect(
         service.updateComment('comment-1', 'user-1', { content: 'Updated' }),
@@ -316,7 +338,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
     it('should throw NotFoundException when comment does not exist', async () => {
       commentRepository.findById.mockResolvedValueOnce(null);
 
-      await expect(service.deleteComment('nonexistent-comment', 'user-1')).rejects.toThrow(NotFoundException);
+      await expect(
+        service.deleteComment('nonexistent-comment', 'user-1'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException when user is not the comment or post owner', async () => {
@@ -330,7 +354,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
         user_id: 'different-user',
       } as any);
 
-      await expect(service.deleteComment('comment-1', 'user-1')).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.deleteComment('comment-1', 'user-1'),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('should allow comment owner to delete their comment', async () => {
@@ -380,9 +406,13 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
         id: 'post-1',
         user_id: 'other-user',
       } as any);
-      commentRepository.softDelete.mockRejectedValueOnce(new Error('Delete failed'));
+      commentRepository.softDelete.mockRejectedValueOnce(
+        new Error('Delete failed'),
+      );
 
-      await expect(service.deleteComment('comment-1', 'user-1')).rejects.toThrow('Delete failed');
+      await expect(
+        service.deleteComment('comment-1', 'user-1'),
+      ).rejects.toThrow('Delete failed');
     });
   });
 
@@ -390,9 +420,12 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
     it('should throw NotFoundException when comment does not exist', async () => {
       commentRepository.findById.mockResolvedValueOnce(null);
 
-      await expect(service.reportComment('nonexistent', 'user-1', { reason: 'Spam', description: 'Spam' })).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.reportComment('nonexistent', 'user-1', {
+          reason: 'Spam',
+          description: 'Spam',
+        }),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should create report for any comment', async () => {
@@ -421,7 +454,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
         id: 'comment-1',
         user_id: 'other-user',
       } as any);
-      commentReportRepository.create.mockRejectedValueOnce(new Error('Report creation failed'));
+      commentReportRepository.create.mockRejectedValueOnce(
+        new Error('Report creation failed'),
+      );
 
       await expect(
         service.reportComment('comment-1', 'user-1', {
@@ -489,8 +524,12 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
       auditLogRepository.createAuditLog.mockResolvedValue(undefined);
 
       // Note: In real scenario, second update might fail due to version conflict
-      const promise1 = service.updateComment('comment-1', 'user-1', { content: 'Updated 1' });
-      const promise2 = service.updateComment('comment-1', 'user-1', { content: 'Updated 2' });
+      const promise1 = service.updateComment('comment-1', 'user-1', {
+        content: 'Updated 1',
+      });
+      const promise2 = service.updateComment('comment-1', 'user-1', {
+        content: 'Updated 2',
+      });
 
       const results = await Promise.all([promise1, promise2]);
 
@@ -513,7 +552,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
       } as any);
       auditLogRepository.createAuditLog.mockResolvedValueOnce(undefined);
 
-      const result = await service.updateComment('comment-1', 'user-1', { content: '' });
+      const result = await service.updateComment('comment-1', 'user-1', {
+        content: '',
+      });
 
       expect(result.id).toBe('comment-1');
     });
@@ -541,7 +582,8 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
     });
 
     it('should handle special characters in content', async () => {
-      const specialContent = '😀 <script>alert("xss")</script> SQL: DROP TABLE; \n\r\t';
+      const specialContent =
+        '😀 <script>alert("xss")</script> SQL: DROP TABLE; \n\r\t';
       postRepository.findById.mockResolvedValueOnce({
         id: 'post-1',
         status: PostStatus.PUBLISHED,
@@ -596,9 +638,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
         } as any);
 
       // First attempt fails
-      await expect(
-        service.getCommentsByPost('post-1'),
-      ).rejects.toThrow('Connection timeout');
+      await expect(service.getCommentsByPost('post-1')).rejects.toThrow(
+        'Connection timeout',
+      );
 
       // Second attempt succeeds
       commentRepository.findByPost.mockResolvedValueOnce([]);
@@ -607,7 +649,9 @@ describe('CommentsService - Error Paths & Branch Coverage', () => {
     });
 
     it('should handle consecutive repository failures', async () => {
-      postRepository.findById.mockRejectedValue(new Error('Persistent failure'));
+      postRepository.findById.mockRejectedValue(
+        new Error('Persistent failure'),
+      );
 
       const attempt1 = service.getCommentsByPost('post-1');
       const attempt2 = service.getCommentsByPost('post-1');

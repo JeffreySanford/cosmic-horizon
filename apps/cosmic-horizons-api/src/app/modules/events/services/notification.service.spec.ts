@@ -188,11 +188,19 @@ describe('NotificationService - Event Consumption', () => {
     it('should aggregate multiple job updates in single notification', async () => {
       const events = [
         { jobId: 'job-1', event: 'stage_started', stage: 'ALPHACAL' },
-        { jobId: 'job-1', event: 'stage_progress', stage: 'ALPHACAL', progress: 50 },
+        {
+          jobId: 'job-1',
+          event: 'stage_progress',
+          stage: 'ALPHACAL',
+          progress: 50,
+        },
         { jobId: 'job-1', event: 'stage_completed', stage: 'ALPHACAL' },
       ];
 
-      const aggregated = await service.aggregateNotifications('user-123', events);
+      const aggregated = await service.aggregateNotifications(
+        'user-123',
+        events,
+      );
       expect(aggregated).toBeDefined();
       expect(aggregated.eventCount).toBe(3);
     });

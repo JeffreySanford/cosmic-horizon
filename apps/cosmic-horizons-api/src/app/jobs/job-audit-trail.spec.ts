@@ -12,7 +12,7 @@ afterEach(async () => {
 let testingModule: TestingModule | undefined;
 
 /**
- * Job Audit Trail & Persistence Tests  
+ * Job Audit Trail & Persistence Tests
  *
  * This test suite ensures that:
  * 1. All job operations are logged to persistent storage (PostgreSQL)
@@ -52,21 +52,25 @@ describe('Job Audit Trail & Persistence', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key, defaultValue) =>
-              mockTaccConfig[key as keyof typeof mockTaccConfig] || defaultValue,
+            get: jest.fn(
+              (key, defaultValue) =>
+                mockTaccConfig[key as keyof typeof mockTaccConfig] ||
+                defaultValue,
             ),
           },
         },
         {
           provide: JobRepository,
           useValue: {
-            create: jest.fn().mockImplementation((params) => Promise.resolve({
-              ...mockAuditableJob,
-              ...params,
-              id: 'job-uuid-' + Math.random().toString(36).substr(2, 9),
-              created_at: new Date(),
-              updated_at: new Date(),
-            })),
+            create: jest.fn().mockImplementation((params) =>
+              Promise.resolve({
+                ...mockAuditableJob,
+                ...params,
+                id: 'job-uuid-' + Math.random().toString(36).substr(2, 9),
+                created_at: new Date(),
+                updated_at: new Date(),
+              }),
+            ),
             findById: jest.fn().mockResolvedValue(mockAuditableJob),
             findByUser: jest.fn().mockResolvedValue([[mockAuditableJob], 1]),
             updateStatus: jest.fn().mockResolvedValue(undefined),
@@ -79,7 +83,9 @@ describe('Job Audit Trail & Persistence', () => {
     }).compile();
 
     service = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
-    jobRepository = testingModule.get(JobRepository) as jest.Mocked<JobRepository>;
+    jobRepository = testingModule.get(
+      JobRepository,
+    ) as jest.Mocked<JobRepository>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
@@ -114,7 +120,9 @@ describe('Job Audit Trail & Persistence', () => {
       });
 
       expect(job.created_at).toBeDefined();
-      expect(job.created_at.getTime()).toBeLessThanOrEqual(new Date().getTime());
+      expect(job.created_at.getTime()).toBeLessThanOrEqual(
+        new Date().getTime(),
+      );
     });
 
     it('should record submitting user ID', async () => {
@@ -130,7 +138,11 @@ describe('Job Audit Trail & Persistence', () => {
     });
 
     it('should capture job parameters at creation', async () => {
-      const params = { rfi_strategy: 'high' as const, gpu_count: 4, max_runtime: '8:00:00' };
+      const params = {
+        rfi_strategy: 'high' as const,
+        gpu_count: 4,
+        max_runtime: '8:00:00',
+      };
       const job = await jobRepository.create({
         user_id: 'user-001',
         agent: 'AlphaCal',
@@ -178,7 +190,10 @@ describe('Job Audit Trail & Persistence', () => {
       ];
 
       for (const transition of transitions) {
-        await jobRepository.updateStatus(mockAuditableJob.id, transition.to as any);
+        await jobRepository.updateStatus(
+          mockAuditableJob.id,
+          transition.to as any,
+        );
         expect(jobRepository.updateStatus).toHaveBeenCalledWith(
           mockAuditableJob.id,
           transition.to,
@@ -193,13 +208,18 @@ describe('Job Audit Trail & Persistence', () => {
 
       expect(jobRepository.updateStatus).toHaveBeenCalled();
       // Timestamp should be within operation timeframe
-      expect(afterTransition.getTime()).toBeGreaterThanOrEqual(beforeTransition.getTime());
+      expect(afterTransition.getTime()).toBeGreaterThanOrEqual(
+        beforeTransition.getTime(),
+      );
     });
 
     it('should track failed status transitions', async () => {
       await jobRepository.updateStatus(mockAuditableJob.id, 'FAILED');
 
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith(mockAuditableJob.id, 'FAILED');
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        mockAuditableJob.id,
+        'FAILED',
+      );
     });
 
     it('should record cancellation transitions', async () => {
@@ -259,7 +279,10 @@ describe('Job Audit Trail & Persistence', () => {
 
       for (const progress of progressUpdates) {
         await jobRepository.updateProgress(mockAuditableJob.id, progress);
-        expect(jobRepository.updateProgress).toHaveBeenCalledWith(mockAuditableJob.id, progress);
+        expect(jobRepository.updateProgress).toHaveBeenCalledWith(
+          mockAuditableJob.id,
+          progress,
+        );
       }
     });
 
@@ -270,7 +293,11 @@ describe('Job Audit Trail & Persistence', () => {
     });
 
     it('should record final progress as 1.0 for completed jobs', async () => {
-      const completedJob = { ...mockAuditableJob, progress: 1.0, status: 'COMPLETED' as const };
+      const completedJob = {
+        ...mockAuditableJob,
+        progress: 1.0,
+        status: 'COMPLETED' as const,
+      };
       jobRepository.findById.mockResolvedValueOnce(completedJob);
 
       const job = await jobRepository.findById(mockAuditableJob.id);
@@ -377,7 +404,8 @@ describe('Job Audit Trail & Persistence', () => {
     });
 
     it('should record retry attempts', async () => {
-      const notes = 'Retry 1 of 3: GPU memory error, retrying with reduced batch size';
+      const notes =
+        'Retry 1 of 3: GPU memory error, retrying with reduced batch size';
 
       jobRepository.findById.mockResolvedValueOnce({
         ...mockAuditableJob,
@@ -401,7 +429,9 @@ describe('Job Audit Trail & Persistence', () => {
     });
 
     it('should enable filtering by status', async () => {
-      const [results] = await jobRepository.search({ status: 'COMPLETED' as const });
+      const [results] = await jobRepository.search({
+        status: 'COMPLETED' as const,
+      });
 
       expect(jobRepository.search).toHaveBeenCalled();
       expect(Array.isArray(results)).toBe(true);
@@ -471,7 +501,9 @@ describe('Job Audit Trail & Persistence', () => {
 
       const job = await jobRepository.findById(mockAuditableJob.id);
 
-      expect(job!.completed_at!.getTime() - job!.created_at.getTime()).toBe(durationMs);
+      expect(job!.completed_at!.getTime() - job!.created_at.getTime()).toBe(
+        durationMs,
+      );
     });
 
     it('should track completion status', async () => {

@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
-import { TaccIntegrationService, TaccJobSubmission, TaccJobParams } from './tacc-integration.service';
+import {
+  TaccIntegrationService,
+  TaccJobSubmission,
+  TaccJobParams,
+} from './tacc-integration.service';
 
 afterEach(async () => {
   await testingModule?.close();
@@ -28,14 +32,20 @@ describe('TaccIntegrationService', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key, defaultValue) => mockTaccConfig[key as keyof typeof mockTaccConfig] || defaultValue),
+            get: jest.fn(
+              (key, defaultValue) =>
+                mockTaccConfig[key as keyof typeof mockTaccConfig] ||
+                defaultValue,
+            ),
           },
         },
       ],
     }).compile();
 
     service = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
-    configService = testingModule.get(ConfigService) as jest.Mocked<ConfigService>;
+    configService = testingModule.get(
+      ConfigService,
+    ) as jest.Mocked<ConfigService>;
 
     // Suppress logger output during tests
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
@@ -51,7 +61,10 @@ describe('TaccIntegrationService', () => {
   describe('constructor', () => {
     it('should initialize with TACC API configuration', () => {
       expect(service).toBeDefined();
-      expect(configService.get).toHaveBeenCalledWith('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      expect(configService.get).toHaveBeenCalledWith(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       expect(configService.get).toHaveBeenCalledWith('TACC_API_KEY', '');
     });
 
@@ -72,7 +85,9 @@ describe('TaccIntegrationService', () => {
         ],
       }).compile();
 
-      const newService = newModule.get<TaccIntegrationService>(TaccIntegrationService);
+      const newService = newModule.get<TaccIntegrationService>(
+        TaccIntegrationService,
+      );
       expect(newService).toBeDefined();
     });
   });
@@ -149,7 +164,12 @@ describe('TaccIntegrationService', () => {
     });
 
     it('should submit job with all RFI strategy options', async () => {
-      const strategies: TaccJobParams['rfi_strategy'][] = ['low', 'medium', 'high', 'high_sensitivity'];
+      const strategies: TaccJobParams['rfi_strategy'][] = [
+        'low',
+        'medium',
+        'high',
+        'high_sensitivity',
+      ];
 
       for (const strategy of strategies) {
         const submission: TaccJobSubmission = {
@@ -192,7 +212,9 @@ describe('TaccIntegrationService', () => {
     });
 
     it('should handle submission errors gracefully', async () => {
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error('TACC API error'));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error('TACC API error'));
 
       const submission: TaccJobSubmission = {
         agent: 'AlphaCal',
@@ -200,7 +222,9 @@ describe('TaccIntegrationService', () => {
         params: {},
       };
 
-      await expect(service.submitJob(submission)).rejects.toThrow('TACC API error');
+      await expect(service.submitJob(submission)).rejects.toThrow(
+        'TACC API error',
+      );
     });
   });
 
@@ -213,7 +237,9 @@ describe('TaccIntegrationService', () => {
       expect(status).toHaveProperty('status');
       expect(status).toHaveProperty('progress');
       expect(status.id).toBe(jobId);
-      expect(['QUEUED', 'RUNNING', 'COMPLETED'].includes(status.status)).toBe(true);
+      expect(['QUEUED', 'RUNNING', 'COMPLETED'].includes(status.status)).toBe(
+        true,
+      );
       expect(status.progress).toBeGreaterThanOrEqual(0);
       expect(status.progress).toBeLessThanOrEqual(1);
     });
@@ -270,9 +296,13 @@ describe('TaccIntegrationService', () => {
     });
 
     it('should handle status fetch errors', async () => {
-      jest.spyOn(service, 'getJobStatus').mockRejectedValueOnce(new Error('Connection timeout'));
+      jest
+        .spyOn(service, 'getJobStatus')
+        .mockRejectedValueOnce(new Error('Connection timeout'));
 
-      await expect(service.getJobStatus('tacc-123456')).rejects.toThrow('Connection timeout');
+      await expect(service.getJobStatus('tacc-123456')).rejects.toThrow(
+        'Connection timeout',
+      );
     });
 
     it('should handle multiple status checks sequentially', async () => {
@@ -304,9 +334,13 @@ describe('TaccIntegrationService', () => {
     });
 
     it('should handle cancellation errors', async () => {
-      jest.spyOn(service, 'cancelJob').mockRejectedValueOnce(new Error('Job not found'));
+      jest
+        .spyOn(service, 'cancelJob')
+        .mockRejectedValueOnce(new Error('Job not found'));
 
-      await expect(service.cancelJob('invalid-job-id')).rejects.toThrow('Job not found');
+      await expect(service.cancelJob('invalid-job-id')).rejects.toThrow(
+        'Job not found',
+      );
     });
 
     it('should handle multiple job cancellations', async () => {
@@ -330,7 +364,9 @@ describe('TaccIntegrationService', () => {
   describe('error handling', () => {
     it('should handle network errors during submission', async () => {
       const errorMessage = 'Network timeout: TACC API unreachable';
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error(errorMessage));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error(errorMessage));
 
       await expect(
         service.submitJob({
@@ -343,7 +379,9 @@ describe('TaccIntegrationService', () => {
 
     it('should handle authentication failures', async () => {
       const errorMessage = 'Invalid API credentials';
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error(errorMessage));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error(errorMessage));
 
       await expect(
         service.submitJob({
@@ -356,7 +394,9 @@ describe('TaccIntegrationService', () => {
 
     it('should handle rate limiting', async () => {
       const errorMessage = 'Rate limit exceeded: 100 requests per minute';
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error(errorMessage));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error(errorMessage));
 
       await expect(
         service.submitJob({
@@ -369,7 +409,9 @@ describe('TaccIntegrationService', () => {
 
     it('should handle server errors (5xx)', async () => {
       const errorMessage = 'TACC Server Error: 503 Service Unavailable';
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error(errorMessage));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error(errorMessage));
 
       await expect(
         service.submitJob({
@@ -382,7 +424,9 @@ describe('TaccIntegrationService', () => {
 
     it('should handle data validation errors', async () => {
       const errorMessage = 'Invalid parameter: gpu_count must be positive';
-      jest.spyOn(service, 'submitJob').mockRejectedValueOnce(new Error(errorMessage));
+      jest
+        .spyOn(service, 'submitJob')
+        .mockRejectedValueOnce(new Error(errorMessage));
 
       await expect(
         service.submitJob({
@@ -396,7 +440,10 @@ describe('TaccIntegrationService', () => {
 
   describe('configuration validation', () => {
     it('should validate TACC API URL configuration', () => {
-      const url = configService.get('TACC_API_URL', 'https://api.tacc.utexas.edu');
+      const url = configService.get(
+        'TACC_API_URL',
+        'https://api.tacc.utexas.edu',
+      );
       expect(url).toMatch(/^https:\/\//);
     });
 
@@ -418,16 +465,21 @@ describe('TaccIntegrationService', () => {
 
   describe('concurrent operations', () => {
     it('should handle concurrent job submissions', async () => {
-      const submissions: TaccJobSubmission[] = Array.from({ length: 5 }, (_, i) => ({
-        agent: 'AlphaCal' as const,
-        dataset_id: `dataset-concurrent-${i}`,
-        params: { gpu_count: i + 1 },
-      }));
+      const submissions: TaccJobSubmission[] = Array.from(
+        { length: 5 },
+        (_, i) => ({
+          agent: 'AlphaCal' as const,
+          dataset_id: `dataset-concurrent-${i}`,
+          params: { gpu_count: i + 1 },
+        }),
+      );
 
-      const results = await Promise.all(submissions.map(s => service.submitJob(s)));
+      const results = await Promise.all(
+        submissions.map((s) => service.submitJob(s)),
+      );
 
       expect(results).toHaveLength(5);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.jobId).toBeDefined();
       });
     });
@@ -435,10 +487,12 @@ describe('TaccIntegrationService', () => {
     it('should handle concurrent status checks', async () => {
       const jobIds = Array.from({ length: 5 }, (_, i) => `tacc-${i}`);
 
-      const results = await Promise.all(jobIds.map(id => service.getJobStatus(id)));
+      const results = await Promise.all(
+        jobIds.map((id) => service.getJobStatus(id)),
+      );
 
       expect(results).toHaveLength(5);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.id).toBeDefined();
         expect(result.status).toBeDefined();
       });
@@ -496,7 +550,7 @@ describe('TaccIntegrationService', () => {
 
     it('should log errors appropriately', async () => {
       const errorSpy = jest.spyOn(service['logger'], 'error');
-      
+
       // Verify error logging capability is available
       service['logger'].error('Test error message');
 

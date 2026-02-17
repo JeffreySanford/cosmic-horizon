@@ -25,7 +25,7 @@ describe('CommentRepository', () => {
       save: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
-    } as unknown as jest.Mocked<Repository<Comment>>);
+    }) as unknown as jest.Mocked<Repository<Comment>>;
 
   beforeEach(async () => {
     mockRepository = createMockCommentRepository();
@@ -100,7 +100,9 @@ describe('CommentRepository', () => {
       mockRepository.create.mockReturnValue(commentData);
       mockRepository.save.mockRejectedValue(new Error('Database error'));
 
-      await expect(repository.create(commentData)).rejects.toThrow('Database error');
+      await expect(repository.create(commentData)).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 
@@ -115,7 +117,7 @@ describe('CommentRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user', 'parent'],
-        })
+        }),
       );
       expect(result?.id).toBe('comment-1');
     });
@@ -136,7 +138,7 @@ describe('CommentRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user', 'parent'],
-        })
+        }),
       );
     });
 
@@ -154,7 +156,7 @@ describe('CommentRepository', () => {
       expect(mockRepository.findOne).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user', 'parent'],
-        })
+        }),
       );
     });
   });
@@ -174,10 +176,14 @@ describe('CommentRepository', () => {
         expect.objectContaining({
           relations: ['user'],
           order: { created_at: 'ASC' },
-        })
+        }),
       );
       expect(result).toHaveLength(2);
-      TypeSafeAssertions.assertArrayPropertiesEqual(result, 'post_id', 'post-1');
+      TypeSafeAssertions.assertArrayPropertiesEqual(
+        result,
+        'post_id',
+        'post-1',
+      );
     });
 
     it('should return empty array when post has no comments', async () => {
@@ -201,7 +207,7 @@ describe('CommentRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           order: { created_at: 'ASC' },
-        })
+        }),
       );
     });
 
@@ -213,7 +219,7 @@ describe('CommentRepository', () => {
       expect(mockRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
           relations: ['user'],
-        })
+        }),
       );
     });
   });
@@ -225,7 +231,11 @@ describe('CommentRepository', () => {
         .withContent('Updated content')
         .build();
 
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(updatedComment);
 
       const result = await repository.update('comment-1', 'Updated content');
@@ -235,7 +245,11 @@ describe('CommentRepository', () => {
     });
 
     it('should return null when updating non-existent comment', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
       const result = await repository.update('nonexistent', 'New content');
@@ -244,7 +258,11 @@ describe('CommentRepository', () => {
     });
 
     it('should update the updated_at timestamp', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(new CommentBuilder().build());
 
       await repository.update('comment-1', 'New content');
@@ -253,7 +271,11 @@ describe('CommentRepository', () => {
     });
 
     it('should not update deleted comments', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
 
       await repository.update('deleted-comment', 'New content');
 
@@ -263,7 +285,11 @@ describe('CommentRepository', () => {
 
   describe('softDelete', () => {
     it('should mark comment as deleted', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
 
       const result = await repository.softDelete('comment-1');
 
@@ -272,7 +298,11 @@ describe('CommentRepository', () => {
     });
 
     it('should return false when comment not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
 
       const result = await repository.softDelete('nonexistent');
 
@@ -280,7 +310,11 @@ describe('CommentRepository', () => {
     });
 
     it('should not re-delete already deleted comments', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
 
       const result = await repository.softDelete('already-deleted');
 
@@ -295,7 +329,11 @@ describe('CommentRepository', () => {
         .withContent('Hidden')
         .build();
 
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(hiddenComment);
 
       const result = await repository.hide('comment-1');
@@ -305,7 +343,11 @@ describe('CommentRepository', () => {
     });
 
     it('should hide comment without deleting it', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(new CommentBuilder().build());
 
       await repository.hide('comment-1');
@@ -314,7 +356,11 @@ describe('CommentRepository', () => {
     });
 
     it('should return null if comment not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
       const result = await repository.hide('nonexistent');
@@ -327,7 +373,11 @@ describe('CommentRepository', () => {
     it('should unhide a hidden comment', async () => {
       const unHiddenComment = new CommentBuilder().withId('comment-1').build();
 
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(unHiddenComment);
 
       const result = await repository.unhide('comment-1');
@@ -337,7 +387,11 @@ describe('CommentRepository', () => {
     });
 
     it('should set hidden_at to null', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 1,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(new CommentBuilder().build());
 
       await repository.unhide('comment-1');
@@ -346,7 +400,11 @@ describe('CommentRepository', () => {
     });
 
     it('should return null if comment not found', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] } as any);
+      mockRepository.update.mockResolvedValue({
+        affected: 0,
+        raw: {},
+        generatedMaps: [],
+      } as any);
       mockRepository.findOne.mockResolvedValue(null);
 
       const result = await repository.unhide('nonexistent');

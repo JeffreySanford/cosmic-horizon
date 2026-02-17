@@ -59,7 +59,7 @@ describe('AuthenticatedGuard', () => {
           getRequest: () => req,
         }),
         getClass: () => class MockController {},
-        getHandler: () => (() => null),
+        getHandler: () => () => null,
       } as unknown as ExecutionContext;
 
       // Note: Full integration test requires passport strategy to be configured
@@ -110,7 +110,8 @@ describe('AuthenticatedGuard', () => {
     it('should work with express request/response cycle', () => {
       const mockRequest = {
         headers: {
-          authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEifQ.signature',
+          authorization:
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEifQ.signature',
         },
         user: null,
       };

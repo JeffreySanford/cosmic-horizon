@@ -21,13 +21,13 @@ describe('CacheService - Comprehensive Coverage', () => {
     mockConfigService = {
       get: jest.fn((key: string, defaultValue?: any) => {
         const config: Record<string, any> = {
-          'REDIS_CACHE_ENABLED': 'false',
-          'REDIS_HOST': '127.0.0.1',
-          'REDIS_PORT': 6379,
-          'REDIS_PASSWORD': undefined,
-          'REDIS_CONNECT_TIMEOUT_MS': 2000,
-          'REDIS_TLS_ENABLED': 'false',
-          'REDIS_TLS_REJECT_UNAUTHORIZED': 'true',
+          REDIS_CACHE_ENABLED: 'false',
+          REDIS_HOST: '127.0.0.1',
+          REDIS_PORT: 6379,
+          REDIS_PASSWORD: undefined,
+          REDIS_CONNECT_TIMEOUT_MS: 2000,
+          REDIS_TLS_ENABLED: 'false',
+          REDIS_TLS_REJECT_UNAUTHORIZED: 'true',
         };
         return config[key] !== undefined ? config[key] : defaultValue;
       }),
@@ -53,10 +53,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
   describe('module initialization - Redis disabled', () => {
     it('should initialize without Redis when disabled', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'false';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'false';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -67,10 +69,12 @@ describe('CacheService - Comprehensive Coverage', () => {
     });
 
     it('should treat case-insensitive Redis config', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'FALSE'; // Uppercase
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'FALSE'; // Uppercase
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -97,10 +101,12 @@ describe('CacheService - Comprehensive Coverage', () => {
     });
 
     it('should connect to Redis when enabled', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -109,16 +115,18 @@ describe('CacheService - Comprehensive Coverage', () => {
     });
 
     it('should use custom Redis configuration', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        const config: Record<string, any> = {
-          'REDIS_CACHE_ENABLED': 'true',
-          'REDIS_HOST': 'custom-host',
-          'REDIS_PORT': 7000,
-          'REDIS_PASSWORD': 'secret-password',
-          'REDIS_CONNECT_TIMEOUT_MS': 5000,
-        };
-        return config[key] !== undefined ? config[key] : defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          const config: Record<string, any> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_HOST: 'custom-host',
+            REDIS_PORT: 7000,
+            REDIS_PASSWORD: 'secret-password',
+            REDIS_CONNECT_TIMEOUT_MS: 5000,
+          };
+          return config[key] !== undefined ? config[key] : defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -128,19 +136,21 @@ describe('CacheService - Comprehensive Coverage', () => {
           port: 7000,
           password: 'secret-password',
           connectTimeout: 5000,
-        })
+        }),
       );
     });
 
     it('should handle Redis TLS configuration', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        const config: Record<string, any> = {
-          'REDIS_CACHE_ENABLED': 'true',
-          'REDIS_TLS_ENABLED': 'true',
-          'REDIS_TLS_REJECT_UNAUTHORIZED': 'true',
-        };
-        return config[key] !== undefined ? config[key] : defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          const config: Record<string, any> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_TLS_ENABLED: 'true',
+            REDIS_TLS_REJECT_UNAUTHORIZED: 'true',
+          };
+          return config[key] !== undefined ? config[key] : defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -149,19 +159,21 @@ describe('CacheService - Comprehensive Coverage', () => {
           tls: {
             rejectUnauthorized: true,
           },
-        })
+        }),
       );
     });
 
     it('should handle TLS reject unauthorized false', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        const config: Record<string, any> = {
-          'REDIS_CACHE_ENABLED': 'true',
-          'REDIS_TLS_ENABLED': 'true',
-          'REDIS_TLS_REJECT_UNAUTHORIZED': 'false',
-        };
-        return config[key] !== undefined ? config[key] : defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          const config: Record<string, any> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_TLS_ENABLED: 'true',
+            REDIS_TLS_REJECT_UNAUTHORIZED: 'false',
+          };
+          return config[key] !== undefined ? config[key] : defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -170,17 +182,21 @@ describe('CacheService - Comprehensive Coverage', () => {
           tls: {
             rejectUnauthorized: false,
           },
-        })
+        }),
       );
     });
 
     it('should handle connection failure gracefully', async () => {
-      mockRedisClient.connect.mockRejectedValueOnce(new Error('Connection failed'));
+      mockRedisClient.connect.mockRejectedValueOnce(
+        new Error('Connection failed'),
+      );
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -194,10 +210,12 @@ describe('CacheService - Comprehensive Coverage', () => {
     it('should handle ping failure', async () => {
       mockRedisClient.ping.mockRejectedValueOnce(new Error('Ping failed'));
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -208,38 +226,42 @@ describe('CacheService - Comprehensive Coverage', () => {
     });
 
     it('should handle password with whitespace', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        const config: Record<string, any> = {
-          'REDIS_CACHE_ENABLED': 'true',
-          'REDIS_PASSWORD': '  secret-with-spaces  ',
-        };
-        return config[key] !== undefined ? config[key] : defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          const config: Record<string, any> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_PASSWORD: '  secret-with-spaces  ',
+          };
+          return config[key] !== undefined ? config[key] : defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
       expect(Redis).toHaveBeenCalledWith(
         expect.objectContaining({
           password: 'secret-with-spaces',
-        })
+        }),
       );
     });
 
     it('should handle undefined password', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        const config: Record<string, any> = {
-          'REDIS_CACHE_ENABLED': 'true',
-          'REDIS_PASSWORD': undefined,
-        };
-        return config[key] !== undefined ? config[key] : defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          const config: Record<string, any> = {
+            REDIS_CACHE_ENABLED: 'true',
+            REDIS_PASSWORD: undefined,
+          };
+          return config[key] !== undefined ? config[key] : defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
       expect(Redis).toHaveBeenCalledWith(
         expect.objectContaining({
           password: undefined,
-        })
+        }),
       );
     });
   });
@@ -259,10 +281,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
     });
@@ -369,10 +393,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
     });
@@ -383,14 +409,17 @@ describe('CacheService - Comprehensive Coverage', () => {
       expect(mockRedisClient.setex).toHaveBeenCalledWith(
         'key1',
         300,
-        JSON.stringify({ data: 'value' })
+        JSON.stringify({ data: 'value' }),
       );
     });
 
     it('should set value in Redis without expiry', async () => {
       await service.set('key1', { data: 'value' });
 
-      expect(mockRedisClient.set).toHaveBeenCalledWith('key1', JSON.stringify({ data: 'value' }));
+      expect(mockRedisClient.set).toHaveBeenCalledWith(
+        'key1',
+        JSON.stringify({ data: 'value' }),
+      );
     });
 
     it('should handle Redis set error gracefully', async () => {
@@ -416,7 +445,7 @@ describe('CacheService - Comprehensive Coverage', () => {
       expect(mockRedisClient.setex).toHaveBeenCalledWith(
         'key1',
         300,
-        JSON.stringify({ data: 'value' })
+        JSON.stringify({ data: 'value' }),
       );
     });
 
@@ -425,7 +454,10 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       await service.set('key1', complex);
 
-      expect(mockRedisClient.set).toHaveBeenCalledWith('key1', JSON.stringify(complex));
+      expect(mockRedisClient.set).toHaveBeenCalledWith(
+        'key1',
+        JSON.stringify(complex),
+      );
     });
   });
 
@@ -444,10 +476,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
     });
@@ -502,10 +536,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
       await service.onModuleDestroy();
@@ -560,10 +596,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -596,10 +634,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
@@ -622,17 +662,23 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
 
       const largeTtl = 31536000; // 1 year
       await service.set('key1', 'value', largeTtl);
 
-      expect(mockRedisClient.setex).toHaveBeenCalledWith('key1', largeTtl, JSON.stringify('value'));
+      expect(mockRedisClient.setex).toHaveBeenCalledWith(
+        'key1',
+        largeTtl,
+        JSON.stringify('value'),
+      );
     });
 
     it('should handle boolean and numeric values', async () => {
@@ -664,7 +710,7 @@ describe('CacheService - Comprehensive Coverage', () => {
     it('should handle null and undefined values distinctly', async () => {
       await service.set('nullKey', null);
       // undefined values may not be stored
-      
+
       expect(await service.get('nullKey')).toBeNull();
       expect(await service.get('undefinedKey')).toBeNull();
     });
@@ -696,7 +742,7 @@ describe('CacheService - Comprehensive Coverage', () => {
     it('should handle empty arrays and objects', async () => {
       await service.set('emptyArray', []);
       await service.set('emptyObj', {});
-      
+
       expect(await service.get('emptyArray')).toEqual([]);
       expect(await service.get('emptyObj')).toEqual({});
     });
@@ -741,7 +787,7 @@ describe('CacheService - Comprehensive Coverage', () => {
     });
 
     it('should handle very large floating point numbers', async () => {
-      const largeFloat = 1.7976931348623157e+308; // Near MAX_VALUE
+      const largeFloat = 1.7976931348623157e308; // Near MAX_VALUE
       await service.set('largeFloat', largeFloat);
       const result = await service.get('largeFloat');
       expect(result).toBeCloseTo(largeFloat, -100);
@@ -780,9 +826,9 @@ describe('CacheService - Comprehensive Coverage', () => {
         operations.push(service.set(`rapid-${i}`, i));
         operations.push(service.get(`rapid-${i}`));
       }
-      
+
       await Promise.all(operations);
-      
+
       const result = await service.get('rapid-50');
       expect(result).toBe(50);
     });
@@ -790,11 +836,9 @@ describe('CacheService - Comprehensive Coverage', () => {
     it('should handle concurrent deletes and sets on same key', async () => {
       const promises = [];
       for (let i = 0; i < 10; i++) {
-        promises.push(
-          service.set('concurrent-key', `value-${i}`),
-        );
+        promises.push(service.set('concurrent-key', `value-${i}`));
       }
-      
+
       await Promise.all(promises);
       // Final state should be one of the values set
       const result = await service.get('concurrent-key');
@@ -804,9 +848,10 @@ describe('CacheService - Comprehensive Coverage', () => {
     it('should handle extremely large objects within serialization limits', async () => {
       const largeObj: any = {};
       for (let i = 0; i < 1000; i++) {
-        largeObj[`key-${i}`] = `value-${i}-with-some-extra-text-to-increase-size`;
+        largeObj[`key-${i}`] =
+          `value-${i}-with-some-extra-text-to-increase-size`;
       }
-      
+
       await service.set('largeObj', largeObj);
       const result = (await service.get('largeObj')) as Record<string, any>;
       expect(Object.keys(result)).toHaveLength(1000);
@@ -817,7 +862,7 @@ describe('CacheService - Comprehensive Coverage', () => {
     it('should delete value using delete method', async () => {
       await service.set('deleteKey', 'value');
       await service.delete('deleteKey');
-      
+
       const result = await service.get('deleteKey');
       expect(result).toBeNull();
     });
@@ -837,10 +882,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
       await service.delete('testKey');
@@ -863,10 +910,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
       await service.set('key1', 'value');
@@ -906,16 +955,20 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
       await service.purge();
 
       expect(mockRedisClient.flushdb).toHaveBeenCalled();
-      expect(Logger.prototype.log).toHaveBeenCalledWith('Cache purged successfully');
+      expect(Logger.prototype.log).toHaveBeenCalledWith(
+        'Cache purged successfully',
+      );
     });
 
     it('should handle Redis purge failure gracefully', async () => {
@@ -933,10 +986,12 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       (Redis as any).mockImplementation(() => mockRedisClient);
 
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'REDIS_CACHE_ENABLED') return 'true';
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'REDIS_CACHE_ENABLED') return 'true';
+          return defaultValue;
+        },
+      );
 
       await service.onModuleInit();
       await service.purge();

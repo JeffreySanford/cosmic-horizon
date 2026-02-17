@@ -36,7 +36,8 @@ describe('GitHubStrategy', () => {
     // Set valid environment variables before any imports
     process.env['GITHUB_CLIENT_ID'] = 'test_client_id_123';
     process.env['GITHUB_CLIENT_SECRET'] = 'test_client_secret_456';
-    process.env['GITHUB_CALLBACK_URL'] = 'http://localhost:3000/api/auth/github/callback';
+    process.env['GITHUB_CALLBACK_URL'] =
+      'http://localhost:3000/api/auth/github/callback';
   });
 
   afterAll(() => {
@@ -112,7 +113,9 @@ describe('GitHubStrategy', () => {
       }).compile();
 
       const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
-      const testAuthService = testingModule.get(AuthService) as jest.Mocked<AuthService>;
+      const testAuthService = testingModule.get(
+        AuthService,
+      ) as jest.Mocked<AuthService>;
 
       const githubProfile = {
         id: '12345',
@@ -122,9 +125,15 @@ describe('GitHubStrategy', () => {
         photos: [{ value: 'https://avatars.githubusercontent.com/u/12345' }],
       };
 
-      const result = await (testStrategy as any).validate('access_token', 'refresh_token', githubProfile);
+      const result = await (testStrategy as any).validate(
+        'access_token',
+        'refresh_token',
+        githubProfile,
+      );
 
-      expect(testAuthService.validateOrCreateUser).toHaveBeenCalledWith(githubProfile);
+      expect(testAuthService.validateOrCreateUser).toHaveBeenCalledWith(
+        githubProfile,
+      );
       expect(result).toEqual(mockUser);
     });
 
@@ -150,7 +159,11 @@ describe('GitHubStrategy', () => {
         displayName: 'GitHub User',
       };
 
-      const result = await (testStrategy as any).validate('access_token', 'refresh_token', githubProfile);
+      const result = await (testStrategy as any).validate(
+        'access_token',
+        'refresh_token',
+        githubProfile,
+      );
 
       expect(result).toEqual(existingUser);
       expect(result.id).toBe('existing_user_id');
@@ -178,7 +191,11 @@ describe('GitHubStrategy', () => {
         emails: [],
       };
 
-      const result = await (testStrategy as any).validate('access_token', 'refresh_token', profileWithoutEmail);
+      const result = await (testStrategy as any).validate(
+        'access_token',
+        'refresh_token',
+        profileWithoutEmail,
+      );
 
       expect(result).toBeDefined();
     });
@@ -205,7 +222,11 @@ describe('GitHubStrategy', () => {
       };
 
       await expect(
-        (testStrategy as any).validate('access_token', 'refresh_token', githubProfile),
+        (testStrategy as any).validate(
+          'access_token',
+          'refresh_token',
+          githubProfile,
+        ),
       ).rejects.toThrow('Database error');
     });
 
@@ -223,7 +244,9 @@ describe('GitHubStrategy', () => {
       }).compile();
 
       const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
-      const testAuthService = testingModule.get(AuthService) as jest.Mocked<AuthService>;
+      const testAuthService = testingModule.get(
+        AuthService,
+      ) as jest.Mocked<AuthService>;
 
       const profileWithEmails = {
         id: '12345',
@@ -234,9 +257,15 @@ describe('GitHubStrategy', () => {
         ],
       };
 
-      const result = await (testStrategy as any).validate('access_token', 'refresh_token', profileWithEmails);
+      const result = await (testStrategy as any).validate(
+        'access_token',
+        'refresh_token',
+        profileWithEmails,
+      );
 
-      expect(testAuthService.validateOrCreateUser).toHaveBeenCalledWith(profileWithEmails);
+      expect(testAuthService.validateOrCreateUser).toHaveBeenCalledWith(
+        profileWithEmails,
+      );
       expect(result).toBeDefined();
     });
 
@@ -254,7 +283,9 @@ describe('GitHubStrategy', () => {
       }).compile();
 
       const testStrategy = testingModule.get<GitHubStrategy>(GitHubStrategy);
-      const testAuthService = testingModule.get(AuthService) as jest.Mocked<AuthService>;
+      const testAuthService = testingModule.get(
+        AuthService,
+      ) as jest.Mocked<AuthService>;
 
       const githubProfile = {
         id: '12345',
@@ -262,7 +293,11 @@ describe('GitHubStrategy', () => {
       };
 
       await (testStrategy as any).validate('token1', 'token2', githubProfile);
-      await (testStrategy as any).validate('different_token', 'different_token2', githubProfile);
+      await (testStrategy as any).validate(
+        'different_token',
+        'different_token2',
+        githubProfile,
+      );
 
       expect(testAuthService.validateOrCreateUser).toHaveBeenCalledTimes(2);
     });
@@ -292,7 +327,11 @@ describe('GitHubStrategy', () => {
         _json: { node_id: 'MDQ6VXNlcjEyMzQ1' },
       };
 
-      const result = await (testStrategy as any).validate('access_token', 'refresh_token', extendedProfile);
+      const result = await (testStrategy as any).validate(
+        'access_token',
+        'refresh_token',
+        extendedProfile,
+      );
 
       expect(result).toBeDefined();
     });

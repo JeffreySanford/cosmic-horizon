@@ -124,7 +124,12 @@ describe('LoggingService', () => {
 
       const recent = await service.getRecent(10, 0);
       expect(recent).toHaveLength(4);
-      expect(recent.map(e => e.severity)).toEqual(['error', 'warn', 'info', 'debug']);
+      expect(recent.map((e) => e.severity)).toEqual([
+        'error',
+        'warn',
+        'info',
+        'debug',
+      ]);
     });
 
     it('should handle different log types', async () => {

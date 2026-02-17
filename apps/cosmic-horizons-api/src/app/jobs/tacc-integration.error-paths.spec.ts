@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { TaccIntegrationService, TaccJobSubmission } from './tacc-integration.service';
+import {
+  TaccIntegrationService,
+  TaccJobSubmission,
+} from './tacc-integration.service';
 import { Logger } from '@nestjs/common';
 
 afterEach(async () => {
@@ -17,8 +20,8 @@ describe('TaccIntegrationService - Error Paths', () => {
     const mockConfigService = {
       get: jest.fn((key: string, defaultValue?: string) => {
         const config: Record<string, string> = {
-          'TACC_API_URL': 'https://api.tacc.utexas.edu',
-          'TACC_API_KEY': 'test-key-123',
+          TACC_API_URL: 'https://api.tacc.utexas.edu',
+          TACC_API_KEY: 'test-key-123',
         };
         return config[key] ?? defaultValue;
       }),
@@ -35,7 +38,9 @@ describe('TaccIntegrationService - Error Paths', () => {
     }).compile();
 
     service = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
-    configService = testingModule.get(ConfigService) as jest.Mocked<ConfigService>;
+    configService = testingModule.get(
+      ConfigService,
+    ) as jest.Mocked<ConfigService>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
@@ -51,8 +56,8 @@ describe('TaccIntegrationService - Error Paths', () => {
       const mockConfigService = {
         get: jest.fn((key: string, defaultValue?: string) => {
           const config: Record<string, string> = {
-            'TACC_API_URL': 'https://api.tacc.utexas.edu',
-            'TACC_API_KEY': 'test-key-123',
+            TACC_API_URL: 'https://api.tacc.utexas.edu',
+            TACC_API_KEY: 'test-key-123',
           };
           return config[key] ?? defaultValue;
         }),
@@ -65,7 +70,9 @@ describe('TaccIntegrationService - Error Paths', () => {
         ],
       }).compile();
 
-      const svc = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
+      const svc = testingModule.get<TaccIntegrationService>(
+        TaccIntegrationService,
+      );
       expect(svc).toBeDefined();
     });
 
@@ -81,7 +88,9 @@ describe('TaccIntegrationService - Error Paths', () => {
         ],
       }).compile();
 
-      const svc = testingModule.get<TaccIntegrationService>(TaccIntegrationService);
+      const svc = testingModule.get<TaccIntegrationService>(
+        TaccIntegrationService,
+      );
       expect(svc).toBeDefined();
     });
   });
@@ -108,7 +117,7 @@ describe('TaccIntegrationService - Error Paths', () => {
       };
 
       await service.submitJob(submission);
-      
+
       // Service should have been called successfully (no error thrown)
       expect(loggerErrorSpy).not.toHaveBeenCalled();
     });
@@ -117,7 +126,7 @@ describe('TaccIntegrationService - Error Paths', () => {
   describe('getJobStatus error handling', () => {
     it('should handle status retrieval successfully', async () => {
       const status = await service.getJobStatus('tacc-123');
-      
+
       expect(status).toHaveProperty('id', 'tacc-123');
       expect(status).toHaveProperty('status');
       expect(['QUEUED', 'RUNNING', 'COMPLETED']).toContain(status.status);
@@ -125,7 +134,7 @@ describe('TaccIntegrationService - Error Paths', () => {
 
     it('should include progress in status response', async () => {
       const status = await service.getJobStatus('tacc-456');
-      
+
       expect(status).toHaveProperty('progress');
       expect(typeof status.progress).toBe('number');
       expect(status.progress).toBeGreaterThanOrEqual(0);
@@ -133,7 +142,7 @@ describe('TaccIntegrationService - Error Paths', () => {
 
     it('should include output URL for completed jobs', async () => {
       const status = await service.getJobStatus('tacc-999');
-      
+
       if (status.status === 'COMPLETED') {
         expect(status).toHaveProperty('output_url');
       }
@@ -142,7 +151,7 @@ describe('TaccIntegrationService - Error Paths', () => {
     it('should handle completion gracefully', async () => {
       const loggerErrorSpy = jest.spyOn(Logger.prototype, 'error');
       await service.getJobStatus('tacc-completed-job');
-      
+
       expect(loggerErrorSpy).not.toHaveBeenCalled();
     });
   });
@@ -150,7 +159,7 @@ describe('TaccIntegrationService - Error Paths', () => {
   describe('cancelJob error handling', () => {
     it('should cancel job successfully', async () => {
       const result = await service.cancelJob('tacc-789');
-      
+
       expect(typeof result).toBe('boolean');
       expect(result).toBe(true);
     });
@@ -158,7 +167,7 @@ describe('TaccIntegrationService - Error Paths', () => {
     it('should handle cancellation gracefully', async () => {
       const loggerErrorSpy = jest.spyOn(Logger.prototype, 'error');
       await service.cancelJob('tacc-to-cancel');
-      
+
       expect(loggerErrorSpy).not.toHaveBeenCalled();
     });
   });

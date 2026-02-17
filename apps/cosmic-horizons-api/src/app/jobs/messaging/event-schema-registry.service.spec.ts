@@ -52,13 +52,17 @@ describe('EventSchemaRegistry', () => {
         fields: [],
       };
 
-      expect(() => service.registerSchema('', schema)).toThrow(BadRequestException);
-      expect(() => service.registerSchema(null as any, schema)).toThrow(BadRequestException);
+      expect(() => service.registerSchema('', schema)).toThrow(
+        BadRequestException,
+      );
+      expect(() => service.registerSchema(null as any, schema)).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw if schema is missing', () => {
       expect(() => service.registerSchema('test.event', null as any)).toThrow(
-        BadRequestException
+        BadRequestException,
       );
     });
 
@@ -69,7 +73,9 @@ describe('EventSchemaRegistry', () => {
         fields: [],
       };
 
-      expect(() => service.registerSchema('test.event', schema)).toThrow(BadRequestException);
+      expect(() => service.registerSchema('test.event', schema)).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw if version already registered', () => {
@@ -80,7 +86,9 @@ describe('EventSchemaRegistry', () => {
       };
 
       service.registerSchema('test.event', schema);
-      expect(() => service.registerSchema('test.event', schema)).toThrow(BadRequestException);
+      expect(() => service.registerSchema('test.event', schema)).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should allow multiple versions of same event type', () => {
@@ -112,7 +120,9 @@ describe('EventSchemaRegistry', () => {
         fields: [],
       };
 
-      expect(() => service.registerSchema('test.event', schema)).toThrow(BadRequestException);
+      expect(() => service.registerSchema('test.event', schema)).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should accept valid semantic versions', () => {
@@ -139,7 +149,9 @@ describe('EventSchemaRegistry', () => {
       };
 
       service.registerSchema('test.event', schema);
-      expect(service.getSchema('test.event')).toHaveProperty('deprecatedFields');
+      expect(service.getSchema('test.event')).toHaveProperty(
+        'deprecatedFields',
+      );
     });
   });
 
@@ -175,11 +187,15 @@ describe('EventSchemaRegistry', () => {
     });
 
     it('should throw if event type not found', () => {
-      expect(() => service.getSchema('unknown.event')).toThrow(BadRequestException);
+      expect(() => service.getSchema('unknown.event')).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw if specific version not found', () => {
-      expect(() => service.getSchema('test.event', '3.0.0')).toThrow(BadRequestException);
+      expect(() => service.getSchema('test.event', '3.0.0')).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should return latest version correctly across multiple registrations', () => {
@@ -209,7 +225,12 @@ describe('EventSchemaRegistry', () => {
         { name: 'email', type: 'string', required: true },
         { name: 'age', type: 'number', required: false },
         { name: 'isActive', type: 'boolean', required: true },
-        { name: 'role', type: 'string', required: true, enum: ['admin', 'user', 'guest'] },
+        {
+          name: 'role',
+          type: 'string',
+          required: true,
+          enum: ['admin', 'user', 'guest'],
+        },
       ],
     };
 
@@ -239,7 +260,10 @@ describe('EventSchemaRegistry', () => {
 
       const errors = service.validateEvent('user.created', event);
       expect(errors).toContainEqual(
-        expect.objectContaining({ field: 'role', error: 'Required field missing' })
+        expect.objectContaining({
+          field: 'role',
+          error: 'Required field missing',
+        }),
       );
     });
 
@@ -278,7 +302,10 @@ describe('EventSchemaRegistry', () => {
 
       const errors = service.validateEvent('user.created', event);
       expect(errors).toContainEqual(
-        expect.objectContaining({ field: 'role', error: expect.stringContaining('admin, user, guest') })
+        expect.objectContaining({
+          field: 'role',
+          error: expect.stringContaining('admin, user, guest'),
+        }),
       );
     });
 
@@ -322,7 +349,9 @@ describe('EventSchemaRegistry', () => {
     });
 
     it('should throw if event type not registered', () => {
-      expect(() => service.validateEvent('unknown.event', {})).toThrow(BadRequestException);
+      expect(() => service.validateEvent('unknown.event', {})).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should validate specific version', () => {
@@ -444,7 +473,12 @@ describe('EventSchemaRegistry', () => {
         fields: [
           { name: 'id', type: 'string', required: true },
           { name: 'name', type: 'string', required: true },
-          { name: 'email', type: 'string', required: false, default: 'unknown@example.com' },
+          {
+            name: 'email',
+            type: 'string',
+            required: false,
+            default: 'unknown@example.com',
+          },
         ],
       };
 
@@ -475,7 +509,11 @@ describe('EventSchemaRegistry', () => {
     });
 
     it('should return false if event type not registered', () => {
-      const compatible = service.isCompatible('unknown.event', '1.0.0', '2.0.0');
+      const compatible = service.isCompatible(
+        'unknown.event',
+        '1.0.0',
+        '2.0.0',
+      );
       expect(compatible).toBe(false);
     });
 
@@ -506,7 +544,9 @@ describe('EventSchemaRegistry', () => {
     });
 
     it('should throw if event type not registered', () => {
-      expect(() => service.getSchemaVersions('unknown.event')).toThrow(BadRequestException);
+      expect(() => service.getSchemaVersions('unknown.event')).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should return single version', () => {
@@ -640,7 +680,13 @@ describe('EventSchemaRegistry', () => {
         version: '1.0.0',
         fields: [
           { name: 'id', type: 'string', required: true },
-          { name: 'status', type: 'string', required: true, enum: ['active', 'inactive'], default: 'active' },
+          {
+            name: 'status',
+            type: 'string',
+            required: true,
+            enum: ['active', 'inactive'],
+            default: 'active',
+          },
         ],
       };
 
@@ -660,7 +706,12 @@ describe('EventSchemaRegistry', () => {
         version: '2.0.0',
         fields: [
           { name: 'id', type: 'string', required: true },
-          { name: 'newField', type: 'string', required: true, default: 'default-value' },
+          {
+            name: 'newField',
+            type: 'string',
+            required: true,
+            default: 'default-value',
+          },
         ],
       };
 
@@ -676,7 +727,14 @@ describe('EventSchemaRegistry', () => {
     it('should correctly sort various semantic versions', () => {
       service.clear();
 
-      const unsortedVersions = ['10.0.0', '2.0.0', '1.10.0', '1.2.0', '1.2.10', '0.0.1'];
+      const unsortedVersions = [
+        '10.0.0',
+        '2.0.0',
+        '1.10.0',
+        '1.2.0',
+        '1.2.10',
+        '0.0.1',
+      ];
       for (const version of unsortedVersions) {
         const schema: EventSchema = {
           name: 'Test',
@@ -687,7 +745,14 @@ describe('EventSchemaRegistry', () => {
       }
 
       const sortedVersions = service.getSchemaVersions('test.event');
-      expect(sortedVersions).toEqual(['0.0.1', '1.2.0', '1.2.10', '1.10.0', '2.0.0', '10.0.0']);
+      expect(sortedVersions).toEqual([
+        '0.0.1',
+        '1.2.0',
+        '1.2.10',
+        '1.10.0',
+        '2.0.0',
+        '10.0.0',
+      ]);
     });
   });
 
@@ -776,8 +841,12 @@ describe('EventSchemaRegistry', () => {
 
       expect(service.getRegisteredEventTypes()).toHaveLength(2);
 
-      const userErrors = service.validateEvent('user.created', { userId: 'user-1' });
-      const postErrors = service.validateEvent('post.created', { postId: 'post-1' });
+      const userErrors = service.validateEvent('user.created', {
+        userId: 'user-1',
+      });
+      const postErrors = service.validateEvent('post.created', {
+        postId: 'post-1',
+      });
 
       expect(userErrors).toHaveLength(0);
       expect(postErrors).toHaveLength(0);

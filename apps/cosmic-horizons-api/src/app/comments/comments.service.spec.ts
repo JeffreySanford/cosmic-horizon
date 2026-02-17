@@ -7,7 +7,11 @@ import { CommentReportRepository } from '../repositories/comment-report.reposito
 import { AuditLogRepository } from '../repositories/audit-log.repository';
 import { PostStatus } from '../entities/post.entity';
 import { AuditAction, AuditEntityType } from '../entities/audit-log.entity';
-import { CommentBuilder, PostBuilder, CommentReportBuilder } from '../testing/test-builders';
+import {
+  CommentBuilder,
+  PostBuilder,
+  CommentReportBuilder,
+} from '../testing/test-builders';
 
 afterEach(async () => {
   await testingModule?.close();
@@ -93,10 +97,18 @@ describe('CommentsService', () => {
     }).compile();
 
     service = testingModule.get<CommentsService>(CommentsService);
-    commentRepository = testingModule.get(CommentRepository) as jest.Mocked<CommentRepository>;
-    postRepository = testingModule.get(PostRepository) as jest.Mocked<PostRepository>;
-    commentReportRepository = testingModule.get(CommentReportRepository) as jest.Mocked<CommentReportRepository>;
-    auditLogRepository = testingModule.get(AuditLogRepository) as jest.Mocked<AuditLogRepository>;
+    commentRepository = testingModule.get(
+      CommentRepository,
+    ) as jest.Mocked<CommentRepository>;
+    postRepository = testingModule.get(
+      PostRepository,
+    ) as jest.Mocked<PostRepository>;
+    commentReportRepository = testingModule.get(
+      CommentReportRepository,
+    ) as jest.Mocked<CommentReportRepository>;
+    auditLogRepository = testingModule.get(
+      AuditLogRepository,
+    ) as jest.Mocked<AuditLogRepository>;
   });
 
   describe('getCommentsByPost', () => {
@@ -115,7 +127,7 @@ describe('CommentsService', () => {
       postRepository.findById.mockResolvedValue(null);
 
       await expect(service.getCommentsByPost('post-1')).rejects.toThrow(
-        new NotFoundException('Post with ID post-1 not found')
+        new NotFoundException('Post with ID post-1 not found'),
       );
     });
 
@@ -149,7 +161,7 @@ describe('CommentsService', () => {
           user_id: 'user-1',
           action: AuditAction.CREATE,
           entity_type: AuditEntityType.COMMENT,
-        })
+        }),
       );
     });
 
@@ -180,12 +192,16 @@ describe('CommentsService', () => {
       postRepository.findById.mockResolvedValue(null);
 
       await expect(service.createComment('user-1', dto)).rejects.toThrow(
-        new NotFoundException('Post with ID post-1 not found')
+        new NotFoundException('Post with ID post-1 not found'),
       );
     });
 
     it('should throw ForbiddenException when commenting on unpublished post by other user', async () => {
-      const unpublishedPost = { ...mockPost, status: PostStatus.DRAFT, user_id: 'user-2' };
+      const unpublishedPost = {
+        ...mockPost,
+        status: PostStatus.DRAFT,
+        user_id: 'user-2',
+      };
       const dto = {
         post_id: 'post-1',
         content: 'New comment',
@@ -195,12 +211,18 @@ describe('CommentsService', () => {
       postRepository.findById.mockResolvedValue(unpublishedPost);
 
       await expect(service.createComment('user-1', dto)).rejects.toThrow(
-        new ForbiddenException('Cannot comment on unpublished posts of other users')
+        new ForbiddenException(
+          'Cannot comment on unpublished posts of other users',
+        ),
       );
     });
 
     it('should allow post owner to comment on own unpublished post', async () => {
-      const unpublishedPost = { ...mockPost, status: PostStatus.DRAFT, user_id: 'user-1' };
+      const unpublishedPost = {
+        ...mockPost,
+        status: PostStatus.DRAFT,
+        user_id: 'user-1',
+      };
       const dto = {
         post_id: 'post-1',
         content: 'New comment',
@@ -226,7 +248,7 @@ describe('CommentsService', () => {
       postRepository.findById.mockResolvedValue(lockedPost);
 
       await expect(service.createComment('user-1', dto)).rejects.toThrow(
-        new ForbiddenException('Post is locked, no new comments allowed')
+        new ForbiddenException('Post is locked, no new comments allowed'),
       );
     });
 
@@ -241,7 +263,7 @@ describe('CommentsService', () => {
       commentRepository.findById.mockResolvedValue(null);
 
       await expect(service.createComment('user-1', dto)).rejects.toThrow(
-        new NotFoundException('Parent comment with ID comment-1 not found')
+        new NotFoundException('Parent comment with ID comment-1 not found'),
       );
     });
 
@@ -257,7 +279,7 @@ describe('CommentsService', () => {
       commentRepository.findById.mockResolvedValue(parentFromDifferentPost);
 
       await expect(service.createComment('user-1', dto)).rejects.toThrow(
-        new ForbiddenException('Parent comment belongs to a different post')
+        new ForbiddenException('Parent comment belongs to a different post'),
       );
     });
 
@@ -276,7 +298,7 @@ describe('CommentsService', () => {
       expect(commentRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           parent_id: null,
-        })
+        }),
       );
     });
   });
@@ -292,7 +314,10 @@ describe('CommentsService', () => {
       const result = await service.updateComment('comment-1', 'user-1', dto);
 
       expect(result).toEqual(updatedComment);
-      expect(commentRepository.update).toHaveBeenCalledWith('comment-1', 'Updated content');
+      expect(commentRepository.update).toHaveBeenCalledWith(
+        'comment-1',
+        'Updated content',
+      );
       expect(auditLogRepository.createAuditLog).toHaveBeenCalledWith(
         expect.objectContaining({
           action: AuditAction.UPDATE,
@@ -301,7 +326,7 @@ describe('CommentsService', () => {
             before: { content: mockComment.content },
             after: { content: 'Updated content' },
           }),
-        })
+        }),
       );
     });
 
@@ -310,18 +335,22 @@ describe('CommentsService', () => {
 
       commentRepository.findById.mockResolvedValue(null);
 
-      await expect(service.updateComment('comment-1', 'user-1', dto)).rejects.toThrow(
-        new NotFoundException('Comment with ID comment-1 not found')
+      await expect(
+        service.updateComment('comment-1', 'user-1', dto),
+      ).rejects.toThrow(
+        new NotFoundException('Comment with ID comment-1 not found'),
       );
     });
 
-    it('should throw ForbiddenException when trying to update another user\'s comment', async () => {
+    it("should throw ForbiddenException when trying to update another user's comment", async () => {
       const dto = { content: 'Updated content' };
 
       commentRepository.findById.mockResolvedValue(mockComment);
 
-      await expect(service.updateComment('comment-1', 'user-2', dto)).rejects.toThrow(
-        new ForbiddenException('You can only edit your own comments')
+      await expect(
+        service.updateComment('comment-1', 'user-2', dto),
+      ).rejects.toThrow(
+        new ForbiddenException('You can only edit your own comments'),
       );
     });
 
@@ -331,8 +360,10 @@ describe('CommentsService', () => {
       commentRepository.findById.mockResolvedValue(mockComment);
       commentRepository.update.mockResolvedValue(null);
 
-      await expect(service.updateComment('comment-1', 'user-1', dto)).rejects.toThrow(
-        new NotFoundException('Comment with ID comment-1 not found')
+      await expect(
+        service.updateComment('comment-1', 'user-1', dto),
+      ).rejects.toThrow(
+        new NotFoundException('Comment with ID comment-1 not found'),
       );
     });
 
@@ -351,7 +382,7 @@ describe('CommentsService', () => {
           action: AuditAction.UPDATE,
           entity_type: AuditEntityType.COMMENT,
           entity_id: 'comment-1',
-        })
+        }),
       );
     });
   });
@@ -385,8 +416,10 @@ describe('CommentsService', () => {
     it('should throw NotFoundException when comment not found', async () => {
       commentRepository.findById.mockResolvedValue(null);
 
-      await expect(service.deleteComment('comment-1', 'user-1')).rejects.toThrow(
-        new NotFoundException('Comment with ID comment-1 not found')
+      await expect(
+        service.deleteComment('comment-1', 'user-1'),
+      ).rejects.toThrow(
+        new NotFoundException('Comment with ID comment-1 not found'),
       );
     });
 
@@ -397,8 +430,12 @@ describe('CommentsService', () => {
       commentRepository.findById.mockResolvedValue(otherUserComment);
       postRepository.findById.mockResolvedValue(otherUserPost);
 
-      await expect(service.deleteComment('comment-1', 'user-1')).rejects.toThrow(
-        new ForbiddenException('You do not have permission to delete this comment')
+      await expect(
+        service.deleteComment('comment-1', 'user-1'),
+      ).rejects.toThrow(
+        new ForbiddenException(
+          'You do not have permission to delete this comment',
+        ),
       );
     });
 
@@ -418,7 +455,7 @@ describe('CommentsService', () => {
           changes: expect.objectContaining({
             before: { content: mockComment.content },
           }),
-        })
+        }),
       );
     });
 
@@ -453,7 +490,7 @@ describe('CommentsService', () => {
           user_id: 'user-2',
           reason: 'Spam',
           description: 'This comment is spam',
-        })
+        }),
       );
     });
 
@@ -465,8 +502,10 @@ describe('CommentsService', () => {
 
       commentRepository.findById.mockResolvedValue(null);
 
-      await expect(service.reportComment('comment-1', 'user-2', dto)).rejects.toThrow(
-        new NotFoundException('Comment with ID comment-1 not found')
+      await expect(
+        service.reportComment('comment-1', 'user-2', dto),
+      ).rejects.toThrow(
+        new NotFoundException('Comment with ID comment-1 not found'),
       );
     });
 
@@ -516,7 +555,7 @@ describe('CommentsService', () => {
       commentRepository.findById.mockResolvedValue(null);
 
       await expect(service.hideComment('comment-1', 'user-1')).rejects.toThrow(
-        new NotFoundException('Comment with ID comment-1 not found')
+        new NotFoundException('Comment with ID comment-1 not found'),
       );
     });
 
@@ -525,7 +564,7 @@ describe('CommentsService', () => {
       postRepository.findById.mockResolvedValue(mockPost);
 
       await expect(service.hideComment('comment-1', 'user-2')).rejects.toThrow(
-        new ForbiddenException('Only the post owner can hide comments')
+        new ForbiddenException('Only the post owner can hide comments'),
       );
     });
 
@@ -534,7 +573,7 @@ describe('CommentsService', () => {
       postRepository.findById.mockResolvedValue(null);
 
       await expect(service.hideComment('comment-1', 'user-1')).rejects.toThrow(
-        new ForbiddenException('Only the post owner can hide comments')
+        new ForbiddenException('Only the post owner can hide comments'),
       );
     });
   });
@@ -556,8 +595,10 @@ describe('CommentsService', () => {
     it('should throw NotFoundException when comment not found', async () => {
       commentRepository.findById.mockResolvedValue(null);
 
-      await expect(service.unhideComment('comment-1', 'user-1')).rejects.toThrow(
-        new NotFoundException('Comment with ID comment-1 not found')
+      await expect(
+        service.unhideComment('comment-1', 'user-1'),
+      ).rejects.toThrow(
+        new NotFoundException('Comment with ID comment-1 not found'),
       );
     });
 
@@ -565,8 +606,10 @@ describe('CommentsService', () => {
       commentRepository.findById.mockResolvedValue(mockComment);
       postRepository.findById.mockResolvedValue(mockPost);
 
-      await expect(service.unhideComment('comment-1', 'user-2')).rejects.toThrow(
-        new ForbiddenException('Only the post owner can unhide comments')
+      await expect(
+        service.unhideComment('comment-1', 'user-2'),
+      ).rejects.toThrow(
+        new ForbiddenException('Only the post owner can unhide comments'),
       );
     });
   });
@@ -598,10 +641,18 @@ describe('CommentsService', () => {
 
       commentReportRepository.resolve.mockResolvedValue(resolvedReport);
 
-      const result = await service.resolveReport('report-1', 'user-1', 'reviewed');
+      const result = await service.resolveReport(
+        'report-1',
+        'user-1',
+        'reviewed',
+      );
 
       expect(result).toEqual(resolvedReport);
-      expect(commentReportRepository.resolve).toHaveBeenCalledWith('report-1', 'user-1', 'reviewed');
+      expect(commentReportRepository.resolve).toHaveBeenCalledWith(
+        'report-1',
+        'user-1',
+        'reviewed',
+      );
     });
 
     it('should resolve report with dismissed status', async () => {
@@ -609,16 +660,28 @@ describe('CommentsService', () => {
 
       commentReportRepository.resolve.mockResolvedValue(resolvedReport);
 
-      const result = await service.resolveReport('report-1', 'user-1', 'dismissed');
+      const result = await service.resolveReport(
+        'report-1',
+        'user-1',
+        'dismissed',
+      );
 
       expect(result).toEqual(resolvedReport);
-      expect(commentReportRepository.resolve).toHaveBeenCalledWith('report-1', 'user-1', 'dismissed');
+      expect(commentReportRepository.resolve).toHaveBeenCalledWith(
+        'report-1',
+        'user-1',
+        'dismissed',
+      );
     });
 
     it('should return null when report not found', async () => {
       commentReportRepository.resolve.mockResolvedValue(null);
 
-      const result = await service.resolveReport('report-1', 'user-1', 'reviewed');
+      const result = await service.resolveReport(
+        'report-1',
+        'user-1',
+        'reviewed',
+      );
 
       expect(result).toBeNull();
     });
@@ -631,7 +694,11 @@ describe('CommentsService', () => {
       await service.resolveReport('report-1', 'user-1', 'reviewed');
 
       // Resolver user_id is passed to repository
-      expect(commentReportRepository.resolve).toHaveBeenCalledWith('report-1', 'user-1', 'reviewed');
+      expect(commentReportRepository.resolve).toHaveBeenCalledWith(
+        'report-1',
+        'user-1',
+        'reviewed',
+      );
     });
   });
 
@@ -639,7 +706,9 @@ describe('CommentsService', () => {
     it('should handle repository errors in getCommentsByPost', async () => {
       postRepository.findById.mockRejectedValue(new Error('Database error'));
 
-      await expect(service.getCommentsByPost('post-1')).rejects.toThrow('Database error');
+      await expect(service.getCommentsByPost('post-1')).rejects.toThrow(
+        'Database error',
+      );
     });
 
     it('should handle repository errors in createComment', async () => {
@@ -652,7 +721,9 @@ describe('CommentsService', () => {
       postRepository.findById.mockResolvedValue(mockPost);
       commentRepository.create.mockRejectedValue(new Error('Database error'));
 
-      await expect(service.createComment('user-1', dto)).rejects.toThrow('Database error');
+      await expect(service.createComment('user-1', dto)).rejects.toThrow(
+        'Database error',
+      );
     });
 
     it('should handle audit log errors gracefully', async () => {
@@ -664,10 +735,14 @@ describe('CommentsService', () => {
 
       postRepository.findById.mockResolvedValue(mockPost);
       commentRepository.create.mockResolvedValue(mockComment);
-      auditLogRepository.createAuditLog.mockRejectedValue(new Error('Audit error'));
+      auditLogRepository.createAuditLog.mockRejectedValue(
+        new Error('Audit error'),
+      );
 
       // Should still throw because audit is critical, or handle gracefully based on implementation
-      await expect(service.createComment('user-1', dto)).rejects.toThrow('Audit error');
+      await expect(service.createComment('user-1', dto)).rejects.toThrow(
+        'Audit error',
+      );
     });
   });
 
@@ -681,7 +756,10 @@ describe('CommentsService', () => {
       };
 
       postRepository.findById.mockResolvedValue(mockPost);
-      commentRepository.create.mockResolvedValue({ ...mockComment, content: longContent });
+      commentRepository.create.mockResolvedValue({
+        ...mockComment,
+        content: longContent,
+      });
 
       const result = await service.createComment('user-1', dto);
 
@@ -697,7 +775,10 @@ describe('CommentsService', () => {
       };
 
       postRepository.findById.mockResolvedValue(mockPost);
-      commentRepository.create.mockResolvedValue({ ...mockComment, content: specialContent });
+      commentRepository.create.mockResolvedValue({
+        ...mockComment,
+        content: specialContent,
+      });
 
       const result = await service.createComment('user-1', dto);
 
@@ -711,11 +792,18 @@ describe('CommentsService', () => {
         parent_id: 'comment-2',
       };
 
-      const intermediateComment = { ...mockComment, id: 'comment-2', parent_id: 'comment-1' };
+      const intermediateComment = {
+        ...mockComment,
+        id: 'comment-2',
+        parent_id: 'comment-1',
+      };
 
       postRepository.findById.mockResolvedValue(mockPost);
       commentRepository.findById.mockResolvedValue(intermediateComment);
-      commentRepository.create.mockResolvedValue({ ...mockReply, parent_id: 'comment-2' });
+      commentRepository.create.mockResolvedValue({
+        ...mockReply,
+        parent_id: 'comment-2',
+      });
 
       const result = await service.createComment('user-1', deepReplyDto);
 

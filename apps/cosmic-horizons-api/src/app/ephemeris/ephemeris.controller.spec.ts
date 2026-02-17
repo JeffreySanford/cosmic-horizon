@@ -60,14 +60,17 @@ describe('EphemerisController', () => {
     });
 
     expect(result).toEqual(mockResult);
-    expect(service.calculatePosition).toHaveBeenCalledWith('mars', '2026-02-11T12:00:00Z');
+    expect(service.calculatePosition).toHaveBeenCalledWith(
+      'mars',
+      '2026-02-11T12:00:00Z',
+    );
   });
 
   it('should throw NotFoundException if service returns null', async () => {
     service.calculatePosition.mockResolvedValue(null);
 
     await expect(
-      controller.search({ object_name: 'nonexistent' })
+      controller.search({ object_name: 'nonexistent' }),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -89,7 +92,10 @@ describe('EphemerisController', () => {
     });
 
     expect(result).toEqual(mockResult);
-    expect(service.calculatePosition).toHaveBeenCalledWith('jupiter', '2026-02-11T12:00:00Z');
+    expect(service.calculatePosition).toHaveBeenCalledWith(
+      'jupiter',
+      '2026-02-11T12:00:00Z',
+    );
   });
 
   it('should use current date if epoch is missing', async () => {
@@ -107,25 +113,28 @@ describe('EphemerisController', () => {
 
     // Check that calculatePosition was called with saturn and a date string in ISO format (today's date)
     const today = new Date().toISOString().split('T')[0];
-    expect(service.calculatePosition).toHaveBeenCalledWith('saturn', expect.stringContaining(today));
+    expect(service.calculatePosition).toHaveBeenCalledWith(
+      'saturn',
+      expect.stringContaining(today),
+    );
   });
 
   it('should throw NotFoundException if neither target nor object_name is provided', async () => {
-    await expect(
-      controller.search({})
-    ).rejects.toThrow(NotFoundException);
+    await expect(controller.search({})).rejects.toThrow(NotFoundException);
 
     await expect(
-      controller.search({ target: '', object_name: '' })
+      controller.search({ target: '', object_name: '' }),
     ).rejects.toThrow(NotFoundException);
   });
 
   it('should handle service errors gracefully', async () => {
-    service.calculatePosition.mockRejectedValue(new Error('Internal Calculation Error'));
+    service.calculatePosition.mockRejectedValue(
+      new Error('Internal Calculation Error'),
+    );
 
-    await expect(
-      controller.search({ target: 'jupiter' })
-    ).rejects.toThrow('Internal Calculation Error');
+    await expect(controller.search({ target: 'jupiter' })).rejects.toThrow(
+      'Internal Calculation Error',
+    );
   });
 
   it('should support jpl-horizons source from service', async () => {

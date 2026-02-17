@@ -11,7 +11,7 @@ let testingModule: TestingModule | undefined;
 
 /**
  * RabbitMQ Integration Tests
- * 
+ *
  * This test suite ensures that:
  * 1. Connection management handles cluster failover
  * 2. Message publishing is reliable and ordered
@@ -105,8 +105,10 @@ describe('RabbitMQ Integration Service', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key, defaultValue) =>
-              mockRabbitMQConfig[key as keyof typeof mockRabbitMQConfig] || defaultValue,
+            get: jest.fn(
+              (key, defaultValue) =>
+                mockRabbitMQConfig[key as keyof typeof mockRabbitMQConfig] ||
+                defaultValue,
             ),
           },
         },
@@ -114,7 +116,9 @@ describe('RabbitMQ Integration Service', () => {
     }).compile();
 
     service = testingModule.get<RabbitMQService>(RabbitMQService);
-    configService = testingModule.get(ConfigService) as jest.Mocked<ConfigService>;
+    configService = testingModule.get(
+      ConfigService,
+    ) as jest.Mocked<ConfigService>;
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
@@ -133,8 +137,10 @@ describe('RabbitMQ Integration Service', () => {
     });
 
     it('should handle connection retry on failure', async () => {
-      jest.spyOn(service, 'connect').mockRejectedValueOnce(new Error('Connection refused'));
-      
+      jest
+        .spyOn(service, 'connect')
+        .mockRejectedValueOnce(new Error('Connection refused'));
+
       try {
         await service.connect();
       } catch (error) {
@@ -143,9 +149,13 @@ describe('RabbitMQ Integration Service', () => {
     });
 
     it('should support multiple broker URLs for failover', async () => {
-      const urls = ['amqp://broker1:5672', 'amqp://broker2:5672', 'amqp://broker3:5672'];
+      const urls = [
+        'amqp://broker1:5672',
+        'amqp://broker2:5672',
+        'amqp://broker3:5672',
+      ];
       configService.get.mockReturnValue(urls.join(','));
-      
+
       await service.connect();
       expect(service.isConnected()).toBe(true);
     });
@@ -159,7 +169,7 @@ describe('RabbitMQ Integration Service', () => {
     it('should set heartbeat interval for keep-alive', async () => {
       const heartbeatMs = 60000;
       configService.get.mockReturnValue(heartbeatMs);
-      
+
       await service.connect();
       expect(service.isConnected()).toBe(true);
     });
@@ -176,7 +186,7 @@ describe('RabbitMQ Integration Service', () => {
         exchange: 'jobs.exchange',
         routingKey: 'job.submitted',
       });
-      
+
       expect(result).toBe(true);
     });
 
@@ -187,43 +197,43 @@ describe('RabbitMQ Integration Service', () => {
         routingKey: 'job.submitted',
         persistent: true,
       });
-      
+
       expect(result).toBe(true);
     });
 
     it('should include correlation ID for tracing', async () => {
       const correlationId = 'trace-123456';
       const message = { jobId: 'job-001' };
-      
+
       const result = await service.publish(message, {
         exchange: 'jobs.exchange',
         routingKey: 'job.submitted',
         correlationId,
       });
-      
+
       expect(result).toBe(true);
     });
 
     it('should set content-type for message schema', async () => {
       const message = { jobId: 'job-001' };
-      
+
       const result = await service.publish(message, {
         exchange: 'jobs.exchange',
         routingKey: 'job.submitted',
         contentType: 'application/json',
       });
-      
+
       expect(result).toBe(true);
     });
 
     it('should publish to multiple exchanges with fanout', async () => {
       const message = { jobId: 'job-001', broadcast: true };
-      
+
       const result = await service.publish(message, {
         exchange: 'events.fanout',
         routingKey: '',
       });
-      
+
       expect(result).toBe(true);
     });
 
@@ -233,7 +243,7 @@ describe('RabbitMQ Integration Service', () => {
         { jobId: 'job-002' },
         { jobId: 'job-003' },
       ];
-      
+
       for (const msg of messages) {
         const result = await service.publish(msg, {
           exchange: 'jobs.exchange',
@@ -245,25 +255,25 @@ describe('RabbitMQ Integration Service', () => {
 
     it('should handle message compression', async () => {
       const largeMessage = { data: 'x'.repeat(10000) };
-      
+
       const result = await service.publish(largeMessage, {
         exchange: 'jobs.exchange',
         routingKey: 'job.submitted',
       });
-      
+
       expect(result).toBe(true);
     });
 
     it('should fail when not connected', async () => {
       await service.disconnect();
-      
+
       const message = { jobId: 'job-001' };
-      
+
       await expect(
         service.publish(message, {
           exchange: 'jobs.exchange',
           routingKey: 'job.submitted',
-        })
+        }),
       ).rejects.toThrow('Not connected');
     });
   });
@@ -275,76 +285,85 @@ describe('RabbitMQ Integration Service', () => {
 
     it('should create named consumer group', async () => {
       const callback = jest.fn();
-      
+
       await service.consume(callback, {
         queue: 'jobs.queue',
         consumerTag: 'job-processor-1',
       });
-      
+
       const groups = service.getConsumerGroups();
       expect(groups).toContain('jobs.queue');
     });
 
     it('should support auto-acknowledge mode', async () => {
       const callback = jest.fn();
-      
+
       await service.consume(callback, {
         queue: 'jobs.queue',
         autoAck: true,
       });
-      
+
       expect(service.getConsumerGroups()).toContain('jobs.queue');
     });
 
     it('should support manual acknowledge mode', async () => {
       const callback = jest.fn();
-      
+
       await service.consume(callback, {
         queue: 'jobs.queue',
         autoAck: false,
       });
-      
+
       expect(service.getConsumerGroups()).toContain('jobs.queue');
     });
 
     it('should prevent message duplication across consumers', async () => {
       const callback1 = jest.fn();
       const callback2 = jest.fn();
-      
-      await service.consume(callback1, { queue: 'jobs.queue', consumerTag: 'worker-1' });
-      await service.consume(callback2, { queue: 'jobs.queue', consumerTag: 'worker-2' });
-      
+
+      await service.consume(callback1, {
+        queue: 'jobs.queue',
+        consumerTag: 'worker-1',
+      });
+      await service.consume(callback2, {
+        queue: 'jobs.queue',
+        consumerTag: 'worker-2',
+      });
+
       expect(service.getConsumerGroups()).toContain('jobs.queue');
     });
 
     it('should support exclusive consumer mode', async () => {
       const callback = jest.fn();
-      
+
       await service.consume(callback, {
         queue: 'jobs.queue',
         exclusive: true,
       });
-      
+
       expect(service.getConsumerGroups()).toContain('jobs.queue');
     });
 
     it('should set prefetch count for QoS', async () => {
       const callback = jest.fn();
       configService.get.mockReturnValue(20);
-      
+
       await service.consume(callback, {
         queue: 'jobs.queue',
       });
-      
+
       expect(service.getConsumerGroups()).toContain('jobs.queue');
     });
 
     it('should handle consumer rebalancing', async () => {
       const callback = jest.fn();
-      
-      await service.consume(callback, { queue: 'jobs.queue', consumerTag: 'worker-1' });
+
+      await service.consume(callback, {
+        queue: 'jobs.queue',
+        consumerTag: 'worker-1',
+      });
       const groups1 = service.getConsumerGroups();
-      
+
       expect(groups1.length).toBeGreaterThan(0);
     });
   });
@@ -357,83 +376,83 @@ describe('RabbitMQ Integration Service', () => {
     it('should detect transient connection errors', async () => {
       const transientError = new Error('ECONNREFUSED');
       jest.spyOn(service, 'publish').mockRejectedValueOnce(transientError);
-      
+
       const message = { jobId: 'job-001' };
-      
+
       await expect(
         service.publish(message, {
           exchange: 'jobs.exchange',
           routingKey: 'job.submitted',
-        })
+        }),
       ).rejects.toThrow('ECONNREFUSED');
     });
 
     it('should implement exponential backoff for retries', async () => {
       const attempts: number[] = [];
-      
+
       for (let i = 0; i < 3; i++) {
         attempts.push(1000 * Math.pow(2, i));
       }
-      
+
       expect(attempts).toEqual([1000, 2000, 4000]);
     });
 
     it('should cap retry delay at maximum', async () => {
       const maxDelay = 30000;
       let delayMs = 1000;
-      
+
       for (let i = 0; i < 10; i++) {
         delayMs = Math.min(delayMs * 2, maxDelay);
       }
-      
+
       expect(delayMs).toBe(maxDelay);
     });
 
     it('should retry on 503 Service Unavailable', async () => {
       const error = new Error('503 Service Unavailable');
       jest.spyOn(service, 'publish').mockRejectedValueOnce(error);
-      
+
       const message = { jobId: 'job-001' };
-      
+
       await expect(
         service.publish(message, {
           exchange: 'jobs.exchange',
           routingKey: 'job.submitted',
-        })
+        }),
       ).rejects.toThrow('503');
     });
 
     it('should not retry on permanent errors (400)', async () => {
       const error = new Error('400 Bad Request');
       jest.spyOn(service, 'publish').mockRejectedValueOnce(error);
-      
+
       const message = { jobId: 'job-001' };
-      
+
       await expect(
         service.publish(message, {
           exchange: 'jobs.exchange',
           routingKey: 'job.submitted',
-        })
+        }),
       ).rejects.toThrow('400');
     });
 
     it('should track retry attempts', async () => {
       let retryCount = 0;
       const maxRetries = 3;
-      
+
       while (retryCount < maxRetries) {
         retryCount++;
       }
-      
+
       expect(retryCount).toBe(maxRetries);
     });
 
     it('should include error context in logs', async () => {
       const error = new Error('Connection timeout');
       jest.spyOn(service, 'publish').mockRejectedValueOnce(error);
-      
+
       const message = { jobId: 'job-001' };
-      
+
       try {
         await service.publish(message, {
           exchange: 'jobs.exchange',
@@ -447,26 +466,28 @@ describe('RabbitMQ Integration Service', () => {
     it('should implement circuit breaker pattern', async () => {
       let failureCount = 0;
       const failureThreshold = 5;
-      
+
       for (let i = 0; i < 3; i++) {
         failureCount++;
       }
-      
+
       expect(failureCount < failureThreshold).toBe(true);
     });
 
     it('should recover from transient broker failures', async () => {
       await service.disconnect();
       await service.connect();
-      
+
       expect(service.isConnected()).toBe(true);
     });
 
     it('should handle message acknowledgment failures', async () => {
       const message = { jobId: 'job-001' };
-      
-      jest.spyOn(service, 'acknowledge').mockRejectedValueOnce(new Error('Ack failed'));
-      
+
+      jest
+        .spyOn(service, 'acknowledge')
+        .mockRejectedValueOnce(new Error('Ack failed'));
+
       await expect(service.acknowledge(message)).rejects.toThrow('Ack failed');
     });
   });
@@ -479,9 +500,9 @@ describe('RabbitMQ Integration Service', () => {
     it('should route undeliverable messages to DLQ', async () => {
       const message = { jobId: 'job-001', data: 'undeliverable' };
       const reason = 'No consumers for queue';
-      
+
       await service.sendToDLQ(message, reason);
-      
+
       // Verify DLQ handling
       expect(service).toBeDefined();
     });
@@ -494,32 +515,35 @@ describe('RabbitMQ Integration Service', () => {
           'x-original-exchange': 'jobs.exchange',
         },
       };
-      
+
       await service.sendToDLQ(message, 'Max retries exceeded');
       expect(service).toBeDefined();
     });
 
     it('should track DLQ retry count', async () => {
       const message = { jobId: 'job-001', x_death_count: 3 };
-      
+
       await service.sendToDLQ(message, 'Retry limit reached');
       expect(service).toBeDefined();
     });
 
     it('should support DLQ replay mechanism', async () => {
-      const dlqMessage = { jobId: 'job-001', original_exchange: 'jobs.exchange' };
-      
+      const dlqMessage = {
+        jobId: 'job-001',
+        original_exchange: 'jobs.exchange',
+      };
+
       await service.publish(dlqMessage, {
         exchange: 'jobs.exchange',
         routingKey: 'job.submitted',
       });
-      
+
       expect(service).toBeDefined();
     });
 
     it('should timestamp DLQ entries', async () => {
       const message = { jobId: 'job-001', dlq_timestamp: new Date() };
-      
+
       await service.sendToDLQ(message, 'Undeliverable');
       expect(service).toBeDefined();
     });

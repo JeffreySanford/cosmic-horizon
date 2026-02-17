@@ -73,7 +73,18 @@ describe('EphemerisWarmupService', () => {
     it('should include all major solar system objects', async () => {
       await service.handleDailyWarmup();
 
-      const objects = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+      const objects = [
+        'sun',
+        'moon',
+        'mercury',
+        'venus',
+        'mars',
+        'jupiter',
+        'saturn',
+        'uranus',
+        'neptune',
+        'pluto',
+      ];
       for (const obj of objects) {
         expect(mockEphemerisService.calculatePosition).toHaveBeenCalledWith(
           obj,
@@ -88,7 +99,9 @@ describe('EphemerisWarmupService', () => {
       const calls = mockEphemerisService.calculatePosition.mock.calls;
       for (const [, dateArg] of calls) {
         // Validate ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
-        expect(dateArg).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+        expect(dateArg).toMatch(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        );
       }
     });
 
@@ -108,7 +121,9 @@ describe('EphemerisWarmupService', () => {
       await service.handleDailyWarmup();
 
       expect(logSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/Ephemeris cache pre-warming complete.*Warmed \d+ entries/),
+        expect.stringMatching(
+          /Ephemeris cache pre-warming complete.*Warmed \d+ entries/,
+        ),
       );
     });
 
@@ -146,7 +161,9 @@ describe('EphemerisWarmupService', () => {
 
     it('should handle non-Error thrown objects', async () => {
       const errorSpy = jest.spyOn(Logger.prototype, 'error');
-      mockEphemerisService.calculatePosition.mockRejectedValueOnce('String error');
+      mockEphemerisService.calculatePosition.mockRejectedValueOnce(
+        'String error',
+      );
 
       await service.handleDailyWarmup();
 
@@ -184,7 +201,9 @@ describe('EphemerisWarmupService', () => {
         }
       }
 
-      const uniqueDates = [...new Set(dates.map(d => d.toISOString().split('T')[0]))];
+      const uniqueDates = [
+        ...new Set(dates.map((d) => d.toISOString().split('T')[0])),
+      ];
       expect(uniqueDates.length).toBeGreaterThan(0);
     });
 
@@ -214,12 +233,14 @@ describe('EphemerisWarmupService', () => {
 
     it('should handle multiple consecutive warmups', async () => {
       await service.handleDailyWarmup();
-      const firstCallCount = mockEphemerisService.calculatePosition.mock.calls.length;
+      const firstCallCount =
+        mockEphemerisService.calculatePosition.mock.calls.length;
 
       mockEphemerisService.calculatePosition.mockClear();
 
       await service.handleDailyWarmup();
-      const secondCallCount = mockEphemerisService.calculatePosition.mock.calls.length;
+      const secondCallCount =
+        mockEphemerisService.calculatePosition.mock.calls.length;
 
       expect(firstCallCount).toBe(80);
       expect(secondCallCount).toBe(80);
@@ -227,9 +248,11 @@ describe('EphemerisWarmupService', () => {
 
     it('should handle all errors without stopping the warmup loop', async () => {
       const errorSpy = jest.spyOn(Logger.prototype, 'error');
-      
+
       // Make every call fail
-      mockEphemerisService.calculatePosition.mockRejectedValue(new Error('All failed'));
+      mockEphemerisService.calculatePosition.mockRejectedValue(
+        new Error('All failed'),
+      );
 
       await service.handleDailyWarmup();
 
@@ -242,7 +265,7 @@ describe('EphemerisWarmupService', () => {
 
     it('should track warmed count correctly', async () => {
       const logSpy = jest.spyOn(Logger.prototype, 'log');
-      
+
       // All succeed
       mockEphemerisService.calculatePosition.mockResolvedValue({
         target: 'mars',
@@ -263,7 +286,7 @@ describe('EphemerisWarmupService', () => {
 
     it('should track warmed count with partial failures', async () => {
       const logSpy = jest.spyOn(Logger.prototype, 'log');
-      
+
       let callCount = 0;
       mockEphemerisService.calculatePosition.mockImplementation(async () => {
         callCount++;

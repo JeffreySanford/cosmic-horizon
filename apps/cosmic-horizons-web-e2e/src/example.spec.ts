@@ -750,7 +750,9 @@ test('registers a user and redirects to landing', async ({ page }) => {
   await registerEmail.fill('new@cosmic.local');
   await registerPassword.fill('Password123!');
   await registerConfirmPassword.fill('Password123!');
-  const createAccountButton = page.getByRole('button', { name: 'Create Account' });
+  const createAccountButton = page.getByRole('button', {
+    name: 'Create Account',
+  });
   await expect(createAccountButton).toBeEnabled();
   const registerResponse = page.waitForResponse(
     (response) =>
@@ -799,7 +801,9 @@ test('shows conflict errors on duplicate registration', async ({ page }) => {
     .locator('input[formcontrolname="confirmPassword"]')
     .fill('Password123!');
   await page.getByRole('button', { name: 'Create Account' }).click();
-  await expect(page.getByRole('button', { name: 'Create Account' })).toBeEnabled();
+  await expect(
+    page.getByRole('button', { name: 'Create Account' }),
+  ).toBeEnabled();
 
   await expect(page).toHaveURL(/\/auth\/register/);
   await expect(page).not.toHaveURL(/\/landing/);

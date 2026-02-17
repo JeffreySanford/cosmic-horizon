@@ -26,7 +26,7 @@ describe('UserRepository', () => {
       delete: jest.fn(),
       createQueryBuilder: jest.fn(),
       query: jest.fn(),
-    } as unknown as jest.Mocked<Repository<User>>);
+    }) as unknown as jest.Mocked<Repository<User>>;
 
   beforeEach(async () => {
     mockRepository = createMockUserRepository();
@@ -64,7 +64,9 @@ describe('UserRepository', () => {
       mockRepository.create.mockReturnValue(userData);
       mockRepository.save.mockRejectedValue(new Error('Duplicate email'));
 
-      await expect(repository.create(userData)).rejects.toThrow('Duplicate email');
+      await expect(repository.create(userData)).rejects.toThrow(
+        'Duplicate email',
+      );
     });
   });
 
@@ -79,7 +81,7 @@ describe('UserRepository', () => {
 
       mockRepository.query.mockResolvedValue([{ id: 'user-secure' }]);
       mockRepository.findOneBy.mockResolvedValue(
-        new UserBuilder().withId('user-secure').build()
+        new UserBuilder().withId('user-secure').build(),
       );
 
       const result = await repository.createWithPassword(params);
@@ -91,7 +93,7 @@ describe('UserRepository', () => {
           params.display_name,
           params.email,
           params.password,
-        ])
+        ]),
       );
       expect(result.id).toBe('user-secure');
     });
@@ -107,7 +109,7 @@ describe('UserRepository', () => {
       mockRepository.query.mockResolvedValue([]);
 
       await expect(repository.createWithPassword(params)).rejects.toThrow(
-        'Failed to create user record'
+        'Failed to create user record',
       );
     });
 
@@ -133,7 +135,7 @@ describe('UserRepository', () => {
       expect(mockRepository.findOneBy).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'user-secure',
-        })
+        }),
       );
       expect(result).toEqual(createdUser);
     });
@@ -186,7 +188,10 @@ describe('UserRepository', () => {
 
   describe('findByUsername', () => {
     it('should find a user by username', async () => {
-      const user = new UserBuilder().withId('user-1').withUsername('testuser').build();
+      const user = new UserBuilder()
+        .withId('user-1')
+        .withUsername('testuser')
+        .build();
 
       mockRepository.findOneBy.mockResolvedValue(user);
 
@@ -207,7 +212,10 @@ describe('UserRepository', () => {
 
   describe('findByEmailAndPassword', () => {
     it('should find a user by email and matching password', async () => {
-      const user = new UserBuilder().withId('user-1').withEmail('test@example.com').build();
+      const user = new UserBuilder()
+        .withId('user-1')
+        .withEmail('test@example.com')
+        .build();
 
       const mockQueryBuilder = {
         where: jest.fn().mockReturnThis(),
@@ -215,11 +223,13 @@ describe('UserRepository', () => {
         getOne: jest.fn().mockResolvedValue(user),
       };
 
-      mockRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
+      mockRepository.createQueryBuilder.mockReturnValue(
+        mockQueryBuilder as any,
+      );
 
       const result = await repository.findByEmailAndPassword(
         'test@example.com',
-        'test-password'
+        'test-password',
       );
 
       expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('user');
@@ -235,11 +245,13 @@ describe('UserRepository', () => {
         getOne: jest.fn().mockResolvedValue(null),
       };
 
-      mockRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
+      mockRepository.createQueryBuilder.mockReturnValue(
+        mockQueryBuilder as any,
+      );
 
       const result = await repository.findByEmailAndPassword(
         'test@example.com',
-        'wrong-password'
+        'wrong-password',
       );
 
       expect(result).toBeNull();
@@ -248,7 +260,10 @@ describe('UserRepository', () => {
 
   describe('findByGithubId', () => {
     it('should find user by github id', async () => {
-      const user = new UserBuilder().withId('user-1').withGithubId('gh-123').build();
+      const user = new UserBuilder()
+        .withId('user-1')
+        .withGithubId('gh-123')
+        .build();
 
       mockRepository.findOneBy.mockResolvedValue(user);
 
@@ -293,12 +308,17 @@ describe('UserRepository', () => {
 
   describe('update', () => {
     it('should update a user', async () => {
-      const updatedUser = new UserBuilder().withId('user-1').withName('Updated Name').build();
+      const updatedUser = new UserBuilder()
+        .withId('user-1')
+        .withName('Updated Name')
+        .build();
 
       mockRepository.update.mockResolvedValue({ affected: 1 } as any);
       mockRepository.findOneBy.mockResolvedValue(updatedUser);
 
-      const result = await repository.update('user-1', { display_name: 'Updated Name' });
+      const result = await repository.update('user-1', {
+        display_name: 'Updated Name',
+      });
 
       expect(mockRepository.update).toHaveBeenCalled();
       expect(result?.id).toBe('user-1');
@@ -307,7 +327,9 @@ describe('UserRepository', () => {
     it('should return null if user not found', async () => {
       mockRepository.findOneBy.mockResolvedValue(null);
 
-      const result = await repository.update('nonexistent', { display_name: 'Name' });
+      const result = await repository.update('nonexistent', {
+        display_name: 'Name',
+      });
 
       expect(result).toBeNull();
     });

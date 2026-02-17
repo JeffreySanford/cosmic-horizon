@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EachMessagePayload } from 'kafkajs';
 import { SystemHealthConsumer } from '../system-health.consumer';
-import { SystemHealthMonitorService, HealthMetric } from '../../services/system-health-monitor.service';
+import {
+  SystemHealthMonitorService,
+  HealthMetric,
+} from '../../services/system-health-monitor.service';
 import { KafkaService } from '../../../events/kafka.service';
 
 afterEach(async () => {
@@ -42,7 +45,10 @@ describe('SystemHealthConsumer', () => {
       providers: [
         SystemHealthConsumer,
         { provide: KafkaService, useValue: kafkaService },
-        { provide: SystemHealthMonitorService, useValue: systemHealthMonitorService },
+        {
+          provide: SystemHealthMonitorService,
+          useValue: systemHealthMonitorService,
+        },
       ],
     }).compile();
 
@@ -87,7 +93,9 @@ describe('SystemHealthConsumer', () => {
 
       await handler(mockPayload);
 
-      expect(systemHealthMonitorService.processHealthEvent).toHaveBeenCalledWith(
+      expect(
+        systemHealthMonitorService.processHealthEvent,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           job_id: 'job-123',
           error_rate: 2,
@@ -153,7 +161,9 @@ describe('SystemHealthConsumer', () => {
 
       await handler(mockPayload);
 
-      expect(systemHealthMonitorService.processHealthEvent).toHaveBeenCalledWith(
+      expect(
+        systemHealthMonitorService.processHealthEvent,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           consumer_lag: 15000,
         }),
@@ -207,7 +217,9 @@ describe('SystemHealthConsumer', () => {
         await handler(mockPayload);
       }
 
-      expect(systemHealthMonitorService.processHealthEvent).toHaveBeenCalledTimes(3);
+      expect(
+        systemHealthMonitorService.processHealthEvent,
+      ).toHaveBeenCalledTimes(3);
     });
   });
 
@@ -237,7 +249,9 @@ describe('SystemHealthConsumer', () => {
 
       await handler(mockPayload);
 
-      expect(systemHealthMonitorService.processHealthEvent).toHaveBeenCalledWith(
+      expect(
+        systemHealthMonitorService.processHealthEvent,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           available_memory_mb: 512,
           cpu_usage_percent: 85,
@@ -265,7 +279,9 @@ describe('SystemHealthConsumer', () => {
       await expect(handler(mockPayload)).resolves.not.toThrow();
 
       // Should not call health service
-      expect(systemHealthMonitorService.processHealthEvent).not.toHaveBeenCalled();
+      expect(
+        systemHealthMonitorService.processHealthEvent,
+      ).not.toHaveBeenCalled();
     });
   });
 
