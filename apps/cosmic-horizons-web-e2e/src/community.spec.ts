@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const baseURL = process.env.BASE_URL ?? 'http://localhost:4200';
-const apiBase = process.env.API_BASE_URL ?? 'http://localhost:3000';
+const apiBase = process.env.API_BASE_URL ?? 'http://127.0.0.1:3000';
 
 function createFakeJwt(exp: number) {
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
