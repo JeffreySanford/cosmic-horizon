@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 
 const coverageFile = 'apps/cosmic-horizons-api/test-output/jest/coverage/coverage-final.json';
 const summary = { 

@@ -13,7 +13,7 @@ describe('Community Discoveries e2e', () => {
     // Expect at least the three seeded rows added by CommunityService migration/seed
     expect(res.data.length).toBeGreaterThanOrEqual(3);
 
-    const titles = res.data.map((r: any) => r.title);
+    const titles = (res.data as Array<Record<string, unknown>>).map((r) => r.title as string);
     expect(titles).toEqual(expect.arrayContaining([
       'Welcome to Community Discoveries',
       'Symposium 2026 — abstract deadline',
@@ -35,7 +35,7 @@ describe('Community Discoveries e2e', () => {
     expect(createRes.data).toMatchObject({ title: payload.title, author: payload.author });
 
     const feedRes = await axios.get('/api/community/feed');
-    const found = (feedRes.data as any[]).some((r) => r.title === payload.title && r.author === payload.author);
+    const found = (feedRes.data as Array<Record<string, unknown>>).some((r) => (r.title as string) === payload.title && (r.author as string) === payload.author);
     expect(found).toBe(true);
   }, 10000);
 
@@ -70,7 +70,8 @@ describe('Community Discoveries e2e', () => {
       });
 
       expect(msg).not.toBeNull();
-      const body = JSON.parse(msg!.content.toString());
+      if (!msg) throw new Error('expected message on websocket-broadcast');
+      const body = JSON.parse(msg.content.toString());
       expect(body.event_type).toBe('community.discovery.created');
       expect(body.payload.title).toBe(payload.title);
     } finally {
@@ -94,7 +95,7 @@ describe('Community Discoveries e2e', () => {
     const createdId = createRes.data.id;
 
     const feedRes = await axios.get('/api/community/feed');
-    const foundHidden = (feedRes.data as any[]).some((r) => r.id === createdId);
+    const foundHidden = (feedRes.data as Array<Record<string, unknown>>).some((r) => (r.id as string) === createdId);
     expect(foundHidden).toBe(false);
 
     // Approve via API
@@ -102,7 +103,7 @@ describe('Community Discoveries e2e', () => {
     expect(approveRes.status).toBe(200);
 
     const feedResAfter = await axios.get('/api/community/feed');
-    const foundAfter = (feedResAfter.data as any[]).some((r) => r.id === createdId && r.title === payload.title);
+    const foundAfter = (feedResAfter.data as Array<Record<string, unknown>>).some((r) => (r.id as string) === createdId && (r.title as string) === payload.title);
     expect(foundAfter).toBe(true);
   }, 15000);
 });

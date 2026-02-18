@@ -10,6 +10,11 @@ export default [
       '**/out-tsc',
       '**/test-output',
       '**/vitest.config.*.timestamp*',
+      // Exclude generated artifacts and templates from repo-wide ESLint scans
+      '**/*.html',
+      '**/.angular/**',
+      '**/.lighthouseci/**',
+      '**/coverage/**',
     ],
   },
   {

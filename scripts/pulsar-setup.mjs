@@ -14,13 +14,8 @@
 
 import PulsarPackage from 'pulsar-client';
 import axios from 'axios';
-import * as fs from 'fs';
-
-const PulsarClient = PulsarPackage.PulsarClient ?? PulsarPackage.Client ?? PulsarPackage;
 
 const PULSAR_ADMIN_URL = 'http://localhost:8080';
-const PULSAR_SERVICE_URL = 'pulsar://localhost:6650';
-const PULSAR_WS_URL = 'ws://localhost:8081';
 
 // ============================================================================
 // Configuration: Namespaces & Topics
@@ -142,7 +137,7 @@ const TOPICS = [
 async function checkClusterHealth() {
   console.log('\n[1] Checking Pulsar cluster health...');
   try {
-    const response = await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/clusters`);
+    await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/clusters`);
     console.log(`✓ Pulsar cluster detected`);
     
     const broker = await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/brokers`);
@@ -151,7 +146,7 @@ async function checkClusterHealth() {
     try {
       await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/brokerStats`);
       console.log(`✓ Broker metrics accessible`);
-    } catch (statsError) {
+    } catch {
       console.log(`ℹ Broker metrics endpoint unavailable on this Pulsar build; continuing setup`);
     }
 
@@ -168,10 +163,6 @@ async function createNamespace(namespace) {
   
   try {
     // Check if namespace exists
-    const parts = ns.split('/');
-    const tenant = parts[0];
-    const nsName = parts[1];
-
     await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/namespaces/${ns}`);
     console.log(`  ℹ Namespace already exists: ${ns}`);
     return;
@@ -209,7 +200,6 @@ async function createNamespace(namespace) {
 
 async function createTopic(namespace, topic) {
   const { name, description, partitions = 1, retention = {} } = topic;
-  const topicPath = `persistent://${namespace}/${name}`;
 
   try {
     // Check if topic exists

@@ -26,7 +26,7 @@ function score(value) {
   return Math.round(value * 100);
 }
 
-let reports = [];
+const reports = [];
 for (const root of roots) {
   for (const file of walk(root)) {
     try {

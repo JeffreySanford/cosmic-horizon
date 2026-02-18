@@ -7,6 +7,7 @@
  * CRITICAL: This must run before any imports of Angular modules or Forms
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // AGGRESSIVE POLYFILL - must be set before any module imports
 // Polyfill for jsdom/headless test environment used in GitHub Actions CI
 // Angular Forms' _isAndroid() function requires navigator.platform to exist and not be null/undefined
@@ -23,7 +24,7 @@
         // Try to delete and redefine
         try {
           delete (globalThis.navigator as any).platform;
-        } catch (e) {
+        } catch {
           // Ignore deletion errors, might not be possible
         }
       }
@@ -35,7 +36,7 @@
         configurable: true,
         enumerable: true,
       });
-    } catch (error) {
+    } catch {
       // Fallback: direct assignment
       try {
         (globalThis.navigator as any).platform = PLATFORM_VALUE;
@@ -53,7 +54,7 @@
       if (!descriptor || descriptor.configurable !== false) {
         try {
           delete (window.navigator as any).platform;
-        } catch (e) {
+        } catch {
           // Ignore
         }
       }
@@ -64,7 +65,7 @@
         configurable: true,
         enumerable: true,
       });
-    } catch (error) {
+    } catch {
       try {
         (window.navigator as any).platform = PLATFORM_VALUE;
       } catch (e) {

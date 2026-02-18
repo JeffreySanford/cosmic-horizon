@@ -31,7 +31,7 @@ const checks = [
   {
     file: 'documentation/quality/TESTING-STRATEGY.md',
     required: [/Baseline Gate/i],
-    banned: [/Nest\s*[<\-]+>\s*Go.*required/i, /Mode B.*golden.*required/i],
+    banned: [/Nest\s*[<-]+>\s*Go.*required/i, /Mode B.*golden.*required/i],
   },
   {
     file: 'documentation/backend/API-ROUTES.md',

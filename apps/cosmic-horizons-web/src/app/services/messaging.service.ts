@@ -98,6 +98,7 @@ export class MessagingService {
   private socket: Socket | null = null;
   private telemetrySubject = new Subject<TelemetryPacket>();
   private statsSubject = new Subject<MessagingLiveStats>();
+  private notificationSubject = new Subject<any>();
   private readonly http = inject(HttpClient);
   private readonly logger = inject(AppLoggerService);
   private readonly authSessionService = inject(AuthSessionService);
@@ -156,12 +157,24 @@ export class MessagingService {
       });
     });
 
+    // Telemetry & stats (existing)
     this.socket.on('telemetry_update', (data: TelemetryPacket) => {
       this.telemetrySubject.next(data);
     });
 
     this.socket.on('stats_update', (stats: MessagingLiveStats) => {
       this.statsSubject.next(stats);
+    });
+
+    // Notifications (toaster-support): generic notification channel from server
+    // Server currently emits job_notification for user-targeted notifications.
+    this.socket.on('job_notification', (payload: any) => {
+      try {
+        this.logger.debug('messaging', 'Received job_notification', payload);
+        this.notificationSubject.next(payload);
+      } catch (err) {
+        this.logger.warn('messaging', 'Failed to process job_notification', err as Error);
+      }
     });
   }
 
@@ -177,6 +190,11 @@ export class MessagingService {
 
   get stats$(): Observable<MessagingLiveStats> {
     return this.statsSubject.asObservable();
+  }
+
+  /** Notification observable for UI toasts and in-app alerts */
+  get notifications$(): Observable<any> {
+    return this.notificationSubject.asObservable();
   }
 
   getSites(): Observable<ArraySite[]> {

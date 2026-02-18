@@ -1,6 +1,7 @@
 {
   "name": "@cosmic-horizons/event-models",
   "version": "1.0.0",
+  "type": "module",
   "description": "Shared event models for RabbitMQ and Kafka event streams",
   "main": "index.ts",
   "types": "index.ts",

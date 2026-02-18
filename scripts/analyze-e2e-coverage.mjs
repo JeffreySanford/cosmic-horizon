@@ -16,10 +16,9 @@
  */
 
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 // Configuration
-const argv = process.argv.slice(2);
 const outputDir = process.env.OUTPUT_DIR || './coverage-e2e';
 const format = process.env.COVERAGE_FORMAT || 'text';
 const projectRoot = process.cwd();
@@ -106,7 +105,7 @@ function parseJestCoverage(data) {
  */
 function aggregateCoverage(files) {
   const coverageData = [];
-  let aggregated = {
+  const aggregated = {
     statements: { total: 0, covered: 0 },
     functions: { total: 0, covered: 0 },
     branches: { total: 0, covered: 0 },

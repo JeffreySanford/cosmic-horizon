@@ -170,25 +170,7 @@ function generateJobSubmittedEvent(index) {
   };
 }
 
-function generateStatusUpdateEvent(index, jobId) {
-  const timestampMs = Date.UTC(2026, 0, 1, 0, 0, 0) + index * 10;
-  return {
-    eventId: `evt-status-${CONFIG.seed}-${index}`,
-    eventType: 'job.status.changed',
-    timestamp: new Date(timestampMs).toISOString(),
-    jobId: jobId,
-    previousStatus: 'QUEUED',
-    newStatus: 'RUNNING',
-    executionNode: `compute-${randomInt(10)}`,
-    metrics: {
-      cpuUsage: currentRandom() * 100,
-      memoryUsage: currentRandom() * 100,
-      gpuUtilization: currentRandom() * 100,
-      networkBandwidth: currentRandom() * 100
-    },
-    sourceSystem: 'cosmic-horizons-api'
-  };
-}
+
 
 // ============================================================================
 // RabbitMQ Benchmark

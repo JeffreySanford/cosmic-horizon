@@ -52,12 +52,12 @@ test('community post requiring moderation is hidden until approved', async ({ pa
 
   // UI verification (robust): assert the Angular component's `feed` contains the approved post
   await expect.poll(async () => await page.evaluate((t) => {
-    // @ts-ignore
+    // runtime-only browser helper (Playwright/Angular devtools)
     const ng = (window as any).ng as any;
     const el = document.querySelector('app-community-feed');
     if (!ng || !el || typeof ng.getComponent !== 'function') return false;
     try {
-      // @ts-ignore
+      // runtime-only browser helper (Playwright/Angular devtools)
       const feed = ng.getComponent(el)?.feed ?? [];
       return feed.some((f: any) => f.title === t);
     } catch {
@@ -98,12 +98,12 @@ test('admin can hide a visible community post and UI updates accordingly', async
   expect(initialFeed.some((f: any) => f.title === payload.title)).toBe(true);
   // UI verification (robust): ensure the Angular component's `feed` contains the newly created post
   await expect.poll(async () => await page.evaluate((t) => {
-    // @ts-ignore
+    // runtime-only browser helper (Playwright/Angular devtools)
     const ng = (window as any).ng as any;
     const el = document.querySelector('app-community-feed');
     if (!ng || !el || typeof ng.getComponent !== 'function') return false;
     try {
-      // @ts-ignore
+      // runtime-only browser helper (Playwright/Angular devtools)
       const feed = ng.getComponent(el)?.feed ?? [];
       return feed.some((f: any) => f.title === t);
     } catch {
@@ -124,12 +124,12 @@ test('admin can hide a visible community post and UI updates accordingly', async
 
   // UI verification: read component `feed` directly (robust against network/view timing)
   await expect.poll(async () => await page.evaluate((t) => {
-    // @ts-ignore
+    // runtime-only browser helper (Playwright/Angular devtools)
     const ng = (window as any).ng as any;
     const el = document.querySelector('app-community-feed');
     if (!ng || !el || typeof ng.getComponent !== 'function') return false;
     try {
-      // @ts-ignore
+      // runtime-only browser helper (Playwright/Angular devtools)
       const feed = ng.getComponent(el)?.feed ?? [];
       return !feed.some((f: any) => f.title === t);
     } catch {

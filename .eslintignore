@@ -17,3 +17,7 @@ node_modules/
 .lighthouseci/
 .nyc_output/
 .playwright/
+
+## Ignore HTML templates & coverage artifacts for global ESLint scans
+
+**/*.html

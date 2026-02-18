@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommunityApiService, DiscoveryModel } from './community-api.service';
 
 @Component({
@@ -13,6 +14,7 @@ export class CommunityFeedComponent implements OnInit {
   newBody = '';
 
   private readonly api = inject(CommunityApiService);
+  private readonly snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.load();
@@ -28,6 +30,7 @@ export class CommunityFeedComponent implements OnInit {
       this.newTitle = '';
       this.newBody = '';
       this.load();
+      this.snackBar.open('Discovery posted', 'OK', { duration: 3000 });
     });
   }
 }

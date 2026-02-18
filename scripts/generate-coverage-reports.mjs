@@ -44,7 +44,7 @@ if (!thresholdOnly) {
       stdio: 'inherit',
       cwd: rootDir,
     });
-  } catch (error) {
+  } catch {
     console.error('❌ Coverage collection failed');
     process.exit(1);
   }
@@ -58,7 +58,7 @@ const projects = [
   // Add other projects here as needed
 ];
 
-let totalStats = {
+const totalStats = {
   projects: [],
   summary: {
     branches: 0,
@@ -82,7 +82,7 @@ projects.forEach((project) => {
       const coverageData = JSON.parse(fs.readFileSync(coverageFile, 'utf8'));
       
       // Extract metrics from coverage data
-      let metrics = {
+      const metrics = {
         branches: 0,
         functions: 0,
         lines: 0,
