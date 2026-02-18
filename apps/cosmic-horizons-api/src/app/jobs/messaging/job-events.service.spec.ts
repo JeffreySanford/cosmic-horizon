@@ -35,7 +35,9 @@ describe('JobEventsService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    // Reset mock implementations and restore spies so per-test overrides don't leak
+    jest.resetAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('emitJobSubmittedEvent', () => {

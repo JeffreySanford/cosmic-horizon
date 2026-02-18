@@ -1,5 +1,15 @@
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
+// Make generateUUID mockable across this spec (avoids "Cannot redefine property" in CI/Esm)
+jest.mock('@cosmic-horizons/event-models', () => {
+  const actual = jest.requireActual('@cosmic-horizons/event-models');
+  return {
+    ...actual,
+    generateUUID: jest.fn(() => 'test-uuid-12345'),
+  };
+});
+
 import { RabbitMQService, PublishOptions, ConsumeOptions } from './rabbitmq.service';
 import * as EventModels from '@cosmic-horizons/event-models';
 
@@ -28,11 +38,13 @@ describe('RabbitMQService', () => {
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();
 
-    jest.spyOn(EventModels, 'generateUUID').mockReturnValue('test-uuid-12345' as any);
+    // `generateUUID` is provided by module mock above and is a jest.Mock
+    (EventModels.generateUUID as jest.Mock).mockReturnValue('test-uuid-12345');
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('onModuleInit', () => {
@@ -246,7 +258,7 @@ describe('RabbitMQService', () => {
         queue: 'jobs.queue',
       };
 
-      jest.spyOn(EventModels, 'generateUUID').mockReturnValue('generated-tag-123' as any);
+      (EventModels.generateUUID as jest.Mock).mockReturnValue('generated-tag-123');
       const consumerTag = await service.consume(callback, options);
 
       expect(consumerTag).toContain('consumer-');
