@@ -47,6 +47,13 @@ Canonical scope:
 - [x] Add a unit test to assert `MessagingMonitorService` clears its startup timeout handle on `onModuleDestroy()` (prevent future open-handle regressions).
 - [ ] Triage and patch the moderate GitHub dependence vulnerability reported by Dependabot (see repo Security alerts) — **DEFERRED TO UPSTREAM (ajv / Angular)**.
 
+- [ ] MVP: Community Discoveries — in‑app toasts + persistent Community Feed
+  - Backend: `DiscoveryEvent` model + endpoints `GET /api/community/feed`, `POST /api/community/posts` (use EventsModule for publish/subscribe)
+  - Frontend: `DiscoveryToast` component + `CommunityFeed` page, minimal UI, feature-flagged
+  - Security: opt-in posting, moderation/reporting endpoints
+  - Tests: unit + e2e for toast/display + API contract
+  - Estimate: 1–3 dev days
+
 - [ ] Prepare release candidate / changelog for v1.1.0 (include test stabilization & event infra notes).
 
 ## Current Execution Wave: Phase 3 (2026-Q2-Q3)

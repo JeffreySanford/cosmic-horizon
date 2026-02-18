@@ -54,6 +54,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 - Markdown-based post publishing
 - Revision history and branching
 - Community moderation (hide/lock)
+- Community Discoveries (MVP): lightweight in‑app toasts + persistent `Community Feed` for short discovery posts (tags, links, minimal comments). Reuse EventsModule for realtime push; opt-in posting + moderation. **Status**: Proposed (MVP).
 
 **MVP Explicitly NOT In Scope**:
 
