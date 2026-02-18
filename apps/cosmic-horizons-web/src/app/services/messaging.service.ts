@@ -171,10 +171,19 @@ export class MessagingService {
     // Server currently emits job_notification for user-targeted notifications.
     this.socket.on('job_notification', (payload: EventBase) => {
       try {
-        this.logger.debug('messaging', 'Received job_notification', payload);
+        // Log only primitive/string details (AppLoggerService expects LogDetails)
+        this.logger.debug('messaging', 'Received job_notification', {
+          event_type: payload.event_type ?? null,
+          event_id: payload.event_id ?? null,
+          user_id: payload.user_id ?? null,
+          correlation_id: payload.correlation_id ?? null,
+          timestamp: payload.timestamp ?? null,
+        });
+
         this.notificationSubject.next(payload);
       } catch (err) {
-        this.logger.warn('messaging', 'Failed to process job_notification', err as Error);
+        const message = err instanceof Error ? err.message : String(err);
+        this.logger.warn('messaging', 'Failed to process job_notification', { message });
       }
     });
   }

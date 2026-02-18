@@ -18,7 +18,7 @@ export class App implements OnInit {
     // Global toast for notification events (e.g. community.discovery.created)
     this.messaging.notifications$.subscribe((payload: EventBase) => {
       try {
-        const type = payload?.type ?? payload?.event_type ?? '';
+        const type = payload.event_type ?? '';
         if (type === 'community.discovery.created') {
           const pd = payload.payload as { discovery_id?: string; title?: string; author?: string };
           const title = pd?.title ?? 'New discovery';
