@@ -35,8 +35,10 @@ describe('JobEventsService', () => {
   });
 
   afterEach(() => {
-    // Reset mock implementations and restore spies so per-test overrides don't leak
-    jest.resetAllMocks();
+    // Clear mock call history and restore spies so per-test overrides don't leak
+    // Use clearAllMocks() here so the module-level jest.mock() implementations
+    // (e.g. generateEventId) are preserved across tests.
+    jest.clearAllMocks();
     jest.restoreAllMocks();
   });
 

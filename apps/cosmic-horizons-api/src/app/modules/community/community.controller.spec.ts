@@ -31,7 +31,10 @@ describe('CommunityController (prototype)', () => {
   });
 
   it('returns pending via GET /posts/pending', async () => {
-    const pending = await controller.getPending();
+    // Provide a mock authenticated request with admin privileges so controller
+    // permission check passes.
+    const mockReq = { user: { id: 'admin-1', role: 'admin' } } as any;
+    const pending = await controller.getPending(mockReq);
     expect(Array.isArray(pending)).toBe(true);
     expect((service.getPendingFeed as jest.Mock).mock.calls.length).toBeGreaterThanOrEqual(1);
   });
