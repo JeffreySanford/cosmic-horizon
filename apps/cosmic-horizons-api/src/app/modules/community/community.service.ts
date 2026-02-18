@@ -17,10 +17,44 @@ export class CommunityService {
   ) {}
 
   // NOTE: when DB is available we persist discoveries; fallback to in-memory for tests/dev.
-  // Seed persisted examples if repo is available synchronously (best-effort).
+  // Seed persisted examples when running in dev/start:all so the UI has sample data.
   async onModuleInit(): Promise<void> {
     try {
-      // no-op seed when DB not initialized yet; leaving for manual migration/seed later
+      // Only seed in development to avoid accidental production writes
+      if (process.env.NODE_ENV === 'production') return;
+
+      const existing = await this.discoveryRepo.count();
+      if (existing > 0) return; // already seeded
+
+      const seeds: Discovery[] = [
+        this.discoveryRepo.create({
+          id: generateUUID(),
+          title: 'Welcome to Community Discoveries',
+          body: 'This is a seeded announcement for the Community Discoveries prototype.',
+          author: 'system',
+          tags: ['prototype', 'welcome'],
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
+        }),
+        this.discoveryRepo.create({
+          id: generateUUID(),
+          title: 'Symposium 2026 — abstract deadline',
+          body: 'Reminder: Symposium 2026 abstract deadline is April 1, 2026. Submit your abstracts to the planning committee.',
+          author: 'announcements',
+          tags: ['symposium', 'deadline'],
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1),
+        }),
+        this.discoveryRepo.create({
+          id: generateUUID(),
+          title: 'New: Community Feed is live (prototype)',
+          body: 'Try posting short discoveries from the Community page. Entries are persisted in the DB and emit notification events for UI toasts.',
+          author: 'system',
+          tags: ['feature', 'prototype'],
+          created_at: new Date(),
+        }),
+      ];
+
+      await this.discoveryRepo.save(seeds);
+      this.logger.log('Seeded Community Discoveries (development)');
     } catch (err) {
       this.logger.debug('Skipping DB seed for CommunityDiscoveries (DB not ready)');
     }
