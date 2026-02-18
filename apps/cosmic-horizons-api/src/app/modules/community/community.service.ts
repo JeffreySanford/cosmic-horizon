@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DiscoveryEvent } from './discovery.entity';
 import { CreateDiscoveryDto } from './dto/create-discovery.dto';
-import { v4 as uuidv4 } from 'uuid';
+import { generateEventId } from '@cosmic-horizons/event-models';
 
 @Injectable()
 export class CommunityService {
@@ -12,7 +12,7 @@ export class CommunityService {
     // seed a couple of lightweight prototype discoveries
     this.inMemoryFeed.push(
       {
-        id: uuidv4(),
+        id: generateEventId(),
         title: 'Welcome to Community Discoveries (prototype)',
         body: 'This is a lightweight prototype: in-memory store, no persistence yet.',
         author: 'system',
@@ -20,7 +20,7 @@ export class CommunityService {
         createdAt: new Date().toISOString(),
       },
       {
-        id: uuidv4(),
+        id: generateEventId(),
         title: 'Try posting a discovery',
         body: "POST /api/community/posts will create a new discovery — visible in the feed and by toast.",
         author: 'system',
@@ -37,7 +37,7 @@ export class CommunityService {
 
   async createDiscovery(dto: CreateDiscoveryDto): Promise<DiscoveryEvent> {
     const item: DiscoveryEvent = {
-      id: uuidv4(),
+      id: generateEventId(),
       title: dto.title,
       body: dto.body,
       author: dto.author ?? 'anonymous',
