@@ -5,7 +5,7 @@ import { CommunityFeedComponent } from './community-feed.component';
 const routes: Routes = [
   {
     path: '',
-    component: CommunityFeedViewComponent,
+    component: CommunityFeedComponent,
   },
 ];
 

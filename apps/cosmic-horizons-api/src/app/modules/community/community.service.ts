@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiscoveryEvent } from './discovery.entity';
 import { CreateDiscoveryDto } from './dto/create-discovery.dto';
-import { Discovery } from '../../../entities/discovery.entity';
-import { EventsService } from '../../events/events.service';
+import { Discovery } from '../../entities/discovery.entity';
+import { EventsService } from '../events/events.service';
 import { createEventBase, generateUUID } from '@cosmic-horizons/event-models';
 
 @Injectable()
