@@ -36,7 +36,7 @@ describe('CommunityService (DB-backed)', () => {
 
   it('returns feed from repository', async () => {
     const feed = await service.getFeed();
-    expect(Array.isArray(feed)).toBeTrue();
+    expect(Array.isArray(feed)).toBe(true);
     expect(feed.length).toBeGreaterThan(0);
     expect(repoMock.find).toHaveBeenCalled();
   });

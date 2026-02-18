@@ -23,7 +23,7 @@ describe('CommunityController (prototype)', () => {
 
   it('returns feed via GET /feed', async () => {
     const feed = await controller.getFeed();
-    expect(Array.isArray(feed)).toBeTrue();
+    expect(Array.isArray(feed)).toBe(true);
     expect(feed.length).toBeGreaterThan(0);
   });
 
