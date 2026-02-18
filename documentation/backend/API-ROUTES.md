@@ -202,6 +202,25 @@ Cancel running job.
 - **Auth**: Required (owner or admin)
 - **Response**: `{ message: "Job cancelled" }`
 
+### Community Discoveries
+
+#### GET /community/feed
+
+Get recent community discoveries (prototype persisted in dev).
+
+- **Query**: `limit` (optional, default: 25)
+- **Response**: `200` - array of discovery events: `{ id, title, body?, author, tags?, createdAt }`
+- **Notes**: In development the DB is seeded with example discoveries on `start:all`.
+
+#### POST /community/posts
+
+Create a new discovery (prototype — unauthenticated in dev).
+
+- **Body**: `{ title, body?, author?, tags? }`
+- **Response**: `201` - created discovery object
+- **Side-effect**: publishes a notification event `community.discovery.created` via the EventsModule (RabbitMQ `websocket-broadcast`).
+- **Security**: Currently allows unauthenticated posts in prototype mode; production will enable moderation and auth gating.
+
 ### Ephemeris & Astronomy
 
 #### POST /ephemeris/position

@@ -40,6 +40,7 @@ Cosmic Horizon MVP is a three-pillar Angular + NestJS product:
   - Supports Mars, Venus, Sun, Moon with astronomy-engine backend
   - Redis caching (24h TTL) for performance
   - RA/Dec coordinates with accuracy metrics
+- **Community Discoveries (prototype)**: persisted `Community Feed` (Postgres + TypeORM), seeded dev data, `community.discovery.created` notification events, and unit + e2e tests (backend + RabbitMQ notification assertion).
 
 **v1.2 Additions (In Progress)**:
 

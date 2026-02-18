@@ -132,6 +132,12 @@
     "sourcePath": "documentation/governance/SOURCE-OF-TRUTH.md"
   },
   {
+    "id": "documentation--guides--community-discoveries",
+    "label": "COMMUNITY DISCOVERIES",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/COMMUNITY-DISCOVERIES.md"
+  },
+  {
     "id": "documentation--guides--testing-guide",
     "label": "TESTING GUIDE",
     "section": "Guides",
@@ -262,6 +268,12 @@
     "label": "ENV REFERENCE",
     "section": "Reference",
     "sourcePath": "documentation/reference/ENV-REFERENCE.md"
+  },
+  {
+    "id": "documentation--release-notes--v1-1-0",
+    "label": "V1.1.0",
+    "section": "Release Notes",
+    "sourcePath": "documentation/release-notes/v1.1.0.md"
   },
   {
     "id": "documentation--setup--environment-config",

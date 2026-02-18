@@ -1,0 +1,23 @@
+<div class="community-moderation-root">
+  <mat-card>
+    <mat-card-title>Community Moderation (admin prototype)</mat-card-title>
+    <mat-card-content>
+      <div *ngIf="loading">Loading pending posts…</div>
+      <mat-list *ngIf="!loading && pending.length">
+        <mat-list-item *ngFor="let item of pending">
+          <div class="item-content">
+            <strong>{{ item.title }}</strong>
+            <p class="meta">{{ item.author || 'anonymous' }} — {{ item.createdAt | date:'short' }}</p>
+            <p class="body">{{ item.body }}</p>
+          </div>
+          <div class="actions">
+            <button mat-mini-button color="primary" (click)="approve(item)">Approve</button>
+            <button mat-mini-button color="warn" (click)="hide(item)">Hide</button>
+          </div>
+        </mat-list-item>
+      </mat-list>
+
+      <div *ngIf="!loading && pending.length === 0">No pending posts.</div>
+    </mat-card-content>
+  </mat-card>
+</div>

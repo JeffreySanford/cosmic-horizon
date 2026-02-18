@@ -48,11 +48,16 @@ Canonical scope:
 - [ ] Triage and patch the moderate GitHub dependence vulnerability reported by Dependabot (see repo Security alerts) — **DEFERRED TO UPSTREAM (ajv / Angular)**.
 
 - [x] MVP prototype: Community Discoveries — lightweight in-app feed + post composer (in-memory prototype)
-  - Backend: `DiscoveryEvent` model + endpoints `GET /api/community/feed`, `POST /api/community/posts` (in-memory, no persistence yet) — `apps/cosmic-horizons-api/src/app/modules/community`
-  - Frontend: `CommunityFeed` page + `CommunityApiService` — `apps/cosmic-horizons-web/src/app/features/community`
-  - Security: prototype allows unauthenticated posts (production will add moderation + opt-in)
-  - Tests: unit tests added for API + frontend component
-  - Next: wire EventsModule publish, add persistence, add moderation + feature flag
+  - Backend: `Discovery` entity + endpoints `GET /api/community/feed`, `POST /api/community/posts` — now persisted with TypeORM and seeded on dev start (`apps/cosmic-horizons-api/src/app/entities/discovery.entity.ts`, migration: `src/migrations/20260217CreateDiscoveriesTable.ts`).
+  - Events: publishes `community.discovery.created` notifications (RabbitMQ `websocket-broadcast`) on create.
+  - Frontend: `CommunityFeed` page + `CommunityApiService` consumption updated to use persisted API — `apps/cosmic-horizons-web/src/app/features/community`.
+  - Tests: Added unit tests and e2e tests (API + RabbitMQ notification assertion); CI green for related suites.
+  - Completed dev tasks: reverted raw-query fallback to TypeORM.find, removed debug logs, added unit & e2e coverage, seeded DB on start:all.
+  - Next (open):
+    - [ ] Moderation & auth gating for production posts (feature flag + admin UI)
+    - [ ] Frontend toast acceptance tests (Playwright)
+    - [ ] UX polish and accessibility review for composer and feed
+    - [ ] Release-note / changelog entry for v1.1.0 (include Community Discoveries persistence + events)
 
 - [ ] Prepare release candidate / changelog for v1.1.0 (include test stabilization & event infra notes).
 

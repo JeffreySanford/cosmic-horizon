@@ -54,7 +54,9 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 - Markdown-based post publishing
 - Revision history and branching
 - Community moderation (hide/lock)
-- Community Discoveries (MVP): lightweight in‑app toasts + persistent `Community Feed` for short discovery posts (tags, links, minimal comments). Reuse EventsModule for realtime push; opt-in posting + moderation. **Status**: Proposed (MVP).
+- Community Discoveries (MVP): lightweight in‑app toasts + persistent `Community Feed` for short discovery posts (tags, links, minimal comments). Reuse EventsModule for realtime push; opt-in posting + moderation. **Status**: Completed (DB-backed prototype — seeded + notification events + unit/e2e tests).  
+  - Completed work: TypeORM `Discovery` entity, migration + seeds, `GET /api/community/feed`, `POST /api/community/posts`, `community.discovery.created` notification, unit + e2e coverage.  
+  - Remaining: moderation/feature-flagging, auth gating for production, UI toast polish.
 
 **MVP Explicitly NOT In Scope**:
 

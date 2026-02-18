@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { Client } from 'pg';
 
 describe('cosmic-horizons-api e2e', () => {
   async function registerUser(
@@ -12,6 +13,31 @@ describe('cosmic-horizons-api e2e', () => {
       password,
     });
     return response.data as { access_token: string; user: { id: string } };
+  }
+
+  async function fetchAuditLog(entityId: string, action: string) {
+    const client = new Client({
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT || 15432),
+      user: process.env.DB_USER || 'cosmic_horizons_user',
+      password: process.env.DB_PASSWORD || 'cosmic_horizons_password_dev',
+      database: process.env.DB_NAME || 'cosmic_horizons',
+    });
+
+    await client.connect();
+    try {
+      const res = await client.query(
+        `SELECT id, user_id, action, entity_type, entity_id, changes, created_at
+         FROM audit_logs
+         WHERE entity_id = $1 AND action = $2
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [entityId, action],
+      );
+      return res.rows[0] ?? null;
+    } finally {
+      await client.end();
+    }
   }
 
   it('GET /api returns API banner', async () => {
@@ -316,6 +342,96 @@ describe('cosmic-horizons-api e2e', () => {
       const unhideResponse = await axios.post(`/api/posts/${postId}/unhide`, {}, { headers: authHeader });
       expect(unhideResponse.status).toBe(201);
       expect(unhideResponse.data.hidden_at).toBeNull();
+    });
+
+    describe('community moderation (RBAC) - e2e', () => {
+      it('PATCH /api/community/posts/:id/approve requires moderator/admin (401/403/200)', async () => {
+        const payload = { title: `e2e-moderation-approve-${Date.now()}`, body: 'E2E approval test', author: 'e2e' };
+        const createRes = await axios.post('/api/community/posts?forceHidden=true', payload);
+        expect(createRes.status).toBe(201);
+        const created = createRes.data;
+
+        // unauthenticated -> 401
+        try {
+          await axios.patch(`/api/community/posts/${created.id}/approve`);
+          throw new Error('Expected unauthenticated approve to fail');
+        } catch (err) {
+          const axiosErr = err as AxiosError;
+          expect(axiosErr.response?.status).toBe(401);
+        }
+
+        // authenticated normal user -> 403
+        const userLogin = await axios.post('/api/auth/login', { email: 'test@cosmic.local', password: 'Password123!' });
+        expect(userLogin.status).toBe(201);
+        const userToken = userLogin.data.access_token as string;
+
+        try {
+          await axios.patch(`/api/community/posts/${created.id}/approve`, {}, { headers: { Authorization: `Bearer ${userToken}` } });
+          throw new Error('Expected user approve to fail with 403');
+        } catch (err) {
+          const axiosErr = err as AxiosError;
+          expect(axiosErr.response?.status).toBe(403);
+        }
+
+        // admin -> 200
+        const adminLogin = await axios.post('/api/auth/login', { email: 'admin@cosmic.local', password: 'AdminPassword123!' });
+        expect(adminLogin.status).toBe(201);
+        const adminToken = adminLogin.data.access_token as string;
+
+        const approveRes = await axios.patch(`/api/community/posts/${created.id}/approve`, {}, { headers: { Authorization: `Bearer ${adminToken}` } });
+        expect(approveRes.status).toBe(200);
+        expect(approveRes.data).toHaveProperty('ok', true);
+
+        // verify audit log row was written (best-effort e2e assertion)
+        const audit = await fetchAuditLog(created.id, 'unhide');
+        expect(audit).not.toBeNull();
+        expect(audit?.entity_id).toBe(created.id);
+        expect(audit?.action).toBe('unhide');
+      });
+
+      it('PATCH /api/community/posts/:id/hide requires moderator/admin (401/403/200)', async () => {
+        const payload = { title: `e2e-moderation-hide-${Date.now()}`, body: 'E2E hide test', author: 'e2e' };
+        const createRes = await axios.post('/api/community/posts', payload);
+        expect(createRes.status).toBe(201);
+        const created = createRes.data;
+
+        // unauthenticated -> 401
+        try {
+          await axios.patch(`/api/community/posts/${created.id}/hide`);
+          throw new Error('Expected unauthenticated hide to fail');
+        } catch (err) {
+          const axiosErr = err as AxiosError;
+          expect(axiosErr.response?.status).toBe(401);
+        }
+
+        // authenticated normal user -> 403
+        const userLogin = await axios.post('/api/auth/login', { email: 'test@cosmic.local', password: 'Password123!' });
+        expect(userLogin.status).toBe(201);
+        const userToken = userLogin.data.access_token as string;
+
+        try {
+          await axios.patch(`/api/community/posts/${created.id}/hide`, {}, { headers: { Authorization: `Bearer ${userToken}` } });
+          throw new Error('Expected user hide to fail with 403');
+        } catch (err) {
+          const axiosErr = err as AxiosError;
+          expect(axiosErr.response?.status).toBe(403);
+        }
+
+        // admin -> 200
+        const adminLogin = await axios.post('/api/auth/login', { email: 'admin@cosmic.local', password: 'AdminPassword123!' });
+        expect(adminLogin.status).toBe(201);
+        const adminToken = adminLogin.data.access_token as string;
+
+        const hideRes = await axios.patch(`/api/community/posts/${created.id}/hide`, {}, { headers: { Authorization: `Bearer ${adminToken}` } });
+        expect(hideRes.status).toBe(200);
+        expect(hideRes.data).toHaveProperty('ok', true);
+
+        // verify audit log row was written (best-effort e2e assertion)
+        const audit = await fetchAuditLog(created.id, 'hide');
+        expect(audit).not.toBeNull();
+        expect(audit?.entity_id).toBe(created.id);
+        expect(audit?.action).toBe('hide');
+      });
     });
   });
 });

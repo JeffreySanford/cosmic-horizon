@@ -7,4 +7,5 @@ export { Snapshot } from './snapshot.entity';
 export { ViewerState } from './viewer-state.entity';
 export { ViewerSnapshot } from './viewer-snapshot.entity';
 export { AuditLog, AuditAction, AuditEntityType } from './audit-log.entity';
+export { Discovery } from './discovery.entity';
 export { CosmicTileCache } from './cosmic-tile-cache.entity';

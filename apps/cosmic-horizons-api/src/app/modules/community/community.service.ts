@@ -1,10 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiscoveryEvent } from './discovery.entity';
 import { CreateDiscoveryDto } from './dto/create-discovery.dto';
 import { Discovery } from '../../entities/discovery.entity';
 import { EventsService } from '../events/events.service';
+import { AuditLogRepository } from '../../repositories/audit-log.repository';
+import { UserRepository } from '../../repositories';
+import { AuditAction, AuditEntityType } from '../../entities/audit-log.entity';
 import { createEventBase, generateUUID } from '@cosmic-horizons/event-models';
 
 @Injectable()
@@ -14,7 +17,27 @@ export class CommunityService {
   constructor(
     @InjectRepository(Discovery) private readonly discoveryRepo: Repository<Discovery>,
     private readonly eventsService: EventsService,
+    private readonly auditLogRepository: AuditLogRepository,
+    private readonly userRepository: UserRepository,
   ) {}
+
+  /**
+   * Service-level authorization check for moderation actions.
+   * - If no actorUserId is supplied we *do not* enforce (preserve existing callers).
+   * - If actorUserId is supplied, user must exist and be `admin` or `moderator`.
+   */
+  private async assertCanModerate(actorUserId?: string | null): Promise<void> {
+    if (!actorUserId) return; // allow internal/system callers that don't pass a user id
+
+    const actor = await this.userRepository.findById(actorUserId);
+    if (!actor) {
+      throw new ForbiddenException('Acting user not found');
+    }
+
+    if (actor.role !== 'admin' && actor.role !== 'moderator') {
+      throw new ForbiddenException('Insufficient permissions');
+    }
+  }
 
   // NOTE: when DB is available we persist discoveries; fallback to in-memory for tests/dev.
   // Seed persisted examples when running in dev/start:all so the UI has sample data.
@@ -83,6 +106,55 @@ export class CommunityService {
     }
   }
 
+  async getPendingFeed(limit = 25): Promise<DiscoveryEvent[]> {
+    try {
+      const rows = await this.discoveryRepo.find({
+        where: { hidden: true },
+        order: { created_at: 'DESC' },
+        take: limit,
+      });
+
+      return rows.map((r: any) => ({
+        id: r.id,
+        title: r.title,
+        body: r.body ?? undefined,
+        author: r.author,
+        tags: r.tags ?? undefined,
+        createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : new Date(r.created_at).toISOString(),
+      }));
+    } catch (err) {
+      this.logger.error('CommunityService.getPendingFeed failed', err as Error);
+      return [];
+    }
+  }
+
+  async hideDiscovery(id: string, actorUserId?: string | null): Promise<boolean> {
+    const found = await this.discoveryRepo.findOne({ where: { id } });
+    if (!found) return false;
+
+    // Service-level authorization (defense-in-depth). Only enforced when an actor id is supplied.
+    await this.assertCanModerate(actorUserId);
+
+    const before = { hidden: found.hidden };
+    found.hidden = true;
+    const saved = await this.discoveryRepo.save(found);
+
+    // audit trail (best-effort)
+    try {
+      await this.auditLogRepository.createAuditLog({
+        user_id: actorUserId ?? null,
+        action: AuditAction.HIDE,
+        entity_type: AuditEntityType.POST,
+        entity_id: saved.id,
+        changes: { before, after: { hidden: saved.hidden } },
+      });
+    } catch (err) {
+      this.logger.warn('Failed to write audit log for hideDiscovery (continuing)');
+    }
+
+    return true;
+  }
+
   async createDiscovery(dto: CreateDiscoveryDto, options?: { forceHidden?: boolean, autoApprove?: boolean }): Promise<DiscoveryEvent> {
     const moderationEnabled = process.env.FEATURE_COMMUNITY_MODERATION === 'true';
     const forceHidden = options?.forceHidden === true;
@@ -128,9 +200,12 @@ export class CommunityService {
     };
   }
 
-  async approveDiscovery(id: string): Promise<DiscoveryEvent | null> {
+  async approveDiscovery(id: string, actorUserId?: string | null): Promise<DiscoveryEvent | null> {
     const found = await this.discoveryRepo.findOne({ where: { id } });
     if (!found) return null;
+
+    // Service-level authorization (defense-in-depth). Only enforced when an actor id is supplied.
+    await this.assertCanModerate(actorUserId);
 
     if (!found.hidden) {
       return {
@@ -143,6 +218,7 @@ export class CommunityService {
       };
     }
 
+    const before = { hidden: found.hidden };
     found.hidden = false;
     const saved = await this.discoveryRepo.save(found);
 
@@ -157,6 +233,19 @@ export class CommunityService {
       await this.eventsService.publishNotification(event);
     } catch (err) {
       this.logger.warn('Failed to publish discovery.created notification after approve (continuing)');
+    }
+
+    // audit trail (best-effort)
+    try {
+      await this.auditLogRepository.createAuditLog({
+        user_id: actorUserId ?? null,
+        action: AuditAction.UNHIDE,
+        entity_type: AuditEntityType.POST,
+        entity_id: saved.id,
+        changes: { before, after: { hidden: saved.hidden } },
+      });
+    } catch (err) {
+      this.logger.warn('Failed to write audit log for approveDiscovery (continuing)');
     }
 
     return {

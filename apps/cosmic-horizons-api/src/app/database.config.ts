@@ -65,6 +65,7 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
     ViewerState,
     ViewerSnapshot,
     AuditLog,
+    Discovery,
     CosmicTileCache,
   ],
   synchronize: false,

@@ -4,9 +4,10 @@ import { CommunityService } from './community.service';
 import { CommunityController } from './community.controller';
 import { Discovery } from '../../entities/discovery.entity';
 import { EventsModule } from '../events/events.module';
+import { DatabaseModule } from '../../database.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Discovery]), EventsModule],
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Discovery]), EventsModule],
   controllers: [CommunityController],
   providers: [CommunityService],
   exports: [CommunityService],
