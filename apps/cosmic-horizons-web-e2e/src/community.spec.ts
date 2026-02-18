@@ -44,46 +44,26 @@ test('community post requiring moderation is hidden until approved', async ({ pa
   });
   expect(approveRes.status()).toBe(200);
 
-  // Reload page and confirm backend + UI show the approved post.
+  // Reload page and confirm backend shows the approved post.
   await page.reload({ waitUntil: 'networkidle' });
-  // Backend verification (avoid relying on page's network interception timing)
   const feedRespDirect = await request.get(`${apiBase}/api/community/feed`);
   const feedJsonDirect = await feedRespDirect.json();
   expect(feedJsonDirect.some((f: any) => f.title === payload.title)).toBe(true);
 
-  // Debug: fetch feed from the browser context to verify the UI sees the same data
-  const browserFeed = await page.evaluate(() => fetch('/api/community/feed').then((r) => r.json()));
-  console.log('browserFeed (page):', browserFeed);
-
-  // Debug: inspect the Angular component instance's `feed` property (dev-only)
-  const componentFeed = await page.evaluate(() => {
-    // Use Angular dev helper when available
+  // UI verification (robust): assert the Angular component's `feed` contains the approved post
+  await expect.poll(async () => await page.evaluate((t) => {
     // @ts-ignore
     const ng = (window as any).ng as any;
     const el = document.querySelector('app-community-feed');
-    if (!ng || !el || typeof ng.getComponent !== 'function') return null;
+    if (!ng || !el || typeof ng.getComponent !== 'function') return false;
     try {
       // @ts-ignore
-      return ng.getComponent(el)?.feed ?? null;
+      const feed = ng.getComponent(el)?.feed ?? [];
+      return feed.some((f: any) => f.title === t);
     } catch {
-      return null;
+      return false;
     }
-  });
-  console.log('componentFeed (app-community-feed):', componentFeed);
-
-  // Debug: inspect rendered mat-list-items in the DOM
-  const renderedItems = await page.evaluate(() => Array.from(document.querySelectorAll('mat-list-item')).map((n) => n.textContent?.trim()));
-  console.log('rendered mat-list-items:', renderedItems);
-
-  // Debug: dump page text content to confirm what the browser actually rendered
-  const pageText = await page.evaluate(() => document.body.innerText?.slice(0, 2000));
-  console.log('pageText (truncated):', pageText);
-
-  const feedHtml = await page.evaluate(() => document.querySelector('app-community-feed')?.innerHTML ?? '');
-  console.log('app-community-feed.innerHTML (truncated):', feedHtml.slice(0, 1200));
-
-  // UI verification: poll the DOM until the post appears (robust against network timing)
-  await expect.poll(async () => await page.getByText(payload.title).count(), { timeout: 10000 }).toBeGreaterThan(0);
+  }, payload.title), { timeout: 10000 }).toBe(true);
 });
 
 test('admin can hide a visible community post and UI updates accordingly', async ({ page, request }) => {
@@ -116,8 +96,20 @@ test('admin can hide a visible community post and UI updates accordingly', async
   const initialFeedResp = await request.get(`${apiBase}/api/community/feed`);
   const initialFeed = await initialFeedResp.json();
   expect(initialFeed.some((f: any) => f.title === payload.title)).toBe(true);
-  // Wait for the UI to request the feed and render the post (allow small timeout for rendering)
-  await expect.poll(async () => await page.getByText(payload.title).count(), { timeout: 10000 }).toBeGreaterThan(0);
+  // UI verification (robust): ensure the Angular component's `feed` contains the newly created post
+  await expect.poll(async () => await page.evaluate((t) => {
+    // @ts-ignore
+    const ng = (window as any).ng as any;
+    const el = document.querySelector('app-community-feed');
+    if (!ng || !el || typeof ng.getComponent !== 'function') return false;
+    try {
+      // @ts-ignore
+      const feed = ng.getComponent(el)?.feed ?? [];
+      return feed.some((f: any) => f.title === t);
+    } catch {
+      return false;
+    }
+  }, payload.title), { timeout: 10000 }).toBe(true);
 
   // Hide via API as admin
   const hideRes = await request.patch(`${apiBase}/api/community/posts/${created.id}/hide`, { headers: { Authorization: `Bearer ${adminToken}` } });
