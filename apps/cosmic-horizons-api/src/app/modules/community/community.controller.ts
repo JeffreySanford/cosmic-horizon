@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Body, Controller, Get, Post, Patch, Param, Query, HttpCode, HttpStatus, Logger } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CommunityService } from './community.service';
 import { CreateDiscoveryDto } from './dto/create-discovery.dto';
@@ -24,11 +24,28 @@ export class CommunityController {
 
   @Post('posts')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a discovery (prototype, no moderation yet)' })
+  @ApiOperation({ summary: 'Create a discovery (prototype, supports dev-only moderation flags)' })
   @ApiResponse({ status: 201, description: 'Discovery created' })
-  async createPost(@Body() payload: CreateDiscoveryDto) {
-    const created = await this.communityService.createDiscovery(payload);
-    // TODO: publish an event via EventsModule (prototype uses in-memory feed)
+  async createPost(
+    @Body() payload: CreateDiscoveryDto,
+    @Query('forceHidden') forceHidden?: string,
+    @Query('autoApprove') autoApprove?: string,
+  ) {
+    const opts = {
+      forceHidden: forceHidden === 'true',
+      autoApprove: autoApprove === 'true',
+    };
+
+    const created = await this.communityService.createDiscovery(payload, opts);
     return created;
+  }
+
+  @Patch('posts/:id/approve')
+  @ApiOperation({ summary: 'Approve a discovery (dev/admin action)' })
+  @ApiResponse({ status: 200, description: 'Discovery approved and published' })
+  async approvePost(@Param('id') id: string) {
+    const approved = await this.communityService.approveDiscovery(id);
+    if (!approved) return { ok: false, message: 'Not found' };
+    return { ok: true, discovery: approved };
   }
 }

@@ -63,6 +63,7 @@ export class CommunityService {
   async getFeed(limit = 25): Promise<DiscoveryEvent[]> {
     try {
       const rows = await this.discoveryRepo.find({
+        where: { hidden: false },
         order: { created_at: 'DESC' },
         take: limit,
       });
@@ -82,7 +83,13 @@ export class CommunityService {
     }
   }
 
-  async createDiscovery(dto: CreateDiscoveryDto): Promise<DiscoveryEvent> {
+  async createDiscovery(dto: CreateDiscoveryDto, options?: { forceHidden?: boolean, autoApprove?: boolean }): Promise<DiscoveryEvent> {
+    const moderationEnabled = process.env.FEATURE_COMMUNITY_MODERATION === 'true';
+    const forceHidden = options?.forceHidden === true;
+    const autoApprove = options?.autoApprove === true;
+
+    const isHidden = forceHidden || (moderationEnabled && !autoApprove);
+
     const entity: Discovery = this.discoveryRepo.create({
       id: generateUUID(),
       title: dto.title,
@@ -90,22 +97,25 @@ export class CommunityService {
       author: dto.author ?? 'anonymous',
       tags: dto.tags ?? null,
       created_at: new Date(),
+      hidden: isHidden,
     });
 
     const saved = await this.discoveryRepo.save(entity);
 
-    // publish a notification event so UI can show toasts / subscribers can react
-    const event = createEventBase(
-      'community.discovery.created',
-      saved.author || 'anonymous',
-      this.eventsService.createCorrelationId(),
-      { discovery_id: saved.id, title: saved.title, author: saved.author },
-    );
+    // publish a notification event only for immediately published discoveries
+    if (!saved.hidden) {
+      const event = createEventBase(
+        'community.discovery.created',
+        saved.author || 'anonymous',
+        this.eventsService.createCorrelationId(),
+        { discovery_id: saved.id, title: saved.title, author: saved.author },
+      );
 
-    try {
-      await this.eventsService.publishNotification(event);
-    } catch (err) {
-      this.logger.warn('Failed to publish discovery.created notification (continuing)');
+      try {
+        await this.eventsService.publishNotification(event);
+      } catch (err) {
+        this.logger.warn('Failed to publish discovery.created notification (continuing)');
+      }
     }
 
     return {
@@ -117,4 +127,46 @@ export class CommunityService {
       createdAt: saved.created_at instanceof Date ? saved.created_at.toISOString() : new Date(saved.created_at).toISOString(),
     };
   }
+
+  async approveDiscovery(id: string): Promise<DiscoveryEvent | null> {
+    const found = await this.discoveryRepo.findOne({ where: { id } });
+    if (!found) return null;
+
+    if (!found.hidden) {
+      return {
+        id: found.id,
+        title: found.title,
+        body: found.body ?? undefined,
+        author: found.author,
+        tags: found.tags ?? undefined,
+        createdAt: found.created_at instanceof Date ? found.created_at.toISOString() : new Date(found.created_at).toISOString(),
+      };
+    }
+
+    found.hidden = false;
+    const saved = await this.discoveryRepo.save(found);
+
+    const event = createEventBase(
+      'community.discovery.created',
+      saved.author || 'anonymous',
+      this.eventsService.createCorrelationId(),
+      { discovery_id: saved.id, title: saved.title, author: saved.author },
+    );
+
+    try {
+      await this.eventsService.publishNotification(event);
+    } catch (err) {
+      this.logger.warn('Failed to publish discovery.created notification after approve (continuing)');
+    }
+
+    return {
+      id: saved.id,
+      title: saved.title,
+      body: saved.body ?? undefined,
+      author: saved.author,
+      tags: saved.tags ?? undefined,
+      createdAt: saved.created_at instanceof Date ? saved.created_at.toISOString() : new Date(saved.created_at).toISOString(),
+    };
+  }
+
 }

@@ -19,4 +19,7 @@ export class Discovery {
 
   @Column({ type: 'timestamp' })
   created_at!: Date;
+
+  @Column({ type: 'boolean', default: false })
+  hidden!: boolean;
 }

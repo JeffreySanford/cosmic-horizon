@@ -78,4 +78,31 @@ describe('Community Discoveries e2e', () => {
       await conn.close();
     }
   }, 15000);
+
+  it('supports moderation: hidden posts are not in feed until approved', async () => {
+    const nonce = Date.now();
+    const payload = {
+      title: `e2e-moderation-${nonce}`,
+      body: 'Moderation test discovery',
+      author: 'e2e-test',
+      tags: ['e2e', 'mod'],
+    };
+
+    // Create a post and force it to be hidden (dev/test support)
+    const createRes = await axios.post('/api/community/posts?forceHidden=true', payload);
+    expect(createRes.status).toBe(201);
+    const createdId = createRes.data.id;
+
+    const feedRes = await axios.get('/api/community/feed');
+    const foundHidden = (feedRes.data as any[]).some((r) => r.id === createdId);
+    expect(foundHidden).toBe(false);
+
+    // Approve via API
+    const approveRes = await axios.patch(`/api/community/posts/${createdId}/approve`);
+    expect(approveRes.status).toBe(200);
+
+    const feedResAfter = await axios.get('/api/community/feed');
+    const foundAfter = (feedResAfter.data as any[]).some((r) => r.id === createdId && r.title === payload.title);
+    expect(foundAfter).toBe(true);
+  }, 15000);
 });

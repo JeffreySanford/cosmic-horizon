@@ -41,18 +41,29 @@ describe('CommunityService (DB-backed)', () => {
     expect(repoMock.find).toHaveBeenCalled();
   });
 
-  it('uses TypeORM find ordering and maps created_at to createdAt', async () => {
+  it('uses TypeORM find ordering and maps created_at to createdAt (only visible items)', async () => {
     const feed = await service.getFeed(10);
-    expect(repoMock.find).toHaveBeenCalledWith({ order: { created_at: 'DESC' }, take: 10 });
+    expect(repoMock.find).toHaveBeenCalledWith({ where: { hidden: false }, order: { created_at: 'DESC' }, take: 10 });
     expect(feed[0]).toHaveProperty('createdAt');
     expect(typeof feed[0].createdAt).toBe('string');
     expect(new Date(feed[0].createdAt).toISOString()).toBe(feed[0].createdAt as string);
   });
 
-  it('creates a discovery and persists + publishes event', async () => {
-    const created = await service.createDiscovery({ title: 'hello', body: 'world' } as any);
+  it('creates a discovery (hidden when forceHidden) and does not publish notification immediately', async () => {
+    const created = await service.createDiscovery({ title: 'hello', body: 'world' } as any, { forceHidden: true });
     expect(created).toHaveProperty('id');
     expect(repoMock.save).toHaveBeenCalled();
-    expect((eventsMock.publishNotification as jest.Mock).mock.calls.length).toBeGreaterThanOrEqual(1);
+    // Since it's hidden, publishNotification should NOT be called
+    expect((eventsMock.publishNotification as jest.Mock).mock.calls.length).toBe(0);
+  });
+
+  it('approves a hidden discovery and publishes notification', async () => {
+    const saved = await service.createDiscovery({ title: 'to-approve', body: 'x' } as any, { forceHidden: true });
+    // Simulate DB find returning an entity that is hidden
+    (repoMock.find as jest.Mock).mockResolvedValueOnce([{ id: 'seed-1', title: 'seed', body: 'b', author: 'system', tags: ['x'], created_at: new Date(), hidden: true }]);
+
+    // Approve (service method will call publishNotification)
+    const approved = await service.approveDiscovery('seed-1');
+    expect(approved).not.toBeNull();
   });
 });
