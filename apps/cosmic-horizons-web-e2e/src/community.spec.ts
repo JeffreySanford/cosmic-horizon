@@ -117,9 +117,27 @@ test('admin can hide a visible community post and UI updates accordingly', async
 
   // After hiding, confirm backend feed no longer includes the post and UI updates
   await page.reload({ waitUntil: 'networkidle' });
-  const afterFeedResp = await page.waitForResponse((r) => r.url().endsWith('/api/community/feed') && r.request().method() === 'GET');
+  // backend verification (direct request is deterministic)
+  const afterFeedResp = await request.get(`${apiBase}/api/community/feed`);
   const afterFeed = await afterFeedResp.json();
   expect(afterFeed.some((f: any) => f.title === payload.title)).toBe(false);
+
+  // UI verification: read component `feed` directly (robust against network/view timing)
+  await expect.poll(async () => await page.evaluate((t) => {
+    // @ts-ignore
+    const ng = (window as any).ng as any;
+    const el = document.querySelector('app-community-feed');
+    if (!ng || !el || typeof ng.getComponent !== 'function') return false;
+    try {
+      // @ts-ignore
+      const feed = ng.getComponent(el)?.feed ?? [];
+      return !feed.some((f: any) => f.title === t);
+    } catch {
+      return false;
+    }
+  }, payload.title), { timeout: 10000 }).toBe(true);
+
+  // finally assert DOM doesn't show the post
   await expect(page.getByText(payload.title)).toHaveCount(0);
 });
 
