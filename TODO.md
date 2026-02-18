@@ -2,7 +2,7 @@
 
 Status date: 2026-02-17 (Updated)
 
-**📋 REFERENCE**: See [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md) for detailed Phase 3 (Event Infrastructure) and Phase 4 (NRAO Integration) roadmap with:
+**📋 REFERENCE**: Sprint/phase planning has been consolidated — see `ROADMAP.md` for the high-level roadmap and this `TODO.md` for actionable tasks. (Individual sprint/phase documents were removed.)
 
 - Complete sprint breakdown (5.1-7.4)
 - Success criteria and metrics
@@ -115,16 +115,13 @@ Canonical scope:
 - ✅ Topic definitions: All 5 topics defined (job-lifecycle, metrics, notifications, audit-trail, system-health)
 - ✅ Test infrastructure: KafkaEventBuilder (820 lines), MockPublisher, LatencyMeasurer
 - ✅ Type safety: 100% TypeScript validation (0 errors)
-- ✅ Documentation: [SPRINT-5-2-FINAL-DELIVERY.md](documentation/architecture/SPRINT-5-2-FINAL-DELIVERY.md)
+- ✅ Documentation: sprint/phase artifacts consolidated (see `TODO.md` and `documentation/architecture` for retained architecture-level documents).
 - ✅ Week 1 publishing integration implemented in `JobOrchestratorService`
 - ✅ Week 2 consumer services and consumer tests implemented
 
 **Documentation available**:
 
-- ✅ [SPRINT-5-3-WEEK-1-IMPLEMENTATION-GUIDE.md](documentation/architecture/SPRINT-5-3-WEEK-1-IMPLEMENTATION-GUIDE.md) - Daily breakdown with code examples
-- ✅ [SPRINT-5-3-WEEK-1-TEST-ADDITIONS.md](documentation/architecture/SPRINT-5-3-WEEK-1-TEST-ADDITIONS.md) - 20 test specifications
-- ✅ [SPRINT-5-3-WEEK-1-DAILY-CHECKLIST.md](documentation/architecture/SPRINT-5-3-WEEK-1-DAILY-CHECKLIST.md) - Task tracking
-- ✅ [SPRINT-5-3-WEEK-1-STATUS-SUMMARY.md](documentation/architecture/SPRINT-5-3-WEEK-1-STATUS-SUMMARY.md) - Executive summary
+- ✅ Sprint artifacts consolidated — see `TODO.md` for planning and `documentation/architecture` for retained architecture-level docs.
 
 **Week 1 Completed (Publishing)**:
 
@@ -206,7 +203,7 @@ Parallel effort to Sprint 6.1, enables Phase 4 architecture decision.
   - [x] Review benchmarks and create Pulsar evaluation findings
   - [x] Update [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) with Pulsar consolidation pathway
   - [x] Document Phase 4 integration plan (namespaces, topics, consumer migration path)
-  - [x] Create Phase 4 scope document: [PHASE-4-PULSAR-INTEGRATION.md](documentation/architecture/PHASE-4-PULSAR-INTEGRATION.md)
+  - [x] Create Phase 4 scope document: documented under `documentation/architecture/PULSAR-EVALUATION-RESULTS.md` and consolidated planning is in `TODO.md`.
   - [x] Plan resource allocation for Phase 4 (2-3 sprints estimated)
   - [x] Risk assessment (failover scenarios, operational complexity)
   - **Acceptance**: ADR complete, Phase 4 scope approved

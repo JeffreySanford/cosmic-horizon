@@ -148,7 +148,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 **Focus**: Real-time updates, multi-user coordination, scale infrastructure  
 **Status**: Sprint 5.1 ✅ Complete | Sprint 5.2 ✅ Complete (Feb 14, 2026) | Sprint 5.3 🟡 In Progress (Week 3 execution active)  
-**📋 Detailed Strategy**: [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md)
+**📋 Detailed Strategy**: Sprint/phase planning has been consolidated into `TODO.md` and `ROADMAP.md` (individual sprint/phase documents were removed).
 
 ### Architecture Framework ✅
 
@@ -268,7 +268,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
   - KafkaService exported from EventsModule
   - Ready for Sprint 5.2 test infrastructure
 
-- ✅ **Environment Configuration** ([SPRINT-5-2-ENVIRONMENT-CONFIG.md](documentation/architecture/SPRINT-5-2-ENVIRONMENT-CONFIG.md))
+- ✅ **Environment Configuration** (details consolidated — see `TODO.md` and `documentation/architecture` for retained docs).
   - Complete .env variables for Kafka configuration
   - Docker Compose setup with 3-broker Kafka + Zookeeper + Schema Registry
   - Health checks on all containers
@@ -293,7 +293,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
   - Statistics (5): metrics aggregation and reporting
 
 - ✅ **Complete Documentation**
-  - [SPRINT-5-2-FINAL-DELIVERY.md](documentation/architecture/SPRINT-5-2-FINAL-DELIVERY.md) - Full final report
+  - Documentation consolidated (sprint/phase artifacts removed; see `TODO.md` and `documentation/architecture` for retained architecture docs).
   - Architecture overview, integration points, deployment checklist
   - Performance targets and measurements
   - Ready for immediate Spring 5.3 integration
@@ -435,7 +435,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 3. **ADR & Phase 4 Planning** (Week 2)
    - Update [ADR-EVENT-STREAMING.md](documentation/architecture/ADR-EVENT-STREAMING.md) with Pulsar consolidation option
    - Document Phase 4 migration path: Kafka consumers → Pulsar, RabbitMQ topics → Pulsar
-   - Create [PHASE-4-PULSAR-INTEGRATION.md](documentation/architecture/PHASE-4-PULSAR-INTEGRATION.md) scope document
+   - Phase 4 scope documented under `documentation/architecture/PULSAR-EVALUATION-RESULTS.md` and consolidated planning is in `TODO.md`.
    - Risk assessment and rollback strategy
 
 ### Kafka's Role During Phase 3.5
@@ -494,7 +494,7 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 ## Phase 4: v2.0 - NRAO Ecosystem Integration - Q3-Q4 2026
 
 **Focus**: Integration readiness and collaboration pathways with NRAO/VLA  
-**Status**: Planning (Q4 2026) | Detailed in [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md)  
+**Status**: Planning (Q4 2026) | Detailed planning consolidated in `TODO.md` and `ROADMAP.md`.  
 **Duration**: 12 weeks (after Phase 3 complete and Phase 3.5 evaluation passes)
 
 ### Strategic Importance
