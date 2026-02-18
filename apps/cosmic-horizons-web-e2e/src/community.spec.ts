@@ -75,6 +75,10 @@ test('community post requiring moderation is hidden until approved', async ({ pa
   const renderedItems = await page.evaluate(() => Array.from(document.querySelectorAll('mat-list-item')).map((n) => n.textContent?.trim()));
   console.log('rendered mat-list-items:', renderedItems);
 
+  // Debug: dump page text content to confirm what the browser actually rendered
+  const pageText = await page.evaluate(() => document.body.innerText?.slice(0, 2000));
+  console.log('pageText (truncated):', pageText);
+
   // UI verification: poll the DOM until the post appears (robust against network timing)
   await expect.poll(async () => await page.getByText(payload.title).count(), { timeout: 10000 }).toBeGreaterThan(0);
 });
