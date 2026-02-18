@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommunityService } from './community.service';
 import { CommunityController } from './community.controller';
-import { Discovery } from '../../../entities/discovery.entity';
+import { Discovery } from '../../entities/discovery.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Discovery])],

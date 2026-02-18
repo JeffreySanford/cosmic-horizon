@@ -47,14 +47,12 @@
     "section": "Architecture",
     "sourcePath": "documentation/architecture/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md"
   },
-
   {
     "id": "documentation--architecture--pulsar-evaluation-results",
     "label": "PULSAR EVALUATION RESULTS",
     "section": "Architecture",
     "sourcePath": "documentation/architecture/PULSAR-EVALUATION-RESULTS.md"
   },
-
   {
     "id": "documentation--backend--api-routes",
     "label": "API ROUTES",

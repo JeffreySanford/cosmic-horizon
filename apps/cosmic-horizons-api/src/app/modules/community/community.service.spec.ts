@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommunityService } from './community.service';
-import { Discovery } from '../../../entities/discovery.entity';
+import { Discovery } from '../../entities/discovery.entity';
 
 describe('CommunityService (DB-backed)', () => {
   let service: CommunityService;
@@ -27,7 +27,7 @@ describe('CommunityService (DB-backed)', () => {
       providers: [
         CommunityService,
         { provide: getRepositoryToken(Discovery), useValue: repoMock },
-        { provide: (await import('../../events/events.service')).EventsService, useValue: eventsMock },
+        { provide: (await import('../events/events.service')).EventsService, useValue: eventsMock },
       ],
     }).compile();
 

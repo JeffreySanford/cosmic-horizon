@@ -24,7 +24,7 @@ export class CommunityFeedComponent implements OnInit {
 
   create(): void {
     if (!this.newTitle.trim()) return;
-    this.api.createPost({ title: this.newTitle, body: this.newBody }).subscribe((created) => {
+    this.api.createPost({ title: this.newTitle, body: this.newBody }).subscribe((created: DiscoveryModel) => {
       this.newTitle = '';
       this.newBody = '';
       this.load();
