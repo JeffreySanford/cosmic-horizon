@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from './database.config';
 import {
@@ -17,7 +18,10 @@ import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository 
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(databaseConfig()),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: () => databaseConfig(),
+    }),
     TypeOrmModule.forFeature([
       User,
       Post,
