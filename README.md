@@ -72,6 +72,8 @@ pnpm lighthouse:mobile # lhci mobile audit
 pnpm lighthouse:summary # text/json summary for CI + AI consumers
 pnpm build          # nx run-many --target=build --all
 pnpm lint           # nx run-many --target=lint --all
+
+# Developer note: prefer pnpm for local tooling (use `pnpm exec eslint` or `pnpm run eslint:check` instead of `npx eslint`) to avoid npm/.npmrc warnings.
 ```
 
 ## Projects
