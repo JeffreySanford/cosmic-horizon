@@ -5,9 +5,8 @@ import { CommunityApiService, DiscoveryModel } from './community-api.service';
   selector: 'app-community-feed',
   templateUrl: './community-feed.component.html',
   styleUrls: ['./community-feed.component.scss'],
-  standalone: false
 })
-export class CommunityFeedComponent implements OnInit {
+export class CommunityFeedViewComponent implements OnInit {
   feed: DiscoveryModel[] = [];
   newTitle = '';
   newBody = '';
@@ -24,7 +23,7 @@ export class CommunityFeedComponent implements OnInit {
 
   create(): void {
     if (!this.newTitle.trim()) return;
-    this.api.createPost({ title: this.newTitle, body: this.newBody }).subscribe((created) => {
+    this.api.createPost({ title: this.newTitle, body: this.newBody }).subscribe((created: DiscoveryModel) => {
       this.newTitle = '';
       this.newBody = '';
       this.load();
