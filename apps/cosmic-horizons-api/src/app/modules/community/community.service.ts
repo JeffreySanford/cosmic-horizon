@@ -61,8 +61,21 @@ export class CommunityService {
   }
 
   async getFeed(limit = 25): Promise<DiscoveryEvent[]> {
-    const rows = await this.discoveryRepo.find({ order: { created_at: 'DESC' }, take: limit });
-    return rows.map((r) => ({ id: r.id, title: r.title, body: r.body ?? undefined, author: r.author, tags: r.tags ?? undefined, createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : new Date(r.created_at).toISOString() }));
+    try {
+      const rows = await this.discoveryRepo.find({ order: { created_at: 'DESC' }, take: limit });
+      this.logger.debug(`CommunityService.getFeed — rows found: ${Array.isArray(rows) ? rows.length : typeof rows}`);
+      return rows.map((r) => ({
+        id: r.id,
+        title: r.title,
+        body: r.body ?? undefined,
+        author: r.author,
+        tags: r.tags ?? undefined,
+        createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : new Date(r.created_at).toISOString(),
+      }));
+    } catch (err) {
+      this.logger.error('CommunityService.getFeed failed', err as Error);
+      throw err;
+    }
   }
 
   async createDiscovery(dto: CreateDiscoveryDto): Promise<DiscoveryEvent> {
