@@ -20,7 +20,8 @@ export class App implements OnInit {
       try {
         const type = payload?.type ?? payload?.event_type ?? '';
         if (type === 'community.discovery.created') {
-          const title = (payload?.payload as any)?.title ?? 'New discovery';
+          const pd = payload.payload as { discovery_id?: string; title?: string; author?: string };
+          const title = pd?.title ?? 'New discovery';
           this.snackBar.open(`Community: ${title}`, 'View', { duration: 5000 });
         }
       } catch {

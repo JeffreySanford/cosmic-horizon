@@ -169,7 +169,7 @@ export class MessagingService {
 
     // Notifications (toaster-support): generic notification channel from server
     // Server currently emits job_notification for user-targeted notifications.
-    this.socket.on('job_notification', (payload: any) => {
+    this.socket.on('job_notification', (payload: EventBase) => {
       try {
         this.logger.debug('messaging', 'Received job_notification', payload);
         this.notificationSubject.next(payload);
