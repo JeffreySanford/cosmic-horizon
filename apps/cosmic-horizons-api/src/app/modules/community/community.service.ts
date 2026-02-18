@@ -62,7 +62,7 @@ export class CommunityService {
 
   async getFeed(limit = 25): Promise<DiscoveryEvent[]> {
     const rows = await this.discoveryRepo.find({ order: { created_at: 'DESC' }, take: limit });
-    return rows.map((r) => ({ id: r.id, title: r.title, body: r.body ?? undefined, author: r.author, tags: r.tags ?? undefined, createdAt: r.created_at.toISOString() }));
+    return rows.map((r) => ({ id: r.id, title: r.title, body: r.body ?? undefined, author: r.author, tags: r.tags ?? undefined, createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : new Date(r.created_at).toISOString() }));
   }
 
   async createDiscovery(dto: CreateDiscoveryDto): Promise<DiscoveryEvent> {
@@ -97,7 +97,7 @@ export class CommunityService {
       body: saved.body ?? undefined,
       author: saved.author,
       tags: saved.tags ?? undefined,
-      createdAt: saved.created_at.toISOString(),
+      createdAt: saved.created_at instanceof Date ? saved.created_at.toISOString() : new Date(saved.created_at).toISOString(),
     };
   }
 }
