@@ -9,3 +9,11 @@ node_modules/
 *.min.js
 .idea/
 .vscode/
+
+## Generated caches and CI artifacts
+
+.angular/
+.angular/cache/
+.lighthouseci/
+.nyc_output/
+.playwright/
