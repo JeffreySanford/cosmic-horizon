@@ -9,6 +9,7 @@ import {
   ViewerState,
   ViewerSnapshot,
   AuditLog,
+  Discovery,
   CosmicTileCache,
 } from './entities';
 import { loadEnvFromFirstAvailable } from './config/env-loader';
