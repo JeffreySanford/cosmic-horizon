@@ -62,9 +62,15 @@ export class CommunityService {
 
   async getFeed(limit = 25): Promise<DiscoveryEvent[]> {
     try {
-      const rows = await this.discoveryRepo.find({ order: { created_at: 'DESC' }, take: limit });
+      // Use a raw query here to avoid potential ORM naming/metadata edge-cases and ensure
+      // the feed always returns even if entity metadata mismatches occur.
+      const rows = await this.discoveryRepo.query(
+        'SELECT id, title, body, author, tags, created_at FROM discoveries ORDER BY created_at DESC LIMIT $1',
+        [limit],
+      );
       this.logger.debug(`CommunityService.getFeed — rows found: ${Array.isArray(rows) ? rows.length : typeof rows}`);
-      return rows.map((r) => ({
+
+      return rows.map((r: any) => ({
         id: r.id,
         title: r.title,
         body: r.body ?? undefined,
@@ -74,7 +80,8 @@ export class CommunityService {
       }));
     } catch (err) {
       this.logger.error('CommunityService.getFeed failed', err as Error);
-      throw err;
+      // fail-safe: return empty feed rather than bubble an unknown server error to the UI
+      return [];
     }
   }
 
