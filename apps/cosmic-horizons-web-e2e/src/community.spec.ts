@@ -79,6 +79,9 @@ test('community post requiring moderation is hidden until approved', async ({ pa
   const pageText = await page.evaluate(() => document.body.innerText?.slice(0, 2000));
   console.log('pageText (truncated):', pageText);
 
+  const feedHtml = await page.evaluate(() => document.querySelector('app-community-feed')?.innerHTML ?? '');
+  console.log('app-community-feed.innerHTML (truncated):', feedHtml.slice(0, 1200));
+
   // UI verification: poll the DOM until the post appears (robust against network timing)
   await expect.poll(async () => await page.getByText(payload.title).count(), { timeout: 10000 }).toBeGreaterThan(0);
 });
