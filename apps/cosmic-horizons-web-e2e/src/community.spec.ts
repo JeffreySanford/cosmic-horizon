@@ -50,6 +50,11 @@ test('community post requiring moderation is hidden until approved', async ({ pa
   const feedRespDirect = await request.get(`${apiBase}/api/community/feed`);
   const feedJsonDirect = await feedRespDirect.json();
   expect(feedJsonDirect.some((f: any) => f.title === payload.title)).toBe(true);
+
+  // Debug: fetch feed from the browser context to verify the UI sees the same data
+  const browserFeed = await page.evaluate(() => fetch('/api/community/feed').then((r) => r.json()));
+  console.log('browserFeed (page):', browserFeed);
+
   // UI verification: poll the DOM until the post appears (robust against network timing)
   await expect.poll(async () => await page.getByText(payload.title).count(), { timeout: 10000 }).toBeGreaterThan(0);
 });
