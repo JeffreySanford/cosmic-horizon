@@ -46,6 +46,25 @@ export class CommunityService {
       // Only seed in development to avoid accidental production writes
       if (process.env.NODE_ENV === 'production') return;
 
+      // Ensure the discoveries table (and 'hidden' column) exist so we can seed
+      // without relying on TypeORM migrations being executed.
+      try {
+        await this.discoveryRepo.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+        await this.discoveryRepo.query(`
+          CREATE TABLE IF NOT EXISTS "discoveries" (
+            "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            "title" character varying(512) NOT NULL,
+            "body" text,
+            "author" character varying(128) DEFAULT 'anonymous',
+            "tags" jsonb,
+            "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
+        await this.discoveryRepo.query(`ALTER TABLE "discoveries" ADD COLUMN IF NOT EXISTS "hidden" boolean NOT NULL DEFAULT false`);
+      } catch (ensureErr) {
+        this.logger.warn('Could not ensure discoveries table/schema at startup (continuing):', ensureErr instanceof Error ? ensureErr.message : ensureErr);
+      }
+
       const existing = await this.discoveryRepo.count();
       if (existing > 0) return; // already seeded
 
@@ -78,7 +97,7 @@ export class CommunityService {
 
       await this.discoveryRepo.save(seeds);
       this.logger.log('Seeded Community Discoveries (development)');
-    } catch (err) {
+    } catch {
       // DB not ready or seeding failed in this environment — silently continue for dev/test
     }
   }
@@ -91,7 +110,7 @@ export class CommunityService {
         take: limit,
       });
 
-      return rows.map((r: any) => ({
+      return rows.map((r: Discovery) => ({
         id: r.id,
         title: r.title,
         body: r.body ?? undefined,
@@ -114,7 +133,7 @@ export class CommunityService {
         take: limit,
       });
 
-      return rows.map((r: any) => ({
+      return rows.map((r: Discovery) => ({
         id: r.id,
         title: r.title,
         body: r.body ?? undefined,
@@ -148,7 +167,7 @@ export class CommunityService {
         entity_id: saved.id,
         changes: { before, after: { hidden: saved.hidden } },
       });
-    } catch (err) {
+    } catch {
       this.logger.warn('Failed to write audit log for hideDiscovery (continuing)');
     }
 
@@ -185,7 +204,7 @@ export class CommunityService {
 
       try {
         await this.eventsService.publishNotification(event);
-      } catch (err) {
+      } catch {
         this.logger.warn('Failed to publish discovery.created notification (continuing)');
       }
     }
@@ -231,7 +250,7 @@ export class CommunityService {
 
     try {
       await this.eventsService.publishNotification(event);
-    } catch (err) {
+    } catch {
       this.logger.warn('Failed to publish discovery.created notification after approve (continuing)');
     }
 
@@ -244,7 +263,7 @@ export class CommunityService {
         entity_id: saved.id,
         changes: { before, after: { hidden: saved.hidden } },
       });
-    } catch (err) {
+    } catch {
       this.logger.warn('Failed to write audit log for approveDiscovery (continuing)');
     }
 

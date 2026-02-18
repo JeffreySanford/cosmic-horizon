@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommunityApiService, DiscoveryModel } from './community-api.service';
 
 @Component({
@@ -11,13 +11,13 @@ export class ModerationComponent implements OnInit {
   pending: DiscoveryModel[] = [];
   loading = false;
 
-  constructor(private readonly api: CommunityApiService) {}
+  private readonly api = inject(CommunityApiService);
 
   ngOnInit(): void {
     this.loadPending();
   }
 
-  async loadPending() {
+  loadPending() {
     this.loading = true;
     this.api.getPending().subscribe({
       next: (items) => {

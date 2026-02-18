@@ -368,7 +368,11 @@ importers:
 
   apps/cosmic-horizons-api-e2e: {}
 
-  apps/cosmic-horizons-web-e2e: {}
+  apps/cosmic-horizons-web-e2e:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.36.0
+        version: 1.58.2
 
   libs/shared/event-models:
     devDependencies:

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface DiscoveryModel {
@@ -16,8 +16,7 @@ export interface DiscoveryModel {
 })
 export class CommunityApiService {
   private readonly apiBase = 'http://localhost:3000';
-
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getFeed(): Observable<DiscoveryModel[]> {
     return this.http.get<DiscoveryModel[]>(`${this.apiBase}/api/community/feed`);

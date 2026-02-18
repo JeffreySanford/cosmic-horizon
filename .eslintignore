@@ -1,4 +1,5 @@
 # Ignore build/test output and noise
+
 coverage/
 **/coverage/**
 test-output/

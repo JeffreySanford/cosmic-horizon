@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommunityApiService, DiscoveryModel } from './community-api.service';
 
 @Component({
@@ -12,7 +12,7 @@ export class CommunityFeedComponent implements OnInit {
   newTitle = '';
   newBody = '';
 
-  constructor(private readonly api: CommunityApiService) {}
+  private readonly api = inject(CommunityApiService);
 
   ngOnInit(): void {
     this.load();
@@ -24,7 +24,7 @@ export class CommunityFeedComponent implements OnInit {
 
   create(): void {
     if (!this.newTitle.trim()) return;
-    this.api.createPost({ title: this.newTitle, body: this.newBody }).subscribe((created: DiscoveryModel) => {
+    this.api.createPost({ title: this.newTitle, body: this.newBody }).subscribe(() => {
       this.newTitle = '';
       this.newBody = '';
       this.load();

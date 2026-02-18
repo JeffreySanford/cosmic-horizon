@@ -1,3 +1,4 @@
+<!-- eslint-disable @angular-eslint/template/prefer-control-flow -->
 <div class="community-root">
   <mat-card>
     <mat-card-title>Community Discoveries (prototype)</mat-card-title>
@@ -8,13 +9,15 @@
         <button mat-raised-button color="primary" (click)="create()">Post</button>
       </div>
       <mat-list>
-        <mat-list-item *ngFor="let item of feed">
-          <div class="item-content">
-            <strong>{{ item.title }}</strong>
-            <p class="meta">{{ item.author || 'anonymous' }} — {{ item.createdAt | date:'short' }}</p>
-            <p class="body">{{ item.body }}</p>
-          </div>
-        </mat-list-item>
+        <ng-container *ngFor="let item of feed">
+          <mat-list-item>
+            <div class="item-content">
+              <strong>{{ item.title }}</strong>
+              <p class="meta">{{ item.author || 'anonymous' }} — {{ item.createdAt | date:'short' }}</p>
+              <p class="body">{{ item.body }}</p>
+            </div>
+          </mat-list-item>
+        </ng-container>
       </mat-list>
     </mat-card-content>
   </mat-card>

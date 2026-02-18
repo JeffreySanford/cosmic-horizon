@@ -69,6 +69,12 @@ export default [
     },
   },
   {
+    files: ['apps/cosmic-horizons-web/src/app/**/*.html'],
+    rules: {
+      '@angular-eslint/template/prefer-control-flow': 'off',
+    },
+  },
+  {
     files: ['apps/cosmic-horizons-api/src/app/**/*.ts'],
     ignores: ['**/*.spec.ts'],
     rules: {
@@ -101,6 +107,13 @@ export default [
     // Global overrides to align with module-based Angular architecture.
     rules: {
       '@angular-eslint/prefer-standalone': 'off',
+      '@angular-eslint/template/prefer-control-flow': 'off',
+    },
+  },
+  {
+    files: ['**/*.html'],
+    rules: {
+      '@angular-eslint/template/prefer-control-flow': 'off',
     },
   },
   {

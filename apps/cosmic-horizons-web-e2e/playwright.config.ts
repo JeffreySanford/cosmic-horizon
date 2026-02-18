@@ -37,7 +37,8 @@ export default defineConfig({
   },
   /* Run your local dev server before starting the tests. Bind to 0.0.0.0 on CI so containerized services can reach it. */
   webServer: {
-    command: `pnpm exec nx run cosmic-horizons-web:serve --host=${process.env['CI'] ? '0.0.0.0' : 'localhost'}`,
+    // Start both frontend and API so E2E tests have the real backend available.
+    command: `pnpm exec nx run-many --target=serve --projects=cosmic-horizons-web,cosmic-horizons-api --parallel=2 --skip-nx-cache --host=${process.env['CI'] ? '0.0.0.0' : 'localhost'}`,
     url: baseURL,
     reuseExistingServer: true,
     cwd: workspaceRoot,
