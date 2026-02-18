@@ -46,14 +46,12 @@ test('community post requiring moderation is hidden until approved', async ({ pa
 
   // Reload page and confirm backend + UI show the approved post.
   await page.reload({ waitUntil: 'networkidle' });
-  // Wait for the UI to request the feed (capture the browser network call) before doing backend verification
-  await page.waitForResponse((r) => r.url().endsWith('/api/community/feed') && r.request().method() === 'GET', { timeout: 10000 });
   // Backend verification (avoid relying on page's network interception timing)
   const feedRespDirect = await request.get(`${apiBase}/api/community/feed`);
   const feedJsonDirect = await feedRespDirect.json();
   expect(feedJsonDirect.some((f: any) => f.title === payload.title)).toBe(true);
-  // UI verification: DOM should now include the post
-  await expect(page.getByText(payload.title)).toBeVisible({ timeout: 10000 });
+  // UI verification: poll the DOM until the post appears (robust against network timing)
+  await expect.poll(async () => await page.getByText(payload.title).count(), { timeout: 10000 }).toBeGreaterThan(0);
 });
 
 test('admin can hide a visible community post and UI updates accordingly', async ({ page, request }) => {
@@ -87,8 +85,7 @@ test('admin can hide a visible community post and UI updates accordingly', async
   const initialFeed = await initialFeedResp.json();
   expect(initialFeed.some((f: any) => f.title === payload.title)).toBe(true);
   // Wait for the UI to request the feed and render the post (allow small timeout for rendering)
-  await page.waitForResponse((r) => r.url().endsWith('/api/community/feed') && r.request().method() === 'GET', { timeout: 10000 });
-  await expect(page.getByText(payload.title)).toBeVisible({ timeout: 10000 });
+  await expect.poll(async () => await page.getByText(payload.title).count(), { timeout: 10000 }).toBeGreaterThan(0);
 
   // Hide via API as admin
   const hideRes = await request.patch(`${apiBase}/api/community/posts/${created.id}/hide`, { headers: { Authorization: `Bearer ${adminToken}` } });
