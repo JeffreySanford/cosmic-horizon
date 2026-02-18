@@ -55,6 +55,22 @@ test('community post requiring moderation is hidden until approved', async ({ pa
   const browserFeed = await page.evaluate(() => fetch('/api/community/feed').then((r) => r.json()));
   console.log('browserFeed (page):', browserFeed);
 
+  // Debug: inspect the Angular component instance's `feed` property (dev-only)
+  const componentFeed = await page.evaluate(() => {
+    // Use Angular dev helper when available
+    // @ts-ignore
+    const ng = (window as any).ng as any;
+    const el = document.querySelector('app-community-feed');
+    if (!ng || !el || typeof ng.getComponent !== 'function') return null;
+    try {
+      // @ts-ignore
+      return ng.getComponent(el)?.feed ?? null;
+    } catch {
+      return null;
+    }
+  });
+  console.log('componentFeed (app-community-feed):', componentFeed);
+
   // UI verification: poll the DOM until the post appears (robust against network timing)
   await expect.poll(async () => await page.getByText(payload.title).count(), { timeout: 10000 }).toBeGreaterThan(0);
 });
