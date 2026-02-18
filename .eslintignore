@@ -1,0 +1,10 @@
+# Ignore build/test output and noise
+coverage/
+**/coverage/**
+test-output/
+out-tsc/
+dist/
+node_modules/
+*.min.js
+.idea/
+.vscode/
