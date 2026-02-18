@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CommunityFeedViewComponent } from './community-feed.component';
+import { CommunityFeedComponent } from './community-feed.component';
 
 const routes: Routes = [
   {

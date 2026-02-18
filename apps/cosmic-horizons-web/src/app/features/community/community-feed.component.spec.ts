@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { CommunityFeedViewComponent } from './community-feed.component';
+import { CommunityFeedComponent } from './community-feed.component';
 import { CommunityModule } from './community.module';
 
 describe('CommunityFeedComponent (prototype)', () => {
-  let fixture: ComponentFixture<CommunityFeedViewComponent>;
-  let component: CommunityFeedViewComponent;
+  let fixture: ComponentFixture<CommunityFeedComponent>;
+  let component: CommunityFeedComponent;
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
@@ -13,7 +13,7 @@ describe('CommunityFeedComponent (prototype)', () => {
       imports: [CommunityModule, HttpClientTestingModule],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CommunityFeedViewComponent);
+    fixture = TestBed.createComponent(CommunityFeedComponent);
     component = fixture.componentInstance;
     httpMock = TestBed.inject(HttpTestingController);
   });
