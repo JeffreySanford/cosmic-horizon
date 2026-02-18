@@ -1,0 +1,21 @@
+<div class="community-root">
+  <mat-card>
+    <mat-card-title>Community Discoveries (prototype)</mat-card-title>
+    <mat-card-content>
+      <div class="compose">
+        <input placeholder="Title" [(ngModel)]="newTitle" />
+        <textarea placeholder="Body (optional)" [(ngModel)]="newBody"></textarea>
+        <button mat-raised-button color="primary" (click)="create()">Post</button>
+      </div>
+      <mat-list>
+        <mat-list-item *ngFor="let item of feed">
+          <div class="item-content">
+            <strong>{{ item.title }}</strong>
+            <p class="meta">{{ item.author || 'anonymous' }} — {{ item.createdAt | date:'short' }}</p>
+            <p class="body">{{ item.body }}</p>
+          </div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</div>
