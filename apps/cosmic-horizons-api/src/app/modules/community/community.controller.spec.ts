@@ -7,9 +7,14 @@ describe('CommunityController (prototype)', () => {
   let service: CommunityService;
 
   beforeEach(async () => {
+    const mockService = {
+      getFeed: jest.fn().mockResolvedValue([{ id: '1', title: 'seed', createdAt: new Date().toISOString() }]),
+      createDiscovery: jest.fn().mockImplementation(async (p) => ({ id: '1', title: p.title, createdAt: new Date().toISOString() })),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CommunityController],
-      providers: [CommunityService],
+      providers: [{ provide: CommunityService, useValue: mockService }],
     }).compile();
 
     controller = module.get<CommunityController>(CommunityController);

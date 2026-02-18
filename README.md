@@ -20,7 +20,7 @@ If any other doc conflicts, treat `PRODUCT-CHARTER.md` + `SCOPE-LOCK.md` as sour
 Strategic AI control-plane direction:
 
 - `AGENTS.md` (`CosmicAI Docking & AI Control Plane`)
-- `documentation/planning/phases/PHASE-3-COSMICAI-FEDERATION.md`
+- `documentation/planning/roadmap/ROADMAP.md` (Phase planning consolidated)
 - `documentation/marketing/scope/COSMIC-HORIZONS-2026-SCOPE.md`
 
 Strategic documents inform planning and integration direction, but do not override MVP scope locks.

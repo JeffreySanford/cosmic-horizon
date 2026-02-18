@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
+import * as EventModels from '@cosmic-horizons/event-models';
 
 /**
  * Priority 5.3: Job Orchestration Events Tests
@@ -26,28 +26,28 @@ class JobEventsService {
   ) {}
 
   async emitJobSubmittedEvent(job: any): Promise<string> {
-    const eventId = uuidv4();
+    const eventId = EventModels.generateEventId();
     await this.eventRegistry.validateEvent('JOB_SUBMITTED', job);
     await this.eventPublisher.publish('jobs.submitted', { id: eventId, ...job });
     return eventId;
   }
 
   async emitJobStatusChangedEvent(jobId: string, status: string, metadata?: any): Promise<string> {
-    const eventId = uuidv4();
+    const eventId = EventModels.generateEventId();
     await this.eventRegistry.validateEvent('JOB_STATUS_CHANGED', { jobId, status, ...metadata });
     await this.eventPublisher.publish('jobs.status', { id: eventId, jobId, status, ...metadata });
     return eventId;
   }
 
   async emitJobCompletedEvent(jobId: string, result: any): Promise<string> {
-    const eventId = uuidv4();
+    const eventId = EventModels.generateEventId();
     await this.eventRegistry.validateEvent('JOB_COMPLETED', { jobId, result });
     await this.eventPublisher.publish('jobs.completed', { id: eventId, jobId, result });
     return eventId;
   }
 
   async emitJobErrorEvent(jobId: string, error: any): Promise<string> {
-    const eventId = uuidv4();
+    const eventId = EventModels.generateEventId();
     await this.eventRegistry.validateEvent('JOB_ERROR', { jobId, error });
     await this.eventPublisher.publish('jobs.error', { id: eventId, jobId, error });
     return eventId;
@@ -128,7 +128,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
   describe('Job Submission Events', () => {
     it('should emit JobSubmittedEvent on job creation', async () => {
       const job = {
-        id: uuidv4(),
+        id: EventModels.generateUUID(),
         dataset_id: 'ngvla-obs-001',
         agent: 'AlphaCal',
         priority: 1,
@@ -142,7 +142,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
     it('should include all required fields in submission event', async () => {
       const job = {
-        id: uuidv4(),
+        id: EventModels.generateUUID(),
         dataset_id: 'ngvla-obs-001',
         agent: 'AlphaCal',
         priority: 1,
@@ -158,7 +158,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
     it('should validate submission event against schema', async () => {
       const job = {
-        id: uuidv4(),
+        id: EventModels.generateUUID(),
         dataset_id: 'ngvla-obs-001',
         agent: 'AlphaCal',
         priority: 1,
@@ -171,7 +171,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
     it('should attach metadata to submission event', async () => {
       const job = {
-        id: uuidv4(),
+        id: EventModels.generateUUID(),
         dataset_id: 'ngvla-obs-001',
         agent: 'AlphaCal',
         priority: 1,
@@ -186,7 +186,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
     it('should preserve event ordering for rapid submissions', async () => {
       const jobs = Array.from({ length: 5 }, () => ({
-        id: uuidv4(),
+        id: EventModels.generateUUID(),
         dataset_id: 'ngvla-obs-001',
         agent: 'AlphaCal',
         priority: 1,
@@ -208,7 +208,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       }));
 
       const job = {
-        id: uuidv4(),
+        id: EventModels.generateUUID(),
         dataset_id: 'ngvla-obs-001',
         agent: 'AlphaCal',
         priority: 1,
@@ -221,9 +221,9 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should correlate submission event with source request', async () => {
-      const correlationId = uuidv4();
+      const correlationId = EventModels.generateUUID();
       const job = {
-        id: uuidv4(),
+        id: EventModels.generateUUID(),
         dataset_id: 'ngvla-obs-001',
         agent: 'AlphaCal',
         priority: 1,
@@ -242,13 +242,13 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
   describe('Status Change Events', () => {
     it('should emit JobStatusChangedEvent on status update', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'RUNNING');
       expect(eventId).toBeDefined();
     });
 
     it('should track all status transitions from QUEUED to RUNNING', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const statuses = ['QUEUED', 'RUNNING'];
 
       for (const status of statuses) {
@@ -258,13 +258,13 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should emit event for RUNNING to COMPLETED transition', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'COMPLETED');
       expect(eventId).toBeDefined();
     });
 
     it('should emit event for RUNNING to FAILED transition', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobStatusChangedEvent(
         jobId,
         'FAILED',
@@ -274,7 +274,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should emit event for FAILED to RETRY transition', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobStatusChangedEvent(
         jobId,
         'RETRY',
@@ -284,7 +284,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should emit event for job CANCELLATION', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobStatusChangedEvent(
         jobId,
         'CANCELLED',
@@ -294,7 +294,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should emit event for job PAUSED state', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobStatusChangedEvent(
         jobId,
         'PAUSED',
@@ -304,13 +304,13 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should emit event for job RESUMED state', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'RESUMED');
       expect(eventId).toBeDefined();
     });
 
     it('should include timing information in status event', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const metadata = {
         statusChangedAt: new Date(),
         duration: 45000,
@@ -322,7 +322,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should preserve status history across multiple events', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const history = await jobEventsService.getEventHistory(jobId);
       expect(Array.isArray(history)).toBe(true);
     });
@@ -334,7 +334,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
   describe('Result Callbacks and Webhooks', () => {
     it('should register callback URL for job completion', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const callbackUrl = 'https://api.example.com/callbacks/job-completed';
 
       jobEventsService.registerJobCallback(jobId, callbackUrl);
@@ -342,7 +342,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should trigger callback when job completes successfully', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const callbackUrl = 'https://api.example.com/callbacks/job-completed';
 
       jobEventsService.registerJobCallback(jobId, callbackUrl);
@@ -352,7 +352,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should trigger callback on job failure with error details', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const callbackUrl = 'https://api.example.com/callbacks/job-failed';
 
       jobEventsService.registerJobCallback(jobId, callbackUrl);
@@ -364,7 +364,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should support multiple callbacks per job', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const callbacks = [
         'https://api1.example.com/callbacks',
         'https://api2.example.com/callbacks',
@@ -379,7 +379,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should retry callback delivery with exponential backoff', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const callbackUrl = 'https://api.example.com/callbacks';
       const retryCount = mockConfigService.get('CALLBACK_RETRY_COUNT');
 
@@ -390,7 +390,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should timeout callback execution after threshold', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const callbackUrl = 'https://api.example.com/callbacks';
       const timeout = mockConfigService.get('CALLBACK_TIMEOUT_MS');
 
@@ -401,7 +401,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should send callback on intermediate status changes if configured', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const callbackUrl = 'https://api.example.com/callbacks';
 
       jobEventsService.registerJobCallback(jobId, callbackUrl);
@@ -410,8 +410,8 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should include correlation ID in callback payload', async () => {
-      const jobId = uuidv4();
-      const correlationId = uuidv4();
+      const jobId = EventModels.generateUUID();
+      const correlationId = EventModels.generateUUID();
       const callbackUrl = 'https://api.example.com/callbacks';
 
       jobEventsService.registerJobCallback(jobId, callbackUrl);
@@ -429,7 +429,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
   describe('Error Events and Dead Letter Queue', () => {
     it('should emit error event on job failure', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobErrorEvent(jobId, {
         code: 'COMPUTATION_ERROR',
         message: 'Singularity detected in calibration matrix',
@@ -439,7 +439,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should capture stack trace in error event', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const error = new Error('Matrix inversion failed');
 
       const eventId = await jobEventsService.emitJobErrorEvent(jobId, {
@@ -458,7 +458,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
         transient: false,
       };
 
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobErrorEvent(jobId, permanentError);
       expect(eventId).toBeDefined();
     });
@@ -471,7 +471,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
         retryAfterSeconds: 60,
       };
 
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobErrorEvent(jobId, transientError);
       expect(eventId).toBeDefined();
     });
@@ -483,7 +483,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
         transient: false,
       };
 
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobErrorEvent(jobId, permanentError);
       expect(eventId).toBeDefined();
     });
@@ -499,7 +499,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
         },
       };
 
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobErrorEvent(jobId, error);
       expect(eventId).toBeDefined();
     });
@@ -515,14 +515,14 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
         },
       };
 
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const eventId = await jobEventsService.emitJobErrorEvent(jobId, error);
       expect(eventId).toBeDefined();
     });
 
     it('should track error rate metrics', async () => {
       const errors = Array.from({ length: 10 }, (_, i) => ({
-        jobId: uuidv4(),
+        jobId: EventModels.generateUUID(),
         error: { code: 'ERROR_' + i, message: 'Error ' + i },
       }));
 
@@ -544,7 +544,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
     it('should support error event filtering by severity', async () => {
       const severities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
 
       for (const severity of severities) {
         const eventId = await jobEventsService.emitJobErrorEvent(jobId, {
@@ -556,7 +556,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should preserve DLQ timestamps for audit trail', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const timestamp = new Date();
 
       await jobEventsService.emitJobErrorEvent(jobId, {
@@ -574,7 +574,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
   describe('Event Ordering and Idempotency', () => {
     it('should maintain event order within same partition', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const statuses = ['QUEUED', 'RUNNING', 'COMPLETED'];
 
       for (const status of statuses) {
@@ -586,7 +586,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should verify strict ordering of events', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const events = [
         { type: 'SUBMITTED', timestamp: new Date(Date.now() - 1000) },
         { type: 'RUNNING', timestamp: new Date(Date.now() - 500) },
@@ -598,7 +598,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should detect out-of-order events', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const events = [
         { type: 'COMPLETED', timestamp: new Date() },
         { type: 'RUNNING', timestamp: new Date(Date.now() - 1000) },
@@ -609,8 +609,8 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should deduplicate identical events within window', async () => {
-      const jobId = uuidv4();
-      const eventId = uuidv4();
+      const jobId = EventModels.generateUUID();
+      const eventId = EventModels.generateUUID();
 
       const isDupe1 = await jobEventsService.deduplicateEvent(eventId);
       const isDupe2 = await jobEventsService.deduplicateEvent(eventId);
@@ -620,7 +620,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should not reject events outside deduplication window', async () => {
-      const eventId = uuidv4();
+      const eventId = EventModels.generateUUID();
       const deduplicationWindow = mockConfigService.get('EVENT_DEDUPLICATION_WINDOW_MS');
 
       const isDupe = await jobEventsService.deduplicateEvent(eventId);
@@ -628,7 +628,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should use event timestamp for ordering decisions', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const timestamp = new Date(Date.now() - 5000);
 
       await jobEventsService.emitJobStatusChangedEvent(jobId, 'RUNNING', {
@@ -651,8 +651,8 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should implement idempotency keys for event processing', async () => {
-      const jobId = uuidv4();
-      const idempotencyKey = uuidv4();
+      const jobId = EventModels.generateUUID();
+      const idempotencyKey = EventModels.generateUUID();
 
       const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'RUNNING', {
         idempotencyKey,
@@ -683,7 +683,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should recover state by replaying full event history', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const startTimestamp = new Date(0); // Beginning of time
       const endTimestamp = new Date();
 
@@ -710,7 +710,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
     });
 
     it('should reconstruct job state from event history', async () => {
-      const jobId = uuidv4();
+      const jobId = EventModels.generateUUID();
       const retentionDays = mockConfigService.get('EVENT_RETENTION_DAYS');
 
       const history = await jobEventsService.getEventHistory(jobId);

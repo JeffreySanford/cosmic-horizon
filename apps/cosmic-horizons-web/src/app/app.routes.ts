@@ -85,6 +85,11 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'community',
+    loadChildren: () => import('./features/community/community.module').then((m) => m.CommunityModule),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'operations',
     loadChildren: () =>
       import('./modules/operations/operations.module').then((m) => m.OperationsModule),

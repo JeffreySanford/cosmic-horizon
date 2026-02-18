@@ -119,6 +119,24 @@ CREATE TABLE IF NOT EXISTS cosmic_tile_cache (
   UNIQUE(ra, dec)
 );
 
+-- Community Discoveries (prototype + persisted)
+CREATE TABLE IF NOT EXISTS discoveries (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title VARCHAR(512) NOT NULL,
+  body TEXT NULL,
+  author VARCHAR(128) DEFAULT 'anonymous',
+  tags JSONB NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Seed sample discoveries for local development
+INSERT INTO discoveries (id, title, body, author, tags, created_at)
+VALUES
+  (uuid_generate_v4(), 'Welcome to Community Discoveries', 'This is a seeded announcement for the Community Discoveries prototype.', 'system', '["prototype","welcome"]', NOW() - INTERVAL '2 days'),
+  (uuid_generate_v4(), 'Symposium 2026 — abstract deadline', 'Reminder: Symposium 2026 abstract deadline is April 1, 2026. Submit your abstracts to the planning committee.', 'announcements', '["symposium","deadline"]', NOW() - INTERVAL '1 day'),
+  (uuid_generate_v4(), 'New: Community Feed is live (prototype)', 'Try posting short discoveries from the Community page. Entries are persisted in the DB and emit notification events for UI toasts.', 'system', '["feature","prototype"]', NOW())
+ON CONFLICT (id) DO NOTHING;
+
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_timestamp()
 RETURNS TRIGGER AS $$

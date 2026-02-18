@@ -1,10 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RabbitMQService, PublishOptions, ConsumeOptions } from './rabbitmq.service';
-// @ts-expect-error - uuid types not available
-import { v4 as uuidv4 } from 'uuid';
-
-jest.mock('uuid');
+import * as EventModels from '@cosmic-horizons/event-models';
 
 describe('RabbitMQService', () => {
   let service: RabbitMQService;
@@ -31,7 +28,7 @@ describe('RabbitMQService', () => {
     jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();
 
-    (uuidv4 as jest.Mock).mockReturnValue('test-uuid-12345');
+    jest.spyOn(EventModels, 'generateUUID').mockReturnValue('test-uuid-12345' as any);
   });
 
   afterEach(() => {
@@ -174,7 +171,7 @@ describe('RabbitMQService', () => {
 
       await service.publish({ jobId: 'job-1' }, options);
 
-      expect(uuidv4).toHaveBeenCalled();
+      expect(EventModels.generateUUID).toHaveBeenCalled();
     });
 
     it('should handle persistent messages', async () => {
@@ -249,7 +246,7 @@ describe('RabbitMQService', () => {
         queue: 'jobs.queue',
       };
 
-      (uuidv4 as jest.Mock).mockReturnValue('generated-tag-123');
+      jest.spyOn(EventModels, 'generateUUID').mockReturnValue('generated-tag-123' as any);
       const consumerTag = await service.consume(callback, options);
 
       expect(consumerTag).toContain('consumer-');

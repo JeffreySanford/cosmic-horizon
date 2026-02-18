@@ -1,9 +1,6 @@
 import { Logger } from '@nestjs/common';
-// @ts-expect-error TS7016: @types/uuid is installed but can't resolve for uuid@3.4.0
-import { v4 as uuidv4 } from 'uuid';
+import * as EventModels from '@cosmic-horizons/event-models';
 import { JobEventsService } from './job-events.service';
-
-jest.mock('uuid');
 
 describe('JobEventsService', () => {
   let service: JobEventsService;
@@ -25,7 +22,7 @@ describe('JobEventsService', () => {
     jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
 
-    (uuidv4 as jest.Mock).mockReturnValue('test-uuid-12345');
+    jest.spyOn(EventModels, 'generateEventId').mockReturnValue('test-uuid-12345' as any);
   });
 
   afterEach(() => {
@@ -55,10 +52,10 @@ describe('JobEventsService', () => {
       const job1 = { id: 'job-1', agent: 'AlphaCal' };
       const job2 = { id: 'job-2', agent: 'ImageReconstruction' };
 
-      (uuidv4 as jest.Mock).mockReturnValueOnce('uuid-1');
+      jest.spyOn(EventModels, 'generateEventId').mockReturnValueOnce('uuid-1' as any);
       await service.emitJobSubmittedEvent(job1);
 
-      (uuidv4 as jest.Mock).mockReturnValueOnce('uuid-2');
+      jest.spyOn(EventModels, 'generateEventId').mockReturnValueOnce('uuid-2' as any);
       const eventId2 = await service.emitJobSubmittedEvent(job2);
 
       expect(eventId2).toBe('uuid-2');
@@ -130,7 +127,7 @@ describe('JobEventsService', () => {
       const statuses = ['QUEUED', 'RUNNING', 'COMPLETED', 'FAILED'];
 
       for (const status of statuses) {
-        (uuidv4 as jest.Mock).mockReturnValue(`uuid-for-${status}`);
+        jest.spyOn(EventModels, 'generateEventId').mockReturnValue(`uuid-for-${status}` as any);
         await service.emitJobStatusChangedEvent('job-id', status);
       }
 
@@ -333,13 +330,13 @@ describe('JobEventsService', () => {
     it('should handle multiple event emissions in sequence', async () => {
       const job = { id: 'job-999', agent: 'Orchestrator' };
 
-      (uuidv4 as jest.Mock).mockReturnValue('evt-submitted');
+      jest.spyOn(EventModels, 'generateEventId').mockReturnValue('evt-submitted' as any);
       await service.emitJobSubmittedEvent(job);
 
-      (uuidv4 as jest.Mock).mockReturnValue('evt-started');
+      jest.spyOn(EventModels, 'generateEventId').mockReturnValue('evt-started' as any);
       await service.emitJobStatusChangedEvent('job-999', 'RUNNING');
 
-      (uuidv4 as jest.Mock).mockReturnValue('evt-completed');
+      jest.spyOn(EventModels, 'generateEventId').mockReturnValue('evt-completed' as any);
       await service.emitJobCompletedEvent('job-999', { success: true });
 
       expect(mockEventPublisher.publish).toHaveBeenCalledTimes(3);
@@ -347,7 +344,7 @@ describe('JobEventsService', () => {
     });
 
     it('should handle error after job starts', async () => {
-      (uuidv4 as jest.Mock).mockReturnValue('evt-error');
+      jest.spyOn(EventModels, 'generateEventId').mockReturnValue('evt-error' as any);
       await service.emitJobErrorEvent('job-999', new Error('Execution failed'));
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(

@@ -47,12 +47,12 @@ Canonical scope:
 - [x] Add a unit test to assert `MessagingMonitorService` clears its startup timeout handle on `onModuleDestroy()` (prevent future open-handle regressions).
 - [ ] Triage and patch the moderate GitHub dependence vulnerability reported by Dependabot (see repo Security alerts) — **DEFERRED TO UPSTREAM (ajv / Angular)**.
 
-- [ ] MVP: Community Discoveries — in‑app toasts + persistent Community Feed
-  - Backend: `DiscoveryEvent` model + endpoints `GET /api/community/feed`, `POST /api/community/posts` (use EventsModule for publish/subscribe)
-  - Frontend: `DiscoveryToast` component + `CommunityFeed` page, minimal UI, feature-flagged
-  - Security: opt-in posting, moderation/reporting endpoints
-  - Tests: unit + e2e for toast/display + API contract
-  - Estimate: 1–3 dev days
+- [x] MVP prototype: Community Discoveries — lightweight in-app feed + post composer (in-memory prototype)
+  - Backend: `DiscoveryEvent` model + endpoints `GET /api/community/feed`, `POST /api/community/posts` (in-memory, no persistence yet) — `apps/cosmic-horizons-api/src/app/modules/community`
+  - Frontend: `CommunityFeed` page + `CommunityApiService` — `apps/cosmic-horizons-web/src/app/features/community`
+  - Security: prototype allows unauthenticated posts (production will add moderation + opt-in)
+  - Tests: unit tests added for API + frontend component
+  - Next: wire EventsModule publish, add persistence, add moderation + feature flag
 
 - [ ] Prepare release candidate / changelog for v1.1.0 (include test stabilization & event infra notes).
 

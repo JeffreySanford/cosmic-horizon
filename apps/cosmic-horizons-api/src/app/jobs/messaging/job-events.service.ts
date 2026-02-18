@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { generateEventId } from '@cosmic-horizons/event-models';
 
 @Injectable()
 export class JobEventsService {
@@ -15,7 +15,7 @@ export class JobEventsService {
   ) {}
 
   async emitJobSubmittedEvent(job: Record<string, unknown>): Promise<string> {
-    const eventId = uuidv4();
+    const eventId = generateEventId();
     await this.eventRegistry.validateEvent('JOB_SUBMITTED', job);
     await this.eventPublisher.publish('jobs.submitted', { id: eventId, ...job });
     this.logger.debug(`Job submitted event emitted: ${eventId}`);
@@ -27,21 +27,21 @@ export class JobEventsService {
     status: string,
     metadata?: Record<string, unknown>,
   ): Promise<string> {
-    const eventId = uuidv4();
+    const eventId = generateEventId();
     await this.eventRegistry.validateEvent('JOB_STATUS_CHANGED', { jobId, status, ...metadata });
     await this.eventPublisher.publish('jobs.status', { id: eventId, jobId, status, ...metadata });
     return eventId;
   }
 
   async emitJobCompletedEvent(jobId: string, result: Record<string, unknown>): Promise<string> {
-    const eventId = uuidv4();
+    const eventId = generateEventId();
     await this.eventRegistry.validateEvent('JOB_COMPLETED', { jobId, result });
     await this.eventPublisher.publish('jobs.completed', { id: eventId, jobId, result });
     return eventId;
   }
 
   async emitJobErrorEvent(jobId: string, error: Record<string, unknown>): Promise<string> {
-    const eventId = uuidv4();
+    const eventId = generateEventId();
     await this.eventRegistry.validateEvent('JOB_ERROR', { jobId, error });
     await this.eventPublisher.publish('jobs.error', { id: eventId, jobId, error });
     return eventId;

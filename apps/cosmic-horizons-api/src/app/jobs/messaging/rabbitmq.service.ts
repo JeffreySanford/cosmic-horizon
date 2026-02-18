@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
+import { generateUUID } from '@cosmic-horizons/event-models';
 
 /**
  * RabbitMQ Integration Service
@@ -138,7 +138,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
-      const messageId = uuidv4();
+      const messageId = generateUUID();
       const timestamp = new Date();
 
       this.logger.debug(
@@ -164,7 +164,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       throw new Error('RabbitMQ connection not established');
     }
 
-    const consumerTag = options.consumerTag || `consumer-${uuidv4()}`;
+    const consumerTag = options.consumerTag || `consumer-${generateUUID()}`;
     const prefetch = this.configService.get<number>('RABBITMQ_PREFETCH', 10);
 
     this.logger.log(

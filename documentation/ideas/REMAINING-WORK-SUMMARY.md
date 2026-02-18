@@ -2,7 +2,7 @@
 
 **Status**: February 15, 2026 | MVP + Phase 2 Extended COMPLETE | Phase 3 IN PROGRESS  
 **Days to Symposium**: 45 days (April 1, 2026 abstract deadline)  
-**Complete Roadmap**: See [PHASE-3-4-COMPLETION-STRATEGY.md](documentation/architecture/PHASE-3-4-COMPLETION-STRATEGY.md)
+**Complete Roadmap**: See `documentation/planning/roadmap/ROADMAP.md` (phase/sprint docs have been consolidated into TODO/ROADMAP)
 
 ---
 

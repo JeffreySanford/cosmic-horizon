@@ -15,6 +15,7 @@ import { LoggingModule } from './logging/logging.module';
 import { MessagingModule } from './messaging/messaging.module';
 import { EventsModule } from './modules/events/events.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CommunityModule } from './modules/community/community.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { HealthModule } from './modules/health/health.module';
 import { OperationsModule } from './modules/operations/operations.module';
@@ -57,6 +58,7 @@ const envCandidates = getEnvCandidates();
     JobsModule,
     EventsModule,
     NotificationsModule,
+    CommunityModule,
     AuditModule,
     HealthModule,
     OperationsModule,

@@ -5,6 +5,7 @@ import { CommunityApiService, DiscoveryModel } from './community-api.service';
   selector: 'app-community-feed',
   templateUrl: './community-feed.component.html',
   styleUrls: ['./community-feed.component.scss'],
+  standalone: false
 })
 export class CommunityFeedComponent implements OnInit {
   feed: DiscoveryModel[] = [];
