@@ -12,7 +12,6 @@
  * Usage: node scripts/pulsar-setup.mjs [--cleanup]
  */
 
-import PulsarPackage from 'pulsar-client';
 import axios from 'axios';
 
 const PULSAR_ADMIN_URL = 'http://localhost:8080';
@@ -254,7 +253,7 @@ async function deleteNamespaceAndTopics(namespace) {
     // Delete namespace
     await axios.delete(`${PULSAR_ADMIN_URL}/admin/v2/namespaces/${ns}`);
     console.log(`  ✓ Deleted namespace: ${ns}`);
-  } catch (error) {
+  } catch {
     console.log(`  ℹ Namespace not found or already deleted: ${ns}`);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
+import type { EventBase } from '@cosmic-horizons/event-models';
 import { io, Socket } from 'socket.io-client';
 import { AppLoggerService } from './app-logger.service';
 import { AuthSessionService } from './auth-session.service';
@@ -98,7 +99,7 @@ export class MessagingService {
   private socket: Socket | null = null;
   private telemetrySubject = new Subject<TelemetryPacket>();
   private statsSubject = new Subject<MessagingLiveStats>();
-  private notificationSubject = new Subject<any>();
+  private notificationSubject = new Subject<EventBase>();
   private readonly http = inject(HttpClient);
   private readonly logger = inject(AppLoggerService);
   private readonly authSessionService = inject(AuthSessionService);
@@ -193,7 +194,7 @@ export class MessagingService {
   }
 
   /** Notification observable for UI toasts and in-app alerts */
-  get notifications$(): Observable<any> {
+  get notifications$(): Observable<EventBase> {
     return this.notificationSubject.asObservable();
   }
 
