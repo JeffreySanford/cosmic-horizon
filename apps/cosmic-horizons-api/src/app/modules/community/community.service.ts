@@ -56,19 +56,16 @@ export class CommunityService {
       await this.discoveryRepo.save(seeds);
       this.logger.log('Seeded Community Discoveries (development)');
     } catch (err) {
-      this.logger.debug('Skipping DB seed for CommunityDiscoveries (DB not ready)');
+      // DB not ready or seeding failed in this environment — silently continue for dev/test
     }
   }
 
   async getFeed(limit = 25): Promise<DiscoveryEvent[]> {
     try {
-      // Use a raw query here to avoid potential ORM naming/metadata edge-cases and ensure
-      // the feed always returns even if entity metadata mismatches occur.
-      const rows = await this.discoveryRepo.query(
-        'SELECT id, title, body, author, tags, created_at FROM discoveries ORDER BY created_at DESC LIMIT $1',
-        [limit],
-      );
-      this.logger.debug(`CommunityService.getFeed — rows found: ${Array.isArray(rows) ? rows.length : typeof rows}`);
+      const rows = await this.discoveryRepo.find({
+        order: { created_at: 'DESC' },
+        take: limit,
+      });
 
       return rows.map((r: any) => ({
         id: r.id,

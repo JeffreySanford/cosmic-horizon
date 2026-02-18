@@ -12,10 +12,10 @@ describe('CommunityService (DB-backed)', () => {
   beforeEach(async () => {
     repoMock = {
       find: jest.fn().mockResolvedValue([
-        { id: 'seed-1', title: 'seed', body: 'b', author: 'system', tags: ['x'], createdAt: new Date() },
+        { id: 'seed-1', title: 'seed', body: 'b', author: 'system', tags: ['x'], created_at: new Date() },
       ]),
       create: jest.fn().mockImplementation((o) => o),
-      save: jest.fn().mockImplementation(async (e) => e),
+      save: jest.fn().mockImplementation(async (e) => ({ ...e, created_at: e.created_at || new Date() })),
     } as any;
 
     eventsMock = {
@@ -39,6 +39,14 @@ describe('CommunityService (DB-backed)', () => {
     expect(Array.isArray(feed)).toBeTrue();
     expect(feed.length).toBeGreaterThan(0);
     expect(repoMock.find).toHaveBeenCalled();
+  });
+
+  it('uses TypeORM find ordering and maps created_at to createdAt', async () => {
+    const feed = await service.getFeed(10);
+    expect(repoMock.find).toHaveBeenCalledWith({ order: { created_at: 'DESC' }, take: 10 });
+    expect(feed[0]).toHaveProperty('createdAt');
+    expect(typeof feed[0].createdAt).toBe('string');
+    expect(new Date(feed[0].createdAt).toISOString()).toBe(feed[0].createdAt as string);
   });
 
   it('creates a discovery and persists + publishes event', async () => {

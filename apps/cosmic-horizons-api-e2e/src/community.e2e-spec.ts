@@ -1,4 +1,5 @@
 import axios from 'axios';
+import * as amqp from 'amqplib';
 
 describe('Community Discoveries e2e', () => {
   beforeAll(() => {
@@ -37,4 +38,44 @@ describe('Community Discoveries e2e', () => {
     const found = (feedRes.data as any[]).some((r) => r.title === payload.title && r.author === payload.author);
     expect(found).toBe(true);
   }, 10000);
+
+  it('publishes a RabbitMQ notification when a discovery is created', async () => {
+    const nonce = Date.now();
+    const payload = {
+      title: `e2e-notif-${nonce}`,
+      body: 'Notification test discovery',
+      author: 'e2e-test',
+      tags: ['e2e', 'notif'],
+    };
+
+    // Ensure the notifications queue is empty before the test
+    const conn = await amqp.connect('amqp://guest:guest@localhost:5672');
+    const ch = await conn.createChannel();
+    try {
+      await ch.purgeQueue('websocket-broadcast');
+
+      const createRes = await axios.post('/api/community/posts', payload);
+      expect(createRes.status).toBe(201);
+
+      // Wait for a message on the websocket-broadcast queue (max 5s)
+      const msg: amqp.ConsumeMessage | null = await new Promise((resolve) => {
+        const timer = setTimeout(() => resolve(null), 5000);
+        ch.consume('websocket-broadcast', (m) => {
+          if (m) {
+            clearTimeout(timer);
+            ch.ack(m);
+            resolve(m);
+          }
+        });
+      });
+
+      expect(msg).not.toBeNull();
+      const body = JSON.parse(msg!.content.toString());
+      expect(body.event_type).toBe('community.discovery.created');
+      expect(body.payload.title).toBe(payload.title);
+    } finally {
+      await ch.close();
+      await conn.close();
+    }
+  }, 15000);
 });
