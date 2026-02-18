@@ -1,13 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const baseURL = process.env.BASE_URL ?? 'http://localhost:4200';
-const apiBase = process.env.API_BASE_URL ?? 'http://127.0.0.1:3000';
-
-function createFakeJwt(exp: number) {
-  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
-  const payload = Buffer.from(JSON.stringify({ sub: 'user-1', exp })).toString('base64url');
-  return `${header}.${payload}.sig`;
-}
+const apiBase = process.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000';
 
 test.beforeEach(async ({ context, page }) => {
   await context.clearCookies();
@@ -18,11 +11,15 @@ test.beforeEach(async ({ context, page }) => {
 });
 
 test('community post requiring moderation is hidden until approved', async ({ page, request }) => {
-  const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
+  // authenticate as admin (use real token so backend JWT validation succeeds)
+  const login = await request.post(`${apiBase}/api/auth/login`, { data: { email: 'admin@cosmic.local', password: 'AdminPassword123!' } });
+  expect(login.status()).toBe(201);
+  const { access_token: adminToken } = await login.json();
+
   await page.addInitScript((jwt: string) => {
     window.sessionStorage.setItem('auth_token', jwt);
-    window.sessionStorage.setItem('auth_user', JSON.stringify({ id: 'user-1', username: 'modtester', role: 'user' }));
-  }, token);
+    window.sessionStorage.setItem('auth_user', JSON.stringify({ id: 'admin', username: 'admin', role: 'admin' }));
+  }, adminToken);
 
   const payload = {
     title: `playwright-moderation-${Date.now()}`,
@@ -43,13 +40,19 @@ test('community post requiring moderation is hidden until approved', async ({ pa
 
   // Approve via API (authenticated moderator)
   const approveRes = await request.patch(`${apiBase}/api/community/posts/${created.id}/approve`, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${adminToken}` },
   });
   expect(approveRes.status()).toBe(200);
 
-  // Reload page and expect the post to appear
+  // Reload page and confirm backend + UI show the approved post.
   await page.reload({ waitUntil: 'networkidle' });
-  await expect(page.getByText(payload.title)).toBeVisible();
+  // Backend verification (avoid relying on page's network interception timing)
+  const feedRespDirect = await request.get(`${apiBase}/api/community/feed`);
+  const feedJsonDirect = await feedRespDirect.json();
+  expect(feedJsonDirect.some((f: any) => f.title === payload.title)).toBe(true);
+  // UI verification: wait explicitly for the UI to request the feed, then assert visible
+  await page.waitForResponse((r) => r.url().endsWith('/api/community/feed') && r.request().method() === 'GET', { timeout: 10000 });
+  await expect(page.getByText(payload.title)).toBeVisible({ timeout: 10000 });
 });
 
 test('admin can hide a visible community post and UI updates accordingly', async ({ page, request }) => {
@@ -57,6 +60,12 @@ test('admin can hide a visible community post and UI updates accordingly', async
   const login = await request.post(`${apiBase}/api/auth/login`, { data: { email: 'admin@cosmic.local', password: 'AdminPassword123!' } });
   expect(login.status()).toBe(201);
   const { access_token: adminToken } = await login.json();
+
+  // set browser session so the UI route (protected by AuthGuard) won't redirect to login
+  await page.addInitScript((jwt: string) => {
+    window.sessionStorage.setItem('auth_token', jwt);
+    window.sessionStorage.setItem('auth_user', JSON.stringify({ id: 'admin', username: 'admin', role: 'admin' }));
+  }, adminToken);
 
   const payload = {
     title: `playwright-hide-${Date.now()}`,
@@ -72,14 +81,23 @@ test('admin can hide a visible community post and UI updates accordingly', async
 
   // Post should be visible in the Community UI
   await page.goto('/community', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByText(payload.title)).toBeVisible();
+  // Confirm backend contains the newly created post
+  const initialFeedResp = await request.get(`${apiBase}/api/community/feed`);
+  const initialFeed = await initialFeedResp.json();
+  expect(initialFeed.some((f: any) => f.title === payload.title)).toBe(true);
+  // Wait for the UI to request the feed and render the post (allow small timeout for rendering)
+  await page.waitForResponse((r) => r.url().endsWith('/api/community/feed') && r.request().method() === 'GET', { timeout: 10000 });
+  await expect(page.getByText(payload.title)).toBeVisible({ timeout: 10000 });
 
   // Hide via API as admin
   const hideRes = await request.patch(`${apiBase}/api/community/posts/${created.id}/hide`, { headers: { Authorization: `Bearer ${adminToken}` } });
   expect(hideRes.status()).toBe(200);
 
-  // After hiding, the post should no longer be present in the feed
+  // After hiding, confirm backend feed no longer includes the post and UI updates
   await page.reload({ waitUntil: 'networkidle' });
+  const afterFeedResp = await page.waitForResponse((r) => r.url().endsWith('/api/community/feed') && r.request().method() === 'GET');
+  const afterFeed = await afterFeedResp.json();
+  expect(afterFeed.some((f: any) => f.title === payload.title)).toBe(false);
   await expect(page.getByText(payload.title)).toHaveCount(0);
 });
 
