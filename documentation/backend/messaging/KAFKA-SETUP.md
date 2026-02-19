@@ -50,6 +50,20 @@ docker-compose up -d kafka zookeeper
 # Wait ~15s for broker to stabilize
 ```
 
+### Enable JMX exporter (optional - local dev)
+
+The local docker compose overlay includes an optional Prometheus JMX exporter that exposes Kafka JMX as Prometheus metrics (useful to surface p99/request latency).
+
+- Start the exporter alongside the broker:
+
+```bash
+# uses docker-compose.events.yml which includes the jmx exporter sidecar
+docker compose -f docker-compose.yml -f docker-compose.events.yml up -d cosmic-horizons-kafka-jmx-exporter
+```
+
+- Prometheus/JMX metrics will be available at: `http://localhost:9404/metrics`
+- The collector expects a metric such as `kafka_request_latency_seconds{quantile="0.99"}` (values in seconds) — the exporter config is provided in `docker/kafka-jmx-exporter-config.yml`.
+
 ### docker-compose.yml (Kafka Section)
 
 ```yaml

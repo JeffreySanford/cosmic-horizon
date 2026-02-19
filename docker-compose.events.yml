@@ -49,8 +49,11 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_LOG_RETENTION_HOURS: 2160
       KAFKA_LOG_RETENTION_BYTES: 1099511627776
+      # Enable remote JMX for Prometheus JMX exporter (local/dev only)
+      KAFKA_JMX_OPTS: '-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.rmi.port=9999 -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=cosmic-horizons-kafka'
     ports:
       - "127.0.0.1:${KAFKA_PORT:-9092}:9092"
+      - "127.0.0.1:9999:9999"   # JMX port (for jmx-prometheus-exporter sidecar)
     volumes:
       - cosmic-horizons-kafka-data:/var/lib/kafka/data
     networks:
@@ -87,6 +90,26 @@ services:
     networks:
       - cosmic-horizons-network
     restart: unless-stopped
+
+  # ==========================================================================
+  # Kafka JMX-exporter (prometheus jmx_prometheus_httpserver sidecar)
+  # - Scrapes Kafka JMX and exposes Prometheus metrics (including request latency p99)
+  # - Exposes /metrics on port 9404
+  # ==========================================================================
+  cosmic-horizons-kafka-jmx-exporter:
+    image: justwatch/jmx-prometheus-exporter:0.16.0
+    container_name: cosmic-horizons-kafka-jmx-exporter
+    depends_on:
+      cosmic-horizons-kafka:
+        condition: service_healthy
+    volumes:
+      - ./docker/kafka-jmx-exporter-config.yml:/etc/jmx-exporter/config.yml:ro
+    ports:
+      - "127.0.0.1:9404:9404"
+    networks:
+      - cosmic-horizons-network
+    restart: unless-stopped
+    command: ["9404", "/etc/jmx-exporter/config.yml", "cosmic-horizons-kafka:9999"]
 
   # ============================================================================
   # RABBITMQ (Ephemeral Real-time Messaging)

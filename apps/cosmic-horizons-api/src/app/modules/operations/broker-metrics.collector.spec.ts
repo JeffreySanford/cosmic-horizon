@@ -226,6 +226,41 @@ describe('BrokerMetricsCollector', () => {
       offsetsSpy.mockRestore();
       jest.useRealTimers();
     });
+
+    it('should parse Kafka /metrics when Prometheus provides quantile p99', async () => {
+      // Provide a KAFKA_METRICS_URL so collector uses axios.get() for Prometheus scrape
+      process.env['KAFKA_METRICS_URL'] = 'http://localhost:9404/metrics';
+      const metricsText = 'kafka_request_latency_seconds{quantile="0.99"} 0.0123\n';
+
+      // axios.get should return the metrics text for the configured URL
+      (mockedAxios.get as jest.Mock).mockImplementation((url: string) => {
+        if (url === process.env['KAFKA_METRICS_URL']) {
+          return Promise.resolve({ data: metricsText });
+        }
+        return Promise.resolve({ data: '' });
+      });
+
+      // Force REST proxy path to fail so native path is exercised and collectKafkaMetricsFromPrometheus() is invoked
+      mockedAxios.create.mockReturnValue({ get: jest.fn().mockRejectedValue(new Error('not found')) } as any);
+
+      const testCollector = new BrokerMetricsCollector();
+
+      // Stub native admin topic/offset reads
+      const topicsSpy = jest.spyOn(testCollector as any, 'fetchTopicsForNative').mockResolvedValue(['topicA']);
+      const offsetsSpy = jest
+        .spyOn(testCollector as any, 'fetchTopicOffsetsForNative')
+        .mockResolvedValueOnce([{ partition: 0, offset: '100' }])
+        .mockResolvedValueOnce([{ partition: 0, offset: '200' }]);
+
+      const result = await (testCollector as any).collectKafkaMetricsNative();
+
+      expect(result.p99LatencyMs).toBeGreaterThan(0);
+      expect(result.metricQuality?.p99LatencyMs).toBe('measured');
+
+      topicsSpy.mockRestore();
+      offsetsSpy.mockRestore();
+      delete process.env['KAFKA_METRICS_URL'];
+    });
   });
 
   describe('constructor', () => {

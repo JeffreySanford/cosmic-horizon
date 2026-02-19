@@ -1,0 +1,36 @@
+lowercaseOutputName: true
+rules:
+  # Common Kafka network request latency (timer/histogram) -> expose as seconds with quantiles
+  - pattern: 'kafka.network<type=RequestMetrics, name=RequestQueueTimeMs, request=(?:.+)><>50thPercentile'
+    name: kafka_network_request_metrics_request_latency_seconds
+    type: summary
+    attr:
+      - "50thPercentile"
+  - pattern: 'kafka.network<type=RequestMetrics, name=RequestQueueTimeMs, request=(?:.+)><>95thPercentile'
+    name: kafka_network_request_metrics_request_latency_seconds
+    type: summary
+    attr:
+      - "95thPercentile"
+  - pattern: 'kafka.network<type=RequestMetrics, name=RequestQueueTimeMs, request=(?:.+)><>99thPercentile'
+    name: kafka_network_request_metrics_request_latency_seconds
+    type: summary
+    attr:
+      - "99thPercentile"
+
+  # Fallback: expose any MBean that looks like a request latency histogram as kafka_request_latency_seconds
+  - pattern: 'kafka\.network<type=RequestMetrics, name=(Request.*TimeMs), request=(.+)><>Value'
+    name: kafka_request_latency_seconds
+    type: gauge
+    labels:
+      request: "$2"
+
+  # Generic percentile-style metrics (some exporters use quantile labels)
+  - pattern: 'kafka_request_latency_seconds\{quantile="([0-9\.]+)"\}.*'
+    name: kafka_request_latency_seconds
+    type: gauge
+
+  # Keep other metrics as default mapping so prometheus can scrape useful broker metrics
+  - pattern: '^(kafka\..*)'
+    name: $1
+    type: untyped
+    help: "Auto-mapped Kafka JMX metric"
