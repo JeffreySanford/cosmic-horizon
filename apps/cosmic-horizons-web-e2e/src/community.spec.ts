@@ -2,34 +2,12 @@ import { test, expect } from '@playwright/test';
 
 const apiBase = process.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000';
 
-test.beforeEach(async ({ context, page, request }) => {
+test.beforeEach(async ({ context, page }) => {
   await context.clearCookies();
   await page.addInitScript(() => {
     window.localStorage.clear();
     window.sessionStorage.clear();
   });
-
-  // Wait for API health to avoid intermittent ECONNREFUSED when the API is still starting
-  const maxWaitMs = 30_000;
-  const start = Date.now();
-  let healthy = false;
-  while (Date.now() - start < maxWaitMs) {
-    try {
-      const res = await request.get(`${apiBase}/health`);
-      if (res.ok()) {
-        healthy = true;
-        break;
-      }
-    } catch (_e) {
-      // ignore and retry
-    }
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  if (!healthy) {
-    throw new Error(
-      `API at ${apiBase} not reachable after ${maxWaitMs}ms — ensure cosmic-horizons-api is running`,
-    );
-  }
 });
 
 test('community post requiring moderation is hidden until approved', async ({

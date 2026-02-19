@@ -35,6 +35,8 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
+  // Ensure backend API is reachable before any test runs
+  globalSetup: require.resolve('./global-setup'),
   /* Run your local dev server before starting the tests. Bind to 0.0.0.0 on CI so containerized services can reach it. */
   webServer: {
     // Start both frontend and API so E2E tests have the real backend available.

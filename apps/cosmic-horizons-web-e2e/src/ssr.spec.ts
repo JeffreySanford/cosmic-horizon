@@ -6,27 +6,6 @@ async function fetchSsrHtml(
   path: '/auth/login' | '/landing',
   request: APIRequestContext,
 ): Promise<string> {
-  // Ensure API is ready before requesting SSR payloads to avoid ECONNREFUSED flakes
-  const maxWaitMs = 15_000;
-  const start = Date.now();
-  let healthy = false;
-  while (Date.now() - start < maxWaitMs) {
-    try {
-      const res = await request.get('/health');
-      if (res.ok()) {
-        healthy = true;
-        break;
-      }
-    } catch (_e) {
-      // ignore and retry
-    }
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  expect(
-    healthy,
-    `API /health did not become ready within ${maxWaitMs}ms`,
-  ).toBeTruthy();
-
   const response = await request.get(path);
   expect(
     response.ok(),
