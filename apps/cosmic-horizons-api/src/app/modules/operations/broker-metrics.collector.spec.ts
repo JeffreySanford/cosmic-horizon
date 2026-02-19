@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BrokerMetricsCollector } from './broker-metrics.collector';
 import axios from 'axios';
+import { Kafka } from 'kafkajs';
 
 afterEach(async () => {
   await testingModule?.close();
@@ -242,6 +243,14 @@ describe('BrokerMetricsCollector', () => {
 
       // Stub out the admin topic/offset reads on the collector instance
       const testCollector = new BrokerMetricsCollector();
+
+      // Mock kafkajs admin to prevent CI from attempting real broker connections
+      const adminMock = {
+        connect: jest.fn().mockResolvedValue(undefined),
+        disconnect: jest.fn().mockResolvedValue(undefined),
+      } as any;
+      jest.spyOn(Kafka.prototype as any, 'admin').mockImplementation(() => adminMock);
+
       const topicsSpy = jest
         .spyOn(testCollector as any, 'fetchTopicsForNative')
         .mockResolvedValue(['topicA']);
@@ -260,6 +269,7 @@ describe('BrokerMetricsCollector', () => {
       expect(second.messagesPerSecond).toBeGreaterThanOrEqual(99);
       expect(second.messagesPerSecond).toBeLessThanOrEqual(101);
 
+      (Kafka.prototype as any).admin.mockRestore();
       topicsSpy.mockRestore();
       offsetsSpy.mockRestore();
       jest.useRealTimers();
