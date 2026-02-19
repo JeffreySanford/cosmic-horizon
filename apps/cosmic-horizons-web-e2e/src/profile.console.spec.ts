@@ -26,22 +26,20 @@ test.describe('Profile — console & retry behavior', () => {
   });
 
   test('shows retry button when profile load stalls and retry succeeds', async ({ page }) => {
-    // Intercept the profile API and *hold* the first response until we observe the timeout UI
-    let first = true;
-    let releaseFirst: (() => void) | null = null;
-
-    await page.route(PROFILE_API_PATH, async (route) => {
-      if (first) {
-        first = false;
-        // hold the response until test calls releaseFirst()
-        await new Promise<void>((resolve) => {
-          releaseFirst = resolve;
-        });
-        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { username: 'adminuser', display_name: 'Admin User', created_at: new Date().toISOString() }, posts: [] }) });
-      } else {
-        // immediate response on retry
-        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { username: 'adminuser', display_name: 'Admin User', created_at: new Date().toISOString() }, posts: [] }) });
-      }
+    // Inject a fetch wrapper to *hold* the initial profile API promise on the client
+    await page.addInitScript(() => {
+      (window as any).__releaseProfile = null;
+      const orig = window.fetch.bind(window);
+      window.fetch = (input: RequestInfo, init?: RequestInit) => {
+        const url = typeof input === 'string' ? input : (input as Request).url;
+        if (url.includes('/api/profiles/adminuser') && !(window as any).__profileHeld) {
+          (window as any).__profileHeld = true;
+          return new Promise((resolve) => {
+            (window as any).__releaseProfile = resolve;
+          }).then(() => orig(input, init));
+        }
+        return orig(input, init);
+      };
     });
 
     await page.goto('/profile/adminuser');
@@ -50,8 +48,12 @@ test.describe('Profile — console & retry behavior', () => {
     await page.waitForSelector('[data-test="profile-retry"]', { timeout: 12000 });
     await expect(page.locator('[data-test="profile-retry"]')).toBeVisible();
 
-    // Release the held response so the retry can succeed
-    if (releaseFirst) releaseFirst();
+    // release the held request so the client receives the API response
+    await page.evaluate(() => {
+      if ((window as any).__releaseProfile) {
+        (window as any).__releaseProfile();
+      }
+    });
 
     // click retry and assert the profile eventually renders
     await page.click('[data-test="profile-retry"]');
