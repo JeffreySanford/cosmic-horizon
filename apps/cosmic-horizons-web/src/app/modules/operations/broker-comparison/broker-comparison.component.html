@@ -58,21 +58,21 @@
       <mat-card-content>
         <div class="status-grid">
           <button type="button" class="status-item" [ngClass]="[getStatusClass(brokerStatuses['rabbitmq']), isBrokerFeedEnabled('rabbitmq') ? 'feed-enabled' : 'feed-disabled']"
-            (click)="toggleBrokerFeed('rabbitmq')">
+            (click)="toggleBrokerFeed('rabbitmq')" [disabled]="brokerStatuses['rabbitmq'] === 'error'" [matTooltip]="brokerStatuses['rabbitmq'] === 'error' ? 'Broker unavailable — feed disabled' : 'Toggle feed'">
             <div class="status-indicator"></div>
             <div class="status-name">RabbitMQ</div>
             <div class="status-value">Broker {{ getBrokerConnectivityLabel(brokerStatuses['rabbitmq']) }} • Feed {{ isBrokerFeedEnabled('rabbitmq') ? 'ON' : 'OFF' }}</div>
           </button>
 
           <button type="button" class="status-item" [ngClass]="[getStatusClass(brokerStatuses['kafka']), isBrokerFeedEnabled('kafka') ? 'feed-enabled' : 'feed-disabled']"
-            (click)="toggleBrokerFeed('kafka')">
+            (click)="toggleBrokerFeed('kafka')" [disabled]="brokerStatuses['kafka'] === 'error'" [matTooltip]="brokerStatuses['kafka'] === 'error' ? 'Broker unavailable — feed disabled' : 'Toggle feed'">
             <div class="status-indicator"></div>
             <div class="status-name">Kafka</div>
             <div class="status-value">Broker {{ getBrokerConnectivityLabel(brokerStatuses['kafka']) }} • Feed {{ isBrokerFeedEnabled('kafka') ? 'ON' : 'OFF' }}</div>
           </button>
 
           <button type="button" class="status-item" [ngClass]="[getStatusClass(brokerStatuses['pulsar']), isBrokerFeedEnabled('pulsar') ? 'feed-enabled' : 'feed-disabled']"
-            (click)="toggleBrokerFeed('pulsar')">
+            (click)="toggleBrokerFeed('pulsar')" [disabled]="brokerStatuses['pulsar'] === 'error'" [matTooltip]="brokerStatuses['pulsar'] === 'error' ? 'Broker unavailable — feed disabled' : 'Toggle feed'">
             <div class="status-indicator"></div>
             <div class="status-name">Pulsar</div>
             <div class="status-value">Broker {{ getBrokerConnectivityLabel(brokerStatuses['pulsar']) }} • Feed {{ isBrokerFeedEnabled('pulsar') ? 'ON' : 'OFF' }}</div>

@@ -9,6 +9,7 @@ import {
   NgZone,
   HostListener,
 } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { interval, Subject, takeUntil } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { BrokerDataService, BenchmarkBroker } from './services/broker-data.service';
@@ -72,6 +73,7 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
   private readonly brokerDataService = inject(BrokerDataService);
   private readonly ngZone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly isTestEnvironment =
     (typeof process !== 'undefined' &&
       typeof process.env !== 'undefined' &&
@@ -247,6 +249,16 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
   }
 
   toggleBrokerFeed(broker: BrokerKey): void {
+    const status = (this.brokerStatuses as Record<string, string>)[broker];
+
+    // Prevent enabling a feed for a broker that is currently unavailable.
+    if (status && status !== 'ok') {
+      // Ensure feed remains off for unavailable brokers and inform the user.
+      this.brokerFeedEnabled[broker] = false;
+      this.snackBar.open('Broker unavailable — feed is disabled until connectivity is restored', 'OK', { duration: 4000 });
+      return;
+    }
+
     this.brokerFeedEnabled[broker] = !this.brokerFeedEnabled[broker];
     if (!this.brokerFeedEnabled[broker]) {
       this.clearInMemoryDashboardState();

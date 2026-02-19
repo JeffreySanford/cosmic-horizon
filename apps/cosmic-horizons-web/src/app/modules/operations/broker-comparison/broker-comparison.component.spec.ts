@@ -550,7 +550,28 @@ describe('BrokerComparisonComponent', () => {
       component.toggleBrokerFeed('kafka');
       expect(component.isBrokerFeedEnabled('kafka')).toBe(false);
     });
-  });
+    it('should prevent enabling feed when broker status is error and show snackbar', () => {
+      // make kafka unavailable
+      component.brokerStatuses = { rabbitmq: 'ok', kafka: 'error', pulsar: 'ok' } as any;
+      // ensure feed starts OFF for test
+      component.brokerFeedEnabled['kafka'] = false;
+
+      // spy on snackBar
+      const snackSpy = vi.spyOn((component as any).snackBar, 'open');
+
+      component.toggleBrokerFeed('kafka');
+
+      expect(component.isBrokerFeedEnabled('kafka')).toBe(false);
+      expect(snackSpy).toHaveBeenCalledWith('Broker unavailable — feed is disabled until connectivity is restored', 'OK', { duration: 4000 });
+    });
+
+    it('should render disabled tile button when broker status is error', () => {
+      component.brokerStatuses = { rabbitmq: 'error', kafka: 'ok', pulsar: 'ok' } as any;
+      fixture.detectChanges();
+      const buttons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('.status-item');
+      const rabbitBtn = buttons[0];
+      expect(rabbitBtn.disabled).toBe(true);
+    });  });
 
   describe('last refresh text', () => {
     it('should show "Never" when no refresh yet', () => {
