@@ -63,6 +63,33 @@ services:
       retries: 20
       start_period: 30s
 
+  # ==========================================================================
+  # Kafka Prometheus exporter (optional)
+  # - Exposes /metrics on port 9308 for Prometheus scraping and local dev
+  # - Set KAFKA_METRICS_URL=http://localhost:9308/metrics in your environment
+  # ==========================================================================
+  cosmic-horizons-kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: cosmic-horizons-kafka-exporter
+    depends_on:
+      cosmic-horizons-kafka:
+        condition: service_healthy
+    environment:
+      # Connect to the internal container listener used on the Docker network
+      - KAFKA_BROKERS=cosmic-horizons-kafka:29092
+      - LOG_LEVEL=info
+    ports:
+      - "127.0.0.1:9308:9308"
+    networks:
+      - cosmic-horizons-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "sh", "-c", "curl -sf http://localhost:9308/metrics | grep -q 'kafka' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   # ============================================================================
   # RABBITMQ (Ephemeral Real-time Messaging)
   # ============================================================================
