@@ -601,7 +601,7 @@ async function benchmarkKafka() {
     const startWait = Date.now();
     while (!finished && Date.now() - startWait < maxWaitMs) {
       // small sleep
-      // eslint-disable-next-line no-await-in-loop
+       
       await new Promise((r) => setTimeout(r, 50));
     }
 
@@ -631,13 +631,19 @@ async function benchmarkKafka() {
   } finally {
     try {
       if (producer) await producer.disconnect();
-    } catch (_) {}
+    } catch (_err) {
+      // ignore cleanup errors
+    }
     try {
       if (consumer) await consumer.disconnect();
-    } catch (_) {}
+    } catch (_err) {
+      // ignore cleanup errors
+    }
     try {
       if (kafkaAdmin) await kafkaAdmin.disconnect();
-    } catch (_) {}
+    } catch (_err) {
+      // ignore cleanup errors
+    }
   }
 }
 
@@ -855,7 +861,7 @@ async function main() {
 
       lastRabbitmqResults = rabbitmqResults;
       lastPulsarResults = pulsarResults;
-      var lastKafkaResults = kafkaResults;
+      const lastKafkaResults = kafkaResults;
 
       compareResults(rabbitmqResults, pulsarResults, kafkaResults);
     }
