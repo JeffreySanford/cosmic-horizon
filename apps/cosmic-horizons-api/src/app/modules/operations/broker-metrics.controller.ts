@@ -285,17 +285,6 @@ export class BrokerMetricsController {
     }
 
     const health = await this.brokerMetricsService.getCurrentMetrics(true);
-    const unsupportedForReplay = selectedBrokers.filter((broker) => broker === 'kafka');
-    if (unsupportedForReplay.length > 0) {
-      return {
-        status: 'blocked',
-        jobId: '',
-        estimatedDurationSeconds: 0,
-        testType: isStressTest ? 'stress' : 'standard',
-        reason: 'Controlled replay currently supports RabbitMQ and Pulsar only. Kafka replay runner is not implemented yet.',
-        selectedBrokers,
-      };
-    }
 
     const unavailable = selectedBrokers.filter((broker) => !health.brokers[broker]?.connected);
     if (unavailable.length > 0) {

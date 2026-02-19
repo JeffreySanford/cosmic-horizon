@@ -208,10 +208,10 @@ describe('BrokerMetricsController', () => {
       expect(result.reason).toContain('unavailable');
     });
 
-    it('should block controlled replay when kafka is selected', async () => {
+    it('should allow controlled replay when kafka is selected', async () => {
       const result = await controller.startBenchmark('false', '10000', 'kafka');
-      expect(result.status).toBe('blocked');
-      expect(result.reason).toContain('RabbitMQ and Pulsar only');
+      expect(['queued', 'running']).toContain(result.status);
+      expect(result.selectedBrokers).toContain('kafka');
     });
 
     it('should block measured-only benchmark when broker data source is fallback', async () => {

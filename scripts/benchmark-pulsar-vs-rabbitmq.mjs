@@ -419,16 +419,154 @@ async function benchmarkPulsar() {
 }
 
 // ============================================================================
+// Kafka Benchmark (new)
+// ============================================================================
+async function benchmarkKafka() {
+  console.log('\n' + '='.repeat(70));
+  console.log('KAFKA BENCHMARK');
+  console.log('='.repeat(70));
+
+  const results = {
+    broker: 'Kafka',
+    testTime: new Date().toISOString(),
+    config: {},
+    phases: {},
+  };
+
+  let kafkaAdmin = null;
+  let producer = null;
+  let consumer = null;
+
+  try {
+    const { Kafka, CompressionTypes } = await import('kafkajs');
+    const brokers = (process.env.KAFKA_BROKERS ?? 'localhost:9092').split(',').map(b => b.trim());
+    const kafka = new Kafka({ clientId: 'benchmark-script', brokers, retry: { retries: 5 } });
+
+    kafkaAdmin = kafka.admin();
+    await kafkaAdmin.connect();
+    const topic = 'job-events-benchmark';
+
+    // Ensure topic exists (idempotent)
+    try {
+      await kafkaAdmin.createTopics({ topics: [{ topic, numPartitions: 3, replicationFactor: 1 }], waitForLeaders: true });
+    } catch (e) {
+      // ignore topic already exists or creation issues in dev environments
+    }
+
+    // Producer: publish messages
+    producer = kafka.producer();
+    await producer.connect();
+
+    const pubStartMem = process.memoryUsage().heapUsed / 1024 / 1024;
+    const pubStart = performance.now();
+
+    let batch = [];
+    for (let i = 0; i < CONFIG.messageCount; i++) {
+      const event = generateJobSubmittedEvent(i);
+      batch.push({ key: `evt-${CONFIG.seed}-${i}`, value: JSON.stringify(event) });
+
+      if (batch.length >= Math.min(CONFIG.batchSize, CONFIG.inflight)) {
+        await producer.send({ topic, messages: batch, compression: CompressionTypes.GZIP });
+        batch = [];
+      }
+
+      if ((i + 1) % CONFIG.batchSize === 0) {
+        process.stdout.write(`\r  Published: ${i + 1}/${CONFIG.messageCount}`);
+      }
+    }
+    if (batch.length > 0) {
+      await producer.send({ topic, messages: batch, compression: CompressionTypes.GZIP });
+      batch = [];
+    }
+
+    const pubDuration = performance.now() - pubStart;
+    const pubEndMem = process.memoryUsage().heapUsed / 1024 / 1024;
+
+    results.phases.publish = {
+      duration: pubDuration,
+      messagesPerSecond: (CONFIG.messageCount / (pubDuration / 1000)).toFixed(2),
+      memoryUsedMb: (pubEndMem - pubStartMem).toFixed(2),
+      avgLatencyMs: (pubDuration / CONFIG.messageCount).toFixed(4),
+    };
+
+    console.log(`\n  ✓ Published ${CONFIG.messageCount} messages`);
+    console.log(`  - Duration: ${pubDuration.toFixed(2)}ms`);
+    console.log(`  - Throughput: ${results.phases.publish.messagesPerSecond} msg/s`);
+    console.log(`  - Memory used: ${results.phases.publish.memoryUsedMb} MB`);
+
+    // Consumer: subscribe and consume messages
+    consumer = kafka.consumer({ groupId: `benchmark-consumer-${Date.now()}` });
+    await consumer.connect();
+    await consumer.subscribe({ topic, fromBeginning: true });
+
+    let consumedCount = 0;
+    const conStartMem = process.memoryUsage().heapUsed / 1024 / 1024;
+    const conStart = performance.now();
+
+    const maxWaitMs = 30000; // safety timeout per test
+    let finished = false;
+
+    await consumer.run({
+      eachMessage: async () => {
+        consumedCount++;
+        if (consumedCount % CONFIG.batchSize === 0) {
+          process.stdout.write(`\r  Consumed: ${consumedCount}/${CONFIG.messageCount}`);
+        }
+        if (consumedCount >= CONFIG.messageCount && !finished) {
+          finished = true;
+          // give the loop a tick then disconnect the consumer
+          setTimeout(() => {
+            consumer.disconnect().catch(() => undefined);
+          }, 0);
+        }
+      },
+    });
+
+    // wait until consumption completes or times out
+    const startWait = Date.now();
+    while (!finished && Date.now() - startWait < maxWaitMs) {
+      // small sleep
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((r) => setTimeout(r, 50));
+    }
+
+    const conDuration = performance.now() - conStart;
+    const conEndMem = process.memoryUsage().heapUsed / 1024 / 1024;
+
+    results.phases.consume = {
+      duration: conDuration,
+      messagesPerSecond: (CONFIG.messageCount / (conDuration / 1000)).toFixed(2),
+      memoryUsedMb: (conEndMem - conStartMem).toFixed(2),
+      avgLatencyMs: (conDuration / CONFIG.messageCount).toFixed(4),
+    };
+
+    console.log(`\n  ✓ Consumed ${consumedCount} messages`);
+    console.log(`  - Duration: ${conDuration.toFixed(2)}ms`);
+    console.log(`  - Throughput: ${results.phases.consume.messagesPerSecond} msg/s`);
+    console.log(`  - Memory used: ${results.phases.consume.memoryUsedMb} MB`);
+
+    return results;
+  } catch (error) {
+    console.error('Kafka benchmark error:', error?.message ?? String(error));
+    return null;
+  } finally {
+    try { if (producer) await producer.disconnect(); } catch (_) {}
+    try { if (consumer) await consumer.disconnect(); } catch (_) {}
+    try { if (kafkaAdmin) await kafkaAdmin.disconnect(); } catch (_) {}
+  }
+}
+
+// ============================================================================
 // Results Comparison & Reporting
 // ============================================================================
 
-function compareResults(rabbitmqResults, pulsarResults) {
+function compareResults(rabbitmqResults, pulsarResults, kafkaResults) {
   console.log('\n' + '='.repeat(70));
   console.log('COMPARATIVE ANALYSIS');
   console.log('='.repeat(70));
 
-  if (!rabbitmqResults || !pulsarResults) {
-    console.log('⚠ Could not compare results - one or both benchmarks failed');
+  if (!rabbitmqResults) {
+    console.log('⚠ Could not compare results - RabbitMQ benchmark missing');
     return;
   }
 
@@ -436,27 +574,54 @@ function compareResults(rabbitmqResults, pulsarResults) {
 
   for (const metric of metrics) {
     console.log(`\n[${metric.toUpperCase()}]`);
-    const rmq = rabbitmqResults.phases[metric];
-    const pulsar = pulsarResults.phases[metric];
 
-    console.log(`\n  RabbitMQ:`);
-    console.log(`    Throughput: ${rmq.messagesPerSecond} msg/s`);
-    console.log(`    Avg Latency: ${rmq.avgLatencyMs} ms/msg`);
-    console.log(`    Memory: ${rmq.memoryUsedMb} MB`);
+    const rmq = rabbitmqResults?.phases[metric];
+    const pulsar = pulsarResults?.phases[metric];
+    const kafka = kafkaResults?.phases[metric];
 
-    console.log(`\n  Pulsar:`);
-    console.log(`    Throughput: ${pulsar.messagesPerSecond} msg/s`);
-    console.log(`    Avg Latency: ${pulsar.avgLatencyMs} ms/msg`);
-    console.log(`    Memory: ${pulsar.memoryUsedMb} MB`);
+    console.log('\n  RabbitMQ:');
+    if (rmq) {
+      console.log(`    Throughput: ${rmq.messagesPerSecond} msg/s`);
+      console.log(`    Avg Latency: ${rmq.avgLatencyMs} ms/msg`);
+      console.log(`    Memory: ${rmq.memoryUsedMb} MB`);
+    } else {
+      console.log('    <no data>');
+    }
 
-    const throughputImprovement = ((pulsar.messagesPerSecond - rmq.messagesPerSecond) / rmq.messagesPerSecond * 100).toFixed(2);
-    const latencyImprovement = ((rmq.avgLatencyMs - pulsar.avgLatencyMs) / rmq.avgLatencyMs * 100).toFixed(2);
-    const memoryImprovement = ((rmq.memoryUsedMb - pulsar.memoryUsedMb) / rmq.memoryUsedMb * 100).toFixed(2);
+    if (pulsar) {
+      console.log('\n  Pulsar:');
+      console.log(`    Throughput: ${pulsar.messagesPerSecond} msg/s`);
+      console.log(`    Avg Latency: ${pulsar.avgLatencyMs} ms/msg`);
+      console.log(`    Memory: ${pulsar.memoryUsedMb} MB`);
+    }
 
-    console.log(`\n  Performance Delta:`);
-    console.log(`    Throughput: ${throughputImprovement > 0 ? '+' : ''}${throughputImprovement}% (Pulsar ${throughputImprovement > 0 ? 'faster' : 'slower'})`);
-    console.log(`    Latency: ${latencyImprovement > 0 ? '+' : ''}${latencyImprovement}% (Pulsar ${latencyImprovement > 0 ? 'faster' : 'slower'})`);
-    console.log(`    Memory: ${memoryImprovement > 0 ? '+' : ''}${memoryImprovement}% (Pulsar ${memoryImprovement > 0 ? 'efficient' : 'less efficient'})`);
+    if (kafka) {
+      console.log('\n  Kafka:');
+      console.log(`    Throughput: ${kafka.messagesPerSecond} msg/s`);
+      console.log(`    Avg Latency: ${kafka.avgLatencyMs ?? 'N/A'} ms/msg`);
+      console.log(`    Memory: ${kafka.memoryUsedMb} MB`);
+    }
+
+    // Compute deltas vs RabbitMQ when both sides exist
+    if (rmq && pulsar) {
+      const throughputImprovement = ((pulsar.messagesPerSecond - rmq.messagesPerSecond) / rmq.messagesPerSecond * 100).toFixed(2);
+      const latencyImprovement = ((rmq.avgLatencyMs - pulsar.avgLatencyMs) / rmq.avgLatencyMs * 100).toFixed(2);
+      const memoryImprovement = ((rmq.memoryUsedMb - pulsar.memoryUsedMb) / rmq.memoryUsedMb * 100).toFixed(2);
+
+      console.log(`\n  Pulsar vs RabbitMQ:`);
+      console.log(`    Throughput: ${throughputImprovement > 0 ? '+' : ''}${throughputImprovement}%`);
+      console.log(`    Latency: ${latencyImprovement > 0 ? '+' : ''}${latencyImprovement}%`);
+      console.log(`    Memory: ${memoryImprovement > 0 ? '+' : ''}${memoryImprovement}%`);
+    }
+
+    if (rmq && kafka) {
+      const throughputImprovementK = ((kafka.messagesPerSecond - rmq.messagesPerSecond) / rmq.messagesPerSecond * 100).toFixed(2);
+      const memoryImprovementK = ((rmq.memoryUsedMb - kafka.memoryUsedMb) / rmq.memoryUsedMb * 100).toFixed(2);
+
+      console.log(`\n  Kafka vs RabbitMQ:`);
+      console.log(`    Throughput: ${throughputImprovementK > 0 ? '+' : ''}${throughputImprovementK}%`);
+      console.log(`    Memory: ${memoryImprovementK > 0 ? '+' : ''}${memoryImprovementK}%`);
+    }
   }
 }
 
@@ -465,7 +630,7 @@ function summarizeTrials(allTrialResults) {
   console.log('TRIAL SUMMARY (MEDIAN / P95)');
   console.log('='.repeat(70));
 
-  const brokerNames = ['rabbitmq', 'pulsar'];
+  const brokerNames = ['rabbitmq', 'kafka', 'pulsar'];
   for (const brokerName of brokerNames) {
     const trialBrokerResults = allTrialResults
       .map(result => result[brokerName])
@@ -474,7 +639,7 @@ function summarizeTrials(allTrialResults) {
 
     for (const phase of ['publish', 'consume']) {
       const throughputs = trialBrokerResults.map(result => Number(result.phases[phase].messagesPerSecond));
-      const latencies = trialBrokerResults.map(result => Number(result.phases[phase].avgLatencyMs));
+      const latencies = trialBrokerResults.map(result => Number(result.phases[phase].avgLatencyMs || 0));
 
       const throughputMedian = median(throughputs);
       const throughputP95 = percentile(throughputs, 95);
@@ -491,7 +656,7 @@ function summarizeTrials(allTrialResults) {
   }
 }
 
-function saveResults(rabbitmqResults, pulsarResults) {
+function saveResults(rabbitmqResults, pulsarResults, kafkaResults) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const filename = `benchmark-${timestamp}.json`;
   const filepath = path.join(resultsDir, filename);
@@ -509,6 +674,7 @@ function saveResults(rabbitmqResults, pulsarResults) {
     },
     results: {
       rabbitmq: rabbitmqResults,
+      kafka: kafkaResults,
       pulsar: pulsarResults
     }
   };
@@ -547,6 +713,7 @@ async function main() {
       resetRandom(CONFIG.seed);
       let rabbitmqResults = null;
       let pulsarResults = null;
+      let kafkaResults = null;
 
       if (CONFIG.brokers.includes('rabbitmq')) {
         rabbitmqResults = await benchmarkRabbitMQ();
@@ -557,22 +724,24 @@ async function main() {
       }
 
       if (CONFIG.brokers.includes('kafka')) {
-        console.log('Kafka benchmark path not implemented in this script yet; skipping Kafka trial.');
+        kafkaResults = await benchmarkKafka();
       }
 
       allTrialResults.push({
         rabbitmq: rabbitmqResults,
+        kafka: kafkaResults,
         pulsar: pulsarResults,
       });
 
       lastRabbitmqResults = rabbitmqResults;
       lastPulsarResults = pulsarResults;
+      var lastKafkaResults = kafkaResults;
 
-      compareResults(rabbitmqResults, pulsarResults);
+      compareResults(rabbitmqResults, pulsarResults, kafkaResults);
     }
 
     summarizeTrials(allTrialResults);
-    saveResults(lastRabbitmqResults, lastPulsarResults);
+    saveResults(lastRabbitmqResults, lastPulsarResults, lastKafkaResults);
 
     console.log('\n' + '='.repeat(70));
     console.log('Benchmark completed successfully!');
