@@ -21,6 +21,12 @@ export class ProfileComponent implements OnInit {
   isOwner = false;
   saveMessage: string | null = null;
 
+  // Retry/fallback state for stuck loads
+  loadTimedOut = false;
+  private _loadTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private currentUsername: string | null = null;
+  private retryCount = 0;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly profileApi = inject(ProfileApiService);
@@ -63,9 +69,23 @@ export class ProfileComponent implements OnInit {
     // DEBUG: entry
     console.debug('[ProfileComponent] loadProfile.start', { username });
 
+    // clear any previous timeout and state
+    if (this._loadTimeoutId) {
+      clearTimeout(this._loadTimeoutId);
+      this._loadTimeoutId = null;
+    }
+    this.loadTimedOut = false;
+    this.currentUsername = username;
+
     this.loading = true;
     this.error = null;
     this.saveMessage = null;
+
+    // If load is still in progress after 8s, surface a retry option to the user
+    this._loadTimeoutId = setTimeout(() => {
+      this.loadTimedOut = true;
+      console.debug('[ProfileComponent] loadProfile.timedOut', { username });
+    }, 8000);
 
     this.profileApi
       .getProfile(username)
@@ -73,6 +93,11 @@ export class ProfileComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         timeout(10000),
         finalize(() => {
+          // clear timeout and mark loading finished
+          if (this._loadTimeoutId) {
+            clearTimeout(this._loadTimeoutId);
+            this._loadTimeoutId = null;
+          }
           this.loading = false;
           console.debug('[ProfileComponent] loadProfile.finalize', { username, loading: this.loading });
         }),
@@ -82,6 +107,8 @@ export class ProfileComponent implements OnInit {
           console.debug('[ProfileComponent] getProfile.next', profile);
           this.profile = profile;
           this.editing = false;
+          this.loadTimedOut = false;
+          this.retryCount = 0;
           try {
             this.editForm.reset({
               display_name: profile.user.display_name || profile.user.username || '',
@@ -98,6 +125,20 @@ export class ProfileComponent implements OnInit {
           this.error = err.error?.message || 'Failed to load profile.';
         },
       });
+  }
+
+  retryProfile(): void {
+    if (!this.currentUsername) return;
+
+    // Prevent infinite retry storms
+    if (this.retryCount >= 3) {
+      console.warn('[ProfileComponent] retryProfile: max retries reached');
+      return;
+    }
+
+    this.retryCount += 1;
+    console.debug('[ProfileComponent] retryProfile', { username: this.currentUsername, attempt: this.retryCount });
+    this.loadProfile(this.currentUsername);
   }
 
   startEdit(): void {
