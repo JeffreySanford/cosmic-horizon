@@ -18,12 +18,13 @@
     <script>
       /**
        * Global shim to address non-passive event listener violations from third-party libraries.
-       * Forces 'touchstart', 'touchmove', and 'wheel' events to be passive by default unless explicitly specified otherwise.
+       * NOTE: only force `wheel` to be passive by default — leaving touch events untouched
+       * because some libraries (Aladin) rely on calling preventDefault() from touch handlers.
        */
       (function() {
         var originalAddEventListener = EventTarget.prototype.addEventListener;
         EventTarget.prototype.addEventListener = function(type, listener, options) {
-          var passiveEvents = ['touchstart', 'touchmove', 'wheel'];
+          var passiveEvents = ['wheel'];
           if (passiveEvents.indexOf(type) !== -1) {
             if (typeof options === 'boolean') {
               options = { capture: options, passive: true };

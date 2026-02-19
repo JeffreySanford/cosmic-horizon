@@ -59,6 +59,8 @@ jobs:
             fi
             sleep 2
           done
+      - name: Clear Angular cache
+        run: pnpm run clean:angular-cache
       - name: Run e2e (verbose)
         shell: bash
         run: |

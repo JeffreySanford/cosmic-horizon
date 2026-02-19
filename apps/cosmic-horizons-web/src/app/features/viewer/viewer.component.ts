@@ -49,6 +49,8 @@ interface AladinOptions {
   target?: string;
   fov?: number;
   survey?: string;
+  // When true/false toggles Aladin's remote logging (AladinLiteLogger)
+  log?: boolean;
   showCooGrid?: boolean;
   showFullscreenControl?: boolean;
   showLayersControl?: boolean;
@@ -984,22 +986,33 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         this.ngZone.runOutsideAngular(() => {
-          this.aladinView = aladinFactory.aladin(host, {
-            target: `${this.stateForm.value.ra} ${this.stateForm.value.dec}`,
-            fov: Number(this.stateForm.value.fov),
-            survey: this.resolveEffectiveSurvey(this.currentState()),
-            showCooGrid: this.gridOverlayEnabled,
-            showFullscreenControl: false,
-            showLayersControl: false,
-          });
+          try {
+            this.aladinView = aladinFactory.aladin(host, {
+              target: `${this.stateForm.value.ra} ${this.stateForm.value.dec}`,
+              fov: Number(this.stateForm.value.fov),
+              survey: this.resolveEffectiveSurvey(this.currentState()),
+              // Disable Aladin's remote-logger at initialization (prevents noisy fetch failures)
+              log: false,
+              showCooGrid: this.gridOverlayEnabled,
+              showFullscreenControl: false,
+              showLayersControl: false,
+            });
 
-          this.aladinView.on('positionChanged', () => {
-            this.scheduleFormSyncFromAladin();
-          });
-          this.aladinView.on('zoomChanged', () => {
-            this.zoomEventCount += 1;
-            this.scheduleFormSyncFromAladin();
-          });
+            this.aladinView.on('positionChanged', () => {
+              this.scheduleFormSyncFromAladin();
+            });
+            this.aladinView.on('zoomChanged', () => {
+              this.zoomEventCount += 1;
+              this.scheduleFormSyncFromAladin();
+            });
+          } catch (err) {
+            // Defensive: external Aladin API may throw synchronously in edge cases.
+            this.appLogger.error('viewer', 'aladin_instantiate_failed', { message: (err as Error)?.message ?? String(err) });
+            this.ngZone.run(() => {
+              this.statusMessage = 'Failed to initialize sky viewer.';
+            });
+            this.aladinView = null;
+          }
         });
 
         this.applySurveyToAladin(this.resolveEffectiveSurvey(this.currentState()));
@@ -1034,6 +1047,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const existingScript = document.querySelector(
       'script[data-cosmic-aladin="true"]',
     ) as HTMLScriptElement | null;
+
+    // Aladin's remote-logger is disabled via the `log: false` init option above —
+    // no global `fetch` interception is necessary. Keeping initialization simple
+    // reduces risk of interfering with other page fetch behavior.
+
     const scriptReady$ =
       existingScript && getFactory()
         ? of(void 0)

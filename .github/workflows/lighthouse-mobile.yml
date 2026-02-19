@@ -28,6 +28,8 @@ jobs:
         run: pnpm exec playwright install chromium --with-deps
       - name: Free ports
         run: pnpm run start:ports:free
+      - name: Clear Angular cache
+        run: pnpm run clean:angular-cache
       - name: Start web app for Lighthouse
         run: |
           pnpm nx run cosmic-horizons-web:serve:development > /tmp/cosmic-horizons-web-lighthouse.log 2>&1 &

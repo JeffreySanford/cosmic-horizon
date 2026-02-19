@@ -14,6 +14,8 @@
   ],
   "scripts": {
     "start:web": "pnpm nx serve cosmic-horizons-web",
+    "start:web:clean": "pnpm run clean:angular-cache && pnpm nx serve cosmic-horizons-web",
+    "clean:angular-cache": "node scripts/clear-angular-cache.mjs",
     "start:api": "pnpm nx serve cosmic-horizons-api",
     "start:preflight": "node scripts/check-runtime-preflight.mjs && pnpm docs:view:build",
     "start:ports:free": "node scripts/ensure-ports-free.mjs",
