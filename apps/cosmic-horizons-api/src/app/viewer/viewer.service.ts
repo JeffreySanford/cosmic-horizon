@@ -1044,9 +1044,7 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     return Number(process.env['CUTOUT_CACHE_TTL_MS'] || 300_000);
   }
 
-  private async getNearbyLabelsFromCache(
-    cacheKey: string,
-  ): Promise<{
+  private async getNearbyLabelsFromCache(cacheKey: string): Promise<{
     labels: NearbyCatalogLabel[];
     source: 'memory' | 'redis';
   } | null> {

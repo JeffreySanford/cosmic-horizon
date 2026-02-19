@@ -42,11 +42,17 @@ describe('BrokerMetricsCollector', () => {
     });
 
     it('should mark brokers as disconnected when collection fails', async () => {
-      mockedAxios.create.mockReturnValue({
+        mockedAxios.create.mockReturnValue({
         get: jest.fn().mockRejectedValue(new Error('Connection refused')),
       } as any);
 
-      const result = await service.collectAllMetrics();
+      const testCollector = new BrokerMetricsCollector();
+      // ensure Kafka path also fails deterministically (don't rely on native path)
+      jest
+        .spyOn(testCollector as any, 'collectKafkaMetrics')
+        .mockRejectedValue(new Error('Connection refused'));
+
+      const result = await testCollector.collectAllMetrics();
 
       expect(result.rabbitmq.connected).toBe(false);
       expect(result.kafka.connected).toBe(false);
@@ -67,7 +73,7 @@ describe('BrokerMetricsCollector', () => {
 
     it('should compute RabbitMQ messagesPerSecond as a delta/sec between samples', async () => {
       // Fake time so we can assert rate calculation deterministically
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
       const t0 = 1_600_000_000_000; // arbitrary timestamp
       jest.setSystemTime(t0);
 
@@ -225,7 +231,7 @@ describe('BrokerMetricsCollector', () => {
     });
 
     it('should compute Kafka messagesPerSecond using native admin offsets when REST proxy is unavailable', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
       const t0 = 1_700_000_000_000;
       jest.setSystemTime(t0);
 

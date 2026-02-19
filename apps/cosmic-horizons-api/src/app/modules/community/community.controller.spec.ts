@@ -18,13 +18,11 @@ describe('CommunityController (prototype)', () => {
         .mockResolvedValue([
           { id: 'p1', title: 'pending', createdAt: new Date().toISOString() },
         ]),
-      createDiscovery: jest
-        .fn()
-        .mockImplementation(async (p) => ({
-          id: '1',
-          title: p.title,
-          createdAt: new Date().toISOString(),
-        })),
+      createDiscovery: jest.fn().mockImplementation(async (p) => ({
+        id: '1',
+        title: p.title,
+        createdAt: new Date().toISOString(),
+      })),
       approveDiscovery: jest
         .fn()
         .mockResolvedValue({ id: 'p1', title: 'pending' }),

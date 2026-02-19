@@ -78,12 +78,12 @@ test.describe('Profile — console & retry behavior', () => {
     const reqUrls: string[] = [];
     page.on('request', (r) => {
       reqUrls.push(r.url());
-      // eslint-disable-next-line no-console
+       
       console.log('[E2E DEBUG] request ->', r.method(), r.url());
     });
 
     page.on('response', (res) => {
-      // eslint-disable-next-line no-console
+       
       console.log('[E2E DEBUG] response ->', res.status(), res.url());
     });
 
@@ -114,7 +114,7 @@ test.describe('Profile — console & retry behavior', () => {
     expect(errorResp.status()).toBe(500);
 
     // surface profile debug logs if present (helps CI failure inspection)
-    // eslint-disable-next-line no-console
+     
     console.log('[E2E DEBUG] consoleMessages:', consoleMessages.slice(-20));
 
     // sanity: ensure the profile network request occurred
@@ -128,11 +128,11 @@ test.describe('Profile — console & retry behavior', () => {
     if (!hasErrorCard) {
       // dump helpful debug context and fail with a descriptive message
       const bodyText = await page.locator('body').innerText();
-      // eslint-disable-next-line no-console
+       
       console.log('[E2E DEBUG] bodyText snippet:', bodyText.slice(0, 1000));
-      // eslint-disable-next-line no-console
+       
       console.log('[E2E DEBUG] requests seen:', reqUrls.slice(-20));
-      // eslint-disable-next-line no-console
+       
       console.log('[E2E DEBUG] consoleMessages:', consoleMessages.slice(-50));
       throw new Error(
         'Expected error UI (.error-card) to be visible after simulated 500 — check debug output above.',

@@ -4,7 +4,8 @@ import { Repository } from 'typeorm';
 import { ForbiddenException } from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { Discovery } from '../../entities/discovery.entity';
-import { UserRepository } from '../../repositories';
+import { UserRepository, AuditLogRepository } from '../../repositories';
+import { EventsService } from '../events/events.service';
 
 describe('CommunityService (DB-backed)', () => {
   let service: CommunityService;
@@ -13,26 +14,22 @@ describe('CommunityService (DB-backed)', () => {
 
   beforeEach(async () => {
     repoMock = {
-      find: jest
-        .fn()
-        .mockResolvedValue([
-          {
-            id: 'seed-1',
-            title: 'seed',
-            body: 'b',
-            author: 'system',
-            tags: ['x'],
-            created_at: new Date(),
-          },
-        ]),
+      find: jest.fn().mockResolvedValue([
+        {
+          id: 'seed-1',
+          title: 'seed',
+          body: 'b',
+          author: 'system',
+          tags: ['x'],
+          created_at: new Date(),
+        },
+      ]),
       findOne: jest.fn().mockResolvedValue(undefined),
       create: jest.fn().mockImplementation((o) => o),
-      save: jest
-        .fn()
-        .mockImplementation(async (e) => ({
-          ...e,
-          created_at: e.created_at || new Date(),
-        })),
+      save: jest.fn().mockImplementation(async (e) => ({
+        ...e,
+        created_at: e.created_at || new Date(),
+      })),
       // ensure onModuleInit DB checks don't throw in tests
       query: jest.fn().mockResolvedValue(undefined),
     } as any;
@@ -54,14 +51,8 @@ describe('CommunityService (DB-backed)', () => {
       providers: [
         CommunityService,
         { provide: getRepositoryToken(Discovery), useValue: repoMock },
-        {
-          provide: (await import('../events/events.service')).EventsService,
-          useValue: eventsMock,
-        },
-        {
-          provide: (await import('../../repositories')).AuditLogRepository,
-          useValue: auditMock,
-        },
+        { provide: EventsService, useValue: eventsMock },
+        { provide: AuditLogRepository, useValue: auditMock },
         { provide: UserRepository, useValue: userMock },
       ],
     }).compile();
@@ -104,22 +95,20 @@ describe('CommunityService (DB-backed)', () => {
   });
 
   it('approves a hidden discovery and publishes notification', async () => {
-    const saved = await service.createDiscovery(
+    await service.createDiscovery(
       { title: 'to-approve', body: 'x' } as any,
       { forceHidden: true },
     );
-    // Simulate DB find returning an entity that is hidden
-    (repoMock.find as jest.Mock).mockResolvedValueOnce([
-      {
-        id: 'seed-1',
-        title: 'seed',
-        body: 'b',
-        author: 'system',
-        tags: ['x'],
-        created_at: new Date(),
-        hidden: true,
-      },
-    ]);
+    // Simulate DB findOne returning an entity that is hidden
+    (repoMock.findOne as jest.Mock).mockResolvedValueOnce({
+      id: 'seed-1',
+      title: 'seed',
+      body: 'b',
+      author: 'system',
+      tags: ['x'],
+      created_at: new Date(),
+      hidden: true,
+    });
 
     // Approve (service method will call publishNotification and write audit)
     const approved = await service.approveDiscovery('seed-1', 'moderator-1');
@@ -202,9 +191,12 @@ describe('CommunityService (DB-backed)', () => {
       role: 'user',
     });
 
-    await expect(service.hideDiscovery('d1', 'user-1')).rejects.toThrowError(
-      ForbiddenException,
-    );
+    try {
+      await service.hideDiscovery('d1', 'user-1');
+      throw new Error('Expected hideDiscovery to throw ForbiddenException');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ForbiddenException);
+    }
   });
 
   it('throws ForbiddenException when non-moderator attempts to approve a discovery', async () => {
@@ -223,8 +215,11 @@ describe('CommunityService (DB-backed)', () => {
       role: 'user',
     });
 
-    await expect(service.approveDiscovery('d2', 'user-2')).rejects.toThrowError(
-      ForbiddenException,
-    );
+    try {
+      await service.approveDiscovery('d2', 'user-2');
+      throw new Error('Expected approveDiscovery to throw ForbiddenException');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ForbiddenException);
+    }
   });
 });
