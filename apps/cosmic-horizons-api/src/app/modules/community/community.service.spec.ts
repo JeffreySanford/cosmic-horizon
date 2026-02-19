@@ -19,6 +19,8 @@ describe('CommunityService (DB-backed)', () => {
       findOne: jest.fn().mockResolvedValue(undefined),
       create: jest.fn().mockImplementation((o) => o),
       save: jest.fn().mockImplementation(async (e) => ({ ...e, created_at: e.created_at || new Date() })),
+      // ensure onModuleInit DB checks don't throw in tests
+      query: jest.fn().mockResolvedValue(undefined),
     } as any;
 
     eventsMock = {
