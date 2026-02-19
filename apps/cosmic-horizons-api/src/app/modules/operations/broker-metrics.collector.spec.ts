@@ -30,7 +30,8 @@ describe('BrokerMetricsCollector', () => {
   describe('collectAllMetrics', () => {
     it('should collect metrics from all brokers in parallel', async () => {
       mockedAxios.create.mockReturnValue({
-        get: jest.fn(),
+        // return a resolved response for any GET so the REST-proxy path is exercised
+        get: jest.fn().mockResolvedValue({ data: {} }),
       } as any);
 
       const result = await service.collectAllMetrics();
