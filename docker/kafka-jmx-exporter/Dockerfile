@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk
 
 ARG JMX_EXPORTER_VERSION=0.16.0
 WORKDIR /opt/jmx-exporter
