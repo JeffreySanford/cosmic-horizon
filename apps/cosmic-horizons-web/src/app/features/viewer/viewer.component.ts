@@ -1135,7 +1135,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const nextState = { ...current, ...patchState };
     const radius = this.lookupRadiusForState(nextState);
     const lookupKey = `${nextState.ra.toFixed(4)}|${nextState.dec.toFixed(4)}|${radius.toFixed(4)}`;
-    const needsLookup = this.labelsOverlayEnabled && this.hasUserZoomedIn && lookupKey !== this.lastNearbyLookupKey;
+    const needsLookup = this.labelsOverlayEnabled && lookupKey !== this.lastNearbyLookupKey;
 
     if (!hasChanges && !needsLookup) {
       return;
@@ -1183,9 +1183,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     // so stale labels do not linger while the debounced lookup runs.
     this.catalogLabels = [];
 
-    if (!this.hasUserZoomedIn) {
-      return;
-    }
+    // Show labels whenever the Labels overlay is enabled — do not require an
+    // explicit user zoom to populate catalog matches. This makes the UI
+    // behave intuitively when users toggle Labels on/off.
 
     if (this.nearbyLookupTimer) {
       clearTimeout(this.nearbyLookupTimer);

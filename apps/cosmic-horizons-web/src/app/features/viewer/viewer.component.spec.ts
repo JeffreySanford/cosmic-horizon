@@ -326,7 +326,6 @@ describe('ViewerComponent', () => {
   it('hides center label when overlay is toggled off and restores it after lookup when toggled on', async () => {
     vi.useFakeTimers();
     component.stateForm.patchValue({ ra: 219.91, dec: -60.84, fov: 0.5 });
-    (component as unknown as { hasUserZoomedIn: boolean }).hasUserZoomedIn = true;
     viewerApiService.getNearbyLabels.mockReturnValue(
       of([
         {
