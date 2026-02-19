@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Kafka } from 'kafkajs';
 
 afterEach(async () => {
+  // restore any Kafka.prototype.admin spy used in tests
+  try { (Kafka.prototype as any).admin.mockRestore(); } catch (e) { /* ignore */ }
   await testingModule?.close();
 });
 
@@ -20,6 +22,13 @@ describe('BrokerMetricsCollector', () => {
     process.env['RABBITMQ_USER'] = 'guest';
     process.env['RABBITMQ_PASS'] = 'guest';
     process.env['PULSAR_ENABLED'] = 'true';
+
+    // Global kafkajs admin mock to prevent real broker connections in CI
+    const adminMock = {
+      connect: jest.fn().mockResolvedValue(undefined),
+      disconnect: jest.fn().mockResolvedValue(undefined),
+    } as any;
+    jest.spyOn(Kafka.prototype as any, 'admin').mockImplementation(() => adminMock);
 
     testingModule = await Test.createTestingModule({
       providers: [BrokerMetricsCollector],
