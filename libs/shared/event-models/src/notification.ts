@@ -3,7 +3,7 @@
  * Events related to user notifications and alerts
  */
 
-import { EventBase } from './event-base';
+import { EventBase } from './event-base.js';
 
 export enum NotificationChannel {
   EMAIL = 'email',

@@ -3,7 +3,7 @@
  * Events related to job submission, execution, and completion
  */
 
-import { EventBase } from './event-base';
+import { EventBase } from './event-base.js';
 
 export enum JobStatus {
   QUEUED = 'QUEUED',

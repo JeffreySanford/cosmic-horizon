@@ -3,7 +3,7 @@
  * Events related to job performance and system metrics
  */
 
-import { EventBase } from './event-base';
+import { EventBase } from './event-base.js';
 
 /**
  * event_type: 'job.metrics.recorded'

@@ -8,40 +8,40 @@
 // Import all types needed for AllEvents union
 import type {
   EventBase,
-} from './event-base';
+} from './event-base.js';
 import type {
   JobLifecycleEvent,
-} from './job-lifecycle';
+} from './job-lifecycle.js';
 import type {
   NotificationEvent,
-} from './notification';
+} from './notification.js';
 import type {
   MetricsEvent,
-} from './metrics';
+} from './metrics.js';
 import type {
   AuditEvent,
-} from './audit';
+} from './audit.js';
 
 // Base event interface and helpers
-export type { EventBase } from './event-base';
+export type { EventBase } from './event-base.js';
 export {
   createEventBase,
-} from './event-base';
+} from './event-base.js';
 
 // UUID utilities and types
-export type { UUID } from './uuid';
+export type { UUID } from './uuid.js';
 export {
   generateUUID,
   generateEventId,
   generateCorrelationId,
   createUUID,
-} from './uuid';
+} from './uuid.js';
 
 // Job lifecycle events
 export {
   JobStatus,
   TaccSystem,
-} from './job-lifecycle';
+} from './job-lifecycle.js';
 export type {
   JobSubmittedEvent,
   JobStatusChangedEvent,
@@ -49,19 +49,19 @@ export type {
   JobFailedEvent,
   JobCancelledEvent,
   JobLifecycleEvent,
-} from './job-lifecycle';
+} from './job-lifecycle.js';
 export {
   isJobSubmittedEvent,
   isJobStatusChangedEvent,
   isJobCompletedEvent,
   isJobFailedEvent,
   isJobCancelledEvent,
-} from './job-lifecycle';
+} from './job-lifecycle.js';
 
 // Notification events
 export {
   NotificationChannel,
-} from './notification';
+} from './notification.js';
 export type {
   NotificationSentEvent,
   NotificationReadEvent,
@@ -69,14 +69,14 @@ export type {
   AlertRaisedEvent,
   AlertResolvedEvent,
   NotificationEvent,
-} from './notification';
+} from './notification.js';
 export {
   isNotificationSentEvent,
   isNotificationReadEvent,
   isNotificationDismissedEvent,
   isAlertRaisedEvent,
   isAlertResolvedEvent,
-} from './notification';
+} from './notification.js';
 
 // Metrics events
 export type {
@@ -85,13 +85,13 @@ export type {
   SystemHealthCheckEvent,
   ResourceAllocationChangedEvent,
   MetricsEvent,
-} from './metrics';
+} from './metrics.js';
 export {
   isJobMetricsRecordedEvent,
   isJobPerformanceSummaryEvent,
   isSystemHealthCheckEvent,
   isResourceAllocationChangedEvent,
-} from './metrics';
+} from './metrics.js';
 
 // Audit events
 export type {
@@ -101,14 +101,14 @@ export type {
   AuditJobLifecycleEvent,
   AuditComplianceCheckEvent,
   AuditEvent,
-} from './audit';
+} from './audit.js';
 export {
   isAuditActionRecordedEvent,
   isAuditPolicyChangedEvent,
   isAuditDataAccessEvent,
   isAuditJobLifecycleEvent,
   isAuditComplianceCheckEvent,
-} from './audit';
+} from './audit.js';
 
 /**
  * Union of all event types

@@ -3,7 +3,7 @@
  * All events inherit from EventBase and add type-specific payload
  */
 
-import { generateEventId } from './uuid';
+import { generateEventId } from './uuid.js';
 
 export interface EventBase {
   /**

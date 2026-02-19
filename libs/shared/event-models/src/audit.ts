@@ -3,7 +3,7 @@
  * Events for compliance and audit logging
  */
 
-import { EventBase } from './event-base';
+import { EventBase } from './event-base.js';
 
 /**
  * event_type: 'audit.action.recorded'
