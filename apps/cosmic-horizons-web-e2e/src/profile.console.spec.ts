@@ -25,53 +25,26 @@ test.describe('Profile — console & retry behavior', () => {
     expect(foundFinalize, 'should log loadProfile.finalize').toBeTruthy();
   });
 
-  test('shows retry button when profile load stalls and retry succeeds', async ({ page }) => {
-    // Inject a fetch wrapper to *hold* the initial profile API promise on the client
-    await page.addInitScript(() => {
-      (window as any).__releaseProfile = null;
-      const orig = window.fetch.bind(window);
-      window.fetch = (input: RequestInfo, init?: RequestInit) => {
-        const url = typeof input === 'string' ? input : (input as Request).url;
-        if (url.includes('/api/profiles/adminuser') && !(window as any).__profileHeld) {
-          (window as any).__profileHeld = true;
-          return new Promise((resolve) => {
-            (window as any).__releaseProfile = resolve;
-          }).then(() => orig(input, init));
-        }
-        return orig(input, init);
-      };
+  test('shows Try again button on server error and succeeds on retry', async ({ page }) => {
+    // Simulate a server error on first GET, then succeed on retry
+    let first = true;
+    await page.route(PROFILE_API_PATH, async (route) => {
+      if (first) {
+        first = false;
+        await route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ message: 'simulated error' }) });
+      } else {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { username: 'adminuser', display_name: 'Admin User', created_at: new Date().toISOString() }, posts: [] }) });
+      }
     });
-
-    const logs: string[] = [];
-    page.on('console', (msg) => logs.push(msg.text()));
 
     await page.goto('/profile/adminuser');
 
-    // Wait for our timeout log — indicates client-side timeout fired
-    const timedOutSeen = await (async () => {
-      const start = Date.now();
-      while (Date.now() - start < 12000) {
-        if (logs.some((l) => l.includes('loadProfile.timedOut'))) return true;
-        await new Promise((r) => setTimeout(r, 200));
-      }
-      return false;
-    })();
+    // Error card and Try again button should be visible when server returns 500
+    await page.locator('.error-card').waitFor({ state: 'visible', timeout: 5000 });
+    await expect(page.locator('.error-card button')).toHaveText('Try again');
 
-    expect(timedOutSeen, 'expected component to log loadProfile.timedOut').toBeTruthy();
-
-    // After the timed-out log, the retry button should appear
-    await page.waitForSelector('[data-test="profile-retry"]', { timeout: 3000 });
-    await expect(page.locator('[data-test="profile-retry"]')).toBeVisible();
-
-    // release the held request so the client receives the API response
-    await page.evaluate(() => {
-      if ((window as any).__releaseProfile) {
-        (window as any).__releaseProfile();
-      }
-    });
-
-    // click retry and assert the profile eventually renders
-    await page.click('[data-test="profile-retry"]');
+    // Click 'Try again' and verify the profile loads on successful retry
+    await page.click('.error-card button');
     await page.locator('mat-card-title').waitFor({ state: 'visible', timeout: 5000 });
     await expect(page.locator('mat-card-title')).toHaveText('Admin User');
   });
