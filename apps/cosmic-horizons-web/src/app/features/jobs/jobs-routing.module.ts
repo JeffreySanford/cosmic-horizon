@@ -5,12 +5,12 @@ import { JobsConsoleComponent } from './jobs-console.component';
 const routes: Routes = [
   {
     path: '',
-    component: JobsConsoleComponent
-  }
+    component: JobsConsoleComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class JobsRoutingModule { }
+export class JobsRoutingModule {}

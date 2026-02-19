@@ -31,7 +31,9 @@ export class EventsController {
     }
 
     const fromOffsetNumber =
-      typeof fromOffset === 'string' ? Number.parseInt(fromOffset, 10) : undefined;
+      typeof fromOffset === 'string'
+        ? Number.parseInt(fromOffset, 10)
+        : undefined;
     const limitNumber =
       typeof limit === 'string' ? Number.parseInt(limit, 10) : undefined;
 
@@ -39,7 +41,8 @@ export class EventsController {
       topic,
       sinceTimestamp,
       fromOffset:
-        typeof fromOffsetNumber === 'number' && Number.isFinite(fromOffsetNumber)
+        typeof fromOffsetNumber === 'number' &&
+        Number.isFinite(fromOffsetNumber)
           ? fromOffsetNumber
           : undefined,
       limit:

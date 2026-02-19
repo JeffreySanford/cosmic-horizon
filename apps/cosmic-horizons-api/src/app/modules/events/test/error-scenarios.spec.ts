@@ -20,16 +20,22 @@ describe('Week 3 Error and Recovery Scenarios', () => {
   beforeEach(async () => {
     kafkaService = {
       isConnected: jest.fn().mockReturnValue(true),
-      subscribe: jest.fn().mockImplementation(
-        async (_groupId: string, topics: string[], handler: (payload: EachMessagePayload) => Promise<void>) => {
-          if (topics.includes('job-metrics')) {
-            metricsHandler = handler;
-          }
-          if (topics.includes('job-lifecycle')) {
-            jobHandler = handler;
-          }
-        },
-      ),
+      subscribe: jest
+        .fn()
+        .mockImplementation(
+          async (
+            _groupId: string,
+            topics: string[],
+            handler: (payload: EachMessagePayload) => Promise<void>,
+          ) => {
+            if (topics.includes('job-metrics')) {
+              metricsHandler = handler;
+            }
+            if (topics.includes('job-lifecycle')) {
+              jobHandler = handler;
+            }
+          },
+        ),
       disconnect: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<KafkaService>;
 
@@ -74,7 +80,9 @@ describe('Week 3 Error and Recovery Scenarios', () => {
   });
 
   it('recovers from metrics aggregation errors and continues consuming', async () => {
-    metricsService.aggregateJobMetrics.mockRejectedValueOnce(new Error('aggregation failed'));
+    metricsService.aggregateJobMetrics.mockRejectedValueOnce(
+      new Error('aggregation failed'),
+    );
 
     await expect(
       metricsHandler({
@@ -131,7 +139,9 @@ describe('Week 3 Error and Recovery Scenarios', () => {
     ).resolves.toBeUndefined();
 
     expect(notificationService.sendJobCompletionEmail).not.toHaveBeenCalled();
-    expect(notificationService.sendJobFailureNotification).not.toHaveBeenCalled();
+    expect(
+      notificationService.sendJobFailureNotification,
+    ).not.toHaveBeenCalled();
   });
 
   it('handles missing required lifecycle fields without throwing', async () => {
@@ -147,7 +157,9 @@ describe('Week 3 Error and Recovery Scenarios', () => {
   });
 
   it('continues processing after notification broadcast failure', async () => {
-    notificationService.broadcastViaWebSocket.mockRejectedValueOnce(new Error('socket down'));
+    notificationService.broadcastViaWebSocket.mockRejectedValueOnce(
+      new Error('socket down'),
+    );
 
     await expect(
       jobHandler({

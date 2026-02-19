@@ -142,7 +142,10 @@ describe('MessagingSocketIoAdapter', () => {
   });
 
   it('preserves explicit ping options when provided by caller', () => {
-    const { merged } = captureOptions({ pingInterval: 1000, pingTimeout: 5000 });
+    const { merged } = captureOptions({
+      pingInterval: 1000,
+      pingTimeout: 5000,
+    });
 
     expect(merged.pingInterval).toBe(1000);
     expect(merged.pingTimeout).toBe(5000);

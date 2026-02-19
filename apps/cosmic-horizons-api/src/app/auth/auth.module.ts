@@ -50,12 +50,7 @@ const jwtExpiresInSeconds = resolveJwtExpiresInSeconds();
     DatabaseModule,
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    GitHubStrategy,
-    JwtStrategy,
-    SessionSerializer,
-  ],
+  providers: [AuthService, GitHubStrategy, JwtStrategy, SessionSerializer],
   exports: [AuthService, PassportModule, JwtModule],
 })
 export class AuthModule {}

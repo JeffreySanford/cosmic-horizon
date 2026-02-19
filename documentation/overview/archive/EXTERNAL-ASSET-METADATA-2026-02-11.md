@@ -88,4 +88,4 @@ Required footer/description lines:
 
 ---
 
-*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved._

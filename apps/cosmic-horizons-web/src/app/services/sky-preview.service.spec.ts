@@ -68,7 +68,9 @@ describe('SkyPreviewService', () => {
 
   it('stores browser-derived location as coarse geohash cookie', async () => {
     const geolocationMock = {
-      getCurrentPosition: (success: (position: GeolocationPosition) => void) => {
+      getCurrentPosition: (
+        success: (position: GeolocationPosition) => void,
+      ) => {
         success({
           coords: {
             latitude: 34.0522,
@@ -92,7 +94,9 @@ describe('SkyPreviewService', () => {
     });
 
     const service = TestBed.inject(SkyPreviewService);
-    const preview = await firstValueFrom(service.personalizeFromBrowserLocation());
+    const preview = await firstValueFrom(
+      service.personalizeFromBrowserLocation(),
+    );
     expect(preview).not.toBeNull();
     expect(preview?.source).toBe('browser');
     expect(preview?.geohash).toHaveLength(4);

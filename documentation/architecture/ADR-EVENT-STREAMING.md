@@ -99,7 +99,7 @@ Use a **dual-broker event architecture**:
            │ • GPU heatmaps              │
            │ • Alerts & notifications    │
            └─────────────────────────────┘
-           
+
            ┌─────────────────────────────┐
            │ Audit & Analytics (Kafka)   │
            │ • Event replay              │
@@ -136,13 +136,13 @@ Use a **dual-broker event architecture**:
 
 ## Trade-offs
 
-| Decision | Rationale | Downside |
-|----------|-----------|----------|
-| RabbitMQ + Kafka | Ephemeral + durable events | Additional operational complexity |
-| 3-node RabbitMQ | Quorum queues + HA | Higher memory/CPU overhead |
-| Schema Registry | Contract enforcement | Dependency on external service |
-| Offset-based replay | Fault recovery | Storage cost (30-day retention) |
-| Socket.IO WebSocket | Real-time UX | Limits horizontal scaling (affinity required) |
+| Decision            | Rationale                  | Downside                                      |
+| ------------------- | -------------------------- | --------------------------------------------- |
+| RabbitMQ + Kafka    | Ephemeral + durable events | Additional operational complexity             |
+| 3-node RabbitMQ     | Quorum queues + HA         | Higher memory/CPU overhead                    |
+| Schema Registry     | Contract enforcement       | Dependency on external service                |
+| Offset-based replay | Fault recovery             | Storage cost (30-day retention)               |
+| Socket.IO WebSocket | Real-time UX               | Limits horizontal scaling (affinity required) |
 
 ## Alternative Considered
 

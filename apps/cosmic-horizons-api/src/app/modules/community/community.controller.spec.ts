@@ -8,10 +8,26 @@ describe('CommunityController (prototype)', () => {
 
   beforeEach(async () => {
     const mockService = {
-      getFeed: jest.fn().mockResolvedValue([{ id: '1', title: 'seed', createdAt: new Date().toISOString() }]),
-      getPendingFeed: jest.fn().mockResolvedValue([{ id: 'p1', title: 'pending', createdAt: new Date().toISOString() }]),
-      createDiscovery: jest.fn().mockImplementation(async (p) => ({ id: '1', title: p.title, createdAt: new Date().toISOString() })),
-      approveDiscovery: jest.fn().mockResolvedValue({ id: 'p1', title: 'pending' }),
+      getFeed: jest
+        .fn()
+        .mockResolvedValue([
+          { id: '1', title: 'seed', createdAt: new Date().toISOString() },
+        ]),
+      getPendingFeed: jest
+        .fn()
+        .mockResolvedValue([
+          { id: 'p1', title: 'pending', createdAt: new Date().toISOString() },
+        ]),
+      createDiscovery: jest
+        .fn()
+        .mockImplementation(async (p) => ({
+          id: '1',
+          title: p.title,
+          createdAt: new Date().toISOString(),
+        })),
+      approveDiscovery: jest
+        .fn()
+        .mockResolvedValue({ id: 'p1', title: 'pending' }),
       hideDiscovery: jest.fn().mockResolvedValue(true),
     };
 
@@ -36,11 +52,16 @@ describe('CommunityController (prototype)', () => {
     const mockReq = { user: { id: 'admin-1', role: 'admin' } } as any;
     const pending = await controller.getPending(mockReq);
     expect(Array.isArray(pending)).toBe(true);
-    expect((service.getPendingFeed as jest.Mock).mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(
+      (service.getPendingFeed as jest.Mock).mock.calls.length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it('creates a post via POST /posts', async () => {
-    const created = await controller.createPost({ title: 'test post', body: 'ok' } as any);
+    const created = await controller.createPost({
+      title: 'test post',
+      body: 'ok',
+    } as any);
     expect(created).toHaveProperty('id');
     expect(created.title).toEqual('test post');
   });

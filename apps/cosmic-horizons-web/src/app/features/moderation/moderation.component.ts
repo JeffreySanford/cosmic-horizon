@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommentsApiService, CommentReportModel } from '../posts/comments-api.service';
+import {
+  CommentsApiService,
+  CommentReportModel,
+} from '../posts/comments-api.service';
 
 @Component({
   selector: 'app-moderation',
@@ -22,7 +25,8 @@ export class ModerationComponent implements OnInit {
 
   loadReports(): void {
     this.loading = true;
-    this.commentsApi.getAllReports()
+    this.commentsApi
+      .getAllReports()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (reports) => {
@@ -32,12 +36,13 @@ export class ModerationComponent implements OnInit {
         error: () => {
           this.error = 'Failed to load moderation reports.';
           this.loading = false;
-        }
+        },
       });
   }
 
   resolveReport(reportId: string, status: 'reviewed' | 'dismissed'): void {
-    this.commentsApi.resolveReport(reportId, status)
+    this.commentsApi
+      .resolveReport(reportId, status)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -45,12 +50,13 @@ export class ModerationComponent implements OnInit {
         },
         error: () => {
           this.error = `Failed to ${status} report.`;
-        }
+        },
       });
   }
 
   hideComment(commentId: string): void {
-    this.commentsApi.hideComment(commentId)
+    this.commentsApi
+      .hideComment(commentId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -58,7 +64,7 @@ export class ModerationComponent implements OnInit {
         },
         error: () => {
           this.error = 'Failed to hide comment.';
-        }
+        },
       });
   }
 }

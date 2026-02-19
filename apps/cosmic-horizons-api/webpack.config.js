@@ -11,7 +11,10 @@ module.exports = {
   },
   resolve: {
     alias: {
-      '@cosmic-horizons/event-models': join(__dirname, '../../libs/shared/event-models/src/index.ts'),
+      '@cosmic-horizons/event-models': join(
+        __dirname,
+        '../../libs/shared/event-models/src/index.ts',
+      ),
       '@cosmic-horizons/shared': join(__dirname, '../../libs/shared/src'),
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx'],

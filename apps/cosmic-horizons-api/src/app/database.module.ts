@@ -14,7 +14,12 @@ import {
   CosmicTileCache,
 } from './entities';
 import { BrokerMetrics } from './modules/operations/broker-metrics.entity';
-import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository } from './repositories';
+import {
+  UserRepository,
+  PostRepository,
+  AuditLogRepository,
+  RevisionRepository,
+} from './repositories';
 
 @Module({
   imports: [
@@ -35,7 +40,18 @@ import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository 
       BrokerMetrics,
     ]),
   ],
-  providers: [UserRepository, PostRepository, AuditLogRepository, RevisionRepository],
-  exports: [TypeOrmModule, UserRepository, PostRepository, AuditLogRepository, RevisionRepository],
+  providers: [
+    UserRepository,
+    PostRepository,
+    AuditLogRepository,
+    RevisionRepository,
+  ],
+  exports: [
+    TypeOrmModule,
+    UserRepository,
+    PostRepository,
+    AuditLogRepository,
+    RevisionRepository,
+  ],
 })
 export class DatabaseModule {}

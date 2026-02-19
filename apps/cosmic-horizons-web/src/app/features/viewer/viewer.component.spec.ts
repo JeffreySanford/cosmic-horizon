@@ -84,7 +84,9 @@ describe('ViewerComponent', () => {
           recent_failures: [],
         }),
       ),
-      scienceDataUrl: vi.fn().mockReturnValue('http://localhost:3000/api/view/cutout?ra=1'),
+      scienceDataUrl: vi
+        .fn()
+        .mockReturnValue('http://localhost:3000/api/view/cutout?ra=1'),
     };
     authSessionService = {
       getRole: vi.fn().mockReturnValue('admin'),
@@ -92,7 +94,13 @@ describe('ViewerComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [ViewerComponent],
-      imports: [FormsModule, ReactiveFormsModule, RouterTestingModule, NoopAnimationsModule, HttpClientTestingModule],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        RouterTestingModule,
+        NoopAnimationsModule,
+        HttpClientTestingModule,
+      ],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         {
@@ -176,7 +184,9 @@ describe('ViewerComponent', () => {
       }),
     );
 
-    (component as unknown as { downloadSnapshot: () => void }).downloadSnapshot = vi.fn();
+    (
+      component as unknown as { downloadSnapshot: () => void }
+    ).downloadSnapshot = vi.fn();
     component.saveSnapshot();
     await fixture.whenStable();
 
@@ -188,14 +198,18 @@ describe('ViewerComponent', () => {
     component.stateForm.patchValue({ survey: 'DSS2' });
     await fixture.whenStable();
 
-    expect(mockAladinView.setImageSurvey).toHaveBeenCalledWith('https://skies.esac.esa.int/DSSColor');
+    expect(mockAladinView.setImageSurvey).toHaveBeenCalledWith(
+      'https://skies.esac.esa.int/DSSColor',
+    );
   });
 
   it('switches VLASS to higher-resolution survey when deeply zoomed', async () => {
     component.stateForm.patchValue({ survey: 'VLASS', fov: 0.3 });
     await fixture.whenStable();
 
-    expect(mockAladinView.setImageSurvey).toHaveBeenCalledWith('P/PanSTARRS/DR1/color-z-zg-g');
+    expect(mockAladinView.setImageSurvey).toHaveBeenCalledWith(
+      'P/PanSTARRS/DR1/color-z-zg-g',
+    );
   });
 
   it('syncs form values when Aladin emits position and zoom events', async () => {
@@ -266,7 +280,9 @@ describe('ViewerComponent', () => {
   });
 
   it('searchTarget uses Aladin gotoObject when available', async () => {
-    const viewerWithAladin = component as unknown as { aladinView: MockAladinView | null };
+    const viewerWithAladin = component as unknown as {
+      aladinView: MockAladinView | null;
+    };
     const originalAladin = viewerWithAladin.aladinView;
     viewerWithAladin.aladinView = {
       gotoObject: vi.fn().mockResolvedValue(void 0),
@@ -290,7 +306,9 @@ describe('ViewerComponent', () => {
   });
 
   it('searchTarget falls back to SkyBot when Aladin resolver fails', async () => {
-    const viewerWithAladin = component as unknown as { aladinView: MockAladinView | null };
+    const viewerWithAladin = component as unknown as {
+      aladinView: MockAladinView | null;
+    };
     const originalAladin = viewerWithAladin.aladinView;
     viewerWithAladin.aladinView = {
       gotoObject: vi.fn().mockRejectedValue(new Error('fail')),
@@ -305,7 +323,9 @@ describe('ViewerComponent', () => {
     const resolveSpy = vi
       .spyOn(
         component as unknown as {
-          resolveWithSkybot$: (name: string) => import('rxjs').Observable<{ ra: number; dec: number } | null>;
+          resolveWithSkybot$: (
+            name: string,
+          ) => import('rxjs').Observable<{ ra: number; dec: number } | null>;
         },
         'resolveWithSkybot$',
       )
@@ -375,7 +395,11 @@ describe('ViewerComponent', () => {
       },
     ];
 
-    (component as unknown as { scheduleNearbyLabelLookup: (state: ViewerStateModel) => void }).scheduleNearbyLabelLookup({
+    (
+      component as unknown as {
+        scheduleNearbyLabelLookup: (state: ViewerStateModel) => void;
+      }
+    ).scheduleNearbyLabelLookup({
       ra: 188.25,
       dec: 3.05,
       fov: 1.5,
@@ -399,7 +423,11 @@ describe('ViewerComponent', () => {
 
     component.downloadScienceData();
 
-    expect(viewerApiService.scienceDataUrl).toHaveBeenCalledWith(expect.any(Object), 'M87 Core', 'max');
+    expect(viewerApiService.scienceDataUrl).toHaveBeenCalledWith(
+      expect.any(Object),
+      'M87 Core',
+      'max',
+    );
     expect(openSpy).toHaveBeenCalled();
   });
 
@@ -424,8 +452,12 @@ describe('ViewerComponent', () => {
   it('offers a one-click sharper survey suggestion', () => {
     component.stateForm.patchValue({ survey: 'VLASS', fov: 0.3 });
 
-    expect(component.suggestedSharperSurvey).toBe('P/PanSTARRS/DR1/color-z-zg-g');
+    expect(component.suggestedSharperSurvey).toBe(
+      'P/PanSTARRS/DR1/color-z-zg-g',
+    );
     component.applySuggestedSurvey();
-    expect(component.stateForm.value.survey).toBe('P/PanSTARRS/DR1/color-z-zg-g');
+    expect(component.stateForm.value.survey).toBe(
+      'P/PanSTARRS/DR1/color-z-zg-g',
+    );
   });
 });

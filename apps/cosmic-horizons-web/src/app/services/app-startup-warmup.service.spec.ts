@@ -55,7 +55,9 @@ describe('AppStartupWarmupService', () => {
 
   it('should swallow warmup errors', () => {
     const brokerDataService = {
-      getCurrentMetrics: vi.fn().mockReturnValue(throwError(() => new Error('warmup failed'))),
+      getCurrentMetrics: vi
+        .fn()
+        .mockReturnValue(throwError(() => new Error('warmup failed'))),
     };
     const authSessionService = {
       getRole: vi.fn().mockReturnValue('admin'),

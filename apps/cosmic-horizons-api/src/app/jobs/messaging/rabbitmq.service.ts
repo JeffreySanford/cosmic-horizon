@@ -1,10 +1,15 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { generateUUID } from '@cosmic-horizons/event-models';
 
 /**
  * RabbitMQ Integration Service
- * 
+ *
  * Provides reliable message publishing and consumption with:
  * - Automatic reconnection and failover
  * - Message persistence and durability
@@ -40,23 +45,22 @@ export interface RabbitMQMessage {
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('RabbitMQService');
-  private connection:
-    | {
-        connected: boolean;
-        urls: string[];
-        reconnectTime: number;
-        heartbeat: number;
-        createdAt: Date;
-      }
-    | null = null;
-  private channel:
-    | {
-        exchanges: Array<{ name: string; type: string; durable: boolean }>;
-        queues: Array<{ name: string; durable: boolean; dlx?: string }>;
-        bindings: unknown[];
-      }
-    | null = null;
-  private consumerCallbacks: Map<string, (message: RabbitMQMessage) => Promise<void> | void> = new Map();
+  private connection: {
+    connected: boolean;
+    urls: string[];
+    reconnectTime: number;
+    heartbeat: number;
+    createdAt: Date;
+  } | null = null;
+  private channel: {
+    exchanges: Array<{ name: string; type: string; durable: boolean }>;
+    queues: Array<{ name: string; durable: boolean; dlx?: string }>;
+    bindings: unknown[];
+  } | null = null;
+  private consumerCallbacks: Map<
+    string,
+    (message: RabbitMQMessage) => Promise<void> | void
+  > = new Map();
   private isConnecting = false;
 
   constructor(private configService: ConfigService) {}
@@ -77,9 +81,17 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     this.isConnecting = true;
 
     try {
-      const urls = this.configService.get<string>('RABBITMQ_URLS', 'amqp://localhost:5672').split(',');
-      const reconnectTime = this.configService.get<number>('RABBITMQ_RECONNECT_TIME', 5000);
-      const heartbeat = this.configService.get<number>('RABBITMQ_HEARTBEAT', 60);
+      const urls = this.configService
+        .get<string>('RABBITMQ_URLS', 'amqp://localhost:5672')
+        .split(',');
+      const reconnectTime = this.configService.get<number>(
+        'RABBITMQ_RECONNECT_TIME',
+        5000,
+      );
+      const heartbeat = this.configService.get<number>(
+        'RABBITMQ_HEARTBEAT',
+        60,
+      );
 
       this.logger.log(`Connecting to RabbitMQ cluster: ${urls[0]}`);
 
@@ -95,7 +107,8 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       await this.setupChannels();
       this.logger.log('RabbitMQ connection established');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to connect to RabbitMQ: ${errorMessage}`);
       this.isConnecting = false;
       throw error;
@@ -108,8 +121,14 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
    * Set up exchanges, queues, and bindings
    */
   private async setupChannels(): Promise<void> {
-    const durableQueues = this.configService.get<boolean>('RABBITMQ_DURABLE_QUEUES', true);
-    const durableExchanges = this.configService.get<boolean>('RABBITMQ_DURABLE_EXCHANGES', true);
+    const durableQueues = this.configService.get<boolean>(
+      'RABBITMQ_DURABLE_QUEUES',
+      true,
+    );
+    const durableExchanges = this.configService.get<boolean>(
+      'RABBITMQ_DURABLE_EXCHANGES',
+      true,
+    );
 
     // Define exchanges
     const exchanges = [
@@ -132,7 +151,10 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   /**
    * Publish message to exchange with routing options
    */
-  async publish(message: Record<string, unknown>, options: PublishOptions): Promise<boolean> {
+  async publish(
+    message: Record<string, unknown>,
+    options: PublishOptions,
+  ): Promise<boolean> {
     if (!this.isConnected()) {
       throw new Error('RabbitMQ connection not established');
     }
@@ -142,12 +164,13 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       const timestamp = new Date();
 
       this.logger.debug(
-        `Publishing message to ${options.exchange}/${options.routingKey}: ${messageId} at ${timestamp}`
+        `Publishing message to ${options.exchange}/${options.routingKey}: ${messageId} at ${timestamp}`,
       );
 
       return true;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to publish message: ${errorMessage}`);
       throw error;
     }
@@ -168,7 +191,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     const prefetch = this.configService.get<number>('RABBITMQ_PREFETCH', 10);
 
     this.logger.log(
-      `Setting up consumer for queue ${options.queue} with tag ${consumerTag} (prefetch: ${prefetch})`
+      `Setting up consumer for queue ${options.queue} with tag ${consumerTag} (prefetch: ${prefetch})`,
     );
 
     this.consumerCallbacks.set(consumerTag, callback);
@@ -180,7 +203,9 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
    * Acknowledge message (manual ack mode)
    */
   async acknowledge(message: RabbitMQMessage): Promise<void> {
-    this.logger.debug(`Acknowledging message: ${String(message.headers['messageId'])}`);
+    this.logger.debug(
+      `Acknowledging message: ${String(message.headers['messageId'])}`,
+    );
     // Simulated ack
   }
 
@@ -189,7 +214,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
    */
   async nack(message: RabbitMQMessage, requeue = true): Promise<void> {
     this.logger.warn(
-      `Nacking message: ${String(message.headers['messageId'])} (requeue: ${requeue})`
+      `Nacking message: ${String(message.headers['messageId'])} (requeue: ${requeue})`,
     );
     // Simulated nack
   }
@@ -198,9 +223,9 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
    * Send undeliverable message to Dead Letter Queue
    */
   async sendToDLQ(message: RabbitMQMessage, reason: string): Promise<void> {
-      this.logger.error(
-        `Sending to DLQ - Message: ${String(message.headers['messageId'])}, Reason: ${reason}`,
-      );
+    this.logger.error(
+      `Sending to DLQ - Message: ${String(message.headers['messageId'])}, Reason: ${reason}`,
+    );
 
     try {
       const dlqMessage = {
@@ -221,7 +246,8 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
       this.logger.log(`Sent to DLQ: ${String(message.headers['messageId'])}`);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to send to DLQ: ${errorMessage}`);
     }
   }

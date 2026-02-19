@@ -5,7 +5,11 @@ import { Observable } from 'rxjs';
 import { PostModel, PostUserModel } from '../posts/posts-api.service';
 
 export interface ProfileModel {
-  user: PostUserModel & { bio?: string; avatar_url?: string; created_at: string };
+  user: PostUserModel & {
+    bio?: string;
+    avatar_url?: string;
+    created_at: string;
+  };
   posts: PostModel[];
 }
 
@@ -18,15 +22,23 @@ export class ProfileApiService {
   private readonly apiBaseUrl = 'http://localhost:3000';
 
   getProfile(username: string): Observable<ProfileModel> {
-    return this.http.get<ProfileModel>(`${this.apiBaseUrl}/api/profiles/${encodeURIComponent(username)}`);
+    return this.http.get<ProfileModel>(
+      `${this.apiBaseUrl}/api/profiles/${encodeURIComponent(username)}`,
+    );
   }
 
-  updateProfile(
-    data: { display_name?: string; bio?: string; avatar_url?: string }
-  ): Observable<ProfileModel['user']> {
-    return this.http.put<ProfileModel['user']>(`${this.apiBaseUrl}/api/profiles/me`, data, {
-      headers: this.authHeaders(),
-    });
+  updateProfile(data: {
+    display_name?: string;
+    bio?: string;
+    avatar_url?: string;
+  }): Observable<ProfileModel['user']> {
+    return this.http.put<ProfileModel['user']>(
+      `${this.apiBaseUrl}/api/profiles/me`,
+      data,
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   private authHeaders(): HttpHeaders {

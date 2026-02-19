@@ -33,11 +33,17 @@ export class AuthSessionService {
 
     sessionStorage.setItem(this.tokenStorageKey, loginResponse.access_token);
     if (loginResponse.refresh_token) {
-      sessionStorage.setItem(this.refreshTokenStorageKey, loginResponse.refresh_token);
+      sessionStorage.setItem(
+        this.refreshTokenStorageKey,
+        loginResponse.refresh_token,
+      );
     } else {
       sessionStorage.removeItem(this.refreshTokenStorageKey);
     }
-    sessionStorage.setItem(this.userStorageKey, JSON.stringify(loginResponse.user));
+    sessionStorage.setItem(
+      this.userStorageKey,
+      JSON.stringify(loginResponse.user),
+    );
   }
 
   clearSession(): void {

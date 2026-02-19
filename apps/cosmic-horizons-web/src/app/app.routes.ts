@@ -27,7 +27,9 @@ export const appRoutes: Route[] = [
   {
     path: 'ephem',
     loadChildren: () =>
-      import('./features/ephemeris/ephemeris.module').then((m) => m.EphemerisModule),
+      import('./features/ephemeris/ephemeris.module').then(
+        (m) => m.EphemerisModule,
+      ),
     canActivate: [AuthGuard],
   },
   {
@@ -50,7 +52,9 @@ export const appRoutes: Route[] = [
   {
     path: 'moderation',
     loadChildren: () =>
-      import('./features/moderation/moderation.module').then((m) => m.ModerationModule),
+      import('./features/moderation/moderation.module').then(
+        (m) => m.ModerationModule,
+      ),
     canActivate: [AuthGuard, AdminGuard],
   },
   {
@@ -68,30 +72,41 @@ export const appRoutes: Route[] = [
   {
     path: 'array-telemetry',
     loadChildren: () =>
-      import('./features/messaging/messaging.module').then((m) => m.MessagingModule),
+      import('./features/messaging/messaging.module').then(
+        (m) => m.MessagingModule,
+      ),
     canActivate: [AuthGuard],
   },
   {
     path: 'inference',
     loadChildren: () =>
-      import('./features/inference/inference.module').then((m) => m.InferenceModule),
+      import('./features/inference/inference.module').then(
+        (m) => m.InferenceModule,
+      ),
     canActivate: [AuthGuard],
   },
   {
     path: 'jobs-orchestration',
     loadChildren: () =>
-      import('./features/job-orchestration/job-orchestration.module').then((m) => m.JobOrchestrationModule),
+      import('./features/job-orchestration/job-orchestration.module').then(
+        (m) => m.JobOrchestrationModule,
+      ),
     canActivate: [AuthGuard],
   },
   {
     path: 'community',
-    loadChildren: () => import('./features/community/community.module').then((m) => m.CommunityModule),
+    loadChildren: () =>
+      import('./features/community/community.module').then(
+        (m) => m.CommunityModule,
+      ),
     canActivate: [AuthGuard],
   },
   {
     path: 'operations',
     loadChildren: () =>
-      import('./modules/operations/operations.module').then((m) => m.OperationsModule),
+      import('./modules/operations/operations.module').then(
+        (m) => m.OperationsModule,
+      ),
     canActivate: [AuthGuard, AdminGuard],
   },
   {

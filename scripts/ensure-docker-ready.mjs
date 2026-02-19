@@ -26,7 +26,9 @@ if (process.platform === 'win32') {
   if (existsSync(desktopExe)) {
     try {
       spawn(desktopExe, [], { detached: true, stdio: 'ignore' }).unref();
-      console.log('Docker daemon is down. Attempting to start Docker Desktop...');
+      console.log(
+        'Docker daemon is down. Attempting to start Docker Desktop...',
+      );
     } catch {
       // no-op; fall through to wait loop and final error message
     }

@@ -21,7 +21,9 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Mock Kafka metrics server listening on http://localhost:${PORT}/metrics`);
+  console.log(
+    `Mock Kafka metrics server listening on http://localhost:${PORT}/metrics`,
+  );
 });
 
 process.on('SIGTERM', () => server.close());

@@ -1,6 +1,11 @@
 <section class="logs-page">
   <mat-toolbar color="primary" class="logs-toolbar">
-    <button mat-icon-button class="home-button" aria-label="Home" [routerLink]="['/']">
+    <button
+      mat-icon-button
+      class="home-button"
+      aria-label="Home"
+      [routerLink]="['/']"
+    >
       <mat-icon>home</mat-icon>
     </button>
     <span class="toolbar-title">Logger</span>
@@ -34,16 +39,31 @@
         <p class="empty-state">No events captured yet.</p>
       } @else {
         <div class="table-shell">
-          <table mat-table [dataSource]="dataSource" matSort matSortActive="at" matSortDirection="desc" class="logs-table">
+          <table
+            mat-table
+            [dataSource]="dataSource"
+            matSort
+            matSortActive="at"
+            matSortDirection="desc"
+            class="logs-table"
+          >
             <ng-container matColumnDef="at">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Timestamp</th>
-              <td mat-cell *matCellDef="let row">{{ row.at | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Timestamp
+              </th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.at | date: 'yyyy-MM-dd HH:mm:ss' }}
+              </td>
             </ng-container>
 
             <ng-container matColumnDef="level">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Level</th>
               <td mat-cell *matCellDef="let row">
-                <span class="level-badge" [class]="'level-badge ' + row.level">{{ levelLabel(row.level) }}</span>
+                <span
+                  class="level-badge"
+                  [class]="'level-badge ' + row.level"
+                  >{{ levelLabel(row.level) }}</span
+                >
               </td>
             </ng-container>
 
@@ -78,7 +98,11 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns" [class]="'level-' + row.level"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns"
+              [class]="'level-' + row.level"
+            ></tr>
           </table>
         </div>
       }

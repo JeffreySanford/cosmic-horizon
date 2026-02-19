@@ -10,12 +10,12 @@ The Cosmic Horizons messaging system is **operationally healthy** with stable th
 
 ### Health Status
 
-| Component | Status | Latency | Health |
-|-----------|--------|---------|--------|
-| RabbitMQ (Management Plane) | ✅ Connected | 5-11ms | Nominal |
-| Kafka (Data Plane) | ✅ Connected | 7-16ms | Nominal |
-| PostgreSQL | ✅ Connected | 15ms | Nominal |
-| Redis | ⚠️ Auth Disabled | N/A | Non-critical |
+| Component                   | Status           | Latency | Health       |
+| --------------------------- | ---------------- | ------- | ------------ |
+| RabbitMQ (Management Plane) | ✅ Connected     | 5-11ms  | Nominal      |
+| Kafka (Data Plane)          | ✅ Connected     | 7-16ms  | Nominal      |
+| PostgreSQL                  | ✅ Connected     | 15ms    | Nominal      |
+| Redis                       | ⚠️ Auth Disabled | N/A     | Non-critical |
 
 ---
 
@@ -25,22 +25,22 @@ The Cosmic Horizons messaging system is **operationally healthy** with stable th
 
 Captured across 3 samples, 5-second intervals:
 
-| Metric | Sample 1 | Sample 2 | Sample 3 | Average | Unit |
-|--------|----------|----------|----------|---------|------|
-| **Total Packets/sec** | 625 | 604 | 614 | **614** | pps |
-| Node → Hub | 576 | 558 | 566 | **567** | pps |
-| Hub ↔ Hub | 49 | 46 | 48 | **48** | pps |
-| RabbitMQ Published | 625 | 604 | 614 | **614** | pps |
-| Kafka Published | 625 | 604 | 614 | **614** | pps |
+| Metric                | Sample 1 | Sample 2 | Sample 3 | Average | Unit |
+| --------------------- | -------- | -------- | -------- | ------- | ---- |
+| **Total Packets/sec** | 625      | 604      | 614      | **614** | pps  |
+| Node → Hub            | 576      | 558      | 566      | **567** | pps  |
+| Hub ↔ Hub            | 49       | 46       | 48       | **48**  | pps  |
+| RabbitMQ Published    | 625      | 604      | 614      | **614** | pps  |
+| Kafka Published       | 625      | 604      | 614      | **614** | pps  |
 
 **Key Finding**: System maintains steady-state throughput of **~600-625 pps** with consistent distribution across routing paths.
 
 ### Infrastructure Queue Depths & Latency Analysis
 
-| Broker | Sample 1 | Sample 2 | Sample 3 | Trend | Capacity | Queue Drain Time (μ) |
-|--------|----------|----------|----------|-------|----------|----------------------|
-| RabbitMQ Queue | 37,610 | 40,745 | 43,875 | ↑ Growing | 1M messages | ~64 sec @ 625 pps |
-| Kafka Topic Offset | 42,250 | 44,699 | 48,356 | ↑ Growing | 100 GB | ~78 sec @ 625 pps |
+| Broker             | Sample 1 | Sample 2 | Sample 3 | Trend     | Capacity    | Queue Drain Time (μ) |
+| ------------------ | -------- | -------- | -------- | --------- | ----------- | -------------------- |
+| RabbitMQ Queue     | 37,610   | 40,745   | 43,875   | ↑ Growing | 1M messages | ~64 sec @ 625 pps    |
+| Kafka Topic Offset | 42,250   | 44,699   | 48,356   | ↑ Growing | 100 GB      | ~78 sec @ 625 pps    |
 
 **Quantitative Analysis** (Statistical):
 
@@ -71,13 +71,13 @@ Captured across 3 samples, 5-second intervals:
 
 **Total System**: **7.43 Gbps** aggregate across 5 sites
 
-| Site | Active Elements | Data Rate | Avg per Element |
-|------|-----------------|-----------|-----------------|
-| Socorro Hub | 12 | 1.48 Gbps | 123 Mbps |
-| Green Bank Relay | 12 | 1.49 Gbps | 124 Mbps |
-| Owens Valley Node | 12 | 1.46 Gbps | 122 Mbps |
-| Pie Town Relay | 12 | 1.48 Gbps | 123 Mbps |
-| Los Alamos Link | 11 | 1.51 Gbps | 137 Mbps |
+| Site              | Active Elements | Data Rate | Avg per Element |
+| ----------------- | --------------- | --------- | --------------- |
+| Socorro Hub       | 12              | 1.48 Gbps | 123 Mbps        |
+| Green Bank Relay  | 12              | 1.49 Gbps | 124 Mbps        |
+| Owens Valley Node | 12              | 1.46 Gbps | 122 Mbps        |
+| Pie Town Relay    | 12              | 1.48 Gbps | 123 Mbps        |
+| Los Alamos Link   | 11              | 1.51 Gbps | 137 Mbps        |
 
 ---
 
@@ -102,13 +102,13 @@ Captured across 3 samples, 5-second intervals:
 
 ### Packet Emission Characteristics
 
-| Aspect | Value | Notes |
-|--------|-------|-------|
-| Elements | 60 total | Distributed across 5 sites (12 per site, except Los Alamos 11) |
-| Emission Rate | 100ms interval | 10 Hz per element = 600 pps aggregate |
-| Packet Size | ~200-500 bytes | TelemetryPacket structure |
-| Routing | 92.5% node→hub | 7.5% hub↔hub inter-site |
-| Status Distribution | 100% operational | Development simulation (no failures) |
+| Aspect              | Value            | Notes                                                          |
+| ------------------- | ---------------- | -------------------------------------------------------------- |
+| Elements            | 60 total         | Distributed across 5 sites (12 per site, except Los Alamos 11) |
+| Emission Rate       | 100ms interval   | 10 Hz per element = 600 pps aggregate                          |
+| Packet Size         | ~200-500 bytes   | TelemetryPacket structure                                      |
+| Routing             | 92.5% node→hub   | 7.5% hub↔hub inter-site                                       |
+| Status Distribution | 100% operational | Development simulation (no failures)                           |
 
 ---
 
@@ -118,16 +118,16 @@ Captured across 3 samples, 5-second intervals:
 
 **Queue**: `element_telemetry_queue`
 
-| Metric | Value | Status | Unit | Analysis |
-|--------|-------|--------|------|----------|
-| Connected | Yes | ✅ | bool | Persistent TCP connection (keep-alive <100ms intervals) |
-| Latency (HTTP API) | 5-11 ms | Excellent | ms | P50=7.2ms, P95=9.8ms (within SLA <15ms) |
-| Latency Jitter | σ=0.6ms | Very Low | ms | Coefficient of variation = 8.3% (highly consistent) |
-| Queue Depth | 37K-43K | Growing | msgs | Linear growth confirmed (no backpressure) |
-| Consumers | 0 | Expected | count | Development mode (production targets 3-5) |
-| Durable | No | Non-persistent | bool | Messages not written to disk (dev optimization) |
-| Message TTL | 30 min | Expiry | sec | After 1800s, messages auto-deleted if not consumed |
-| Ack Rate | 0 msgs/s | Idle | acks/s | No consumer acknowledgments (0 consumers) |
+| Metric             | Value    | Status         | Unit   | Analysis                                                |
+| ------------------ | -------- | -------------- | ------ | ------------------------------------------------------- |
+| Connected          | Yes      | ✅             | bool   | Persistent TCP connection (keep-alive <100ms intervals) |
+| Latency (HTTP API) | 5-11 ms  | Excellent      | ms     | P50=7.2ms, P95=9.8ms (within SLA <15ms)                 |
+| Latency Jitter     | σ=0.6ms  | Very Low       | ms     | Coefficient of variation = 8.3% (highly consistent)     |
+| Queue Depth        | 37K-43K  | Growing        | msgs   | Linear growth confirmed (no backpressure)               |
+| Consumers          | 0        | Expected       | count  | Development mode (production targets 3-5)               |
+| Durable            | No       | Non-persistent | bool   | Messages not written to disk (dev optimization)         |
+| Message TTL        | 30 min   | Expiry         | sec    | After 1800s, messages auto-deleted if not consumed      |
+| Ack Rate           | 0 msgs/s | Idle           | acks/s | No consumer acknowledgments (0 consumers)               |
 
 **RabbitMQ Performance Characterization**:
 
@@ -138,7 +138,7 @@ Captured across 3 samples, 5-second intervals:
 - **Memory footprint**: 43K messages × 300 bytes = **12.9 MB** (well within GC thresholds)
 - **Latency distribution model**: Approximately normal with μ=7.2ms, σ=0.6ms
   - P50 (median): ~7.2 ms
-  - P90 (90th percentile): ~8.3 ms  
+  - P90 (90th percentile): ~8.3 ms
   - P99 (99th percentile): ~9.9 ms
   - P99.9 (tail latency): ~11.1 ms (observed max)
 
@@ -148,18 +148,18 @@ Captured across 3 samples, 5-second intervals:
 
 **Topic**: `element.raw_data` | **Partitions**: 1 (dev) | **Replication**: factor 1 | **Brokers**: 1
 
-| Metric | Value | Status | Unit | Analysis |
-|--------|-------|--------|------|----------|
-| Connected | Yes | ✅ | bool | Healthy broker connection with heartbeat |
-| Latency (Admin API) | 7-16 ms | Good | ms | P50=10.5ms, P95=14.2ms (slightly higher than RabbitMQ due to metadata lookups) |
-| Latency Jitter | σ=1.8ms | Low | ms | Coefficient of variation = 17.1% (normal for distributed coordination) |
-| Latest Offset | 42K-48K | Advancing | msgs | Topic-end cursor advancing at 489-731 msgs/5sec |
-| Producer Latency | 2-4 ms | Excellent | ms | Write confirmation time (before fsync) |
-| Disk Write Latency | 8-14 ms | Good | ms | Snappy compression + file I/O |
-| Log Size Quota | 100 GB | Allocated | bytes | Current utilization: ~850 MB (0.85%) @ 7 days retention |
-| Retention Policy | 7 days | TTL | seconds | 604.8M seconds = 604,800,000ms |
-| Compression | Snappy | Active | type | Compression ratio ~3.2:1 (typical for telemetry) |
-| Network Throughput | 614 pps | Measured | msgs/s | (614 msgs/s) × (300 bytes/msg) = **184 KB/s** (0.00147 Mbps) |
+| Metric              | Value   | Status    | Unit    | Analysis                                                                       |
+| ------------------- | ------- | --------- | ------- | ------------------------------------------------------------------------------ |
+| Connected           | Yes     | ✅        | bool    | Healthy broker connection with heartbeat                                       |
+| Latency (Admin API) | 7-16 ms | Good      | ms      | P50=10.5ms, P95=14.2ms (slightly higher than RabbitMQ due to metadata lookups) |
+| Latency Jitter      | σ=1.8ms | Low       | ms      | Coefficient of variation = 17.1% (normal for distributed coordination)         |
+| Latest Offset       | 42K-48K | Advancing | msgs    | Topic-end cursor advancing at 489-731 msgs/5sec                                |
+| Producer Latency    | 2-4 ms  | Excellent | ms      | Write confirmation time (before fsync)                                         |
+| Disk Write Latency  | 8-14 ms | Good      | ms      | Snappy compression + file I/O                                                  |
+| Log Size Quota      | 100 GB  | Allocated | bytes   | Current utilization: ~850 MB (0.85%) @ 7 days retention                        |
+| Retention Policy    | 7 days  | TTL       | seconds | 604.8M seconds = 604,800,000ms                                                 |
+| Compression         | Snappy  | Active    | type    | Compression ratio ~3.2:1 (typical for telemetry)                               |
+| Network Throughput  | 614 pps | Measured  | msgs/s  | (614 msgs/s) × (300 bytes/msg) = **184 KB/s** (0.00147 Mbps)                   |
 
 **Kafka Performance Characterization**:
 
@@ -173,8 +173,8 @@ Captured across 3 samples, 5-second intervals:
 
 **Kafka Offset Analysis**:
 
-- Sample 1→2: Δ_offset = 2,449 in 5s = **489.8 msgs/sec**  
-- Sample 2→3: Δ_offset = 3,657 in 5s = **731.4 msgs/sec**  
+- Sample 1→2: Δ_offset = 2,449 in 5s = **489.8 msgs/sec**
+- Sample 2→3: Δ_offset = 3,657 in 5s = **731.4 msgs/sec**
 - Mean offset advancement: **610.6 msgs/sec** (99.2% of emitted 614-625 pps)
 - Batch size inference: Mean batch window ~1640 ms (suggests ~10 message batches)
 - Write amplification: ~0.1% overhead (negligible)
@@ -218,13 +218,13 @@ distributed across cluster
 
 ### Throughput Analysis (Statistical)
 
-| Layer | Observed Mean | Std Dev | Min | Max | Design Spec | Utilization |
-|-------|---|---|---|---|---|---|
-| Total packets | 614 pps | σ=10.1 | 604 | 625 | 600-650 pps | **94.4%** |
-| Node→Hub packets | 567 pps | σ=9.1 | 558 | 576 | 558-600 | **96.2%** |
-| Hub↔Hub packets | 48 pps | σ=1.5 | 46 | 49 | 42-50 | **96.0%** |
-| RabbitMQ published | 614 pps | σ=10.1 | 604 | 625 | >5K pps | **12.3%** |
-| Kafka published | 614 pps | σ=10.1 | 604 | 625 | >50K pps | **1.2%** |
+| Layer              | Observed Mean | Std Dev | Min | Max | Design Spec | Utilization |
+| ------------------ | ------------- | ------- | --- | --- | ----------- | ----------- |
+| Total packets      | 614 pps       | σ=10.1  | 604 | 625 | 600-650 pps | **94.4%**   |
+| Node→Hub packets   | 567 pps       | σ=9.1   | 558 | 576 | 558-600     | **96.2%**   |
+| Hub↔Hub packets   | 48 pps        | σ=1.5   | 46  | 49  | 42-50       | **96.0%**   |
+| RabbitMQ published | 614 pps       | σ=10.1  | 604 | 625 | >5K pps     | **12.3%**   |
+| Kafka published    | 614 pps       | σ=10.1  | 604 | 625 | >50K pps    | **1.2%**    |
 
 **Statistical Inference**:
 
@@ -241,15 +241,15 @@ distributed across cluster
 
 ### Latency Distribution — Percentile Analysis
 
-| Percentile | RabbitMQ HTTP API | Kafka Admin API | PostgreSQL | WebSocket Delivery |
-|---|---|---|---|---|
-| P50 (median) | 7.2 ms | 10.5 ms | 14.3 ms | 23 ms |
-| P75 | 7.8 ms | 11.9 ms | 15.1 ms | 34 ms |
-| P90 | 8.3 ms | 14.2 ms | 16.7 ms | 45 ms |
-| P95 | 9.2 ms | 15.1 ms | 17.2 ms | 52 ms |
-| P99 | 9.8 ms | 16.1 ms | 18.5 ms | 64 ms |
-| P99.9 (tail) | 11.1 ms | 16.8 ms | 19.3 ms | 71 ms |
-| Max observed | 11.1 ms | 16.8 ms | 19.3 ms | 71 ms |
+| Percentile   | RabbitMQ HTTP API | Kafka Admin API | PostgreSQL | WebSocket Delivery |
+| ------------ | ----------------- | --------------- | ---------- | ------------------ |
+| P50 (median) | 7.2 ms            | 10.5 ms         | 14.3 ms    | 23 ms              |
+| P75          | 7.8 ms            | 11.9 ms         | 15.1 ms    | 34 ms              |
+| P90          | 8.3 ms            | 14.2 ms         | 16.7 ms    | 45 ms              |
+| P95          | 9.2 ms            | 15.1 ms         | 17.2 ms    | 52 ms              |
+| P99          | 9.8 ms            | 16.1 ms         | 18.5 ms    | 64 ms              |
+| P99.9 (tail) | 11.1 ms           | 16.8 ms         | 19.3 ms    | 71 ms              |
+| Max observed | 11.1 ms           | 16.8 ms         | 19.3 ms    | 71 ms              |
 
 **Latency Characterization Model**:
 
@@ -262,35 +262,35 @@ For each endpoint, latency follows **approximately normal distribution**:
 
 **Tail Latency Classification** (SRE standard):
 
-| Endpoint | P99 | Status | SLO Target | Margin |
-|---|---|---|---|---|
-| RabbitMQ | 9.8 ms | ✅ Excellent | <15 ms | +5.2 ms (53%) |
-| Kafka | 16.1 ms | ⚠️ At limit | <20 ms | +3.9 ms (20%) |
-| PostgreSQL | 18.5 ms | ⚠️ Near limit | <20 ms | +1.5 ms (8%) |
-| WebSocket | 64 ms | ✅ Fine | <100 ms | +36 ms (56%) |
+| Endpoint   | P99     | Status        | SLO Target | Margin        |
+| ---------- | ------- | ------------- | ---------- | ------------- |
+| RabbitMQ   | 9.8 ms  | ✅ Excellent  | <15 ms     | +5.2 ms (53%) |
+| Kafka      | 16.1 ms | ⚠️ At limit   | <20 ms     | +3.9 ms (20%) |
+| PostgreSQL | 18.5 ms | ⚠️ Near limit | <20 ms     | +1.5 ms (8%)  |
+| WebSocket  | 64 ms   | ✅ Fine       | <100 ms    | +36 ms (56%)  |
 
 **Jitter Analysis** (Coefficient of Variation):
 
-| Path | Mean | σ | CV | Classification |
-|---|---|---|---|---|
-| RabbitMQ | 7.2 ms | 0.6 ms | **8.3%** | Very consistent (purple SLA) |
-| Kafka | 10.5 ms | 1.8 ms | **17.1%** | Low variation (blue SLA) |
-| PostgreSQL | 14.3 ms | 1.4 ms | **9.8%** | Consistent (purple SLA) |
-| WebSocket | 23 ms | 12 ms | **52.1%** | Network-dependent (yellow SLA) |
+| Path       | Mean    | σ      | CV        | Classification                 |
+| ---------- | ------- | ------ | --------- | ------------------------------ |
+| RabbitMQ   | 7.2 ms  | 0.6 ms | **8.3%**  | Very consistent (purple SLA)   |
+| Kafka      | 10.5 ms | 1.8 ms | **17.1%** | Low variation (blue SLA)       |
+| PostgreSQL | 14.3 ms | 1.4 ms | **9.8%**  | Consistent (purple SLA)        |
+| WebSocket  | 23 ms   | 12 ms  | **52.1%** | Network-dependent (yellow SLA) |
 
 ### Data Volume & Storage Projection
 
 **Raw Throughput Measurements**:
 
-| Unit | Telemetry Rate | Compression | Compressed Rate |
-|---|---|---|---|
-| Per second | 184.2 KB/s | 3.2:1 | 57.6 KB/s |
-| Per minute | 11.05 MB/min | 3.2:1 | 3.46 MB/min |
-| Per hour | 663 MB/h | 3.2:1 | 207.2 MB/h |
-| Per day | 15.9 GB/day | 3.2:1 | 4.97 GB/day |
-| Per week | 111.3 GB/week | 3.2:1 | 34.78 GB/week |
-| Per month (30d) | 477 GB/month | 3.2:1 | 149.1 GB/month |
-| Per year (365d) | 5.81 TB/year | 3.2:1 | 1.82 TB/year |
+| Unit            | Telemetry Rate | Compression | Compressed Rate |
+| --------------- | -------------- | ----------- | --------------- |
+| Per second      | 184.2 KB/s     | 3.2:1       | 57.6 KB/s       |
+| Per minute      | 11.05 MB/min   | 3.2:1       | 3.46 MB/min     |
+| Per hour        | 663 MB/h       | 3.2:1       | 207.2 MB/h      |
+| Per day         | 15.9 GB/day    | 3.2:1       | 4.97 GB/day     |
+| Per week        | 111.3 GB/week  | 3.2:1       | 34.78 GB/week   |
+| Per month (30d) | 477 GB/month   | 3.2:1       | 149.1 GB/month  |
+| Per year (365d) | 5.81 TB/year   | 3.2:1       | 1.82 TB/year    |
 
 **Kafka Multi-Node Storage Projection** (Production):
 
@@ -326,21 +326,21 @@ Memory at t=300s: 187,500 × 400 = 75 MB (well within container limits)
 
 **Single Point of Failures (SPOF) in Current Dev Setup**:
 
-| Component | SPOF Risk | Impact Duration | Recovery Path |
-|---|---|---|---|
-| RabbitMQ broker | Yes (1 instance) | Until manual restart | ~5-10 seconds |
-| Kafka broker | Yes (1 instance) | Until manual restart | ~5-10 seconds |
-| PostgreSQL | Yes (1 instance) | Until manual restart | ~3-5 seconds |
-| Redis | No (optional) | N/A | System continues without caching |
+| Component       | SPOF Risk        | Impact Duration      | Recovery Path                    |
+| --------------- | ---------------- | -------------------- | -------------------------------- |
+| RabbitMQ broker | Yes (1 instance) | Until manual restart | ~5-10 seconds                    |
+| Kafka broker    | Yes (1 instance) | Until manual restart | ~5-10 seconds                    |
+| PostgreSQL      | Yes (1 instance) | Until manual restart | ~3-5 seconds                     |
+| Redis           | No (optional)    | N/A                  | System continues without caching |
 
 **Production HA Configuration**:
 
-| Component | Setup | RPO | RTO | Headroom |
-|---|---|---|---|---|
-| RabbitMQ | 3-node cluster | <1 sec | <5 sec | 15x throughput headroom |
-| Kafka | 3-broker, rf=3 | <1 sec | <5 sec | 81x single-partition headroom |
-| PostgreSQL | Primary + 2 replicas | <1 sec | <10 sec | Auto-failover via pgBouncer |
-| Redis | Primary + replica | <1 sec | <3 sec | Optional; not critical path |
+| Component  | Setup                | RPO    | RTO     | Headroom                      |
+| ---------- | -------------------- | ------ | ------- | ----------------------------- |
+| RabbitMQ   | 3-node cluster       | <1 sec | <5 sec  | 15x throughput headroom       |
+| Kafka      | 3-broker, rf=3       | <1 sec | <5 sec  | 81x single-partition headroom |
+| PostgreSQL | Primary + 2 replicas | <1 sec | <10 sec | Auto-failover via pgBouncer   |
+| Redis      | Primary + replica    | <1 sec | <3 sec  | Optional; not critical path   |
 
 ---
 
@@ -377,14 +377,14 @@ ioredis maintains a connection pool with the following characteristics:
 
 **Scientific Impact Analysis**:
 
-| Impact Category | Metric | Severity | Effect |
-|-----------------|--------|----------|--------|
-| **System Functionality** | Cache availability | None | Redis fully optional; system operates without it |
-| **Error Log Noise** | Warnings per minute | ~2-4 | 3-5 KB/min log volume |
-| **Memory (ioredis)** | Retry buffer overhead | <1 MB | Each retry allocates small object; GC cleans regularly |
-| **CPU** | Connection retry loop | <0.1% | Minimal; I/O-bound wait dominates |
-| **Network** | Port 6379 attempts | ~5 conn·connections per min | Negligible (<1 KB/s) |
-| **User Experience** | Dashboard alerts | N/A | No user-facing impact (optional feature) |
+| Impact Category          | Metric                | Severity                    | Effect                                                 |
+| ------------------------ | --------------------- | --------------------------- | ------------------------------------------------------ |
+| **System Functionality** | Cache availability    | None                        | Redis fully optional; system operates without it       |
+| **Error Log Noise**      | Warnings per minute   | ~2-4                        | 3-5 KB/min log volume                                  |
+| **Memory (ioredis)**     | Retry buffer overhead | <1 MB                       | Each retry allocates small object; GC cleans regularly |
+| **CPU**                  | Connection retry loop | <0.1%                       | Minimal; I/O-bound wait dominates                      |
+| **Network**              | Port 6379 attempts    | ~5 conn·connections per min | Negligible (<1 KB/s)                                   |
+| **User Experience**      | Dashboard alerts      | N/A                         | No user-facing impact (optional feature)               |
 
 **Resolution Strategy A: Development (Disable Auth)**
 
@@ -483,12 +483,12 @@ With strong password AUTH enabled:
 
 **Resource Cost Analysis (No Auth vs. With Auth)**:
 
-| Resource | No Auth | With Auth | Delta |
-|----------|---------|-----------|-------|
-| CPU/cmd | ~0.01 ms | ~0.51 ms | +50x (still <1% CPU overall) |
-| Memory/connection | ~2 KB | ~2.5 KB | +0.5 KB (negligible) |
-| Connection pool size | 10 | 10 | 0 (same) |
-| System throughput impact | N/A | <0.1% | Unmeasurable |
+| Resource                 | No Auth  | With Auth | Delta                        |
+| ------------------------ | -------- | --------- | ---------------------------- |
+| CPU/cmd                  | ~0.01 ms | ~0.51 ms  | +50x (still <1% CPU overall) |
+| Memory/connection        | ~2 KB    | ~2.5 KB   | +0.5 KB (negligible)         |
+| Connection pool size     | 10       | 10        | 0 (same)                     |
+| System throughput impact | N/A      | <0.1%     | Unmeasurable                 |
 
 ### 2. RabbitMQ Management API HTTP 404 — Transient Event Analysis
 
@@ -526,7 +526,7 @@ RabbitMQ container health check:
 
 ```yaml
 healthcheck:
-  test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+  test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
   interval: 10s
   timeout: 5s
   retries: 5
@@ -665,7 +665,7 @@ Traffic intensity: a = λ/μ = 0.0625 Erlang (extremely light)
 ```text
 Per-packet payload (~300 bytes):
   ├─ Header (element ID, timestamp): 32 bytes
-  ├─ Telemetry (azimuth, elevation, temp, wind, status): 64 bytes  
+  ├─ Telemetry (azimuth, elevation, temp, wind, status): 64 bytes
   ├─ Diagnostics (signal quality, calibration): 48 bytes
   ├─ Metadata (site, array sector): 32 bytes
   └─ Checksums (CRC-32, integrity): 4 bytes
@@ -741,12 +741,12 @@ L = 625 × 0.000105 = 0.0656 messages (essentially zero queuing)
 
 **Component Failure Modes** (Based on observed stability):
 
-| Component | Observed MTBF | Projected (68hr baseline) | 1-year MTBF estimate |
-|---|---|---|---|
-| RabbitMQ connection | >15 min | >360 hours | >5,000 hours (theoretical) |
-| Kafka connection | >15 min | >360 hours | >5,000 hours (theoretical) |
-| Message delivery | 0 failures | >360 hours | >100,000 hours (theoretical) |
-| Complete system | >15 min | >360 hours | >5,000 hours (conservative) |
+| Component           | Observed MTBF | Projected (68hr baseline) | 1-year MTBF estimate         |
+| ------------------- | ------------- | ------------------------- | ---------------------------- |
+| RabbitMQ connection | >15 min       | >360 hours                | >5,000 hours (theoretical)   |
+| Kafka connection    | >15 min       | >360 hours                | >5,000 hours (theoretical)   |
+| Message delivery    | 0 failures    | >360 hours                | >100,000 hours (theoretical) |
+| Complete system     | >15 min       | >360 hours                | >5,000 hours (conservative)  |
 
 **99.99% Availability Requirement** (4-nines):
 
@@ -854,17 +854,17 @@ Target ngVLA scale:
   Messages per second: 600K pps (1000x current dev)
   Array elements: 60,000 (1000x current)
   Sites: 10 (2x current)
-  
+
 Minimum broker configuration:
   Kafka partitions: 30 (60 pps × 1000 scale ÷ 2K per partition)
   RabbitMQ nodes: 5 (redundancy + headroom)
   PostgreSQL: Primary + 4 replicas (read scaling)
   Redis: Primary + 2 replicas (cache coherence)
-  
+
 Network fabric:
   Intra-cluster: 40 Gbps minimum (current: 0.00015 Gbps used)
   Inter-site links: 100 Gbps (for aggregated multi-site streams)
-  
+
 Storage:
   Kafka cluster: 2.19 TB per day × 7 days × 3 replication = 46 TB (current)
   ngVLA scale @ 1000x: 46 TB × 1000 = 46 PB (acceptable given ngVLA scope)
@@ -914,15 +914,15 @@ Latency improvement: P99 from 9.8ms → 7.2ms (RabbitMQ)
 
 **Azure Resources Required**:
 
-| Component | Azure Service | Instance Type | Quantity | Configuration |
-|---|---|---|---|---|
-| Kafka | Confluent Cloud on AKS | Standard | 6 brokers | 3 partitions, 2 replicas minimum |
-| RabbitMQ | Azure Guest Cluster (AKS) | Premium | 5 nodes | 3-zone HA cluster |
-| PostgreSQL | Azure Database for PostgreSQL | 2 vCore | 3 (Primary + 2 standby) | Geo-redundant backup |
-| Redis | Azure Cache for Redis | Premium P3 | 2 (Primary + replica) | 6 GB cache, 6 GB GB eviction |
-| Kubernetes | AKS (Azure Kubernetes Service) | Standard | D32s_v3 nodes | 5 nodes minimum, 160 GB RAM total |
-| Network | ExpressRoute | 100 Mbps | 1 circuit | Dedicated bandwidth to ngVLA sites |
-| Storage | Azure Blob Storage | Hot tier | 50 PB/month | Kafka retention archive |
+| Component  | Azure Service                  | Instance Type | Quantity                | Configuration                      |
+| ---------- | ------------------------------ | ------------- | ----------------------- | ---------------------------------- |
+| Kafka      | Confluent Cloud on AKS         | Standard      | 6 brokers               | 3 partitions, 2 replicas minimum   |
+| RabbitMQ   | Azure Guest Cluster (AKS)      | Premium       | 5 nodes                 | 3-zone HA cluster                  |
+| PostgreSQL | Azure Database for PostgreSQL  | 2 vCore       | 3 (Primary + 2 standby) | Geo-redundant backup               |
+| Redis      | Azure Cache for Redis          | Premium P3    | 2 (Primary + replica)   | 6 GB cache, 6 GB GB eviction       |
+| Kubernetes | AKS (Azure Kubernetes Service) | Standard      | D32s_v3 nodes           | 5 nodes minimum, 160 GB RAM total  |
+| Network    | ExpressRoute                   | 100 Mbps      | 1 circuit               | Dedicated bandwidth to ngVLA sites |
+| Storage    | Azure Blob Storage             | Hot tier      | 50 PB/month             | Kafka retention archive            |
 
 **Azure Performance Projections**:
 
@@ -1103,15 +1103,15 @@ Cost per GB stored (7-day retention): $0.021 per GB (archive tier)
 
 **AWS Resources Required**:
 
-| Component | AWS Service | Instance Type | Quantity | Configuration |
-|---|---|---|---|---|
-| Kafka | AWS EKS + self-managed | i3en.3xlarge | 6 brokers | 3 partitions, 2 replicas |
-| RabbitMQ | EKS + self-managed | c6i.4xlarge | 5 nodes | 3-AZ HA cluster |
-| PostgreSQL | AWS RDS Aurora PostgreSQL | db.r6i.2xlarge | 3 (1 writer + 2 read) | Multi-AZ deployment |
-| Redis | AWS ElastiCache Redis | cache.r7g.xlarge | 2 (Primary + replica) | 13.56 GB cache |
-| Kubernetes | EKS (Elastic Kubernetes Service) | t3.2xlarge | 5 nodes | Auto-scaling group |
-| Network | AWS Direct Connect | 100 Mbps | 1 connection | Dedicated ngVLA link |
-| Storage | S3 (Intelligent-Tiering) | Hot → Glacier | 50 PB/month | Kafka retention archive |
+| Component  | AWS Service                      | Instance Type    | Quantity              | Configuration            |
+| ---------- | -------------------------------- | ---------------- | --------------------- | ------------------------ |
+| Kafka      | AWS EKS + self-managed           | i3en.3xlarge     | 6 brokers             | 3 partitions, 2 replicas |
+| RabbitMQ   | EKS + self-managed               | c6i.4xlarge      | 5 nodes               | 3-AZ HA cluster          |
+| PostgreSQL | AWS RDS Aurora PostgreSQL        | db.r6i.2xlarge   | 3 (1 writer + 2 read) | Multi-AZ deployment      |
+| Redis      | AWS ElastiCache Redis            | cache.r7g.xlarge | 2 (Primary + replica) | 13.56 GB cache           |
+| Kubernetes | EKS (Elastic Kubernetes Service) | t3.2xlarge       | 5 nodes               | Auto-scaling group       |
+| Network    | AWS Direct Connect               | 100 Mbps         | 1 connection          | Dedicated ngVLA link     |
+| Storage    | S3 (Intelligent-Tiering)         | Hot → Glacier    | 50 PB/month           | Kafka retention archive  |
 
 **AWS Performance Projections**:
 
@@ -1258,15 +1258,15 @@ Cost per GB stored (7-day retention): $0.026 per GB (Intelligent-Tiering)
 
 **Performance by Platform**:
 
-| Metric | Docker Local | Azure | AWS | Winner |
-|--------|------|-------|-----|--------|
-| Throughput | 614 pps | 150-200K pps | 250-350K pps | **AWS** (40-570x) |
-| Latency (P99) | 9.8ms | 4-5ms | 2-3ms | **AWS** |
-| Storage/day | 5 GB | 5 GB | 5 GB | Tied |
-| Cost/packet | $0.000002 | $0.000000053 | $0.000000067 | **AWS** (better throughput/cost) |
-| Availability | 0% (no HA) | 99.99% | 99.99% | Tied |
-| Setup time | 1 hour | 1-2 weeks | 1-2 weeks | **Docker** |
-| Scaling capability | Manual | Auto (Kubernetes) | Auto (EKS + ASG) | Tied |
+| Metric             | Docker Local | Azure             | AWS              | Winner                           |
+| ------------------ | ------------ | ----------------- | ---------------- | -------------------------------- |
+| Throughput         | 614 pps      | 150-200K pps      | 250-350K pps     | **AWS** (40-570x)                |
+| Latency (P99)      | 9.8ms        | 4-5ms             | 2-3ms            | **AWS**                          |
+| Storage/day        | 5 GB         | 5 GB              | 5 GB             | Tied                             |
+| Cost/packet        | $0.000002    | $0.000000053      | $0.000000067     | **AWS** (better throughput/cost) |
+| Availability       | 0% (no HA)   | 99.99%            | 99.99%           | Tied                             |
+| Setup time         | 1 hour       | 1-2 weeks         | 1-2 weeks        | **Docker**                       |
+| Scaling capability | Manual       | Auto (Kubernetes) | Auto (EKS + ASG) | Tied                             |
 
 **Deployment Architecture Comparison**:
 
@@ -1424,10 +1424,10 @@ Services:
 
 ## Document History
 
-| Date | Status | Events |
-|------|--------|--------|
-| 2026-02-14 02:32 | ✅ Captured | Live system statistics baseline |
-| 2026-02-13 | 📝 Created | Messaging system documentation suite |
+| Date             | Status      | Events                               |
+| ---------------- | ----------- | ------------------------------------ |
+| 2026-02-14 02:32 | ✅ Captured | Live system statistics baseline      |
+| 2026-02-13       | 📝 Created  | Messaging system documentation suite |
 
 ---
 

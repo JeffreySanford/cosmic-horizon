@@ -2,7 +2,12 @@
   <div class="header">
     <h1>Moderation Dashboard</h1>
     <div class="actions">
-      <button mat-icon-button (click)="loadReports()" [disabled]="loading" matTooltip="Refresh reports">
+      <button
+        mat-icon-button
+        (click)="loadReports()"
+        [disabled]="loading"
+        matTooltip="Refresh reports"
+      >
         <mat-icon>refresh</mat-icon>
       </button>
       <a mat-button routerLink="/landing">
@@ -32,19 +37,22 @@
     } @else {
       <mat-card class="reports-card">
         <table mat-table [dataSource]="reports" class="reports-table">
-          
           <ng-container matColumnDef="user">
-            <th mat-header-cell *matHeaderCellDef> Reporter </th>
-            <td mat-cell *matCellDef="let report"> 
-              {{ report.user?.display_name || report.user?.username || 'System' }}
+            <th mat-header-cell *matHeaderCellDef>Reporter</th>
+            <td mat-cell *matCellDef="let report">
+              {{
+                report.user?.display_name || report.user?.username || 'System'
+              }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="reason">
-            <th mat-header-cell *matHeaderCellDef> Reason </th>
+            <th mat-header-cell *matHeaderCellDef>Reason</th>
             <td mat-cell *matCellDef="let report">
               <mat-chip-set>
-                <mat-chip [color]="report.status === 'pending' ? 'warn' : 'primary'">
+                <mat-chip
+                  [color]="report.status === 'pending' ? 'warn' : 'primary'"
+                >
                   {{ report.reason }}
                 </mat-chip>
               </mat-chip-set>
@@ -52,10 +60,11 @@
           </ng-container>
 
           <ng-container matColumnDef="content">
-            <th mat-header-cell *matHeaderCellDef> Comment Content </th>
+            <th mat-header-cell *matHeaderCellDef>Comment Content</th>
             <td mat-cell *matCellDef="let report" class="content-cell">
               <div class="comment-preview">
-                "{{ report.comment?.content | slice:0:100 }}{{ report.comment?.content?.length > 100 ? '...' : '' }}"
+                "{{ report.comment?.content | slice: 0 : 100
+                }}{{ report.comment?.content?.length > 100 ? '...' : '' }}"
               </div>
               @if (report.comment?.hidden_at) {
                 <span class="hidden-label">(Already Hidden)</span>
@@ -64,21 +73,35 @@
           </ng-container>
 
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef> Status </th>
-            <td mat-cell *matCellDef="let report"> {{ report.status | titlecase }} </td>
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let report">
+              {{ report.status | titlecase }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let report">
               @if (report.status === 'pending') {
-                <button mat-button color="warn" (click)="hideComment(report.comment_id)" [disabled]="report.comment?.hidden_at">
+                <button
+                  mat-button
+                  color="warn"
+                  (click)="hideComment(report.comment_id)"
+                  [disabled]="report.comment?.hidden_at"
+                >
                   Hide Comment
                 </button>
-                <button mat-button color="primary" (click)="resolveReport(report.id, 'reviewed')">
+                <button
+                  mat-button
+                  color="primary"
+                  (click)="resolveReport(report.id, 'reviewed')"
+                >
                   Resolve
                 </button>
-                <button mat-button (click)="resolveReport(report.id, 'dismissed')">
+                <button
+                  mat-button
+                  (click)="resolveReport(report.id, 'dismissed')"
+                >
                   Dismiss
                 </button>
               } @else {
@@ -87,8 +110,23 @@
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="['user', 'reason', 'content', 'status', 'actions']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['user', 'reason', 'content', 'status', 'actions'];"></tr>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="[
+              'user',
+              'reason',
+              'content',
+              'status',
+              'actions',
+            ]"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="
+              let row;
+              columns: ['user', 'reason', 'content', 'status', 'actions']
+            "
+          ></tr>
         </table>
       </mat-card>
     }

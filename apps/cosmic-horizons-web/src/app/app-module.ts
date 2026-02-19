@@ -1,7 +1,19 @@
-import { APP_INITIALIZER, NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
+import {
+  APP_INITIALIZER,
+  NgModule,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
+import {
+  BrowserModule,
+  provideClientHydration,
+} from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withFetch,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import { RouterModule, provideRouter } from '@angular/router';
 import { App } from './app';
 import { appRoutes } from './app.routes';
@@ -12,7 +24,9 @@ import { MockApiInterceptor } from './shared/interceptors/mock-api.interceptor';
 import { FooterComponent } from './shared/layout/footer/footer.component';
 import { AppStartupWarmupService } from './services/app-startup-warmup.service';
 
-function startupWarmupFactory(warmupService: AppStartupWarmupService): () => void {
+function startupWarmupFactory(
+  warmupService: AppStartupWarmupService,
+): () => void {
   return () => warmupService.warmUp();
 }
 

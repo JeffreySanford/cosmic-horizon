@@ -20,7 +20,8 @@ export class AppLoggerService {
   private readonly maxEntries = 500;
   private readonly entries: AppLogEntry[] = [];
   private readonly entriesSubject = new BehaviorSubject<AppLogEntry[]>([]);
-  readonly entries$: Observable<AppLogEntry[]> = this.entriesSubject.asObservable();
+  readonly entries$: Observable<AppLogEntry[]> =
+    this.entriesSubject.asObservable();
 
   info(area: string, event: string, details?: LogDetails): void {
     this.push({
@@ -78,4 +79,3 @@ export class AppLoggerService {
     this.entriesSubject.next([...this.entries]);
   }
 }
-

@@ -1,6 +1,27 @@
-.community-root { max-width: 920px; margin: 16px auto; }
-.compose { display:flex; flex-direction:column; gap:8px; margin-bottom:12px }
-.compose input, .compose textarea { width:100%; padding:8px }
-.item-content { display:flex; flex-direction:column }
-.meta { color: rgba(0,0,0,0.54); font-size: 12px; margin: 4px 0 }
-.body { margin: 8px 0 0 0 }
+.community-root {
+  max-width: 920px;
+  margin: 16px auto;
+}
+.compose {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.compose input,
+.compose textarea {
+  width: 100%;
+  padding: 8px;
+}
+.item-content {
+  display: flex;
+  flex-direction: column;
+}
+.meta {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 12px;
+  margin: 4px 0;
+}
+.body {
+  margin: 8px 0 0 0;
+}

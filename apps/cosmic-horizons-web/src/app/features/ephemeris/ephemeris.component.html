@@ -19,7 +19,8 @@
     <section class="page-header">
       <h1>Ephemeris Search</h1>
       <p class="subtitle">
-        Resolve live coordinates for planets, moons, and small bodies, then preview the sky position instantly.
+        Resolve live coordinates for planets, moons, and small bodies, then
+        preview the sky position instantly.
       </p>
     </section>
 
@@ -49,7 +50,11 @@
           </div>
         }
 
-        <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-form">
+        <form
+          [formGroup]="searchForm"
+          (ngSubmit)="onSubmit()"
+          class="search-form"
+        >
           <div class="form-row">
             <mat-form-field class="search-field" appearance="outline">
               <mat-label>Target</mat-label>
@@ -60,7 +65,9 @@
                 [attr.aria-invalid]="f['target'].invalid && submitted"
               />
               @if (f['target'].invalid && submitted) {
-                <mat-error>Target name is required (minimum 2 characters)</mat-error>
+                <mat-error
+                  >Target name is required (minimum 2 characters)</mat-error
+                >
               }
             </mat-form-field>
 
@@ -72,7 +79,12 @@
           </div>
 
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="loading"
+            >
               @if (loading) {
                 <mat-spinner diameter="20"></mat-spinner>
               } @else {
@@ -82,7 +94,12 @@
             </button>
 
             @if (submitted && (result || error || noResultsMessage)) {
-              <button mat-stroked-button type="button" (click)="clearSearch()" [disabled]="loading">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="clearSearch()"
+                [disabled]="loading"
+              >
                 <mat-icon>clear</mat-icon>
                 Reset
               </button>
@@ -107,15 +124,21 @@
               </div>
               <div class="result-item">
                 <span class="label">Right Ascension</span>
-                <span class="value mono">{{ result.ra | number: '1.6-6' }}°</span>
+                <span class="value mono"
+                  >{{ result.ra | number: '1.6-6' }}°</span
+                >
               </div>
               <div class="result-item">
                 <span class="label">Declination</span>
-                <span class="value mono">{{ result.dec | number: '1.6-6' }}°</span>
+                <span class="value mono"
+                  >{{ result.dec | number: '1.6-6' }}°</span
+                >
               </div>
               <div class="result-item">
                 <span class="label">Accuracy</span>
-                <span class="value mono">±{{ result.accuracy_arcsec | number: '1.3-3' }}&quot;</span>
+                <span class="value mono"
+                  >±{{ result.accuracy_arcsec | number: '1.3-3' }}&quot;</span
+                >
               </div>
               <div class="result-item">
                 <span class="label">Object Type</span>
@@ -139,12 +162,21 @@
                 <div class="preview-empty">Preview unavailable</div>
               }
               <div class="preview-actions">
-                <button mat-stroked-button type="button" (click)="openInViewer()">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="openInViewer()"
+                >
                   <mat-icon>open_in_new</mat-icon>
                   Open In Viewer
                 </button>
                 @if (result.aladin_url) {
-                  <a mat-button [href]="result.aladin_url" target="_blank" rel="noopener noreferrer">
+                  <a
+                    mat-button
+                    [href]="result.aladin_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <mat-icon>travel_explore</mat-icon>
                     Open Aladin
                   </a>
@@ -162,9 +194,18 @@
       </mat-card-header>
       <mat-card-content>
         <ul>
-          <li><strong>RA/Dec:</strong> Position on the celestial sphere in degrees.</li>
-          <li><strong>Source:</strong> Results are served from astronomy-engine, JPL Horizons fallback, or cache.</li>
-          <li><strong>Preview:</strong> The image is a sky cutout centered on computed coordinates at the selected epoch.</li>
+          <li>
+            <strong>RA/Dec:</strong> Position on the celestial sphere in
+            degrees.
+          </li>
+          <li>
+            <strong>Source:</strong> Results are served from astronomy-engine,
+            JPL Horizons fallback, or cache.
+          </li>
+          <li>
+            <strong>Preview:</strong> The image is a sky cutout centered on
+            computed coordinates at the selected epoch.
+          </li>
         </ul>
       </mat-card-content>
     </mat-card>

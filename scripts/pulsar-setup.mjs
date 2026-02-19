@@ -2,13 +2,13 @@
 
 /**
  * Pulsar Infrastructure Setup & Verification
- * 
+ *
  * Performs:
  * 1. Health checks on Pulsar cluster
  * 2. Creates namespaces and topics for CosmicAI workloads
  * 3. Sets up retention policies (mimicking Kafka 30-day retention)
  * 4. Configures backlog quotas for event streams
- * 
+ *
  * Usage: node scripts/pulsar-setup.mjs [--cleanup]
  */
 
@@ -23,32 +23,32 @@ const PULSAR_ADMIN_URL = 'http://localhost:8080';
 const NAMESPACES = [
   {
     namespace: 'public/default',
-    description: 'Default namespace (pre-existing)'
+    description: 'Default namespace (pre-existing)',
   },
   {
     namespace: 'public/cosmic-ai',
     description: 'CosmicAI workloads (job orchestration)',
     properties: {
-      'retention_seconds': 2592000, // 30 days
-      'replication_clusters': ['local']
-    }
+      retention_seconds: 2592000, // 30 days
+      replication_clusters: ['local'],
+    },
   },
   {
     namespace: 'public/observatories',
     description: 'Observatory and telescope data products',
     properties: {
-      'retention_seconds': 7776000, // 90 days for science data
-      'replication_clusters': ['local']
-    }
+      retention_seconds: 7776000, // 90 days for science data
+      replication_clusters: ['local'],
+    },
   },
   {
     namespace: 'public/metrics',
     description: 'System and performance metrics',
     properties: {
-      'retention_seconds': 604800, // 7 days for operational metrics
-      'replication_clusters': ['local']
-    }
-  }
+      retention_seconds: 604800, // 7 days for operational metrics
+      replication_clusters: ['local'],
+    },
+  },
 ];
 
 const TOPICS = [
@@ -59,33 +59,33 @@ const TOPICS = [
         name: 'job-submitted',
         description: 'Job submission events (RabbitMQ → Pulsar migration)',
         partitions: 3,
-        retention: { retentionSizeInMB: 5120, retentionTimeInMinutes: 43200 } // 5GB, 30 days
+        retention: { retentionSizeInMB: 5120, retentionTimeInMinutes: 43200 }, // 5GB, 30 days
       },
       {
         name: 'job-status-changed',
         description: 'Job status transitions (QUEUED → RUNNING → COMPLETED)',
         partitions: 3,
-        retention: { retentionSizeInMB: 5120, retentionTimeInMinutes: 43200 }
+        retention: { retentionSizeInMB: 5120, retentionTimeInMinutes: 43200 },
       },
       {
         name: 'job-completed',
         description: 'Job completion events with results',
         partitions: 2,
-        retention: { retentionSizeInMB: 2048, retentionTimeInMinutes: 43200 }
+        retention: { retentionSizeInMB: 2048, retentionTimeInMinutes: 43200 },
       },
       {
         name: 'calibration-events',
         description: 'AlphaCal calibration progress and results',
         partitions: 4,
-        retention: { retentionSizeInMB: 10240, retentionTimeInMinutes: 43200 }
+        retention: { retentionSizeInMB: 10240, retentionTimeInMinutes: 43200 },
       },
       {
         name: 'image-reconstruction-events',
         description: 'Radio image reconstruction progress',
         partitions: 4,
-        retention: { retentionSizeInMB: 10240, retentionTimeInMinutes: 43200 }
-      }
-    ]
+        retention: { retentionSizeInMB: 10240, retentionTimeInMinutes: 43200 },
+      },
+    ],
   },
   {
     namespace: 'public/observatories',
@@ -94,15 +94,15 @@ const TOPICS = [
         name: 'science-ready-products',
         description: 'Science Ready Data Products (SRDPs) from AI agents',
         partitions: 2,
-        retention: { retentionSizeInMB: 51200, retentionTimeInMinutes: 129600 } // 50GB, 90 days
+        retention: { retentionSizeInMB: 51200, retentionTimeInMinutes: 129600 }, // 50GB, 90 days
       },
       {
         name: 'observation-metadata',
         description: 'Observation metadata (target, calibration, ephemeris)',
         partitions: 1,
-        retention: { retentionSizeInMB: 1024, retentionTimeInMinutes: 129600 }
-      }
-    ]
+        retention: { retentionSizeInMB: 1024, retentionTimeInMinutes: 129600 },
+      },
+    ],
   },
   {
     namespace: 'public/metrics',
@@ -111,22 +111,22 @@ const TOPICS = [
         name: 'broker-metrics',
         description: 'Pulsar broker performance metrics',
         partitions: 1,
-        retention: { retentionSizeInMB: 1024, retentionTimeInMinutes: 10080 } // 1GB, 7 days
+        retention: { retentionSizeInMB: 1024, retentionTimeInMinutes: 10080 }, // 1GB, 7 days
       },
       {
         name: 'job-performance-metrics',
         description: 'GPU utilization, execution time, resource metrics',
         partitions: 2,
-        retention: { retentionSizeInMB: 2048, retentionTimeInMinutes: 10080 }
+        retention: { retentionSizeInMB: 2048, retentionTimeInMinutes: 10080 },
       },
       {
         name: 'api-latency-metrics',
         description: 'API request/response latencies',
         partitions: 1,
-        retention: { retentionSizeInMB: 512, retentionTimeInMinutes: 10080 }
-      }
-    ]
-  }
+        retention: { retentionSizeInMB: 512, retentionTimeInMinutes: 10080 },
+      },
+    ],
+  },
 ];
 
 // ============================================================================
@@ -138,7 +138,7 @@ async function checkClusterHealth() {
   try {
     await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/clusters`);
     console.log(`✓ Pulsar cluster detected`);
-    
+
     const broker = await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/brokers`);
     console.log(`✓ Active brokers: ${broker.data.join(', ')}`);
 
@@ -146,20 +146,24 @@ async function checkClusterHealth() {
       await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/brokerStats`);
       console.log(`✓ Broker metrics accessible`);
     } catch {
-      console.log(`ℹ Broker metrics endpoint unavailable on this Pulsar build; continuing setup`);
+      console.log(
+        `ℹ Broker metrics endpoint unavailable on this Pulsar build; continuing setup`,
+      );
     }
 
     return true;
   } catch (error) {
     console.error('✗ Cluster health check failed:', error.message);
-    console.error('  Ensure Pulsar is running: docker compose -f docker-compose.yml -f docker-compose.events.yml up -d');
+    console.error(
+      '  Ensure Pulsar is running: docker compose -f docker-compose.yml -f docker-compose.events.yml up -d',
+    );
     return false;
   }
 }
 
 async function createNamespace(namespace) {
   const { namespace: ns, description, properties = {} } = namespace;
-  
+
   try {
     // Check if namespace exists
     await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/namespaces/${ns}`);
@@ -169,9 +173,13 @@ async function createNamespace(namespace) {
     if (error.response?.status === 404) {
       // Create namespace
       try {
-        await axios.put(`${PULSAR_ADMIN_URL}/admin/v2/namespaces/${ns}`, {}, {
-          headers: { 'Content-Type': 'application/json' }
-        });
+        await axios.put(
+          `${PULSAR_ADMIN_URL}/admin/v2/namespaces/${ns}`,
+          {},
+          {
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
         console.log(`  ✓ Created namespace: ${ns} (${description})`);
 
         // Set retention policies
@@ -181,11 +189,15 @@ async function createNamespace(namespace) {
             await axios.post(
               `${PULSAR_ADMIN_URL}/admin/v2/namespaces/${ns}/retention`,
               {
-                retentionTimeInMinutes: Math.floor(properties.retention_seconds / 60),
-                retentionSizeInMB: 10240
-              }
+                retentionTimeInMinutes: Math.floor(
+                  properties.retention_seconds / 60,
+                ),
+                retentionSizeInMB: 10240,
+              },
             );
-            console.log(`    - Retention: ${properties.retention_seconds} seconds`);
+            console.log(
+              `    - Retention: ${properties.retention_seconds} seconds`,
+            );
           }
         }
       } catch (createError) {
@@ -203,7 +215,9 @@ async function createTopic(namespace, topic) {
   try {
     // Check if topic exists
     try {
-      await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/persistent/${namespace}/${name}/stats`);
+      await axios.get(
+        `${PULSAR_ADMIN_URL}/admin/v2/persistent/${namespace}/${name}/stats`,
+      );
       console.log(`    ℹ Topic already exists: ${name}`);
       return;
     } catch (error) {
@@ -213,20 +227,23 @@ async function createTopic(namespace, topic) {
     // Create topic with partitions
     await axios.put(
       `${PULSAR_ADMIN_URL}/admin/v2/persistent/${namespace}/${name}`,
-      { numPartitions: partitions }
+      { numPartitions: partitions },
     );
-    console.log(`    ✓ Created topic: ${name} (${partitions} partitions, ${description})`);
+    console.log(
+      `    ✓ Created topic: ${name} (${partitions} partitions, ${description})`,
+    );
 
     // Set retention policy
     if (Object.keys(retention).length > 0) {
       await axios.post(
         `${PULSAR_ADMIN_URL}/admin/v2/persistent/${namespace}/${name}/retention`,
-        retention
+        retention,
       );
       const retentionDays = Math.floor(retention.retentionTimeInMinutes / 1440);
-      console.log(`      - Retention: ${retention.retentionSizeInMB}MB, ${retentionDays} days`);
+      console.log(
+        `      - Retention: ${retention.retentionSizeInMB}MB, ${retentionDays} days`,
+      );
     }
-
   } catch (error) {
     console.error(`    ✗ Failed to create topic: ${error.message}`);
   }
@@ -234,16 +251,20 @@ async function createTopic(namespace, topic) {
 
 async function deleteNamespaceAndTopics(namespace) {
   const { namespace: ns } = namespace;
-  
+
   try {
     console.log(`  Deleting namespace: ${ns}`);
-    
+
     // Delete all topics in namespace
-    const stats = await axios.get(`${PULSAR_ADMIN_URL}/admin/v2/namespaces/${ns}/topics`);
+    const stats = await axios.get(
+      `${PULSAR_ADMIN_URL}/admin/v2/namespaces/${ns}/topics`,
+    );
     for (const topic of stats.data) {
       const topicName = topic.split('/').pop();
       try {
-        await axios.delete(`${PULSAR_ADMIN_URL}/admin/v2/persistent/${ns}/${topicName}`);
+        await axios.delete(
+          `${PULSAR_ADMIN_URL}/admin/v2/persistent/${ns}/${topicName}`,
+        );
         console.log(`    ✓ Deleted topic: ${topicName}`);
       } catch (error) {
         console.log(`    ℹ Topic cleanup: ${error.message}`);
@@ -261,13 +282,15 @@ async function deleteNamespaceAndTopics(namespace) {
 async function verifyTopicCreation(namespace, topicName) {
   try {
     const stats = await axios.get(
-      `${PULSAR_ADMIN_URL}/admin/v2/persistent/${namespace}/${topicName}/stats`
+      `${PULSAR_ADMIN_URL}/admin/v2/persistent/${namespace}/${topicName}/stats`,
     );
-    
+
     console.log(`\n${topicName}:`);
     console.log(`  - Partitions: ${stats.data.partitions?.length || 1}`);
     console.log(`  - Messages: ${stats.data.msgInCounter || 0}`);
-    console.log(`  - Bytes in: ${(stats.data.bytesInCounter / 1024 / 1024).toFixed(2)} MB`);
+    console.log(
+      `  - Bytes in: ${(stats.data.bytesInCounter / 1024 / 1024).toFixed(2)} MB`,
+    );
   } catch (error) {
     console.log(`  - Stats unavailable: ${error.message}`);
   }

@@ -22,11 +22,11 @@ One broker rarely excels at every requirement in exascale science operations:
 
 ## Role Partitioning
 
-| Broker | Primary Responsibility | Typical Workload Type |
-|---|---|---|
-| RabbitMQ | Observatory control-plane messaging | Commands, heartbeats, operator actions, urgent alerts |
-| Kafka | Durable science-event backbone | Lifecycle events, telemetry, audit trail, replay pipelines |
-| Pulsar | Hybrid and federated workflows | Multi-tenant event products, cross-site replication, mixed queue/stream consumers |
+| Broker   | Primary Responsibility              | Typical Workload Type                                                             |
+| -------- | ----------------------------------- | --------------------------------------------------------------------------------- |
+| RabbitMQ | Observatory control-plane messaging | Commands, heartbeats, operator actions, urgent alerts                             |
+| Kafka    | Durable science-event backbone      | Lifecycle events, telemetry, audit trail, replay pipelines                        |
+| Pulsar   | Hybrid and federated workflows      | Multi-tenant event products, cross-site replication, mixed queue/stream consumers |
 
 ## Reference Data Flow
 

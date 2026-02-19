@@ -13,12 +13,16 @@ describe('Community Discoveries e2e', () => {
     // Expect at least the three seeded rows added by CommunityService migration/seed
     expect(res.data.length).toBeGreaterThanOrEqual(3);
 
-    const titles = (res.data as Array<Record<string, unknown>>).map((r) => r.title as string);
-    expect(titles).toEqual(expect.arrayContaining([
-      'Welcome to Community Discoveries',
-      'Symposium 2026 — abstract deadline',
-      'New: Community Feed is live (prototype)',
-    ]));
+    const titles = (res.data as Array<Record<string, unknown>>).map(
+      (r) => r.title as string,
+    );
+    expect(titles).toEqual(
+      expect.arrayContaining([
+        'Welcome to Community Discoveries',
+        'Symposium 2026 — abstract deadline',
+        'New: Community Feed is live (prototype)',
+      ]),
+    );
   });
 
   it('POST /api/community/posts persists new discovery and appears in feed', async () => {
@@ -32,10 +36,17 @@ describe('Community Discoveries e2e', () => {
 
     const createRes = await axios.post('/api/community/posts', payload);
     expect(createRes.status).toBe(201);
-    expect(createRes.data).toMatchObject({ title: payload.title, author: payload.author });
+    expect(createRes.data).toMatchObject({
+      title: payload.title,
+      author: payload.author,
+    });
 
     const feedRes = await axios.get('/api/community/feed');
-    const found = (feedRes.data as Array<Record<string, unknown>>).some((r) => (r.title as string) === payload.title && (r.author as string) === payload.author);
+    const found = (feedRes.data as Array<Record<string, unknown>>).some(
+      (r) =>
+        (r.title as string) === payload.title &&
+        (r.author as string) === payload.author,
+    );
     expect(found).toBe(true);
   }, 10000);
 
@@ -90,20 +101,32 @@ describe('Community Discoveries e2e', () => {
     };
 
     // Create a post and force it to be hidden (dev/test support)
-    const createRes = await axios.post('/api/community/posts?forceHidden=true', payload);
+    const createRes = await axios.post(
+      '/api/community/posts?forceHidden=true',
+      payload,
+    );
     expect(createRes.status).toBe(201);
     const createdId = createRes.data.id;
 
     const feedRes = await axios.get('/api/community/feed');
-    const foundHidden = (feedRes.data as Array<Record<string, unknown>>).some((r) => (r.id as string) === createdId);
+    const foundHidden = (feedRes.data as Array<Record<string, unknown>>).some(
+      (r) => (r.id as string) === createdId,
+    );
     expect(foundHidden).toBe(false);
 
     // Approve via API
-    const approveRes = await axios.patch(`/api/community/posts/${createdId}/approve`);
+    const approveRes = await axios.patch(
+      `/api/community/posts/${createdId}/approve`,
+    );
     expect(approveRes.status).toBe(200);
 
     const feedResAfter = await axios.get('/api/community/feed');
-    const foundAfter = (feedResAfter.data as Array<Record<string, unknown>>).some((r) => (r.id as string) === createdId && (r.title as string) === payload.title);
+    const foundAfter = (
+      feedResAfter.data as Array<Record<string, unknown>>
+    ).some(
+      (r) =>
+        (r.id as string) === createdId && (r.title as string) === payload.title,
+    );
     expect(foundAfter).toBe(true);
   }, 15000);
 });

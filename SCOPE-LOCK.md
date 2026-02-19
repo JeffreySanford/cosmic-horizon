@@ -73,4 +73,3 @@ If you decide to add Rust for advanced rendering (v2+):
 5. Update TESTING-STRATEGY.md with Rust test patterns
 
 For now: **Rust is future-proofed but not required.**
-

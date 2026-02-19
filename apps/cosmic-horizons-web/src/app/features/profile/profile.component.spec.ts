@@ -81,7 +81,9 @@ describe('ProfileComponent', () => {
 
   it('redirects /profile to /profile/:username for logged-in user', () => {
     fixture.detectChanges();
-    expect(router.navigate).toHaveBeenCalledWith(['/profile', 'astro'], { replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['/profile', 'astro'], {
+      replaceUrl: true,
+    });
   });
 
   it('loads profile for route username and patches form values', () => {

@@ -15,17 +15,17 @@ function ttfbBudgetForBrowser(browserName: string): number {
 }
 
 async function collectMetrics(): Promise<PerfMetrics> {
-  const navigation = performance.getEntriesByType(
-    'navigation'
-  )[0] as PerformanceNavigationTiming | undefined;
+  const navigation = performance.getEntriesByType('navigation')[0] as
+    | PerformanceNavigationTiming
+    | undefined;
 
-  const fcpEntry = performance.getEntriesByName(
-    'first-contentful-paint'
-  )[0] as PerformanceEntry | undefined;
+  const fcpEntry = performance.getEntriesByName('first-contentful-paint')[0] as
+    | PerformanceEntry
+    | undefined;
 
   const getLcp = (): number => {
     const entries = performance.getEntriesByType(
-      'largest-contentful-paint'
+      'largest-contentful-paint',
     ) as PerformanceEntry[];
     return entries.length > 0 ? entries[entries.length - 1].startTime : 0;
   };
@@ -38,11 +38,14 @@ async function collectMetrics(): Promise<PerfMetrics> {
     lcp:
       lcp > 0
         ? lcp
-        : fcpEntry?.startTime ?? navigation?.domContentLoadedEventEnd ?? 0,
+        : (fcpEntry?.startTime ?? navigation?.domContentLoadedEventEnd ?? 0),
   };
 }
 
-test('meets SSR login performance budget (TTFB/FCP/LCP)', async ({ page, browserName }) => {
+test('meets SSR login performance budget (TTFB/FCP/LCP)', async ({
+  page,
+  browserName,
+}) => {
   await page.goto('/auth/login', { waitUntil: 'load' });
 
   const metrics = await page.evaluate(collectMetrics);

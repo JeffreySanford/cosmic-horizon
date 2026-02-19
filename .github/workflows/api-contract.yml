@@ -22,7 +22,7 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run start:infra
+      - run: pnpm run start:infra:jmx
       - run: pnpm nx run cosmic-horizons-api:openapi
       - name: API Contract Regression Check
         run: node scripts/check-api-contract.mjs

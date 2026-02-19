@@ -33,7 +33,12 @@ export class PostEditorComponent {
     survey: ['VLASS', [Validators.required]],
     label: [''],
   });
-  readonly surveyOptions = ['VLASS', 'DSS2', '2MASS', 'P/PanSTARRS/DR1/color-z-zg-g'];
+  readonly surveyOptions = [
+    'VLASS',
+    'DSS2',
+    '2MASS',
+    'P/PanSTARRS/DR1/color-z-zg-g',
+  ];
 
   private readonly postsApi = inject(PostsApiService);
   private readonly router = inject(Router);
@@ -62,7 +67,9 @@ export class PostEditorComponent {
         error: (error: HttpErrorResponse) => {
           this.saving = false;
           this.statusMessage =
-            typeof error.error?.message === 'string' ? error.error.message : 'Failed to save draft.';
+            typeof error.error?.message === 'string'
+              ? error.error.message
+              : 'Failed to save draft.';
         },
       });
   }
@@ -77,7 +84,12 @@ export class PostEditorComponent {
     while (match) {
       const rawJson = match[1].trim();
       try {
-        const parsed = JSON.parse(rawJson) as { ra?: unknown; dec?: unknown; fov?: unknown; survey?: unknown };
+        const parsed = JSON.parse(rawJson) as {
+          ra?: unknown;
+          dec?: unknown;
+          fov?: unknown;
+          survey?: unknown;
+        };
         const encodedState = this.encodeState({
           ra: Number(parsed.ra),
           dec: Number(parsed.dec),
@@ -117,7 +129,8 @@ export class PostEditorComponent {
       dec: Number(this.blockBuilderForm.value.dec),
       fov: Number(this.blockBuilderForm.value.fov),
       survey: String(this.blockBuilderForm.value.survey),
-      label: String(this.blockBuilderForm.value.label || '').trim() || undefined,
+      label:
+        String(this.blockBuilderForm.value.label || '').trim() || undefined,
     };
     const blockJson = JSON.stringify(block, null, 2);
     const blockMarkdown = `\n\`\`\`viewer\n${blockJson}\n\`\`\`\n`;
@@ -149,17 +162,22 @@ export class PostEditorComponent {
   get previewHtml(): string {
     const content = String(this.editorForm.value.content || '');
     return renderSafeMarkdownHtml(content, (rawJson: string) => {
-        const encoded = this.tryEncodeViewerBlock(rawJson);
-        if (!encoded) {
-          return `<div class="preview-viewer-block invalid">Invalid viewer block</div>`;
-        }
-        return `<div class="preview-viewer-block"><a href="/view?state=${encoded}" target="_blank" rel="noopener noreferrer">Open embedded viewer block</a></div>`;
-      });
+      const encoded = this.tryEncodeViewerBlock(rawJson);
+      if (!encoded) {
+        return `<div class="preview-viewer-block invalid">Invalid viewer block</div>`;
+      }
+      return `<div class="preview-viewer-block"><a href="/view?state=${encoded}" target="_blank" rel="noopener noreferrer">Open embedded viewer block</a></div>`;
+    });
   }
 
   private tryEncodeViewerBlock(rawJson: string): string | null {
     try {
-      const parsed = JSON.parse(rawJson.trim()) as { ra?: unknown; dec?: unknown; fov?: unknown; survey?: unknown };
+      const parsed = JSON.parse(rawJson.trim()) as {
+        ra?: unknown;
+        dec?: unknown;
+        fov?: unknown;
+        survey?: unknown;
+      };
       return this.encodeState({
         ra: Number(parsed.ra),
         dec: Number(parsed.dec),
@@ -170,7 +188,12 @@ export class PostEditorComponent {
       return null;
     }
   }
-  private encodeState(state: { ra: number; dec: number; fov: number; survey: string }): string {
+  private encodeState(state: {
+    ra: number;
+    dec: number;
+    fov: number;
+    survey: string;
+  }): string {
     return btoa(JSON.stringify(state))
       .replace(/\+/g, '-')
       .replace(/\//g, '_')

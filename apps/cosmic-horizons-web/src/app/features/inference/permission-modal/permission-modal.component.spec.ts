@@ -16,9 +16,7 @@ describe('PermissionModalComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [InferenceModule],
-      providers: [
-        { provide: MatDialogRef, useValue: mockDialogRef },
-      ],
+      providers: [{ provide: MatDialogRef, useValue: mockDialogRef }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PermissionModalComponent);

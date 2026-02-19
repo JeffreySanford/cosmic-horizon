@@ -6,27 +6,15 @@
  */
 
 // Import all types needed for AllEvents union
-import type {
-  EventBase,
-} from './event-base.js';
-import type {
-  JobLifecycleEvent,
-} from './job-lifecycle.js';
-import type {
-  NotificationEvent,
-} from './notification.js';
-import type {
-  MetricsEvent,
-} from './metrics.js';
-import type {
-  AuditEvent,
-} from './audit.js';
+import type { EventBase } from './event-base.js';
+import type { JobLifecycleEvent } from './job-lifecycle.js';
+import type { NotificationEvent } from './notification.js';
+import type { MetricsEvent } from './metrics.js';
+import type { AuditEvent } from './audit.js';
 
 // Base event interface and helpers
 export type { EventBase } from './event-base.js';
-export {
-  createEventBase,
-} from './event-base.js';
+export { createEventBase } from './event-base.js';
 
 // UUID utilities and types
 export type { UUID } from './uuid.js';
@@ -38,10 +26,7 @@ export {
 } from './uuid.js';
 
 // Job lifecycle events
-export {
-  JobStatus,
-  TaccSystem,
-} from './job-lifecycle.js';
+export { JobStatus, TaccSystem } from './job-lifecycle.js';
 export type {
   JobSubmittedEvent,
   JobStatusChangedEvent,
@@ -59,9 +44,7 @@ export {
 } from './job-lifecycle.js';
 
 // Notification events
-export {
-  NotificationChannel,
-} from './notification.js';
+export { NotificationChannel } from './notification.js';
 export type {
   NotificationSentEvent,
   NotificationReadEvent,

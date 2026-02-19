@@ -53,7 +53,8 @@ describe('PostEditorComponent', () => {
   it('parses markdown viewer blocks into encoded state links', () => {
     component.editorForm.patchValue({
       title: 'Draft',
-      content: '```viewer\n{"ra":187.25,"dec":2.05,"fov":1.5,"survey":"VLASS"}\n```',
+      content:
+        '```viewer\n{"ra":187.25,"dec":2.05,"fov":1.5,"survey":"VLASS"}\n```',
     });
 
     component.parseViewerBlocks();
@@ -83,12 +84,20 @@ describe('PostEditorComponent', () => {
 
     component.saveDraft();
     expect(postsApi.createPost).not.toHaveBeenCalled();
-    expect(component.statusMessage).toBe('Please enter a valid title and content.');
+    expect(component.statusMessage).toBe(
+      'Please enter a valid title and content.',
+    );
   });
 
   it('shows API error message when save fails', () => {
     postsApi.createPost.mockReturnValueOnce(
-      throwError(() => new HttpErrorResponse({ error: { message: 'Save failed.' }, status: 400 })),
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            error: { message: 'Save failed.' },
+            status: 400,
+          }),
+      ),
     );
     component.editorForm.patchValue({
       title: 'My draft',

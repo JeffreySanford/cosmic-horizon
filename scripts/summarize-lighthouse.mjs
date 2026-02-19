@@ -51,8 +51,16 @@ if (reports.length === 0) {
     runs: [],
     summary: 'No Lighthouse report JSON files were found.',
   };
-  writeFileSync('test-output/lighthouse/summary.json', JSON.stringify(empty, null, 2), 'utf8');
-  writeFileSync('test-output/lighthouse/summary.md', '# Lighthouse Summary\n\nNo Lighthouse report JSON files were found.\n', 'utf8');
+  writeFileSync(
+    'test-output/lighthouse/summary.json',
+    JSON.stringify(empty, null, 2),
+    'utf8',
+  );
+  writeFileSync(
+    'test-output/lighthouse/summary.md',
+    '# Lighthouse Summary\n\nNo Lighthouse report JSON files were found.\n',
+    'utf8',
+  );
   process.exit(0);
 }
 
@@ -71,7 +79,9 @@ const runs = reports.map(({ file, data }) => ({
 }));
 
 const avg = (key) => {
-  const values = runs.map((run) => run[key]).filter((value) => typeof value === 'number');
+  const values = runs
+    .map((run) => run[key])
+    .filter((value) => typeof value === 'number');
   if (values.length === 0) return null;
   return Number((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2));
 };
@@ -91,7 +101,11 @@ const summary = {
   },
 };
 
-writeFileSync('test-output/lighthouse/summary.json', JSON.stringify(summary, null, 2), 'utf8');
+writeFileSync(
+  'test-output/lighthouse/summary.json',
+  JSON.stringify(summary, null, 2),
+  'utf8',
+);
 
 const lines = [
   '# Lighthouse Summary',
@@ -114,9 +128,17 @@ const lines = [
 ];
 
 for (const run of runs) {
-  lines.push(`- ${run.finalUrl || 'unknown-url'} | perf=${run.performance ?? 'n/a'} | FCP=${run.fcpMs ?? 'n/a'}ms | LCP=${run.lcpMs ?? 'n/a'}ms | source=${run.file}`);
+  lines.push(
+    `- ${run.finalUrl || 'unknown-url'} | perf=${run.performance ?? 'n/a'} | FCP=${run.fcpMs ?? 'n/a'}ms | LCP=${run.lcpMs ?? 'n/a'}ms | source=${run.file}`,
+  );
 }
 
 lines.push('');
-writeFileSync('test-output/lighthouse/summary.md', `${lines.join('\n')}\n`, 'utf8');
-console.log('Lighthouse summaries written to test-output/lighthouse/summary.json and summary.md');
+writeFileSync(
+  'test-output/lighthouse/summary.md',
+  `${lines.join('\n')}\n`,
+  'utf8',
+);
+console.log(
+  'Lighthouse summaries written to test-output/lighthouse/summary.json and summary.md',
+);

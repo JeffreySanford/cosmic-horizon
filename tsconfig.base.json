@@ -18,7 +18,9 @@
     "target": "es2022",
     "baseUrl": ".",
     "paths": {
-      "@cosmic-horizons/cosmic-horizons-web/*": ["apps/cosmic-horizons-web/src/*"],
+      "@cosmic-horizons/cosmic-horizons-web/*": [
+        "apps/cosmic-horizons-web/src/*"
+      ],
       "@cosmic-horizons/shared/*": ["libs/shared/src/*"],
       "@cosmic-horizons/event-models": ["libs/shared/event-models/src/index.ts"]
     }

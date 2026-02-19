@@ -35,57 +35,93 @@ export class PostsApiService {
   private readonly apiBaseUrl = 'http://localhost:3000';
 
   getPublishedPosts(): Observable<PostModel[]> {
-    return this.http.get<PostModel[]>(`${this.apiBaseUrl}/api/posts/published`, {
-      headers: this.authHeaders(),
-    });
+    return this.http.get<PostModel[]>(
+      `${this.apiBaseUrl}/api/posts/published`,
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   getPostById(id: string): Observable<PostModel> {
-    return this.http.get<PostModel>(`${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}`, {
-      headers: this.authHeaders(),
-    });
+    return this.http.get<PostModel>(
+      `${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}`,
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
-  createPost(payload: { title: string; content: string }): Observable<PostModel> {
+  createPost(payload: {
+    title: string;
+    content: string;
+  }): Observable<PostModel> {
     return this.http.post<PostModel>(`${this.apiBaseUrl}/api/posts`, payload, {
       headers: this.authHeaders(),
     });
   }
 
-  updatePost(id: string, payload: { title?: string; content?: string }): Observable<PostModel> {
-    return this.http.put<PostModel>(`${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}`, payload, {
-      headers: this.authHeaders(),
-    });
+  updatePost(
+    id: string,
+    payload: { title?: string; content?: string },
+  ): Observable<PostModel> {
+    return this.http.put<PostModel>(
+      `${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}`,
+      payload,
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   publishPost(id: string): Observable<PostModel> {
-    return this.http.post<PostModel>(`${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/publish`, {}, {
-      headers: this.authHeaders(),
-    });
+    return this.http.post<PostModel>(
+      `${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/publish`,
+      {},
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   hidePost(id: string): Observable<PostModel> {
-    return this.http.post<PostModel>(`${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/hide`, {}, {
-      headers: this.authHeaders(),
-    });
+    return this.http.post<PostModel>(
+      `${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/hide`,
+      {},
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   unhidePost(id: string): Observable<PostModel> {
-    return this.http.post<PostModel>(`${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/unhide`, {}, {
-      headers: this.authHeaders(),
-    });
+    return this.http.post<PostModel>(
+      `${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/unhide`,
+      {},
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   lockPost(id: string): Observable<PostModel> {
-    return this.http.post<PostModel>(`${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/lock`, {}, {
-      headers: this.authHeaders(),
-    });
+    return this.http.post<PostModel>(
+      `${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/lock`,
+      {},
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   unlockPost(id: string): Observable<PostModel> {
-    return this.http.post<PostModel>(`${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/unlock`, {}, {
-      headers: this.authHeaders(),
-    });
+    return this.http.post<PostModel>(
+      `${this.apiBaseUrl}/api/posts/${encodeURIComponent(id)}/unlock`,
+      {},
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   private authHeaders(): HttpHeaders {

@@ -172,4 +172,4 @@ External conference/submission use: **apply corrections above first**, especiall
 
 ---
 
-*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved._

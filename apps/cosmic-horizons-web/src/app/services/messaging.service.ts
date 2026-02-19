@@ -108,7 +108,7 @@ export class MessagingService {
     this.logger.info('messaging', 'Initializing MessagingService', {
       transport: 'websocket',
     });
-    
+
     // Lazy connect: only connect if already authenticated
     if (this.authSessionService.isAuthenticated()) {
       this.connectSocket();
@@ -183,7 +183,9 @@ export class MessagingService {
         this.notificationSubject.next(payload);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        this.logger.warn('messaging', 'Failed to process job_notification', { message });
+        this.logger.warn('messaging', 'Failed to process job_notification', {
+          message,
+        });
       }
     });
   }

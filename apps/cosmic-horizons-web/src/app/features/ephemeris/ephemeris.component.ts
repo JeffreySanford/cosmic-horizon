@@ -74,7 +74,9 @@ export class EphemerisComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const target = this.normalizeTarget(this.searchForm.get('target')?.value as string);
+    const target = this.normalizeTarget(
+      this.searchForm.get('target')?.value as string,
+    );
     if (target.length < 2) {
       this.error = 'Target name is required (minimum 2 characters).';
       return;
@@ -84,7 +86,10 @@ export class EphemerisComponent implements OnInit, OnDestroy {
     const epoch = this.normalizeEpoch(epochRaw);
 
     this.loading = true;
-    this.logger.info('ephemeris', 'search_submit', { target, epoch: epoch ?? 'now' });
+    this.logger.info('ephemeris', 'search_submit', {
+      target,
+      epoch: epoch ?? 'now',
+    });
 
     this.ephemerisApiService
       .search({ target, epoch })
@@ -95,7 +100,10 @@ export class EphemerisComponent implements OnInit, OnDestroy {
 
           if (!this.isValidResult(response)) {
             this.noResultsMessage = `No valid coordinates were returned for "${target}".`;
-            this.logger.warn('ephemeris', 'search_invalid_payload', { target, response });
+            this.logger.warn('ephemeris', 'search_invalid_payload', {
+              target,
+              response,
+            });
             return;
           }
 
@@ -104,7 +112,8 @@ export class EphemerisComponent implements OnInit, OnDestroy {
             target: this.normalizeTarget(response.target || target),
           };
           this.previewImageUrl =
-            response.sky_preview_url || this.buildSkyPreviewUrl(response.ra, response.dec);
+            response.sky_preview_url ||
+            this.buildSkyPreviewUrl(response.ra, response.dec);
 
           this.logger.info('ephemeris', 'search_success', {
             target: this.result.target,
@@ -170,8 +179,12 @@ export class EphemerisComponent implements OnInit, OnDestroy {
     return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString();
   }
 
-  private isValidResult(payload: EphemerisResult | null | undefined): payload is EphemerisResult {
-    return !!payload && Number.isFinite(payload.ra) && Number.isFinite(payload.dec);
+  private isValidResult(
+    payload: EphemerisResult | null | undefined,
+  ): payload is EphemerisResult {
+    return (
+      !!payload && Number.isFinite(payload.ra) && Number.isFinite(payload.dec)
+    );
   }
 
   private formatErrorMessage(error: HttpErrorResponse, target: string): string {
@@ -180,7 +193,10 @@ export class EphemerisComponent implements OnInit, OnDestroy {
     }
 
     if (error.status === 400) {
-      return error.error?.message || 'Invalid search parameters. Check target and epoch values.';
+      return (
+        error.error?.message ||
+        'Invalid search parameters. Check target and epoch values.'
+      );
     }
 
     if (error.status === 429) {
@@ -197,7 +213,7 @@ export class EphemerisComponent implements OnInit, OnDestroy {
     params.set('projection', 'TAN');
     params.set('ra', ra.toFixed(6));
     params.set('dec', dec.toFixed(6));
-    params.set('fov', (2 * Math.PI / 180).toString());
+    params.set('fov', ((2 * Math.PI) / 180).toString());
     params.set('width', '512');
     params.set('height', '512');
     return `https://alasky.cds.unistra.fr/hips-image-services/hips2fits?${params.toString()}`;

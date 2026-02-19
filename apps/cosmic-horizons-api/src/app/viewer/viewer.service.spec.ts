@@ -21,7 +21,9 @@ describe('ViewerService', () => {
     create: jest.Mock;
     save: jest.Mock;
   };
-  let auditLogRepository: jest.Mocked<Pick<AuditLogRepository, 'createAuditLog'>>;
+  let auditLogRepository: jest.Mocked<
+    Pick<AuditLogRepository, 'createAuditLog'>
+  >;
   let loggingService: jest.Mocked<Pick<LoggingService, 'add'>>;
 
   beforeEach(() => {
@@ -90,7 +92,12 @@ describe('ViewerService', () => {
       updated_at: new Date('2026-02-07T00:00:00.000Z'),
     } as ViewerState);
 
-    const created = await service.createState({ ra: 10, dec: 20, fov: 2, survey: 'VLASS' });
+    const created = await service.createState({
+      ra: 10,
+      dec: 20,
+      fov: 2,
+      survey: 'VLASS',
+    });
 
     expect(created.short_id).toBe('Abc123XY');
     expect(created.permalink_path).toBe('/view/Abc123XY');
@@ -109,22 +116,34 @@ describe('ViewerService', () => {
   });
 
   it('rejects invalid viewer state', async () => {
-    await expect(service.createState({ ra: 1000, dec: 20, fov: 2, survey: 'VLASS' })).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.createState({ ra: 1000, dec: 20, fov: 2, survey: 'VLASS' }),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('throws when state not found', async () => {
     viewerStateRepository.findOne.mockResolvedValueOnce(null);
 
-    await expect(service.resolveState('missing')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.resolveState('missing')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 
   it('encodes and decodes viewer state', () => {
-    const encoded = service.encodeState({ ra: 12.3, dec: -45.6, fov: 3.2, survey: 'VLASS3.1' });
+    const encoded = service.encodeState({
+      ra: 12.3,
+      dec: -45.6,
+      fov: 3.2,
+      survey: 'VLASS3.1',
+    });
     const decoded = service.decodeState(encoded);
 
-    expect(decoded).toEqual({ ra: 12.3, dec: -45.6, fov: 3.2, survey: 'VLASS3.1' });
+    expect(decoded).toEqual({
+      ra: 12.3,
+      dec: -45.6,
+      fov: 3.2,
+      survey: 'VLASS3.1',
+    });
   });
 
   it('downloads FITS cutout and returns attachment metadata', async () => {
@@ -283,11 +302,15 @@ describe('ViewerService', () => {
 
   it('uses configured secondary provider when primary fails', async () => {
     const originalSecondaryEnabled = process.env['CUTOUT_SECONDARY_ENABLED'];
-    const originalSecondaryTemplate = process.env['CUTOUT_SECONDARY_URL_TEMPLATE'];
+    const originalSecondaryTemplate =
+      process.env['CUTOUT_SECONDARY_URL_TEMPLATE'];
     const originalSecondaryKey = process.env['CUTOUT_SECONDARY_API_KEY'];
-    const originalSecondaryHeader = process.env['CUTOUT_SECONDARY_API_KEY_HEADER'];
-    const originalSecondaryPrefix = process.env['CUTOUT_SECONDARY_API_KEY_PREFIX'];
-    const originalSecondaryQuery = process.env['CUTOUT_SECONDARY_API_KEY_QUERY_PARAM'];
+    const originalSecondaryHeader =
+      process.env['CUTOUT_SECONDARY_API_KEY_HEADER'];
+    const originalSecondaryPrefix =
+      process.env['CUTOUT_SECONDARY_API_KEY_PREFIX'];
+    const originalSecondaryQuery =
+      process.env['CUTOUT_SECONDARY_API_KEY_QUERY_PARAM'];
 
     try {
       process.env['CUTOUT_SECONDARY_ENABLED'] = 'true';
@@ -321,14 +344,17 @@ describe('ViewerService', () => {
       expect(secondCallUrl).toContain('secondary.example/cutout');
       expect(secondCallUrl).toContain('apikey=test-key');
       expect(fetchMock).toHaveBeenCalledTimes(2);
-      expect(service.getCutoutTelemetry().provider_fallback_total).toBeGreaterThanOrEqual(1);
+      expect(
+        service.getCutoutTelemetry().provider_fallback_total,
+      ).toBeGreaterThanOrEqual(1);
     } finally {
       process.env['CUTOUT_SECONDARY_ENABLED'] = originalSecondaryEnabled;
       process.env['CUTOUT_SECONDARY_URL_TEMPLATE'] = originalSecondaryTemplate;
       process.env['CUTOUT_SECONDARY_API_KEY'] = originalSecondaryKey;
       process.env['CUTOUT_SECONDARY_API_KEY_HEADER'] = originalSecondaryHeader;
       process.env['CUTOUT_SECONDARY_API_KEY_PREFIX'] = originalSecondaryPrefix;
-      process.env['CUTOUT_SECONDARY_API_KEY_QUERY_PARAM'] = originalSecondaryQuery;
+      process.env['CUTOUT_SECONDARY_API_KEY_QUERY_PARAM'] =
+        originalSecondaryQuery;
     }
   });
 
@@ -604,7 +630,12 @@ describe('ViewerService', () => {
     expect(firstCall.length).toBe(1);
 
     // Different radius - should call API again
-    const differentRadiusCall = await service.getNearbyLabels(187.7, 12.39, 0.16, 10);
+    const differentRadiusCall = await service.getNearbyLabels(
+      187.7,
+      12.39,
+      0.16,
+      10,
+    );
     expect(differentRadiusCall.length).toBe(1);
     expect(fetch).toHaveBeenCalledTimes(2);
   });
@@ -673,7 +704,9 @@ describe('ViewerService', () => {
   });
 
   it('handles SIMBAD TAP query network error gracefully', async () => {
-    jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'));
+    jest
+      .spyOn(global, 'fetch')
+      .mockRejectedValueOnce(new Error('Network error'));
 
     const labels = await service.getNearbyLabels(187.7, 12.39, 0.08, 10);
     expect(labels.length).toBe(0);

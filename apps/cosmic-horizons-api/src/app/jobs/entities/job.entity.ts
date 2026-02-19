@@ -7,8 +7,18 @@ import {
   Index,
 } from 'typeorm';
 
-export type JobStatus = 'QUEUED' | 'QUEUING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
-export type AgentType = 'AlphaCal' | 'ImageReconstruction' | 'AnomalyDetection' | string;
+export type JobStatus =
+  | 'QUEUED'
+  | 'QUEUING'
+  | 'RUNNING'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED';
+export type AgentType =
+  | 'AlphaCal'
+  | 'ImageReconstruction'
+  | 'AnomalyDetection'
+  | string;
 
 @Entity('jobs')
 @Index(['user_id', 'created_at'])

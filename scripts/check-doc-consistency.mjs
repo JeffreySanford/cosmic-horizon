@@ -8,7 +8,11 @@ const checks = [
   },
   {
     file: 'documentation/governance/SOURCE-OF-TRUTH.md',
-    required: [/PRODUCT-CHARTER\.md/i, /SCOPE-LOCK\.md/i, /libs\/shared\/models/i],
+    required: [
+      /PRODUCT-CHARTER\.md/i,
+      /SCOPE-LOCK\.md/i,
+      /libs\/shared\/models/i,
+    ],
   },
   {
     file: 'documentation/index/OVERVIEW-V2.md',
@@ -63,7 +67,9 @@ for (const check of checks) {
   const content = readFileSync(check.file, 'utf8');
 
   if (!AFFILIATION_PATTERN.test(content)) {
-    violations.push(`${check.file}: missing standardized affiliation disclaimer ("not affiliated with VLA/NRAO")`);
+    violations.push(
+      `${check.file}: missing standardized affiliation disclaimer ("not affiliated with VLA/NRAO")`,
+    );
   }
 
   for (const pattern of check.required ?? []) {

@@ -60,4 +60,4 @@ Apply the replacements in the editable slide source before the next export.
 
 ---
 
-*VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_VLASS Portal Development - (c) 2026 Jeffrey Sanford. All rights reserved._

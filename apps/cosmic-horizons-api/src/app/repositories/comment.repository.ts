@@ -32,20 +32,26 @@ export class CommentRepository {
   }
 
   async update(id: string, content: string): Promise<Comment | null> {
-    await this.repo.update({ id, deleted_at: IsNull() }, { content, updated_at: new Date() });
+    await this.repo.update(
+      { id, deleted_at: IsNull() },
+      { content, updated_at: new Date() },
+    );
     return this.findById(id);
   }
 
   async softDelete(id: string): Promise<boolean> {
     const result = await this.repo.update(
       { id, deleted_at: IsNull() },
-      { deleted_at: new Date() }
+      { deleted_at: new Date() },
     );
     return (result.affected ?? 0) > 0;
   }
 
   async hide(id: string): Promise<Comment | null> {
-    await this.repo.update({ id, deleted_at: IsNull() }, { hidden_at: new Date() });
+    await this.repo.update(
+      { id, deleted_at: IsNull() },
+      { hidden_at: new Date() },
+    );
     return this.findById(id);
   }
 

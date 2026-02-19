@@ -159,26 +159,26 @@ Ship web app first; public API later
 
 ## Technology Stack (Locked for MVP)
 
-| Layer              | Tech                                               | Why                                        |
-| ------------------ | -------------------------------------------------- | ------------------------------------------ |
+| Layer | Tech | Why |
+| ----- | ---- | --- |
 
-| **Frontend**       | Angular 18 + Material 3 + SSR                      | Know it well; SSR is key to UX             |
+| **Frontend** | Angular 18 + Material 3 + SSR | Know it well; SSR is key to UX |
 
-| **Backend**        | NestJS + Postgres + Redis                          | Proven, maintainable, team familiar        |
+| **Backend** | NestJS + Postgres + Redis | Proven, maintainable, team familiar |
 
-| **Render Service** | Rust (sidecar) for PNG composition                 | Fast image rendering (preview + snapshot)  |
+| **Render Service** | Rust (sidecar) for PNG composition | Fast image rendering (preview + snapshot) |
 
-| **Viewer A**       | Aladin Lite (CDN)                                  | Ready-made, proven, no custom build        |
+| **Viewer A** | Aladin Lite (CDN) | Ready-made, proven, no custom build |
 
-| **Viewer B**       | (Deferred)                                         | Not in MVP                                 |
+| **Viewer B** | (Deferred) | Not in MVP |
 
-| **Cache**          | Redis + local PVC                                  | Simple, no cost for preview artifacts      |
+| **Cache** | Redis + local PVC | Simple, no cost for preview artifacts |
 
-| **Persistence**    | Postgres (posts, revisions, tags) + S3 (artifacts) | Standard; play-it-safe for MVP             |
+| **Persistence** | Postgres (posts, revisions, tags) + S3 (artifacts) | Standard; play-it-safe for MVP |
 
-| **Async Jobs**     | Bull (Redis queue)                                 | Snapshot rendering jobs                    |
+| **Async Jobs** | Bull (Redis queue) | Snapshot rendering jobs |
 
-| **Deploy**         | Kubernetes + Helm                                  | Standard deployment path for scalability   |
+| **Deploy** | Kubernetes + Helm | Standard deployment path for scalability |
 
 ---
 
@@ -216,20 +216,20 @@ Ship web app first; public API later
 
 ## Success Metrics (MVP)
 
-| Metric                  | Target             | How We Measure             |
-| ----------------------- | ------------------ | -------------------------- |
+| Metric | Target | How We Measure |
+| ------ | ------ | -------------- |
 
-| **First Paint**         | <1s on mobile 4G   | WebPageTest / RUM          |
+| **First Paint** | <1s on mobile 4G | WebPageTest / RUM |
 
-| **Viewer Load**         | <2s                | RUM (real user monitoring) |
+| **Viewer Load** | <2s | RUM (real user monitoring) |
 
-| **Post Creation**       | 3+ posts published | Database count             |
+| **Post Creation** | 3+ posts published | Database count |
 
-| **Verified Users**      | 10+                | Auth audit log             |
+| **Verified Users** | 10+ | Auth audit log |
 
-| **Uptime**              | 99.5%              | Status page                |
+| **Uptime** | 99.5% | Status page |
 
-| **Permalink Stability** | 0 broken links     | Automated link checker     |
+| **Permalink Stability** | 0 broken links | Automated link checker |
 
 ---
 
@@ -303,4 +303,4 @@ Pillar 1 + 2 + 3 as defined above. ~4–6 weeks.
 
 ---
 
-*Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved._

@@ -34,7 +34,7 @@ export class EphemerisService {
    */
   calculatePosition(
     objectName: string,
-    epoch?: string
+    epoch?: string,
   ): Observable<EphemerisResult | null> {
     const normalizedName = objectName.toLowerCase();
     const epochToUse = epoch || new Date().toISOString();
@@ -63,7 +63,7 @@ export class EphemerisService {
         catchError(() => {
           this.calculatingSubject.next(false);
           return of(null);
-        })
+        }),
       );
   }
 
@@ -72,7 +72,7 @@ export class EphemerisService {
    */
   calculateMultiplePositions(
     objectNames: string[],
-    epoch?: string
+    epoch?: string,
   ): Observable<(EphemerisResult | null)[]> {
     const epochToUse = epoch || new Date().toISOString();
 
@@ -85,17 +85,14 @@ export class EphemerisService {
         tap((results) => {
           results.forEach((result, index) => {
             if (result) {
-              const cacheKey = this.getCacheKey(
-                objectNames[index],
-                epochToUse
-              );
+              const cacheKey = this.getCacheKey(objectNames[index], epochToUse);
               this.setCache(cacheKey, result);
             }
           });
         }),
         catchError(() => {
           return of(objectNames.map(() => null));
-        })
+        }),
       );
   }
 

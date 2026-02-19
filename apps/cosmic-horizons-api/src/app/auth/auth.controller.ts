@@ -19,7 +19,10 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthenticatedGuard } from './guards/authenticated.guard';
 import { AuditLogRepository } from '../repositories/audit-log.repository';
 import { randomBytes } from 'node:crypto';
-import type { RequestWithUser, ResponseWithJsonAndRedirect } from '../types/http.types';
+import type {
+  RequestWithUser,
+  ResponseWithJsonAndRedirect,
+} from '../types/http.types';
 
 @Controller('auth')
 export class AuthController {
@@ -31,14 +34,21 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto, @Request() req?: RequestWithUser) {
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Request() req?: RequestWithUser,
+  ) {
     const user = await this.authService.registerWithCredentials(registerDto);
     const tokens = await this.authService.issueAuthTokens(user);
     await this.writeAuthAudit(req, user, AuditAction.LOGIN, {
       auth_event: 'register_auto_login',
       auth_method: 'password',
     });
-    return this.buildAuthResponse(user, tokens.access_token, tokens.refresh_token);
+    return this.buildAuthResponse(
+      user,
+      tokens.access_token,
+      tokens.refresh_token,
+    );
   }
 
   @Post('login')
@@ -49,13 +59,23 @@ export class AuthController {
       auth_event: 'login',
       auth_method: 'password',
     });
-    return this.buildAuthResponse(user, tokens.access_token, tokens.refresh_token);
+    return this.buildAuthResponse(
+      user,
+      tokens.access_token,
+      tokens.refresh_token,
+    );
   }
 
   @Post('refresh')
   async refresh(@Body() refreshDto: RefreshTokenDto) {
-    const { user, tokens } = await this.authService.refreshAuthTokens(refreshDto.refresh_token);
-    return this.buildAuthResponse(user, tokens.access_token, tokens.refresh_token);
+    const { user, tokens } = await this.authService.refreshAuthTokens(
+      refreshDto.refresh_token,
+    );
+    return this.buildAuthResponse(
+      user,
+      tokens.access_token,
+      tokens.refresh_token,
+    );
   }
 
   /**
@@ -74,7 +94,10 @@ export class AuthController {
    */
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
-  async gitHubCallback(@Request() req: RequestWithUser, @Response() res: ResponseWithJsonAndRedirect) {
+  async gitHubCallback(
+    @Request() req: RequestWithUser,
+    @Response() res: ResponseWithJsonAndRedirect,
+  ) {
     if (!req.user) {
       throw new BadRequestException('Authentication failed');
     }
@@ -114,7 +137,8 @@ export class AuthController {
   csrfToken(@Request() req: RequestWithUser) {
     const sessionRequest = req;
     const csrfToken =
-      sessionRequest.session?.csrfToken ?? randomBytes(24).toString('base64url');
+      sessionRequest.session?.csrfToken ??
+      randomBytes(24).toString('base64url');
 
     if (sessionRequest.session) {
       sessionRequest.session.csrfToken = csrfToken;
@@ -174,7 +198,11 @@ export class AuthController {
     res.json({ message: 'Logged out successfully' });
   }
 
-  private buildAuthResponse(user: User, accessToken: string, refreshToken: string) {
+  private buildAuthResponse(
+    user: User,
+    accessToken: string,
+    refreshToken: string,
+  ) {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -208,9 +236,10 @@ export class AuthController {
     });
   }
 
-  private getRequestMetadata(
-    req: RequestWithUser | undefined,
-  ): { ip_address: string | null; user_agent: string | null } {
+  private getRequestMetadata(req: RequestWithUser | undefined): {
+    ip_address: string | null;
+    user_agent: string | null;
+  } {
     if (!req) {
       return {
         ip_address: null,

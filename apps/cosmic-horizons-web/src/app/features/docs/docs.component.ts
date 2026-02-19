@@ -91,7 +91,9 @@ export class DocsComponent {
       }
 
       return this.http
-        .get<DocResponse>(`${this.apiBaseUrl}/api/internal-docs/content/${entry.id}`)
+        .get<DocResponse>(
+          `${this.apiBaseUrl}/api/internal-docs/content/${entry.id}`,
+        )
         .pipe(
           map(
             (response) =>

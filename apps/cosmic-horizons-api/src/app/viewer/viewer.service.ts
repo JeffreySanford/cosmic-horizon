@@ -22,7 +22,8 @@ import { ViewerStatePayload } from './dto/create-viewer-state.dto';
 import { ViewerCutoutRequest } from './dto/viewer-cutout.dto';
 import { LoggingService } from '../logging/logging.service';
 
-const BASE62_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const BASE62_ALPHABET =
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
 interface CutoutCacheEntry {
   expiresAt: number;
@@ -84,7 +85,10 @@ export interface NearbyCatalogLabel {
 export class ViewerService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(ViewerService.name);
   private readonly cutoutCache = new Map<string, CutoutCacheEntry>();
-  private readonly nearbyLabelsCache = new Map<string, { expiresAt: number; labels: NearbyCatalogLabel[] }>();
+  private readonly nearbyLabelsCache = new Map<
+    string,
+    { expiresAt: number; labels: NearbyCatalogLabel[] }
+  >();
   private redisClient: Redis | null = null;
   private redisEnabled = false;
   private lastNearbyLabelsWarnAt = 0;
@@ -200,7 +204,10 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
   }
 
   async createSnapshot(payload: CreateViewerSnapshotDto) {
-    if (!payload.image_data_url || !payload.image_data_url.startsWith('data:image/png;base64,')) {
+    if (
+      !payload.image_data_url ||
+      !payload.image_data_url.startsWith('data:image/png;base64,')
+    ) {
       throw new BadRequestException('image_data_url must be a PNG data URL.');
     }
 
@@ -208,7 +215,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       this.validateState(payload.state);
     }
 
-    const rawBase64 = payload.image_data_url.slice('data:image/png;base64,'.length);
+    const rawBase64 = payload.image_data_url.slice(
+      'data:image/png;base64,'.length,
+    );
     const pngBuffer = Buffer.from(rawBase64, 'base64');
 
     if (pngBuffer.length === 0) {
@@ -222,7 +231,11 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
 
     const snapshotId = randomUUID();
     const fileName = `${snapshotId}.png`;
-    const storageDir = resolve(this.resolveApiRootDir(), 'storage', 'snapshots');
+    const storageDir = resolve(
+      this.resolveApiRootDir(),
+      'storage',
+      'snapshots',
+    );
 
     mkdirSync(storageDir, { recursive: true });
     writeFileSync(resolve(storageDir, fileName), pngBuffer);
@@ -234,11 +247,15 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
         mime_type: 'image/png',
         size_bytes: pngBuffer.length,
         short_id: payload.short_id ?? null,
-        state_json: payload.state ? (payload.state as unknown as Record<string, unknown>) : null,
+        state_json: payload.state
+          ? (payload.state as unknown as Record<string, unknown>)
+          : null,
       }),
     );
     const retentionDays = this.snapshotRetentionDays();
-    const retainUntil = new Date(snapshot.created_at.getTime() + retentionDays * 24 * 60 * 60 * 1000);
+    const retainUntil = new Date(
+      snapshot.created_at.getTime() + retentionDays * 24 * 60 * 60 * 1000,
+    );
 
     await this.auditLogRepository.createAuditLog({
       action: AuditAction.CREATE,
@@ -293,7 +310,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-  async downloadCutout(request: ViewerCutoutRequest): Promise<{ buffer: Buffer; fileName: string }> {
+  async downloadCutout(
+    request: ViewerCutoutRequest,
+  ): Promise<{ buffer: Buffer; fileName: string }> {
     this.validateState({
       ra: request.ra,
       dec: request.dec,
@@ -330,7 +349,13 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
         selectedProvider = result.provider;
         cacheHit = result.cacheHit;
         totalAttempts += result.attempts;
-        this.logCutoutCacheEvent(result.cacheSource, selectedProvider, selectedSurvey, dimensions.width, dimensions.height);
+        this.logCutoutCacheEvent(
+          result.cacheSource,
+          selectedProvider,
+          selectedSurvey,
+          dimensions.width,
+          dimensions.height,
+        );
         break;
       } catch (error) {
         lastError = error;
@@ -360,7 +385,10 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     }
 
     const safeLabel = request.label?.trim().replace(/[^a-zA-Z0-9_-]+/g, '-');
-    const fileNameStem = safeLabel && safeLabel.length > 0 ? safeLabel : `ra${request.ra.toFixed(4)}_dec${request.dec.toFixed(4)}`;
+    const fileNameStem =
+      safeLabel && safeLabel.length > 0
+        ? safeLabel
+        : `ra${request.ra.toFixed(4)}_dec${request.dec.toFixed(4)}`;
     const auditId = randomUUID();
     await this.auditLogRepository.createAuditLog({
       action: AuditAction.CREATE,
@@ -389,7 +417,12 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-  async getNearbyLabels(ra: number, dec: number, radiusDeg: number, limit: number): Promise<NearbyCatalogLabel[]> {
+  async getNearbyLabels(
+    ra: number,
+    dec: number,
+    radiusDeg: number,
+    limit: number,
+  ): Promise<NearbyCatalogLabel[]> {
     this.validateState({
       ra,
       dec,
@@ -400,10 +433,20 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
 
     const normalizedRadius = Number(radiusDeg.toFixed(5));
     const normalizedLimit = Math.max(1, Math.min(limit, 25));
-    const nearbyCacheKey = this.nearbyLabelsCacheKey(ra, dec, normalizedRadius, normalizedLimit);
+    const nearbyCacheKey = this.nearbyLabelsCacheKey(
+      ra,
+      dec,
+      normalizedRadius,
+      normalizedLimit,
+    );
     const cachedNearby = await this.getNearbyLabelsFromCache(nearbyCacheKey);
     if (cachedNearby) {
-      this.logNearbyCacheEvent('hit', cachedNearby.source, normalizedLimit, normalizedRadius);
+      this.logNearbyCacheEvent(
+        'hit',
+        cachedNearby.source,
+        normalizedLimit,
+        normalizedRadius,
+      );
       return cachedNearby.labels;
     }
     this.logNearbyCacheEvent('miss', 'none', normalizedLimit, normalizedRadius);
@@ -427,25 +470,35 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     try {
       const controller = new AbortController();
       const timeoutHandle = setTimeout(() => controller.abort(), 6_000);
-      const response = await fetch('https://simbad.cds.unistra.fr/simbad/sim-tap/sync', {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-          'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      const response = await fetch(
+        'https://simbad.cds.unistra.fr/simbad/sim-tap/sync',
+        {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
+          },
+          body: formBody.toString(),
+          signal: controller.signal,
         },
-        body: formBody.toString(),
-        signal: controller.signal,
-      }).finally(() => clearTimeout(timeoutHandle));
+      ).finally(() => clearTimeout(timeoutHandle));
 
       if (!response.ok) {
-        this.warnNearbyLabels(`SIMBAD nearby-label query failed with status ${response.status}. Returning empty labels.`);
+        this.warnNearbyLabels(
+          `SIMBAD nearby-label query failed with status ${response.status}. Returning empty labels.`,
+        );
         return [];
       }
 
       const payload = (await response.json()) as SimbadTapResponse;
       const rows = this.parseSimbadRows(payload);
       const normalized = rows
-        .filter((row) => Number.isFinite(row.ra) && Number.isFinite(row.dec) && Number.isFinite(row.angular_distance_deg))
+        .filter(
+          (row) =>
+            Number.isFinite(row.ra) &&
+            Number.isFinite(row.dec) &&
+            Number.isFinite(row.angular_distance_deg),
+        )
         .map((row) => ({
           ...row,
           confidence: this.computeCatalogConfidence(row, normalizedRadius),
@@ -454,7 +507,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       return normalized;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'unknown error';
-      this.warnNearbyLabels(`SIMBAD nearby-label query failed (${message}). Returning empty labels.`);
+      this.warnNearbyLabels(
+        `SIMBAD nearby-label query failed (${message}). Returning empty labels.`,
+      );
       return [];
     }
   }
@@ -465,7 +520,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
 
   decodeState(encodedState: string): ViewerStatePayload {
     try {
-      const parsed = JSON.parse(Buffer.from(encodedState, 'base64url').toString('utf8')) as ViewerStatePayload;
+      const parsed = JSON.parse(
+        Buffer.from(encodedState, 'base64url').toString('utf8'),
+      ) as ViewerStatePayload;
       this.validateState(parsed);
       return parsed;
     } catch {
@@ -475,11 +532,15 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
 
   private validateState(state: ViewerStatePayload): void {
     if (!Number.isFinite(state.ra) || state.ra < -360 || state.ra > 360) {
-      throw new BadRequestException('RA must be a finite number between -360 and 360.');
+      throw new BadRequestException(
+        'RA must be a finite number between -360 and 360.',
+      );
     }
 
     if (!Number.isFinite(state.dec) || state.dec < -90 || state.dec > 90) {
-      throw new BadRequestException('Dec must be a finite number between -90 and 90.');
+      throw new BadRequestException(
+        'Dec must be a finite number between -90 and 90.',
+      );
     }
 
     if (!Number.isFinite(state.fov) || state.fov <= 0 || state.fov > 180) {
@@ -500,16 +561,26 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       }
 
       for (const label of state.labels) {
-        if (typeof label.name !== 'string' || label.name.trim().length === 0 || label.name.length > 120) {
-          throw new BadRequestException('Each label requires a name between 1 and 120 characters.');
+        if (
+          typeof label.name !== 'string' ||
+          label.name.trim().length === 0 ||
+          label.name.length > 120
+        ) {
+          throw new BadRequestException(
+            'Each label requires a name between 1 and 120 characters.',
+          );
         }
 
         if (!Number.isFinite(label.ra) || label.ra < -360 || label.ra > 360) {
-          throw new BadRequestException('Each label RA must be between -360 and 360.');
+          throw new BadRequestException(
+            'Each label RA must be between -360 and 360.',
+          );
         }
 
         if (!Number.isFinite(label.dec) || label.dec < -90 || label.dec > 90) {
-          throw new BadRequestException('Each label Dec must be between -90 and 90.');
+          throw new BadRequestException(
+            'Each label Dec must be between -90 and 90.',
+          );
         }
       }
     }
@@ -557,7 +628,13 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       for (let attempt = 1; attempt <= params.maxAttempts; attempt += 1) {
         for (const provider of providerOrder) {
           try {
-            const cacheKey = this.cutoutCacheKey(params.request, survey, provider, params.width, params.height);
+            const cacheKey = this.cutoutCacheKey(
+              params.request,
+              survey,
+              provider,
+              params.width,
+              params.height,
+            );
             const cached = await this.getCutoutFromCache(cacheKey);
             if (cached) {
               return {
@@ -574,14 +651,29 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
             this.cutoutTelemetry.providerAttemptsTotal += 1;
             const cutoutUrl =
               provider === 'primary'
-                ? this.buildPrimaryCutoutUrl(params.request, survey, params.width, params.height)
-                : this.buildSecondaryCutoutUrl(params.request, survey, params.width, params.height);
-            const response = await this.fetchCutoutResponse(cutoutUrl, provider);
+                ? this.buildPrimaryCutoutUrl(
+                    params.request,
+                    survey,
+                    params.width,
+                    params.height,
+                  )
+                : this.buildSecondaryCutoutUrl(
+                    params.request,
+                    survey,
+                    params.width,
+                    params.height,
+                  );
+            const response = await this.fetchCutoutResponse(
+              cutoutUrl,
+              provider,
+            );
 
             if (!response.ok) {
               lastErrorMessage = `status ${response.status}`;
               this.cutoutTelemetry.providerFailuresTotal += 1;
-              this.logger.warn(`Cutout fetch failed (${provider}:${survey}, attempt ${attempt}): ${lastErrorMessage}`);
+              this.logger.warn(
+                `Cutout fetch failed (${provider}:${survey}, attempt ${attempt}): ${lastErrorMessage}`,
+              );
               continue;
             }
 
@@ -591,7 +683,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
             if (buffer.length === 0) {
               lastErrorMessage = 'empty payload';
               this.cutoutTelemetry.providerFailuresTotal += 1;
-              this.logger.warn(`Cutout fetch failed (${provider}:${survey}, attempt ${attempt}): ${lastErrorMessage}`);
+              this.logger.warn(
+                `Cutout fetch failed (${provider}:${survey}, attempt ${attempt}): ${lastErrorMessage}`,
+              );
               continue;
             }
 
@@ -605,10 +699,13 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
               cacheSource: 'none',
             };
           } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'unknown fetch error';
+            const errorMessage =
+              error instanceof Error ? error.message : 'unknown fetch error';
             lastErrorMessage = errorMessage;
             this.cutoutTelemetry.providerFailuresTotal += 1;
-            this.logger.warn(`Cutout fetch failed (${provider}:${survey}, attempt ${attempt}): ${lastErrorMessage}`);
+            this.logger.warn(
+              `Cutout fetch failed (${provider}:${survey}, attempt ${attempt}): ${lastErrorMessage}`,
+            );
           }
         }
       }
@@ -619,8 +716,15 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  private buildPrimaryCutoutUrl(request: ViewerCutoutRequest, survey: string, width: number, height: number): URL {
-    const cutoutUrl = new URL('https://alasky.cds.unistra.fr/hips-image-services/hips2fits');
+  private buildPrimaryCutoutUrl(
+    request: ViewerCutoutRequest,
+    survey: string,
+    width: number,
+    height: number,
+  ): URL {
+    const cutoutUrl = new URL(
+      'https://alasky.cds.unistra.fr/hips-image-services/hips2fits',
+    );
     cutoutUrl.searchParams.set('hips', survey);
     cutoutUrl.searchParams.set('format', 'fits');
     cutoutUrl.searchParams.set('projection', 'TAN');
@@ -632,7 +736,12 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     return cutoutUrl;
   }
 
-  private buildSecondaryCutoutUrl(request: ViewerCutoutRequest, survey: string, width: number, height: number): URL {
+  private buildSecondaryCutoutUrl(
+    request: ViewerCutoutRequest,
+    survey: string,
+    width: number,
+    height: number,
+  ): URL {
     const template = process.env['CUTOUT_SECONDARY_URL_TEMPLATE'] ?? '';
     if (template.trim().length === 0) {
       throw new Error('secondary cutout template is not configured');
@@ -652,7 +761,8 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private cutoutProviderOrder(): Array<'primary' | 'secondary'> {
-    const secondaryEnabled = (process.env['CUTOUT_SECONDARY_ENABLED'] ?? '').toLowerCase() === 'true';
+    const secondaryEnabled =
+      (process.env['CUTOUT_SECONDARY_ENABLED'] ?? '').toLowerCase() === 'true';
     const template = process.env['CUTOUT_SECONDARY_URL_TEMPLATE'] ?? '';
     if (secondaryEnabled && template.trim().length > 0) {
       return ['primary', 'secondary'];
@@ -661,11 +771,18 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     return ['primary'];
   }
 
-  private async fetchCutoutResponse(url: URL, provider: 'primary' | 'secondary'): Promise<Response> {
+  private async fetchCutoutResponse(
+    url: URL,
+    provider: 'primary' | 'secondary',
+  ): Promise<Response> {
     const controller = new AbortController();
     const timeoutMs =
       provider === 'secondary'
-        ? Number(process.env['CUTOUT_SECONDARY_TIMEOUT_MS'] || process.env['CUTOUT_FETCH_TIMEOUT_MS'] || 25_000)
+        ? Number(
+            process.env['CUTOUT_SECONDARY_TIMEOUT_MS'] ||
+              process.env['CUTOUT_FETCH_TIMEOUT_MS'] ||
+              25_000,
+          )
         : Number(process.env['CUTOUT_FETCH_TIMEOUT_MS'] || 25_000);
     const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -675,12 +792,19 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     if (provider === 'secondary') {
       const token = process.env['CUTOUT_SECONDARY_API_KEY'];
       if (token && token.trim().length > 0) {
-        const keyHeader = process.env['CUTOUT_SECONDARY_API_KEY_HEADER'] || 'Authorization';
-        const keyPrefix = process.env['CUTOUT_SECONDARY_API_KEY_PREFIX'] ?? 'Bearer ';
+        const keyHeader =
+          process.env['CUTOUT_SECONDARY_API_KEY_HEADER'] || 'Authorization';
+        const keyPrefix =
+          process.env['CUTOUT_SECONDARY_API_KEY_PREFIX'] ?? 'Bearer ';
         headers[keyHeader] = `${keyPrefix}${token}`;
       }
       const keyQueryParam = process.env['CUTOUT_SECONDARY_API_KEY_QUERY_PARAM'];
-      if (keyQueryParam && keyQueryParam.trim().length > 0 && token && token.trim().length > 0) {
+      if (
+        keyQueryParam &&
+        keyQueryParam.trim().length > 0 &&
+        token &&
+        token.trim().length > 0
+      ) {
         url.searchParams.set(keyQueryParam, token);
       }
     }
@@ -703,7 +827,8 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       }
     });
 
-    const getIndex = (name: string): number => indexByName.get(name.toLowerCase()) ?? -1;
+    const getIndex = (name: string): number =>
+      indexByName.get(name.toLowerCase()) ?? -1;
     const nameIndex = getIndex('main_id');
     const raIndex = getIndex('ra');
     const decIndex = getIndex('dec');
@@ -722,7 +847,12 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       const objectType = this.readStringCell(row, typeIndex) || 'Unknown';
       const angularDistanceDeg = this.readNumberCell(row, distanceIndex);
 
-      if (!name || !Number.isFinite(ra) || !Number.isFinite(dec) || !Number.isFinite(angularDistanceDeg)) {
+      if (
+        !name ||
+        !Number.isFinite(ra) ||
+        !Number.isFinite(dec) ||
+        !Number.isFinite(angularDistanceDeg)
+      ) {
         continue;
       }
 
@@ -766,7 +896,10 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     return Number.NaN;
   }
 
-  private computeCatalogConfidence(label: NearbyCatalogLabel, searchRadius: number): number {
+  private computeCatalogConfidence(
+    label: NearbyCatalogLabel,
+    searchRadius: number,
+  ): number {
     let confidence = 0.4;
 
     if (!label.name.startsWith('[')) {
@@ -787,7 +920,10 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
   private warnNearbyLabels(message: string): void {
     const now = Date.now();
     const throttleMs = 60_000;
-    if (message === this.lastNearbyLabelsWarnMessage && now - this.lastNearbyLabelsWarnAt < throttleMs) {
+    if (
+      message === this.lastNearbyLabelsWarnMessage &&
+      now - this.lastNearbyLabelsWarnAt < throttleMs
+    ) {
       return;
     }
 
@@ -800,7 +936,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     return (value * Math.PI) / 180;
   }
 
-  private cutoutDimensionsCandidates(detail: 'standard' | 'high' | 'max'): Array<{ width: number; height: number }> {
+  private cutoutDimensionsCandidates(
+    detail: 'standard' | 'high' | 'max',
+  ): Array<{ width: number; height: number }> {
     if (detail === 'max') {
       return [
         { width: 3072, height: 3072 },
@@ -836,7 +974,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     ].join('|');
   }
 
-  private async getCutoutFromCache(cacheKey: string): Promise<{ buffer: Buffer; source: 'memory' | 'redis' } | null> {
+  private async getCutoutFromCache(
+    cacheKey: string,
+  ): Promise<{ buffer: Buffer; source: 'memory' | 'redis' } | null> {
     const entry = this.cutoutCache.get(cacheKey);
     if (!entry) {
       const redisBuffer = await this.getRedisBuffer(cacheKey);
@@ -855,7 +995,10 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     return { buffer: entry.buffer, source: 'memory' };
   }
 
-  private async setCutoutCache(cacheKey: string, buffer: Buffer): Promise<void> {
+  private async setCutoutCache(
+    cacheKey: string,
+    buffer: Buffer,
+  ): Promise<void> {
     const ttlMs = this.cutoutCacheTtlMs();
     this.setInMemoryCutoutCache(cacheKey, buffer);
     await this.setRedisBuffer(cacheKey, buffer, ttlMs);
@@ -869,15 +1012,28 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     });
 
     if (this.cutoutCache.size > 64) {
-      const oldestKey = this.cutoutCache.keys().next().value as string | undefined;
+      const oldestKey = this.cutoutCache.keys().next().value as
+        | string
+        | undefined;
       if (oldestKey) {
         this.cutoutCache.delete(oldestKey);
       }
     }
   }
 
-  private nearbyLabelsCacheKey(ra: number, dec: number, radius: number, limit: number): string {
-    return ['nearby', ra.toFixed(4), dec.toFixed(4), radius.toFixed(4), limit].join('|');
+  private nearbyLabelsCacheKey(
+    ra: number,
+    dec: number,
+    radius: number,
+    limit: number,
+  ): string {
+    return [
+      'nearby',
+      ra.toFixed(4),
+      dec.toFixed(4),
+      radius.toFixed(4),
+      limit,
+    ].join('|');
   }
 
   private nearbyLabelsCacheTtlMs(): number {
@@ -890,7 +1046,10 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
 
   private async getNearbyLabelsFromCache(
     cacheKey: string,
-  ): Promise<{ labels: NearbyCatalogLabel[]; source: 'memory' | 'redis' } | null> {
+  ): Promise<{
+    labels: NearbyCatalogLabel[];
+    source: 'memory' | 'redis';
+  } | null> {
     const local = this.nearbyLabelsCache.get(cacheKey);
     if (local && local.expiresAt > Date.now()) {
       return { labels: local.labels, source: 'memory' };
@@ -911,7 +1070,10 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     return { labels: redisValue, source: 'redis' };
   }
 
-  private async setNearbyLabelsCache(cacheKey: string, labels: NearbyCatalogLabel[]): Promise<void> {
+  private async setNearbyLabelsCache(
+    cacheKey: string,
+    labels: NearbyCatalogLabel[],
+  ): Promise<void> {
     const ttlMs = this.nearbyLabelsCacheTtlMs();
     this.nearbyLabelsCache.set(cacheKey, {
       expiresAt: Date.now() + ttlMs,
@@ -921,7 +1083,8 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async initializeRedisCache(): Promise<void> {
-    const enabled = (process.env['REDIS_CACHE_ENABLED'] ?? 'false').toLowerCase() === 'true';
+    const enabled =
+      (process.env['REDIS_CACHE_ENABLED'] ?? 'false').toLowerCase() === 'true';
     if (!enabled) {
       this.redisEnabled = false;
       return;
@@ -930,13 +1093,23 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     const host = process.env['REDIS_HOST'] ?? '127.0.0.1';
     const port = Number(process.env['REDIS_PORT'] ?? 6379);
     const password = process.env['REDIS_PASSWORD']?.trim() || undefined;
-    const connectTimeout = Number(process.env['REDIS_CONNECT_TIMEOUT_MS'] ?? 2_000);
-    const redisTlsEnabled = (process.env['REDIS_TLS_ENABLED'] ?? 'false').toLowerCase() === 'true';
+    const connectTimeout = Number(
+      process.env['REDIS_CONNECT_TIMEOUT_MS'] ?? 2_000,
+    );
+    const redisTlsEnabled =
+      (process.env['REDIS_TLS_ENABLED'] ?? 'false').toLowerCase() === 'true';
     const redisTlsRejectUnauthorized =
-      (process.env['REDIS_TLS_REJECT_UNAUTHORIZED'] ?? 'true').toLowerCase() !== 'false';
+      (process.env['REDIS_TLS_REJECT_UNAUTHORIZED'] ?? 'true').toLowerCase() !==
+      'false';
 
-    if ((process.env['NODE_ENV'] === 'production' || process.env['REDIS_REQUIRE_PASSWORD'] === 'true') && !password) {
-      this.logger.warn('Redis cache disabled: REDIS_PASSWORD is required for secure Redis connections.');
+    if (
+      (process.env['NODE_ENV'] === 'production' ||
+        process.env['REDIS_REQUIRE_PASSWORD'] === 'true') &&
+      !password
+    ) {
+      this.logger.warn(
+        'Redis cache disabled: REDIS_PASSWORD is required for secure Redis connections.',
+      );
       this.redisEnabled = false;
       return;
     }
@@ -963,8 +1136,11 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       this.redisEnabled = true;
       this.logger.log(`Redis cache enabled at ${host}:${port}.`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown redis error';
-      this.logger.warn(`Redis cache unavailable (${message}). Falling back to in-memory cache.`);
+      const message =
+        error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(
+        `Redis cache unavailable (${message}). Falling back to in-memory cache.`,
+      );
       client.disconnect();
       this.redisClient = null;
       this.redisEnabled = false;
@@ -974,7 +1150,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
   private logCacheConfiguration(): void {
     const cutoutTtlMs = this.cutoutCacheTtlMs();
     const nearbyTtlMs = this.nearbyLabelsCacheTtlMs();
-    const warmupEnabled = (process.env['VIEWER_CACHE_WARMUP_ENABLED'] ?? 'false').toLowerCase() === 'true';
+    const warmupEnabled =
+      (process.env['VIEWER_CACHE_WARMUP_ENABLED'] ?? 'false').toLowerCase() ===
+      'true';
     this.logger.log(
       `Viewer cache config: redis_enabled=${this.redisEnabled}, cutout_ttl_ms=${cutoutTtlMs}, nearby_ttl_ms=${nearbyTtlMs}, warmup_enabled=${warmupEnabled}.`,
     );
@@ -998,11 +1176,15 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     limit: number,
     radiusDeg: number,
   ): void {
-    this.logger.log(`Nearby-label cache ${result} (source=${source}, limit=${limit}, radius_deg=${radiusDeg}).`);
+    this.logger.log(
+      `Nearby-label cache ${result} (source=${source}, limit=${limit}, radius_deg=${radiusDeg}).`,
+    );
   }
 
   private scheduleWarmupIfEnabled(): void {
-    const enabled = (process.env['VIEWER_CACHE_WARMUP_ENABLED'] ?? 'false').toLowerCase() === 'true';
+    const enabled =
+      (process.env['VIEWER_CACHE_WARMUP_ENABLED'] ?? 'false').toLowerCase() ===
+      'true';
     if (!enabled) {
       return;
     }
@@ -1019,7 +1201,12 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     const survey = process.env['VIEWER_WARMUP_SURVEY'] ?? 'VLASS';
 
     try {
-      await this.getNearbyLabels(ra, dec, Math.max(0.02, Math.min(0.2, fov * 0.15)), 12);
+      await this.getNearbyLabels(
+        ra,
+        dec,
+        Math.max(0.02, Math.min(0.2, fov * 0.15)),
+        12,
+      );
       const fallbackSurveys = this.cutoutSurveyFallbacks(survey);
       await this.fetchCutoutWithRetries({
         request: { ra, dec, fov, survey, label: 'warmup', detail: 'standard' },
@@ -1030,7 +1217,8 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       });
       this.logger.log('Viewer cache warmup completed.');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown warmup error';
+      const message =
+        error instanceof Error ? error.message : 'unknown warmup error';
       this.logger.warn(`Viewer cache warmup failed (${message}).`);
     }
   }
@@ -1053,25 +1241,39 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       this.logRedis('redis_hit', { key: rawKey, bytes: value.length });
       return value;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown redis error';
-      this.logger.warn(`Redis buffer get failed (${message}); disabling redis cache.`);
+      const message =
+        error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(
+        `Redis buffer get failed (${message}); disabling redis cache.`,
+      );
       this.redisEnabled = false;
       this.logRedis('redis_error', { key: rawKey, message });
       return null;
     }
   }
 
-  private async setRedisBuffer(rawKey: string, value: Buffer, ttlMs: number): Promise<void> {
+  private async setRedisBuffer(
+    rawKey: string,
+    value: Buffer,
+    ttlMs: number,
+  ): Promise<void> {
     if (!this.redisEnabled || !this.redisClient) {
       return;
     }
 
     try {
       await this.redisClient.set(this.redisKey(rawKey), value, 'PX', ttlMs);
-      this.logRedis('redis_set', { key: rawKey, bytes: value.length, ttl_ms: ttlMs });
+      this.logRedis('redis_set', {
+        key: rawKey,
+        bytes: value.length,
+        ttl_ms: ttlMs,
+      });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown redis error';
-      this.logger.warn(`Redis buffer set failed (${message}); disabling redis cache.`);
+      const message =
+        error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(
+        `Redis buffer set failed (${message}); disabling redis cache.`,
+      );
       this.redisEnabled = false;
       this.logRedis('redis_error', { key: rawKey, message });
     }
@@ -1091,32 +1293,54 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       this.logRedis('redis_hit', { key: rawKey, bytes: raw.length });
       return JSON.parse(raw) as T;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown redis error';
-      this.logger.warn(`Redis json get failed (${message}); disabling redis cache.`);
+      const message =
+        error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(
+        `Redis json get failed (${message}); disabling redis cache.`,
+      );
       this.redisEnabled = false;
       this.logRedis('redis_error', { key: rawKey, message });
       return null;
     }
   }
 
-  private async setRedisJson(rawKey: string, value: unknown, ttlMs: number): Promise<void> {
+  private async setRedisJson(
+    rawKey: string,
+    value: unknown,
+    ttlMs: number,
+  ): Promise<void> {
     if (!this.redisEnabled || !this.redisClient) {
       return;
     }
 
     try {
-      await this.redisClient.set(this.redisKey(rawKey), JSON.stringify(value), 'PX', ttlMs);
+      await this.redisClient.set(
+        this.redisKey(rawKey),
+        JSON.stringify(value),
+        'PX',
+        ttlMs,
+      );
       this.logRedis('redis_set', { key: rawKey, ttl_ms: ttlMs });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown redis error';
-      this.logger.warn(`Redis json set failed (${message}); disabling redis cache.`);
+      const message =
+        error instanceof Error ? error.message : 'unknown redis error';
+      this.logger.warn(
+        `Redis json set failed (${message}); disabling redis cache.`,
+      );
       this.redisEnabled = false;
       this.logRedis('redis_error', { key: rawKey, message });
     }
   }
 
-  private logRedis(event: string, details: Record<string, string | number | boolean | null>): void {
-    const payload = { event, correlation_id: '272762e810cea2de53a2f', ...details };
+  private logRedis(
+    event: string,
+    details: Record<string, string | number | boolean | null>,
+  ): void {
+    const payload = {
+      event,
+      correlation_id: '272762e810cea2de53a2f',
+      ...details,
+    };
     this.logger.log(JSON.stringify(payload));
     void this.loggingService.add({
       type: 'redis',
@@ -1151,7 +1375,10 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     this.cutoutTelemetry.consecutiveFailures += 1;
     this.cutoutTelemetry.lastFailureAt = at;
     this.cutoutTelemetry.lastFailureReason = reason;
-    this.cutoutTelemetry.recentFailures = [{ at, reason }, ...this.cutoutTelemetry.recentFailures].slice(0, 20);
+    this.cutoutTelemetry.recentFailures = [
+      { at, reason },
+      ...this.cutoutTelemetry.recentFailures,
+    ].slice(0, 20);
   }
 
   private sanitizeFailureReason(reason: string): string {
@@ -1165,13 +1392,17 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
   private async generateShortId(): Promise<string> {
     for (let attempt = 0; attempt < 8; attempt += 1) {
       const shortId = this.randomBase62(8);
-      const existing = await this.viewerStateRepository.findOne({ where: { short_id: shortId } });
+      const existing = await this.viewerStateRepository.findOne({
+        where: { short_id: shortId },
+      });
       if (!existing) {
         return shortId;
       }
     }
 
-    throw new BadRequestException('Could not generate a unique viewer short ID.');
+    throw new BadRequestException(
+      'Could not generate a unique viewer short ID.',
+    );
   }
 
   private randomBase62(length: number): string {

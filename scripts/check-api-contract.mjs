@@ -8,13 +8,21 @@ import { resolve } from 'node:path';
  */
 
 const projectRoot = resolve(process.cwd());
-const committedSpecPath = resolve(projectRoot, 'documentation', 'reference', 'api', 'openapi.json');
+const committedSpecPath = resolve(
+  projectRoot,
+  'documentation',
+  'reference',
+  'api',
+  'openapi.json',
+);
 
 async function run() {
   console.log('--- API Contract Regression Check ---');
 
   if (!existsSync(committedSpecPath)) {
-    console.error(`Error: Committed OpenAPI spec not found at ${committedSpecPath}`);
+    console.error(
+      `Error: Committed OpenAPI spec not found at ${committedSpecPath}`,
+    );
     process.exit(1);
   }
 
@@ -29,25 +37,31 @@ async function run() {
     const generatedSpec = readFileSync(committedSpecPath, 'utf8');
 
     if (originalSpec === generatedSpec) {
-      console.log('✅ Success: API contract is consistent with committed spec.');
+      console.log(
+        '✅ Success: API contract is consistent with committed spec.',
+      );
       process.exit(0);
     } else {
-      console.error('❌ Error: API contract has changed. Please update documentation/reference/api/openapi.json');
-      console.error('If this change was intentional, commit the updated openapi.json file.');
-      
+      console.error(
+        '❌ Error: API contract has changed. Please update documentation/reference/api/openapi.json',
+      );
+      console.error(
+        'If this change was intentional, commit the updated openapi.json file.',
+      );
+
       // show diff if possible
       try {
         const diff = execSync(`git diff --no-index "${committedSpecPath}" -`, {
           input: originalSpec,
-          encoding: 'utf8'
+          encoding: 'utf8',
         });
         console.log('\nDiff:');
         console.log(diff);
       } catch (e) {
-         // git diff returns exit code 1 if files differ
-         if (e.stdout) console.log(e.stdout);
+        // git diff returns exit code 1 if files differ
+        if (e.stdout) console.log(e.stdout);
       }
-      
+
       // Restore the original spec so the developer doesn't have local changes if তারা just running the check
       // Wait, actually in CI we want it to fail. In local dev, we might want to keep the change.
       // Let's NOT restore it, but tell the user to check git status.

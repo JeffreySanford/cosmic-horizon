@@ -23,14 +23,18 @@ describe('LoggingService - Error Paths & Branch Coverage', () => {
       quit: jest.fn(),
     } as any;
 
-    (Redis as jest.MockedClass<typeof Redis>).mockImplementation(() => redisMock as any);
+    (Redis as jest.MockedClass<typeof Redis>).mockImplementation(
+      () => redisMock as any,
+    );
   });
 
   describe('Constructor - Redis Connection', () => {
     it('should initialize with buffer and null redis by default', () => {
       service = new LoggingService();
       expect((service as any).buffer).toEqual([]);
-      expect(typeof ((service as any).buffer instanceof Map ? 'map' : 'array')).toBe('string');
+      expect(
+        typeof ((service as any).buffer instanceof Map ? 'map' : 'array'),
+      ).toBe('string');
     });
 
     it('should initialize Redis when enabled', () => {
@@ -54,12 +58,16 @@ describe('LoggingService - Error Paths & Branch Coverage', () => {
       process.env['REDIS_PORT'] = '99999';
 
       // Make Redis constructor throw
-      (Redis as jest.MockedClass<typeof Redis>).mockImplementationOnce((): any => {
-        throw new Error('Connection refused');
-      });
+      (Redis as jest.MockedClass<typeof Redis>).mockImplementationOnce(
+        (): any => {
+          throw new Error('Connection refused');
+        },
+      );
 
       // Suppress logger output for this test
-      jest.spyOn(global.console, 'warn').mockImplementationOnce(() => undefined);
+      jest
+        .spyOn(global.console, 'warn')
+        .mockImplementationOnce(() => undefined);
 
       service = new LoggingService();
 
@@ -158,7 +166,10 @@ describe('LoggingService - Error Paths & Branch Coverage', () => {
         message: 'Test',
       });
 
-      expect(redisMock.lpush).toHaveBeenCalledWith('logs:recent', expect.any(String));
+      expect(redisMock.lpush).toHaveBeenCalledWith(
+        'logs:recent',
+        expect.any(String),
+      );
       expect(redisMock.ltrim).toHaveBeenCalledWith('logs:recent', 0, 1999);
     });
 
@@ -273,7 +284,9 @@ describe('LoggingService - Error Paths & Branch Coverage', () => {
         },
       ];
 
-      redisMock.lrange.mockResolvedValueOnce(mockLogs.map(l => JSON.stringify(l)));
+      redisMock.lrange.mockResolvedValueOnce(
+        mockLogs.map((l) => JSON.stringify(l)),
+      );
 
       const result = await service.getRecent(2, 0);
 
@@ -291,7 +304,9 @@ describe('LoggingService - Error Paths & Branch Coverage', () => {
     });
 
     it('should fallback to memory buffer when Redis read fails', async () => {
-      redisMock.lrange.mockRejectedValueOnce(new Error('Redis connection lost'));
+      redisMock.lrange.mockRejectedValueOnce(
+        new Error('Redis connection lost'),
+      );
       (service as any).buffer = [
         {
           id: 'id1',

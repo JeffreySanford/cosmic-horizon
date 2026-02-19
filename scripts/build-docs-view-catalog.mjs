@@ -87,7 +87,8 @@ async function buildCatalog() {
         '/',
       );
       const stem = sourcePath.replace(/\.md$/i, '');
-      const fileName = sourcePath.split('/').pop()?.replace(/\.md$/i, '') ?? stem;
+      const fileName =
+        sourcePath.split('/').pop()?.replace(/\.md$/i, '') ?? stem;
       const id = slugify(stem);
 
       return {

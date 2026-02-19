@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 
 /**
  * Event Schema Validation Tests
- * 
+ *
  * This test suite ensures that:
  * 1. Event payloads conform to defined schemas
  * 2. Schema versions are properly tracked
@@ -41,13 +41,17 @@ class EventSchemaRegistry {
     if (!schemas) return null;
 
     if (version) {
-      return schemas.find(s => s.version === version) || null;
+      return schemas.find((s) => s.version === version) || null;
     }
 
     return schemas[schemas.length - 1] || null;
   }
 
-  validateEvent(eventType: string, event: any, version?: string): ValidationError[] {
+  validateEvent(
+    eventType: string,
+    event: any,
+    version?: string,
+  ): ValidationError[] {
     const schema = this.getSchema(eventType, version);
     if (!schema) return [{ field: eventType, error: 'Schema not found' }];
 
@@ -65,7 +69,11 @@ class EventSchemaRegistry {
     return errors;
   }
 
-  isCompatible(eventType: string, oldVersion: string, newVersion: string): boolean {
+  isCompatible(
+    eventType: string,
+    oldVersion: string,
+    newVersion: string,
+  ): boolean {
     const oldSchema = this.getSchema(eventType, oldVersion);
     const newSchema = this.getSchema(eventType, newVersion);
 
@@ -84,7 +92,7 @@ class EventSchemaRegistry {
 
   getSchemaVersions(eventType: string): string[] {
     const schemas = this.schemas.get(eventType);
-    return schemas ? schemas.map(s => s.version) : [];
+    return schemas ? schemas.map((s) => s.version) : [];
   }
 }
 
@@ -100,11 +108,21 @@ describe('Event Schema Validation', () => {
       timestamp: { type: 'date' },
       job_id: { type: 'string' },
       user_id: { type: 'string' },
-      agent: { type: 'string', enum: ['AlphaCal', 'ImageReconstruction', 'AnomalyDetection'] },
+      agent: {
+        type: 'string',
+        enum: ['AlphaCal', 'ImageReconstruction', 'AnomalyDetection'],
+      },
       dataset_id: { type: 'string' },
       params: { type: 'object' },
     },
-    required: ['event_id', 'timestamp', 'job_id', 'user_id', 'agent', 'dataset_id'],
+    required: [
+      'event_id',
+      'timestamp',
+      'job_id',
+      'user_id',
+      'agent',
+      'dataset_id',
+    ],
   };
 
   const jobSubmittedSchemaV2: EventSchema = {
@@ -157,7 +175,7 @@ describe('Event Schema Validation', () => {
 
       const errors = registry.validateEvent('JobSubmitted', event, '1.0.0');
       expect(errors.length).toBeGreaterThan(0);
-      expect(errors.some(e => e.field === 'user_id')).toBe(true);
+      expect(errors.some((e) => e.field === 'user_id')).toBe(true);
     });
 
     it('should validate allowed enum values', () => {
@@ -170,7 +188,11 @@ describe('Event Schema Validation', () => {
         dataset_id: 'dataset-001',
       };
 
-      const errors = registry.validateEvent('JobSubmitted', validEvent, '1.0.0');
+      const errors = registry.validateEvent(
+        'JobSubmitted',
+        validEvent,
+        '1.0.0',
+      );
       expect(errors).toHaveLength(0);
     });
 
@@ -184,7 +206,11 @@ describe('Event Schema Validation', () => {
         dataset_id: 'dataset-001',
       };
 
-      const errors = registry.validateEvent('JobSubmitted', invalidEvent, '1.0.0');
+      const errors = registry.validateEvent(
+        'JobSubmitted',
+        invalidEvent,
+        '1.0.0',
+      );
       // Validation would fail at type checking level in real implementation
       expect(invalidEvent.agent).not.toBe('AlphaCal');
     });
@@ -258,7 +284,7 @@ describe('Event Schema Validation', () => {
 
     it('should support semantic versioning', () => {
       const versions = registry.getSchemaVersions('JobSubmitted');
-      versions.forEach(version => {
+      versions.forEach((version) => {
         expect(version).toMatch(/^\d+\.\d+\.\d+$/);
       });
     });
@@ -274,7 +300,13 @@ describe('Event Schema Validation', () => {
           old_status: { type: 'string' },
           new_status: { type: 'string' },
         },
-        required: ['event_id', 'timestamp', 'job_id', 'old_status', 'new_status'],
+        required: [
+          'event_id',
+          'timestamp',
+          'job_id',
+          'old_status',
+          'new_status',
+        ],
       };
 
       registry.registerSchema('JobStatusChanged', jobStatusSchemaV1);
@@ -301,7 +333,11 @@ describe('Event Schema Validation', () => {
 
   describe('Backward Compatibility', () => {
     it('should verify V2 is backward compatible with V1', () => {
-      const isCompatible = registry.isCompatible('JobSubmitted', '1.0.0', '2.0.0');
+      const isCompatible = registry.isCompatible(
+        'JobSubmitted',
+        '1.0.0',
+        '2.0.0',
+      );
       expect(isCompatible).toBe(true);
     });
 
@@ -319,7 +355,11 @@ describe('Event Schema Validation', () => {
       };
 
       registry.registerSchema('JobSubmitted', incompatibleSchema);
-      const isCompatible = registry.isCompatible('JobSubmitted', '1.0.0', '2.0.0-incompatible');
+      const isCompatible = registry.isCompatible(
+        'JobSubmitted',
+        '1.0.0',
+        '2.0.0-incompatible',
+      );
       expect(isCompatible).toBe(false);
     });
 
@@ -334,7 +374,7 @@ describe('Event Schema Validation', () => {
       };
 
       registry.registerSchema('JobSubmitted', schemaWithDefaults);
-      
+
       // V1 event should still work with V2.1
       const v1Event = {
         event_id: 'evt-001',
@@ -362,7 +402,7 @@ describe('Event Schema Validation', () => {
 
       registry.registerSchema('JobSubmitted', deprecatedFieldSchemaV3);
       const schema = registry.getSchema('JobSubmitted', '3.0.0');
-      
+
       // New schema still accepts events from older versions
       expect(schema?.version).toBe('3.0.0');
     });

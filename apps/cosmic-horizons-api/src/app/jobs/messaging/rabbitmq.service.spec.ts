@@ -10,7 +10,11 @@ jest.mock('@cosmic-horizons/event-models', () => {
   };
 });
 
-import { RabbitMQService, PublishOptions, ConsumeOptions } from './rabbitmq.service';
+import {
+  RabbitMQService,
+  PublishOptions,
+  ConsumeOptions,
+} from './rabbitmq.service';
 import * as EventModels from '@cosmic-horizons/event-models';
 
 describe('RabbitMQService', () => {
@@ -21,12 +25,12 @@ describe('RabbitMQService', () => {
     mockConfigService = {
       get: jest.fn((key: string, defaultValue?: any) => {
         const config: Record<string, any> = {
-          'RABBITMQ_URLS': 'amqp://rabbit1:5672,amqp://rabbit2:5672',
-          'RABBITMQ_RECONNECT_TIME': 5000,
-          'RABBITMQ_HEARTBEAT': 60,
-          'RABBITMQ_DURABLE_QUEUES': true,
-          'RABBITMQ_DURABLE_EXCHANGES': true,
-          'RABBITMQ_PREFETCH': 10,
+          RABBITMQ_URLS: 'amqp://rabbit1:5672,amqp://rabbit2:5672',
+          RABBITMQ_RECONNECT_TIME: 5000,
+          RABBITMQ_HEARTBEAT: 60,
+          RABBITMQ_DURABLE_QUEUES: true,
+          RABBITMQ_DURABLE_EXCHANGES: true,
+          RABBITMQ_PREFETCH: 10,
         };
         return config[key] ?? defaultValue;
       }),
@@ -77,12 +81,14 @@ describe('RabbitMQService', () => {
     });
 
     it('should parse broker URLs from config', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        if (key === 'RABBITMQ_URLS') {
-          return 'amqp://broker1,amqp://broker2,amqp://broker3';
-        }
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          if (key === 'RABBITMQ_URLS') {
+            return 'amqp://broker1,amqp://broker2,amqp://broker3';
+          }
+          return defaultValue;
+        },
+      );
 
       await service.connect();
 
@@ -90,10 +96,12 @@ describe('RabbitMQService', () => {
     });
 
     it('should use default URL if config missing', async () => {
-      mockConfigService.get.mockImplementation((key: string, defaultValue?: any) => {
-        // Always return the default value when RABBITMQ_URLS is not found
-        return defaultValue;
-      });
+      mockConfigService.get.mockImplementation(
+        (key: string, defaultValue?: any) => {
+          // Always return the default value when RABBITMQ_URLS is not found
+          return defaultValue;
+        },
+      );
 
       await service.connect();
 
@@ -120,7 +128,7 @@ describe('RabbitMQService', () => {
 
       expect(mockConfigService.get).toHaveBeenCalledWith(
         'RABBITMQ_HEARTBEAT',
-        60
+        60,
       );
     });
 
@@ -129,7 +137,7 @@ describe('RabbitMQService', () => {
 
       expect(mockConfigService.get).toHaveBeenCalledWith(
         'RABBITMQ_RECONNECT_TIME',
-        5000
+        5000,
       );
     });
   });
@@ -258,7 +266,9 @@ describe('RabbitMQService', () => {
         queue: 'jobs.queue',
       };
 
-      (EventModels.generateUUID as jest.Mock).mockReturnValue('generated-tag-123');
+      (EventModels.generateUUID as jest.Mock).mockReturnValue(
+        'generated-tag-123',
+      );
       const consumerTag = await service.consume(callback, options);
 
       expect(consumerTag).toContain('consumer-');
@@ -320,7 +330,7 @@ describe('RabbitMQService', () => {
 
       expect(mockConfigService.get).toHaveBeenCalledWith(
         'RABBITMQ_PREFETCH',
-        10
+        10,
       );
     });
   });
@@ -408,7 +418,7 @@ describe('RabbitMQService', () => {
       };
 
       await expect(
-        service.sendToDLQ(message, 'Max retries exceeded')
+        service.sendToDLQ(message, 'Max retries exceeded'),
       ).resolves.not.toThrow();
     });
 
@@ -422,7 +432,7 @@ describe('RabbitMQService', () => {
         };
 
         await expect(
-          service.sendToDLQ(message, 'Processing error')
+          service.sendToDLQ(message, 'Processing error'),
         ).resolves.not.toThrow();
       }
     });
@@ -478,7 +488,7 @@ describe('RabbitMQService', () => {
 
       const publishResult = await service.publish(
         { jobId: 'job-123' },
-        publishOptions
+        publishOptions,
       );
       expect(publishResult).toBe(true);
 

@@ -1,7 +1,15 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { EachMessagePayload } from 'kafkajs';
 import { KafkaService } from '../../events/kafka.service';
-import { SystemHealthMonitorService, HealthMetric } from '../services/system-health-monitor.service';
+import {
+  SystemHealthMonitorService,
+  HealthMetric,
+} from '../services/system-health-monitor.service';
 
 /**
  * SystemHealthConsumer subscribes to system health events
@@ -22,7 +30,9 @@ export class SystemHealthConsumer implements OnModuleInit, OnModuleDestroy {
       ['system-health'],
       this.handleHealthEvent.bind(this),
     );
-    this.logger.log('SystemHealthConsumer initialized and subscribed to system-health');
+    this.logger.log(
+      'SystemHealthConsumer initialized and subscribed to system-health',
+    );
   }
 
   async onModuleDestroy(): Promise<void> {

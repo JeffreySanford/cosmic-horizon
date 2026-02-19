@@ -8,7 +8,10 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { EnvironmentConfig, environment as devEnvironment } from './environment';
+import {
+  EnvironmentConfig,
+  environment as devEnvironment,
+} from './environment';
 import { environment as prodEnvironment } from './environment.prod';
 
 @Injectable()

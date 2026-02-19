@@ -23,7 +23,7 @@ export class MockApiInterceptor implements HttpInterceptor {
 
   intercept(
     req: HttpRequest<unknown>,
-    next: HttpHandler
+    next: HttpHandler,
   ): Observable<HttpEvent<unknown>> {
     // Mock job submission
     if (req.url.includes('/api/jobs/submit') && req.method === 'POST') {
@@ -34,7 +34,7 @@ export class MockApiInterceptor implements HttpInterceptor {
         new HttpResponse({
           status: 200,
           body: { jobId },
-        })
+        }),
       ).pipe(delay(500));
     }
 
@@ -47,7 +47,8 @@ export class MockApiInterceptor implements HttpInterceptor {
         'COMPLETED',
         'FAILED',
       ];
-      const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+      const randomStatus =
+        statuses[Math.floor(Math.random() * statuses.length)];
 
       return of(
         new HttpResponse({
@@ -61,7 +62,7 @@ export class MockApiInterceptor implements HttpInterceptor {
                 ? `https://tacc.utexas.edu/results/${jobId}`
                 : undefined,
           },
-        })
+        }),
       ).pipe(delay(300));
     }
 

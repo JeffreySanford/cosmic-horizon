@@ -30,6 +30,12 @@ import { EventReplayService } from './services/event-replay.service';
     MetricsConsumer,
     EventReplayService,
   ],
-  exports: [EventsService, RabbitMQService, KafkaService, MetricsService, EventReplayService],
+  exports: [
+    EventsService,
+    RabbitMQService,
+    KafkaService,
+    MetricsService,
+    EventReplayService,
+  ],
 })
 export class EventsModule {}

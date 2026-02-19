@@ -28,11 +28,13 @@ export class EphemerisController {
 
     const result = await this.ephemerisService.calculatePosition(
       target,
-      query.epoch || new Date().toISOString()
+      query.epoch || new Date().toISOString(),
     );
 
     if (!result) {
-      throw new NotFoundException(`Object "${target}" not found or calculation failed.`);
+      throw new NotFoundException(
+        `Object "${target}" not found or calculation failed.`,
+      );
     }
 
     return result;

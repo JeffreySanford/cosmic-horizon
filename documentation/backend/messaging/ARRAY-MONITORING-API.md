@@ -4,7 +4,7 @@
 
 ## Base URL
 
-``` text
+```text
 http://localhost:3000/api/messaging
 ```
 
@@ -12,7 +12,7 @@ http://localhost:3000/api/messaging
 
 All endpoints require JWT Bearer token authentication (except WebSocket events which inherit from initial connection).
 
-``` text
+```text
 Authorization: Bearer <jwt-token>
 ```
 
@@ -154,9 +154,9 @@ curl -H "Authorization: Bearer <token>" \
 
 **Path Parameters**:
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| siteId | string | Observatory site ID (e.g., "site-1") |
+| Parameter | Type   | Description                          |
+| --------- | ------ | ------------------------------------ |
+| siteId    | string | Observatory site ID (e.g., "site-1") |
 
 **Response** (200 OK):
 
@@ -173,17 +173,17 @@ curl -H "Authorization: Bearer <token>" \
     "windSpeed": 8.3,
     "dataRateMbps": 142.5,
     "lastUpdate": "2026-02-13T14:32:45.123Z"
-  },
+  }
   // ... 11 more elements for this site
 ]
 ```
 
 **Error Responses**:
 
-| Code | Error | Cause |
-|------|-------|-------|
-| 401 | Unauthorized | Missing or invalid JWT token |
-| 404 | Not Found | Invalid siteId |
+| Code | Error        | Cause                        |
+| ---- | ------------ | ---------------------------- |
+| 401  | Unauthorized | Missing or invalid JWT token |
+| 404  | Not Found    | Invalid siteId               |
 
 **Example cURL**:
 
@@ -205,15 +205,15 @@ curl -H "Authorization: Bearer <token>" \
 ```json
 {
   "at": "2026-02-13T14:32:46.000Z",
-  
+
   "packetsPerSecond": 598,
   "nodeToHubPerSecond": 598,
   "hubToHubPerSecond": 0,
-  
+
   "rabbitPublishedPerSecond": 598,
   "kafkaPublishedPerSecond": 598,
   "persistentWritesPerSecond": 42,
-  
+
   "totals": {
     "packets": 35882000,
     "nodeToHub": 35882000,
@@ -223,7 +223,7 @@ curl -H "Authorization: Bearer <token>" \
     "persistentWrites": 2395200,
     "errors": 124
   },
-  
+
   "infra": {
     "rabbitmq": {
       "connected": true,
@@ -253,22 +253,22 @@ curl -H "Authorization: Bearer <token>" \
 
 **Field Descriptions**:
 
-| Field | Type | Unit | Description |
-|-------|------|------|-------------|
-| at | string | ISO 8601 | Snapshot timestamp |
-| packetsPerSecond | number | pps | Current throughput |
-| nodeToHubPerSecond | number | pps | Element → Site telemetry rate |
-| hubToHubPerSecond | number | pps | Site → Hub routing rate |
-| rabbitPublishedPerSecond | number | pps | Messages published to RabbitMQ |
-| kafkaPublishedPerSecond | number | pps | Messages published to Kafka |
-| persistentWritesPerSecond | number | pps | Writes to PostgreSQL |
-| totals.* | number | count | Cumulative total since startup |
-| infra.rabbitmq.connected | boolean | - | RabbitMQ broker reachable |
-| infra.rabbitmq.latencyMs | number | ms | HTTP round-trip to Management API |
-| infra.rabbitmq.queueDepth | number | count | Messages in queue (backlog) |
-| infra.rabbitmq.consumers | number | count | Active consumers |
-| infra.kafka.latestOffset | number | count | Total messages in topic |
-| infra.kafka.partitions | number | count | Partition count |
+| Field                     | Type    | Unit     | Description                       |
+| ------------------------- | ------- | -------- | --------------------------------- |
+| at                        | string  | ISO 8601 | Snapshot timestamp                |
+| packetsPerSecond          | number  | pps      | Current throughput                |
+| nodeToHubPerSecond        | number  | pps      | Element → Site telemetry rate     |
+| hubToHubPerSecond         | number  | pps      | Site → Hub routing rate           |
+| rabbitPublishedPerSecond  | number  | pps      | Messages published to RabbitMQ    |
+| kafkaPublishedPerSecond   | number  | pps      | Messages published to Kafka       |
+| persistentWritesPerSecond | number  | pps      | Writes to PostgreSQL              |
+| totals.\*                 | number  | count    | Cumulative total since startup    |
+| infra.rabbitmq.connected  | boolean | -        | RabbitMQ broker reachable         |
+| infra.rabbitmq.latencyMs  | number  | ms       | HTTP round-trip to Management API |
+| infra.rabbitmq.queueDepth | number  | count    | Messages in queue (backlog)       |
+| infra.rabbitmq.consumers  | number  | count    | Active consumers                  |
+| infra.kafka.latestOffset  | number  | count    | Total messages in topic           |
+| infra.kafka.partitions    | number  | count    | Partition count                   |
 
 **Polling Interval**: Call every 500ms-1s for smooth UI animations
 
@@ -451,11 +451,16 @@ socket.on('disconnect', (reason) => {
 // hooks/useMessagingStats.ts
 import { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
-import type { MessagingLiveStats, TelemetryPacket } from '@cosmic-horizons/shared-models';
+import type {
+  MessagingLiveStats,
+  TelemetryPacket,
+} from '@cosmic-horizons/shared-models';
 
 export function useMessagingStats() {
   const [stats, setStats] = useState<MessagingLiveStats | null>(null);
-  const [latestPacket, setLatestPacket] = useState<TelemetryPacket | null>(null);
+  const [latestPacket, setLatestPacket] = useState<TelemetryPacket | null>(
+    null,
+  );
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
@@ -517,20 +522,20 @@ export function ArrayMonitoringDashboard() {
 
       {/* Performance Gauges */}
       <div className="metrics-panel">
-        <Gauge 
-          label="Throughput" 
-          value={stats.packetsPerSecond} 
+        <Gauge
+          label="Throughput"
+          value={stats.packetsPerSecond}
           unit="pps"
           max={1000}
         />
-        <Gauge 
-          label="RabbitMQ Queue Depth" 
-          value={stats.infra.rabbitmq.queueDepth} 
+        <Gauge
+          label="RabbitMQ Queue Depth"
+          value={stats.infra.rabbitmq.queueDepth}
           unit="msgs"
         />
-        <Gauge 
-          label="Kafka Offsets" 
-          value={stats.infra.kafka.latestOffset} 
+        <Gauge
+          label="Kafka Offsets"
+          value={stats.infra.kafka.latestOffset}
           unit="msgs"
         />
       </div>
@@ -601,12 +606,12 @@ socket.on('error', (error) => {
 
 ## Performance & Scalability
 
-| Scenario | Throughput | Latency | Notes |
-|----------|-----------|---------|-------|
-| Single client | 600 pps | <50ms | Development |
-| 10 clients | 600 pps | <100ms | Dashboard + API consumers |
-| 100 clients | 600 pps | <200ms | Broadcast bottleneck |
-| 1000 clients | 600 pps | 500ms+ | Requires Socket.IO clusters |
+| Scenario      | Throughput | Latency | Notes                       |
+| ------------- | ---------- | ------- | --------------------------- |
+| Single client | 600 pps    | <50ms   | Development                 |
+| 10 clients    | 600 pps    | <100ms  | Dashboard + API consumers   |
+| 100 clients   | 600 pps    | <200ms  | Broadcast bottleneck        |
+| 1000 clients  | 600 pps    | 500ms+  | Requires Socket.IO clusters |
 
 ## References
 

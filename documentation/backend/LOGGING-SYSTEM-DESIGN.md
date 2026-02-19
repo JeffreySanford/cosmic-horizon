@@ -47,7 +47,7 @@ Comprehensive request/event logging system with:
 
 ## System Architecture
 
-```text
+````text
 ┌─────────────────────────────────────────────────────────────────┐
 │                     FRONTEND (Angular)                          │
 ├─────────────────────────────────────────────────────────────────┤
@@ -1857,3 +1857,4 @@ LOG_SENSITIVE_FIELDS=password,token,authorization,secret
 ---
 
 *Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+````

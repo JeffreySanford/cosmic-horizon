@@ -10,25 +10,25 @@ RabbitMQ serves as the **management plane** for the Cosmic Horizons messaging sy
 
 **Purpose**: Management-plane routing of telemetry packets for orchestration and state tracking.
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
-| Message TTL | 30 minutes | Expiring grace period for slow consumers |
-| Queue Type | Classic | Standard FIFO for reliability |
-| Durability | Non-durable (dev) | Faster throughput; data in Kafka anyway |
-| Auto-Delete | false | Survives consumer restarts |
-| Max Length | 1,000,000 | Backpressure protection |
+| Property    | Value             | Rationale                                |
+| ----------- | ----------------- | ---------------------------------------- |
+| Message TTL | 30 minutes        | Expiring grace period for slow consumers |
+| Queue Type  | Classic           | Standard FIFO for reliability            |
+| Durability  | Non-durable (dev) | Faster throughput; data in Kafka anyway  |
+| Auto-Delete | false             | Survives consumer restarts               |
+| Max Length  | 1,000,000         | Backpressure protection                  |
 
 ### Payload Schema
 
 ```typescript
 // Emitted by MessagingIntegrationService
 interface RabbitMQPayload {
-  sourceId: string;                           // element-{site}-{n}
-  targetId: string;                           // site-{n} (hub)
-  routeType: 'node_to_hub' | 'hub_to_hub';   // Routing classification
-  elementId: string;                          // Physical element ID
-  siteId: string;                             // Observatory site
-  timestamp: string;                          // ISO 8601
+  sourceId: string; // element-{site}-{n}
+  targetId: string; // site-{n} (hub)
+  routeType: 'node_to_hub' | 'hub_to_hub'; // Routing classification
+  elementId: string; // Physical element ID
+  siteId: string; // Observatory site
+  timestamp: string; // ISO 8601
   metrics: {
     vibration: number;
     powerUsage: number;
@@ -62,8 +62,8 @@ services:
       RABBITMQ_DEFAULT_VHOST: /
       RABBITMQ_ERLANG_COOKIE: cosmic-horizons-secret
     ports:
-      - "5672:5672"    # AMQP port
-      - "15672:15672"  # Management UI
+      - '5672:5672' # AMQP port
+      - '15672:15672' # Management UI
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
@@ -198,7 +198,7 @@ auth:
 persistence:
   enabled: true
   size: 100Gi
-  storageClassName: "fast-ssd"
+  storageClassName: 'fast-ssd'
 
 # Resource Requests
 resources:
@@ -231,14 +231,14 @@ networkPolicy:
   enabled: true
   ingress:
     - from:
-      - namespaceSelector:
-          matchLabels:
-            name: data-plane
+        - namespaceSelector:
+            matchLabels:
+              name: data-plane
       ports:
-      - protocol: TCP
-        port: 5672
-      - protocol: TCP
-        port: 15672
+        - protocol: TCP
+          port: 5672
+        - protocol: TCP
+          port: 15672
 ```
 
 #### High-Availability Configuration
@@ -251,49 +251,49 @@ metadata:
   name: rabbitmq
   namespace: management-plane
 spec:
-  serviceName: rabbitmq  # Headless service for DNS-based discovery
-  podManagementPolicy: "Parallel"
-  
+  serviceName: rabbitmq # Headless service for DNS-based discovery
+  podManagementPolicy: 'Parallel'
+
   template:
     spec:
       # Affinity: Spread replicas across nodes
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                - rabbitmq
-            topologyKey: kubernetes.io/hostname
-      
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - rabbitmq
+              topologyKey: kubernetes.io/hostname
+
       containers:
-      - name: rabbitmq
-        env:
-        # Cluster formation
-        - name: RABBITMQ_CLUSTER_FORMATION_BACKEND
-          value: "rabbit_peer_discovery_classic_config"
-        - name: RABBITMQ_CLUSTER_FORMATION_CLASSIC_CONFIG_NODES
-          value: "3"
-        # HA Mirroring
-        - name: RABBITMQ_QUEUE_MASTER_LOCATOR
-          value: "min-masters"
-        # Performance tuning
-        - name: RABBITMQ_CHANNEL_MAX
-          value: "2048"
-        - name: RABBITMQ_HEARTBEAT
-          value: "60"
-        - name: RABBITMQ_FRAME_MAX
-          value: "131072"  # 128 KB
-        
-        resources:
-          requests:
-            cpu: 2000m
-            memory: 4Gi
-          limits:
-            cpu: 4000m
-            memory: 8Gi
+        - name: rabbitmq
+          env:
+            # Cluster formation
+            - name: RABBITMQ_CLUSTER_FORMATION_BACKEND
+              value: 'rabbit_peer_discovery_classic_config'
+            - name: RABBITMQ_CLUSTER_FORMATION_CLASSIC_CONFIG_NODES
+              value: '3'
+            # HA Mirroring
+            - name: RABBITMQ_QUEUE_MASTER_LOCATOR
+              value: 'min-masters'
+            # Performance tuning
+            - name: RABBITMQ_CHANNEL_MAX
+              value: '2048'
+            - name: RABBITMQ_HEARTBEAT
+              value: '60'
+            - name: RABBITMQ_FRAME_MAX
+              value: '131072' # 128 KB
+
+          resources:
+            requests:
+              cpu: 2000m
+              memory: 4Gi
+            limits:
+              cpu: 4000m
+              memory: 8Gi
 ```
 
 #### Queue Definition (Declarative)
@@ -301,41 +301,41 @@ spec:
 ```yaml
 # rabbitmq-definitions.json
 {
-  "vhosts": [
-    {
-      "name": "/"
-    }
-  ],
-  "users": [
-    {
-      "name": "cosmic",
-      "password": "<hashed-password>",
-      "tags": ["administrator"]
-    }
-  ],
-  "permissions": [
-    {
-      "user": "cosmic",
-      "vhost": "/",
-      "configure": ".*",
-      "write": ".*",
-      "read": ".*"
-    }
-  ],
-  "exchanges": [],
-  "queues": [
-    {
-      "name": "element_telemetry_queue",
-      "vhost": "/",
-      "durable": true,
-      "auto_delete": false,
-      "arguments": {
-        "x-max-length": 1000000,
-        "x-message-ttl": 1800000,
-        "x-queue-type": "classic"
-      }
-    }
-  ]
+  'vhosts': [{ 'name': '/' }],
+  'users':
+    [
+      {
+        'name': 'cosmic',
+        'password': '<hashed-password>',
+        'tags': ['administrator'],
+      },
+    ],
+  'permissions':
+    [
+      {
+        'user': 'cosmic',
+        'vhost': '/',
+        'configure': '.*',
+        'write': '.*',
+        'read': '.*',
+      },
+    ],
+  'exchanges': [],
+  'queues':
+    [
+      {
+        'name': 'element_telemetry_queue',
+        'vhost': '/',
+        'durable': true,
+        'auto_delete': false,
+        'arguments':
+          {
+            'x-max-length': 1000000,
+            'x-message-ttl': 1800000,
+            'x-queue-type': 'classic',
+          },
+      },
+    ],
 }
 ```
 
@@ -507,14 +507,14 @@ docker-compose exec rabbitmq rabbitmqctl set_policy -p / max-length \
 
 ## Performance Tuning
 
-| Parameter | Dev Default | Prod Recommended | Purpose |
-|-----------|-------------|------------------|---------|
-| channel_max | 2048 | 4096+ | Concurrent channels per connection |
-| frame_max | 131072 (128 KB) | 262144 (256 KB) | Max frame size for large messages |
-| heartbeat | 60s | 30s | Connection keep-alive interval |
-| num_acceptors | 10 | 32-64 | Network listener threads |
-| background_gc_target_interval | 30s | 60s | GC frequency (higher = less CPU) |
-| max-length | - | 1M+ | Queue backpressure limit |
+| Parameter                     | Dev Default     | Prod Recommended | Purpose                            |
+| ----------------------------- | --------------- | ---------------- | ---------------------------------- |
+| channel_max                   | 2048            | 4096+            | Concurrent channels per connection |
+| frame_max                     | 131072 (128 KB) | 262144 (256 KB)  | Max frame size for large messages  |
+| heartbeat                     | 60s             | 30s              | Connection keep-alive interval     |
+| num_acceptors                 | 10              | 32-64            | Network listener threads           |
+| background_gc_target_interval | 30s             | 60s              | GC frequency (higher = less CPU)   |
+| max-length                    | -               | 1M+              | Queue backpressure limit           |
 
 ## References
 

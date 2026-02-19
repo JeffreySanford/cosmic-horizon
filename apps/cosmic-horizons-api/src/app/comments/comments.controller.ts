@@ -30,7 +30,10 @@ export class CommentsController {
 
   @Post()
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
-  createComment(@Request() req: AuthenticatedRequest, @Body() dto: CreateCommentDto) {
+  createComment(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: CreateCommentDto,
+  ) {
     return this.commentsService.createComment(req.user.id, dto);
   }
 
@@ -39,7 +42,7 @@ export class CommentsController {
   updateComment(
     @Request() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() dto: UpdateCommentDto
+    @Body() dto: UpdateCommentDto,
   ) {
     return this.commentsService.updateComment(id, req.user.id, dto);
   }
@@ -47,7 +50,10 @@ export class CommentsController {
   @Delete(':id')
   @UseGuards(AuthenticatedGuard, RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteComment(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
+  async deleteComment(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
     await this.commentsService.deleteComment(id, req.user.id);
   }
 
@@ -56,7 +62,7 @@ export class CommentsController {
   reportComment(
     @Request() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() dto: ReportCommentDto
+    @Body() dto: ReportCommentDto,
   ) {
     return this.commentsService.reportComment(id, req.user.id, dto);
   }
@@ -87,7 +93,7 @@ export class CommentsController {
   resolveReport(
     @Request() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() body: { status: 'reviewed' | 'dismissed' }
+    @Body() body: { status: 'reviewed' | 'dismissed' },
   ) {
     if (req.user.role !== 'admin' && req.user.role !== 'moderator') {
       throw new ForbiddenException('Admin access required');

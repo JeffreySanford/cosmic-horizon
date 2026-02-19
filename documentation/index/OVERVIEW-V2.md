@@ -246,6 +246,6 @@ Required CI signals:
 
 ---
 
-*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*
+_Independent portal using public VLASS data; not affiliated with VLA/NRAO._
 
-*Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved._

@@ -56,16 +56,16 @@ Developer notes / PR checklist
 
 Remaining work (suggested)
 
-- Moderation + auth gating for production posting (feature flag).  
-- Frontend acceptance tests for toast UX (Playwright).  
-- Admin moderation UI (hide/remove posts, reporting).  
+- Moderation + auth gating for production posting (feature flag).
+- Frontend acceptance tests for toast UX (Playwright).
+- Admin moderation UI (hide/remove posts, reporting).
 
 Reference files
 
-- API: `apps/cosmic-horizons-api/src/app/modules/community/*`  
-- Entity: `apps/cosmic-horizons-api/src/app/entities/discovery.entity.ts`  
-- Migration: `apps/cosmic-horizons-api/src/migrations/20260217CreateDiscoveriesTable.ts`  
-- E2E: `apps/cosmic-horizons-api-e2e/src/community.e2e-spec.ts`  
+- API: `apps/cosmic-horizons-api/src/app/modules/community/*`
+- Entity: `apps/cosmic-horizons-api/src/app/entities/discovery.entity.ts`
+- Migration: `apps/cosmic-horizons-api/src/migrations/20260217CreateDiscoveriesTable.ts`
+- E2E: `apps/cosmic-horizons-api-e2e/src/community.e2e-spec.ts`
 
 Changelog note (v1.1 candidate)
 

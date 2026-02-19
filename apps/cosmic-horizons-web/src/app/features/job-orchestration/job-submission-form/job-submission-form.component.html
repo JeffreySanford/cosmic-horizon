@@ -5,12 +5,16 @@
     <p class="subtitle">Launch autonomous agent reprocessing workflows</p>
   </div>
 
-  <form [formGroup]="submissionForm" (ngSubmit)="onSubmit()" class="submission-form">
+  <form
+    [formGroup]="submissionForm"
+    (ngSubmit)="onSubmit()"
+    class="submission-form"
+  >
     <!-- Agent Selection -->
     <div class="form-section">
       <label class="form-label">Select Agent</label>
       <mat-select formControlName="agentId" class="agent-select">
-        <mat-option *ngFor="let agent of (agents$ | async)" [value]="agent.id">
+        <mat-option *ngFor="let agent of agents$ | async" [value]="agent.id">
           <div class="agent-option">
             <div class="agent-name">{{ agent.name }}</div>
             <div class="agent-description">{{ agent.description }}</div>
@@ -45,7 +49,9 @@
             placeholder="1-128"
             formControlName="cpuCores"
           />
-          <div class="resource-value">{{ submissionForm.get('cpuCores')?.value }} cores</div>
+          <div class="resource-value">
+            {{ submissionForm.get('cpuCores')?.value }} cores
+          </div>
         </div>
 
         <div class="resource-input">
@@ -59,7 +65,9 @@
             placeholder="8-512"
             formControlName="memoryGb"
           />
-          <div class="resource-value">{{ submissionForm.get('memoryGb')?.value }} GB</div>
+          <div class="resource-value">
+            {{ submissionForm.get('memoryGb')?.value }} GB
+          </div>
         </div>
 
         <div class="resource-input">
@@ -72,7 +80,9 @@
             placeholder="0-8"
             formControlName="gpuCount"
           />
-          <div class="resource-value">{{ submissionForm.get('gpuCount')?.value }}</div>
+          <div class="resource-value">
+            {{ submissionForm.get('gpuCount')?.value }}
+          </div>
         </div>
       </div>
     </div>
@@ -94,9 +104,22 @@
     <div class="form-section">
       <label class="form-label">Agent Parameters (Optional)</label>
       <div class="parameters-list">
-        <div *ngFor="let param of parameterFields; let i = index" class="parameter-input">
-          <input type="text" placeholder="Key" [(ngModel)]="param.key" [ngModelOptions]="{standalone: true}" />
-          <input type="text" placeholder="Value" [(ngModel)]="param.value" [ngModelOptions]="{standalone: true}" />
+        <div
+          *ngFor="let param of parameterFields; let i = index"
+          class="parameter-input"
+        >
+          <input
+            type="text"
+            placeholder="Key"
+            [(ngModel)]="param.key"
+            [ngModelOptions]="{ standalone: true }"
+          />
+          <input
+            type="text"
+            placeholder="Value"
+            [(ngModel)]="param.value"
+            [ngModelOptions]="{ standalone: true }"
+          />
           <button type="button" (click)="removeParameter(i)" class="remove-btn">
             <mat-icon>close</mat-icon>
           </button>

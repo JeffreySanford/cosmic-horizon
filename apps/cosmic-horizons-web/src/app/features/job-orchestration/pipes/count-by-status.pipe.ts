@@ -8,6 +8,6 @@ import { Job, JobStatus } from '../job.models';
 export class CountByStatusPipe implements PipeTransform {
   transform(jobs: Job[], status: JobStatus): number {
     if (!jobs) return 0;
-    return jobs.filter(job => job.status === status).length;
+    return jobs.filter((job) => job.status === status).length;
   }
 }

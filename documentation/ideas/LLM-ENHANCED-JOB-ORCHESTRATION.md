@@ -78,16 +78,16 @@ By using local Ollama models (even small models like Mistral 7B), we can:
    - In-memory job store (Map<jobId, Job>)
    - Job state machine (QUEUED → RUNNING → COMPLETED/FAILED)
    - Timer-based status progression
-   
+
 2. Modify JobOrchestratorService.submitJob()
    - Accept job submission parameters
    - Create Job entity in database
    - Emit job.submitted event to EventsService
-   
+
 3. Update JobOrchestratorService.pollStatus()
    - Query real job from database
    - Return current state with progress
-   
+
 4. Update web app to hit real API
    - Remove mock interceptor OR keep it as fallback
    - Point form submission to http://localhost:3333/api/jobs/submit
@@ -131,14 +131,14 @@ export class OllamaService {
       Is this configuration reasonable for modern radio astronomy?
       Respond with JSON: { isValid: boolean, feedback: string, confidence: 0-100 }
     `;
-    
+
     const response = await this.queryOllama(prompt);
     return JSON.parse(response);
   }
 
-  async estimateJobDuration(params: JobParams): Promise<{ 
-    estimatedMinutes: number; 
-    reasoning: string 
+  async estimateJobDuration(params: JobParams): Promise<{
+    estimatedMinutes: number;
+    reasoning: string;
   }> {
     const prompt = `
       Estimate processing time for:
@@ -149,7 +149,7 @@ export class OllamaService {
       
       Return JSON: { estimatedMinutes: number, reasoning: string }
     `;
-    
+
     const response = await this.queryOllama(prompt);
     return JSON.parse(response);
   }
@@ -158,12 +158,12 @@ export class OllamaService {
     const response = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',
       body: JSON.stringify({
-        model: 'mistral',  // or neural-chat, dolphin-mixtral, etc.
+        model: 'mistral', // or neural-chat, dolphin-mixtral, etc.
         prompt,
         stream: false,
       }),
     });
-    
+
     const data = await response.json();
     return data.response;
   }
@@ -176,7 +176,7 @@ export class OllamaService {
 export class JobOrchestratorService {
   constructor(
     private readonly taccService: TaccIntegrationService,
-    private readonly ollamaService: OllamaService,  // NEW
+    private readonly ollamaService: OllamaService, // NEW
     private readonly eventsService: EventsService,
     private readonly jobsRepository: Repository<Job>,
   ) {}
@@ -191,7 +191,9 @@ export class JobOrchestratorService {
     });
 
     if (!validation.isValid) {
-      throw new BadRequestException(`Job validation failed: ${validation.feedback}`);
+      throw new BadRequestException(
+        `Job validation failed: ${validation.feedback}`,
+      );
     }
 
     // NEW: Estimate duration
@@ -215,7 +217,7 @@ export class JobOrchestratorService {
     });
 
     await this.jobsRepository.save(job);
-    
+
     // Emit event for audit trail
     await this.eventsService.publish('job.submitted', {
       jobId: job.id,
@@ -263,7 +265,7 @@ export class AlphaCalAgentService {
       - RFI Strategy Setting: ${job.rfiStrategy}
       - Dataset: ${job.datasetId} (VLASS 2.1)
       - GPU Count: ${job.gpuCount}
-      
+
       Return JSON with:
       - rfiMitigationStrategy (description)
       - polynomialOrder (3-7)
@@ -304,7 +306,7 @@ export class ImageReconstructionAgentService {
       - Dataset size: ~500GB (VLASS standard)
       - GPU Count: ${job.gpuCount}
       - Time Budget: ${job.estimatedDurationMinutes} minutes
-      
+
       Return JSON with:
       - algorithm ('CLEAN', 'MS-CLEAN', 'WF-CLEAN', 'NNLS-CLEAN')
       - iterations (100-10000)
@@ -346,9 +348,9 @@ export class AnomalyDetectionAgentService {
       - Dynamic Range: 12000
       - Source Count: 1280
       - Beam Size: 1.5 arcsec
-      
+
       Identify potential astronomical anomalies and artifacts.
-      
+
       Return JSON with:
       - anomalies: [{ type, location, severity ('low'|'medium'|'high'), description }]
       - summary: overall quality assessment
@@ -433,7 +435,8 @@ export class JobExecutionEngine {
         estimatedDurationMinutes: 45,
       });
 
-      const imageReconResult = await this.imageReconAgent.executeReconstruction(job);
+      const imageReconResult =
+        await this.imageReconAgent.executeReconstruction(job);
       job.stageProgress = 100;
       job.imageReconOutput = imageReconResult.output;
       job.imageReconDecisions = imageReconResult.decisions;
@@ -478,11 +481,10 @@ export class JobExecutionEngine {
       await this.eventsService.publish('job.completed', {
         jobId,
         totalDurationMinutes: Math.round(
-          (job.completedAt.getTime() - job.submittedAt.getTime()) / 60000
+          (job.completedAt.getTime() - job.submittedAt.getTime()) / 60000,
         ),
         resultUrl: job.outputUrl,
       });
-
     } catch (error) {
       job.status = 'FAILED';
       job.failureReason = error.message;
@@ -564,15 +566,15 @@ If Both fail:
 
 ## Benefits vs. Pure Mocking
 
-| Aspect | Pure Mock | LLM-Enhanced |
-|--------|----------|--------------|
-| **Validation** | None, accepts anything | LLM validates parameters |
-| **Parameter Feedback** | Generic "OK" | Specific suggestions ("try high sensitivity RFI strategy") |
-| **Timing** | Random progress | LLM-estimated duration |
-| **Results** | Fake data | Realistic anomaly descriptions, agent decisions |
-| **Extensibility** | Dead-end | Can swap Ollama for real CosmicAI API |
-| **Testing** | Brittle (tests check fixed responses) | Robust (tests check structure, not content) |
-| **Domain Knowledge** | None | LLM brings astronomy context |
+| Aspect                 | Pure Mock                             | LLM-Enhanced                                               |
+| ---------------------- | ------------------------------------- | ---------------------------------------------------------- |
+| **Validation**         | None, accepts anything                | LLM validates parameters                                   |
+| **Parameter Feedback** | Generic "OK"                          | Specific suggestions ("try high sensitivity RFI strategy") |
+| **Timing**             | Random progress                       | LLM-estimated duration                                     |
+| **Results**            | Fake data                             | Realistic anomaly descriptions, agent decisions            |
+| **Extensibility**      | Dead-end                              | Can swap Ollama for real CosmicAI API                      |
+| **Testing**            | Brittle (tests check fixed responses) | Robust (tests check structure, not content)                |
+| **Domain Knowledge**   | None                                  | LLM brings astronomy context                               |
 
 ---
 
@@ -635,13 +637,13 @@ If Both fail:
 
 ## Success Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| **Job submission latency** | <2s (with LLM validation) | Timer in API |
-| **Stage execution time** | 5-10s per stage | Job.currentStage timestamps |
-| **LLM response quality** | >80% valid JSON | Parse success rate in tests |
-| **UI responsiveness** | Real-time updates without polling | WebSocket event delivery |
-| **Error recovery** | 100% graceful fallback | All exception paths tested |
+| Metric                     | Target                            | Measurement                 |
+| -------------------------- | --------------------------------- | --------------------------- |
+| **Job submission latency** | <2s (with LLM validation)         | Timer in API                |
+| **Stage execution time**   | 5-10s per stage                   | Job.currentStage timestamps |
+| **LLM response quality**   | >80% valid JSON                   | Parse success rate in tests |
+| **UI responsiveness**      | Real-time updates without polling | WebSocket event delivery    |
+| **Error recovery**         | 100% graceful fallback            | All exception paths tested  |
 
 ---
 

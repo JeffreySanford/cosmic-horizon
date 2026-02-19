@@ -2,11 +2,11 @@ import { ConfigService } from '@nestjs/config';
 
 /**
  * Priority 6.4: Aladin Integration Tests
- * 
+ *
  * Tests integration with Aladin Lite for astronomical sky visualization and
  * data exploration. Supports visualization of survey data, coordinate lookups,
  * catalog overlays, and interactive sky browsing.
- * 
+ *
  * Test Coverage: 30 tests
  * - Aladin Connection (5 tests)
  * - Sky Visualization (8 tests)
@@ -43,14 +43,23 @@ class AladinService {
     return instanceId;
   }
 
-  async setView(instanceId: string, ra: number, dec: number, fov: number): Promise<void> {
+  async setView(
+    instanceId: string,
+    ra: number,
+    dec: number,
+    fov: number,
+  ): Promise<void> {
     const instance = this.instances.get(instanceId);
     if (instance) {
       instance.viewState = { ra, dec, fov };
     }
   }
 
-  async addCatalog(instanceId: string, catalogUrl: string, catalogName: string): Promise<void> {
+  async addCatalog(
+    instanceId: string,
+    catalogUrl: string,
+    catalogName: string,
+  ): Promise<void> {
     if (!this.catalogs.has(instanceId)) {
       this.catalogs.set(instanceId, []);
     }
@@ -67,12 +76,16 @@ class AladinService {
     if (catalogs) {
       this.catalogs.set(
         instanceId,
-        catalogs.filter((c) => c.name !== catalogName)
+        catalogs.filter((c) => c.name !== catalogName),
       );
     }
   }
 
-  async addOverlay(instanceId: string, overlayData: any, overlayName: string): Promise<void> {
+  async addOverlay(
+    instanceId: string,
+    overlayData: any,
+    overlayName: string,
+  ): Promise<void> {
     if (!this.overlays.has(instanceId)) {
       this.overlays.set(instanceId, new Set());
     }
@@ -91,7 +104,11 @@ class AladinService {
     return this.instances.get(instanceId)?.viewState;
   }
 
-  async convertCoordinates(ra: number, dec: number, system: string): Promise<any> {
+  async convertCoordinates(
+    ra: number,
+    dec: number,
+    system: string,
+  ): Promise<any> {
     return {
       ra,
       dec,
@@ -101,7 +118,11 @@ class AladinService {
     };
   }
 
-  async performCoordinateLookup(ra: number, dec: number, radius: number): Promise<any> {
+  async performCoordinateLookup(
+    ra: number,
+    dec: number,
+    radius: number,
+  ): Promise<any> {
     return {
       ra,
       dec,
@@ -132,8 +153,8 @@ class AladinService {
 
   getMetrics(): any {
     let totalCatalogs = 0;
-    this.catalogs.forEach((cats) => totalCatalogs += cats.length);
-    
+    this.catalogs.forEach((cats) => (totalCatalogs += cats.length));
+
     return {
       instances: this.instances.size,
       catalogs: totalCatalogs,
@@ -173,7 +194,8 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
 
   describe('Aladin Connection and Initialization', () => {
     it('should initialize Aladin instance', async () => {
-      const instanceId = await aladinService.initializeAladin('aladin-container');
+      const instanceId =
+        await aladinService.initializeAladin('aladin-container');
       expect(instanceId).toBeDefined();
       expect(instanceId).toContain('aladin-');
     });
@@ -185,7 +207,10 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
         showControlPanel: true,
       };
 
-      const instanceId = await aladinService.initializeAladin('aladin-container', config);
+      const instanceId = await aladinService.initializeAladin(
+        'aladin-container',
+        config,
+      );
       const metadata = await aladinService.getInstanceMetadata(instanceId);
 
       expect(metadata.config).toEqual(config);
@@ -243,7 +268,10 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
     });
 
     it('should display Planck survey', async () => {
-      await aladinService.displaySurveyImage(instanceId, 'P/Planck/HFI/545-color');
+      await aladinService.displaySurveyImage(
+        instanceId,
+        'P/Planck/HFI/545-color',
+      );
       const metadata = await aladinService.getInstanceMetadata(instanceId);
 
       expect(metadata.currentSurvey).toBe('P/Planck/HFI/545-color');
@@ -298,7 +326,7 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
       await aladinService.addCatalog(
         instanceId,
         'http://gaia.u-strasbg.fr/catalogServer',
-        'Gaia DR3'
+        'Gaia DR3',
       );
 
       expect(aladinService.getMetrics().catalogs).toBeGreaterThan(0);
@@ -308,7 +336,7 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
       await aladinService.addCatalog(
         instanceId,
         'http://example.com/catalog.vot',
-        'Custom Sources'
+        'Custom Sources',
       );
 
       expect(aladinService.getMetrics().catalogs).toBeGreaterThan(0);
@@ -318,7 +346,7 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
       await aladinService.addCatalog(
         instanceId,
         'http://sdss.org/catalogServer',
-        'SDSS Spectra'
+        'SDSS Spectra',
       );
     });
 
@@ -326,7 +354,7 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
       await aladinService.addCatalog(
         instanceId,
         'http://ngvla-expected-sources',
-        'ngVLA Sources'
+        'ngVLA Sources',
       );
     });
 
@@ -334,7 +362,7 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
       await aladinService.addCatalog(
         instanceId,
         'http://example.com/catalog1.vot',
-        'Catalog 1'
+        'Catalog 1',
       );
 
       await aladinService.removeCatalog(instanceId, 'Catalog 1');
@@ -381,7 +409,11 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
       const ra = 83.6329; // Crab Nebula
       const dec = 22.0145;
 
-      const galactic = await aladinService.convertCoordinates(ra, dec, 'GALACTIC');
+      const galactic = await aladinService.convertCoordinates(
+        ra,
+        dec,
+        'GALACTIC',
+      );
 
       expect(galactic.system).toBe('GALACTIC');
       expect(galactic.galacticL).toBeDefined();
@@ -392,13 +424,21 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
       const ra = 0;
       const dec = 0;
 
-      const ecliptic = await aladinService.convertCoordinates(ra, dec, 'ECLIPTIC');
+      const ecliptic = await aladinService.convertCoordinates(
+        ra,
+        dec,
+        'ECLIPTIC',
+      );
 
       expect(ecliptic.system).toBe('ECLIPTIC');
     });
 
     it('should perform coordinate lookup in radius', async () => {
-      const dataCount = await aladinService.performCoordinateLookup(83.6329, 22.0145, 0.5);
+      const dataCount = await aladinService.performCoordinateLookup(
+        83.6329,
+        22.0145,
+        0.5,
+      );
 
       expect(dataCount.radius).toBe(0.5);
       expect(dataCount.objectsFound).toBeGreaterThanOrEqual(0);
@@ -427,14 +467,20 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
     });
 
     it('should export visible sky as image', async () => {
-      const exportData = await aladinService.exportVisibleSky(instanceId, 'PNG');
+      const exportData = await aladinService.exportVisibleSky(
+        instanceId,
+        'PNG',
+      );
 
       expect(exportData.format).toBe('PNG');
       expect(exportData.instanceId).toBe(instanceId);
     });
 
     it('should export visible sky as FITS', async () => {
-      const exportData = await aladinService.exportVisibleSky(instanceId, 'FITS');
+      const exportData = await aladinService.exportVisibleSky(
+        instanceId,
+        'FITS',
+      );
 
       expect(exportData.format).toBe('FITS');
     });
@@ -445,7 +491,10 @@ describe('Priority 6.4: Aladin Integration Tests', () => {
     });
 
     it('should export catalog sources as CSV', async () => {
-      const exportData = await aladinService.exportVisibleSky(instanceId, 'CSV');
+      const exportData = await aladinService.exportVisibleSky(
+        instanceId,
+        'CSV',
+      );
 
       expect(exportData.format).toBe('CSV');
     });

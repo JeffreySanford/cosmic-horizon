@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, timer } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { BrokerComparisonDTO, BrokerHistoryDTO, BenchmarkResult } from '../models/broker-metrics.model';
+import {
+  BrokerComparisonDTO,
+  BrokerHistoryDTO,
+  BenchmarkResult,
+} from '../models/broker-metrics.model';
 
 /**
  * Mock Broker Data Service
- * 
+ *
  * Provides demo broker metrics when the backend is unavailable.
  * Simulates realistic delays and metrics for dashboard development/testing.
  */
@@ -46,9 +50,13 @@ export class BrokerDataMockService {
       },
     }));
 
-    return of({ timeRange: { start: new Date(Date.now() - hours * 3600000), end: new Date() }, samples }).pipe(
-      delay(this.SIMULATION_DELAY_MS)
-    );
+    return of({
+      timeRange: {
+        start: new Date(Date.now() - hours * 3600000),
+        end: new Date(),
+      },
+      samples,
+    }).pipe(delay(this.SIMULATION_DELAY_MS));
   }
 
   /**
@@ -62,7 +70,7 @@ export class BrokerDataMockService {
         duration: '5.2s',
         results: this.generateMetrics(),
         reportUrl: '/operations/broker-comparison/report/' + Date.now(),
-      }))
+      })),
     );
   }
 

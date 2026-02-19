@@ -27,7 +27,7 @@ export default defineConfig({
       '@angular/platform-browser',
       '@angular/animations',
       '@angular/material',
-      '@angular/cdk'
+      '@angular/cdk',
     ],
   },
   server: {

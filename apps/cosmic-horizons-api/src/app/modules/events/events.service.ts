@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { generateCorrelationId } from '@cosmic-horizons/event-models';
 import { EventBase } from '@cosmic-horizons/event-models';
 import { RabbitMQService } from './rabbitmq.service';
@@ -24,7 +29,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly rabbitmqService: RabbitMQService,
-    private readonly kafkaService: KafkaService
+    private readonly kafkaService: KafkaService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -32,10 +37,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.rabbitmqService.connect();
       this.logger.log('RabbitMQ connected');
-      
+
       await this.kafkaService.connect();
       this.logger.log('Kafka connected');
-      
+
       this.isReady = true;
       this.logger.log('EventsService ready');
     } catch (error) {
@@ -75,7 +80,9 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       throw new Error('EventsService not ready');
     }
 
-    this.logger.debug(`Publishing job event: ${event.event_type} (${event.event_id})`);
+    this.logger.debug(
+      `Publishing job event: ${event.event_type} (${event.event_id})`,
+    );
 
     try {
       // Publish to RabbitMQ for immediate processing
@@ -84,12 +91,15 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       // Publish to Kafka for audit trail
       await this.kafkaService.publishJobLifecycleEvent(
         event,
-        this.getPayloadId(event, 'job_id')
+        this.getPayloadId(event, 'job_id'),
       );
 
       this.logger.debug(`Job event published: ${event.event_type}`);
     } catch (error) {
-      this.logger.error(`Failed to publish job event: ${event.event_type}`, error);
+      this.logger.error(
+        `Failed to publish job event: ${event.event_type}`,
+        error,
+      );
       throw error;
     }
   }
@@ -113,7 +123,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       await this.rabbitmqService.publishNotification(event);
       this.logger.debug(`Notification published: ${event.event_type}`);
     } catch (error) {
-      this.logger.error(`Failed to publish notification: ${event.event_type}`, error);
+      this.logger.error(
+        `Failed to publish notification: ${event.event_type}`,
+        error,
+      );
       throw error;
     }
   }
@@ -136,11 +149,14 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.kafkaService.publishJobMetrics(
         event.payload,
-        this.getPayloadId(event, 'job_id')
+        this.getPayloadId(event, 'job_id'),
       );
       this.logger.debug(`Metrics published: ${event.event_type}`);
     } catch (error) {
-      this.logger.error(`Failed to publish metrics: ${event.event_type}`, error);
+      this.logger.error(
+        `Failed to publish metrics: ${event.event_type}`,
+        error,
+      );
       throw error;
     }
   }
@@ -163,11 +179,14 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.kafkaService.publishAuditEvent(
         event,
-        this.getPayloadId(event, 'resource_id')
+        this.getPayloadId(event, 'resource_id'),
       );
       this.logger.debug(`Audit event published: ${event.event_type}`);
     } catch (error) {
-      this.logger.error(`Failed to publish audit event: ${event.event_type}`, error);
+      this.logger.error(
+        `Failed to publish audit event: ${event.event_type}`,
+        error,
+      );
       throw error;
     }
   }

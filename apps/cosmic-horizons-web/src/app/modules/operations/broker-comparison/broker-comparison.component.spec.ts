@@ -18,82 +18,99 @@ import { BrokerComparisonDTO } from './models/broker-metrics.model';
 import { vi } from 'vitest';
 
 describe('BrokerComparisonComponent', () => {
-    describe('edge cases for brokerMetrics', () => {
-      it('should handle missing brokerMetrics gracefully', () => {
-        component.brokerMetrics = null;
-        expect(() => component.getDetailedMetricsData()).not.toThrow();
-        expect(component.getDetailedMetricsData()).toEqual([]);
-      });
-      it('should handle malformed brokerMetrics object', () => {
-        // @ts-expect-error purposely malformed
-        component.brokerMetrics = { bad: 'data' };
-        expect(() => component.getDetailedMetricsData()).not.toThrow();
-        expect(component.getDetailedMetricsData()).toEqual([]);
-      });
+  describe('edge cases for brokerMetrics', () => {
+    it('should handle missing brokerMetrics gracefully', () => {
+      component.brokerMetrics = null;
+      expect(() => component.getDetailedMetricsData()).not.toThrow();
+      expect(component.getDetailedMetricsData()).toEqual([]);
     });
+    it('should handle malformed brokerMetrics object', () => {
+      // @ts-expect-error purposely malformed
+      component.brokerMetrics = { bad: 'data' };
+      expect(() => component.getDetailedMetricsData()).not.toThrow();
+      expect(component.getDetailedMetricsData()).toEqual([]);
+    });
+  });
 
-    describe('UI status rendering', () => {
-      it('should return correct status class for each broker status', () => {
-        component.brokerStatuses = { rabbitmq: 'ok', kafka: 'warning', pulsar: 'error' };
-        expect(component.getStatusClass('ok')).toBe('status-ok');
-        expect(component.getStatusClass('warning')).toBe('status-warning');
-        expect(component.getStatusClass('error')).toBe('status-error');
-      });
+  describe('UI status rendering', () => {
+    it('should return correct status class for each broker status', () => {
+      component.brokerStatuses = {
+        rabbitmq: 'ok',
+        kafka: 'warning',
+        pulsar: 'error',
+      };
+      expect(component.getStatusClass('ok')).toBe('status-ok');
+      expect(component.getStatusClass('warning')).toBe('status-warning');
+      expect(component.getStatusClass('error')).toBe('status-error');
     });
+  });
 
-    describe('polling', () => {
-      it('should stop polling after ngOnDestroy', async () => {
-        vi.useFakeTimers();
-        component['startPolling']();
-        vi.advanceTimersByTime(5000);
-        await Promise.resolve();
-        component.ngOnDestroy();
-        // Advance time again, should not call getCurrentMetrics again
-        serviceMock.getCurrentMetrics.mockClear();
-        vi.advanceTimersByTime(5000);
-        await Promise.resolve();
-        expect(serviceMock.getCurrentMetrics).not.toHaveBeenCalled();
-        vi.useRealTimers();
-      });
+  describe('polling', () => {
+    it('should stop polling after ngOnDestroy', async () => {
+      vi.useFakeTimers();
+      component['startPolling']();
+      vi.advanceTimersByTime(5000);
+      await Promise.resolve();
+      component.ngOnDestroy();
+      // Advance time again, should not call getCurrentMetrics again
+      serviceMock.getCurrentMetrics.mockClear();
+      vi.advanceTimersByTime(5000);
+      await Promise.resolve();
+      expect(serviceMock.getCurrentMetrics).not.toHaveBeenCalled();
+      vi.useRealTimers();
     });
+  });
 
-    describe('error messages', () => {
-      it('should set error message on loadMetrics failure', () => {
-        serviceMock.getCurrentMetrics.mockReturnValueOnce(throwError(() => new Error('API error')));
-        component['loadMetrics']();
-        expect(component.error).toContain('Failed to load');
-      });
-      it('should set error message on benchmark failure', () => {
-        serviceMock.runBenchmark.mockReturnValueOnce(throwError(() => new Error('Benchmark error')));
-        component.runBenchmark();
-        expect(component.error).toContain('Benchmark failed');
-      });
+  describe('error messages', () => {
+    it('should set error message on loadMetrics failure', () => {
+      serviceMock.getCurrentMetrics.mockReturnValueOnce(
+        throwError(() => new Error('API error')),
+      );
+      component['loadMetrics']();
+      expect(component.error).toContain('Failed to load');
     });
+    it('should set error message on benchmark failure', () => {
+      serviceMock.runBenchmark.mockReturnValueOnce(
+        throwError(() => new Error('Benchmark error')),
+      );
+      component.runBenchmark();
+      expect(component.error).toContain('Benchmark failed');
+    });
+  });
 
-    describe('runBenchmark button state', () => {
-      it('should disable runBenchmark while running', () => {
-        component.isBenchmarkRunning = true;
-        component.runBenchmark();
-        expect(serviceMock.runBenchmark).not.toHaveBeenCalled();
-      });
-      it('should enable runBenchmark after completion', async () => {
-        vi.useFakeTimers();
-        // Prevent polling from running timers in this test
-        // Mock startPolling to prevent timers; no-op function for lint compliance
-        vi.spyOn(component as any, 'startPolling').mockImplementation(function startPollingNoop() {/* intentionally empty for test */});
-        // Patch the mock to complete asynchronously using setTimeout
-        serviceMock.runBenchmark.mockReturnValueOnce(new Observable((sub: any) => {
-          setTimeout(() => { sub.next({}); sub.complete(); }, 1);
-        }));
-        component.runBenchmark();
-        // Should be true immediately after starting
-        expect(component.isBenchmarkRunning).toBe(true);
-        vi.advanceTimersByTime(300);
-        await Promise.resolve();
-        expect(component.isBenchmarkRunning).toBe(false);
-        vi.useRealTimers();
-      });
+  describe('runBenchmark button state', () => {
+    it('should disable runBenchmark while running', () => {
+      component.isBenchmarkRunning = true;
+      component.runBenchmark();
+      expect(serviceMock.runBenchmark).not.toHaveBeenCalled();
     });
+    it('should enable runBenchmark after completion', async () => {
+      vi.useFakeTimers();
+      // Prevent polling from running timers in this test
+      // Mock startPolling to prevent timers; no-op function for lint compliance
+      vi.spyOn(component as any, 'startPolling').mockImplementation(
+        function startPollingNoop() {
+          /* intentionally empty for test */
+        },
+      );
+      // Patch the mock to complete asynchronously using setTimeout
+      serviceMock.runBenchmark.mockReturnValueOnce(
+        new Observable((sub: any) => {
+          setTimeout(() => {
+            sub.next({});
+            sub.complete();
+          }, 1);
+        }),
+      );
+      component.runBenchmark();
+      // Should be true immediately after starting
+      expect(component.isBenchmarkRunning).toBe(true);
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+      expect(component.isBenchmarkRunning).toBe(false);
+      vi.useRealTimers();
+    });
+  });
   let component: BrokerComparisonComponent;
   let fixture: ComponentFixture<BrokerComparisonComponent>;
   let serviceMock: any;
@@ -142,13 +159,17 @@ describe('BrokerComparisonComponent', () => {
     serviceMock = {
       getCurrentMetrics: vi.fn().mockReturnValue(of(mockBrokerData)),
       getWarmStartMetrics: vi.fn().mockReturnValue(null),
-      getSystemMetrics: vi.fn().mockReturnValue(of({
-        timestamp: new Date(),
-        cpu: { usage: 25 },
-        memory: { percentage: 42 },
-        disk: { percentage: 18 },
-      })),
-      getHistoricalMetrics: vi.fn().mockReturnValue(of({ timeRange: {}, samples: [] })),
+      getSystemMetrics: vi.fn().mockReturnValue(
+        of({
+          timestamp: new Date(),
+          cpu: { usage: 25 },
+          memory: { percentage: 42 },
+          disk: { percentage: 18 },
+        }),
+      ),
+      getHistoricalMetrics: vi
+        .fn()
+        .mockReturnValue(of({ timeRange: {}, samples: [] })),
       runBenchmark: vi.fn().mockReturnValue(of({})),
       getHealth: vi.fn().mockReturnValue(of({})),
     } as any;
@@ -167,9 +188,7 @@ describe('BrokerComparisonComponent', () => {
         MatIconModule,
         MatTooltipModule,
       ],
-      providers: [
-        { provide: BrokerDataService, useValue: serviceMock },
-      ],
+      providers: [{ provide: BrokerDataService, useValue: serviceMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BrokerComparisonComponent);
@@ -269,7 +288,9 @@ describe('BrokerComparisonComponent', () => {
 
     it('should handle polling errors gracefully', async () => {
       vi.useFakeTimers();
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
       serviceMock.getCurrentMetrics.mockReturnValue(
         throwError(() => new Error('Poll error')),
       );
@@ -368,7 +389,9 @@ describe('BrokerComparisonComponent', () => {
 
     it('should handle stress test errors', () => {
       vi.useFakeTimers();
-      serviceMock.runBenchmark.mockReturnValueOnce(throwError(() => new Error('Stress test failed')));
+      serviceMock.runBenchmark.mockReturnValueOnce(
+        throwError(() => new Error('Stress test failed')),
+      );
       component.runStressTest();
       vi.advanceTimersByTime(300);
 
@@ -438,8 +461,12 @@ describe('BrokerComparisonComponent', () => {
     });
 
     it('should generate latency wording for positive and negative deltas', () => {
-      expect(component.getLatencySummaryText('+10.0%')).toContain('higher latency (worse)');
-      expect(component.getLatencySummaryText('-10.0%')).toContain('lower latency (better)');
+      expect(component.getLatencySummaryText('+10.0%')).toContain(
+        'higher latency (worse)',
+      );
+      expect(component.getLatencySummaryText('-10.0%')).toContain(
+        'lower latency (better)',
+      );
     });
   });
 
@@ -505,10 +532,7 @@ describe('BrokerComparisonComponent', () => {
 
   describe('ngOnDestroy', () => {
     it('should complete destroy subject on destroy', () => {
-      const destroySpy = vi.spyOn(
-        component['destroy$'],
-        'next',
-      );
+      const destroySpy = vi.spyOn(component['destroy$'], 'next');
 
       component.ngOnDestroy();
 
@@ -566,7 +590,11 @@ describe('BrokerComparisonComponent', () => {
     });
     it('should prevent enabling feed when broker status is error and show snackbar', () => {
       // make kafka unavailable
-      component.brokerStatuses = { rabbitmq: 'ok', kafka: 'error', pulsar: 'ok' } as any;
+      component.brokerStatuses = {
+        rabbitmq: 'ok',
+        kafka: 'error',
+        pulsar: 'ok',
+      } as any;
       // ensure feed starts OFF for test
       component.brokerFeedEnabled['kafka'] = false;
 
@@ -576,7 +604,11 @@ describe('BrokerComparisonComponent', () => {
       component.toggleBrokerFeed('kafka');
 
       expect(component.isBrokerFeedEnabled('kafka')).toBe(false);
-      expect(snackSpy).toHaveBeenCalledWith('Broker unavailable — feed is disabled until connectivity is restored', 'OK', { duration: 4000 });
+      expect(snackSpy).toHaveBeenCalledWith(
+        'Broker unavailable — feed is disabled until connectivity is restored',
+        'OK',
+        { duration: 4000 },
+      );
     });
 
     it('should render disabled tile button when broker status is error', () => {
@@ -584,7 +616,10 @@ describe('BrokerComparisonComponent', () => {
       // arrange: make broker service return a disconnected RabbitMQ on initial load
       const disconnectedData = {
         ...mockBrokerData,
-        brokers: { ...mockBrokerData.brokers, rabbitmq: { ...mockBrokerData.brokers.rabbitmq, connected: false } },
+        brokers: {
+          ...mockBrokerData.brokers,
+          rabbitmq: { ...mockBrokerData.brokers.rabbitmq, connected: false },
+        },
       } as any;
       serviceMock.getCurrentMetrics.mockReturnValueOnce(of(disconnectedData));
 
@@ -592,16 +627,22 @@ describe('BrokerComparisonComponent', () => {
       fixture.detectChanges();
 
       // assert
-      const buttons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('.status-item');
+      const buttons: NodeListOf<HTMLButtonElement> =
+        fixture.nativeElement.querySelectorAll('.status-item');
       const rabbitBtn = buttons[0];
       expect(rabbitBtn.classList.contains('status-error')).toBe(true);
 
       // clicking should not enable the feed and should show a snackbar (behavioral check)
       const snackSpy = vi.spyOn((component as any).snackBar, 'open');
       component.toggleBrokerFeed('rabbitmq');
-      expect(snackSpy).toHaveBeenCalledWith('Broker unavailable — feed is disabled until connectivity is restored', 'OK', { duration: 4000 });
+      expect(snackSpy).toHaveBeenCalledWith(
+        'Broker unavailable — feed is disabled until connectivity is restored',
+        'OK',
+        { duration: 4000 },
+      );
       expect(component.isBrokerFeedEnabled('rabbitmq')).toBe(false);
-    });  });
+    });
+  });
 
   describe('last refresh text', () => {
     it('should show "Never" when no refresh yet', () => {
@@ -638,8 +679,12 @@ describe('BrokerComparisonComponent', () => {
       } as any;
 
       component['updateCurrentFindings']();
-      expect(component.dataQualityBanner).toContain('fallback/simulated metrics detected');
-      expect(component.currentFindings.join(' ')).toContain('dynamic polling every 5s');
+      expect(component.dataQualityBanner).toContain(
+        'fallback/simulated metrics detected',
+      );
+      expect(component.currentFindings.join(' ')).toContain(
+        'dynamic polling every 5s',
+      );
     });
   });
 });

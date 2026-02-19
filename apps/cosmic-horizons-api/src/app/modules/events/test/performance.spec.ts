@@ -5,7 +5,16 @@ describe('Week 3 Performance and Load Tests', () => {
 
   beforeEach(() => {
     metricsService = new MetricsService();
-    jest.spyOn((metricsService as unknown as { logger: { debug: (...args: unknown[]) => void } }).logger, 'debug').mockImplementation(() => undefined);
+    jest
+      .spyOn(
+        (
+          metricsService as unknown as {
+            logger: { debug: (...args: unknown[]) => void };
+          }
+        ).logger,
+        'debug',
+      )
+      .mockImplementation(() => undefined);
   });
 
   it('processes 1000 metrics events within throughput baseline', async () => {
@@ -94,7 +103,9 @@ describe('Week 3 Performance and Load Tests', () => {
 
     const start = Date.now();
     for (let i = 0; i < 50; i++) {
-      const summary = await metricsService.getJobMetricsSummary(`job-summary-${i}`);
+      const summary = await metricsService.getJobMetricsSummary(
+        `job-summary-${i}`,
+      );
       expect(summary).not.toBeNull();
     }
     const elapsedMs = Date.now() - start;

@@ -1,5 +1,8 @@
 import { Logger } from '@nestjs/common';
-import { JobOrchestratorService, BatchJobRequest } from './job-orchestrator.service';
+import {
+  JobOrchestratorService,
+  BatchJobRequest,
+} from './job-orchestrator.service';
 import { Job } from '../entities/job.entity';
 
 describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage)', () => {
@@ -31,10 +34,7 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
       delete: jest.fn(),
     };
 
-    service = new JobOrchestratorService(
-      taccService,
-      jobRepository,
-    );
+    service = new JobOrchestratorService(taccService, jobRepository);
   });
 
   afterEach(() => {
@@ -57,13 +57,18 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
         status: 'PENDING',
       } as any);
 
-      taccService.submitJob.mockRejectedValueOnce(new Error('TACC unavailable'));
+      taccService.submitJob.mockRejectedValueOnce(
+        new Error('TACC unavailable'),
+      );
 
-      await expect(
-        service.submitJob(userId, submission),
-      ).rejects.toThrow('TACC unavailable');
+      await expect(service.submitJob(userId, submission)).rejects.toThrow(
+        'TACC unavailable',
+      );
 
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith('job-1', 'FAILED');
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        'job-1',
+        'FAILED',
+      );
     });
 
     it('should create job record before TACC submission', async () => {
@@ -91,7 +96,10 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
       const result = await service.submitJob(userId, submission);
 
       expect(jobRepository.create).toHaveBeenCalled();
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith('job-1', 'QUEUING');
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        'job-1',
+        'QUEUING',
+      );
       expect(result.tacc_job_id).toBe('tacc-1');
     });
 
@@ -207,7 +215,11 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
         .mockRejectedValueOnce(new Error('TACC failure'));
 
       jobRepository.findById
-        .mockResolvedValueOnce({ id: 'job-1', status: 'QUEUING', tacc_job_id: 'tacc-1' } as any)
+        .mockResolvedValueOnce({
+          id: 'job-1',
+          status: 'QUEUING',
+          tacc_job_id: 'tacc-1',
+        } as any)
         .mockResolvedValueOnce(null);
 
       const results = await service.submitBatch(userId, batch);
@@ -285,7 +297,11 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
       const result = await service.getJobStatus('job-1');
       expect(result?.status).toBe('COMPLETED');
 
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith('job-1', 'COMPLETED', 100);
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        'job-1',
+        'COMPLETED',
+        100,
+      );
       expect(jobRepository.updateResult).toHaveBeenCalledWith('job-1', {
         output_url: 'https://example.com/result.fits',
       });
@@ -312,7 +328,11 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
       const result = await service.getJobStatus('job-1');
       expect(result?.status).toBe('FAILED');
 
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith('job-1', 'FAILED', 25);
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        'job-1',
+        'FAILED',
+        25,
+      );
     });
 
     it('should skip TACC update for completed jobs', async () => {
@@ -338,7 +358,7 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
 
       const tips = await service.getOptimizationTips(submission);
 
-      const gpuTip = tips.find(t => t.category === 'gpu');
+      const gpuTip = tips.find((t) => t.category === 'gpu');
       expect(gpuTip).toBeDefined();
       expect(gpuTip?.severity).toBe('warning');
       expect(gpuTip?.suggestedValue).toBe(2);
@@ -353,7 +373,7 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
 
       const tips = await service.getOptimizationTips(submission);
 
-      const costTip = tips.find(t => t.category === 'cost');
+      const costTip = tips.find((t) => t.category === 'cost');
       expect(costTip).toBeDefined();
       expect(costTip?.severity).toBe('info');
     });
@@ -367,7 +387,7 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
 
       const tips = await service.getOptimizationTips(submission);
 
-      const rfiTip = tips.find(t => t.category === 'rfi_strategy');
+      const rfiTip = tips.find((t) => t.category === 'rfi_strategy');
       expect(rfiTip).toBeDefined();
       expect(rfiTip?.severity).toBe('warning');
       expect(rfiTip?.suggestedValue).toBe('medium');
@@ -383,7 +403,7 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
       const tips = await service.getOptimizationTips(submission);
 
       const runtimeTip = tips.find(
-        t => t.category === 'runtime' && t.message.includes('High RFI'),
+        (t) => t.category === 'runtime' && t.message.includes('High RFI'),
       );
       expect(runtimeTip).toBeDefined();
       expect(runtimeTip?.severity).toBe('info');
@@ -398,7 +418,9 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
 
       const tips = await service.getOptimizationTips(submission);
 
-      const runtimeTip = tips.find(t => t.category === 'runtime' && t.suggestedValue);
+      const runtimeTip = tips.find(
+        (t) => t.category === 'runtime' && t.suggestedValue,
+      );
       expect(runtimeTip).toBeDefined();
       expect(runtimeTip?.suggestedValue).toBe('48h');
     });
@@ -490,7 +512,10 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
 
       expect(cancelled).toBe(true);
       expect(taccService.cancelJob).toHaveBeenCalledWith('tacc-1');
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith('job-1', 'CANCELLED');
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        'job-1',
+        'CANCELLED',
+      );
     });
 
     it('should reject cancel of completed job', async () => {
@@ -538,7 +563,10 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
 
       expect(cancelled).toBe(true);
       expect(taccService.cancelJob).not.toHaveBeenCalled();
-      expect(jobRepository.updateStatus).toHaveBeenCalledWith('job-1', 'CANCELLED');
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        'job-1',
+        'CANCELLED',
+      );
     });
   });
 

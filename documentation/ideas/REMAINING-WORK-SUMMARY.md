@@ -238,13 +238,13 @@ Target: 20 publishing tests + 18 baseline = 38 total passing
 
 ## Summary: Work Remaining to Symposium (45 days)
 
-| Phase | Priority | Effort | Status | Critical? |
-|-------|----------|--------|--------|-----------|
-| **Sprint 5.3** | 1 | 3 weeks | Ready to start | YES—gates Sprint 6 |
-| **Sprint 6.1** | 2 | 3 weeks | Waiting on 5.3 | YES—enables dashboards |
-| **Sprint 6.2** | 3 | 4 weeks | Queued | Ambitious for deadline |
-| **LLM Enhancement** | 2.5 | 3 weeks | NEW PROPOSAL | High value-add |
-| **Sprints 6.3-7.4** | 4+ | 15+ weeks | Post-symposium | Roadmap items |
+| Phase               | Priority | Effort    | Status         | Critical?              |
+| ------------------- | -------- | --------- | -------------- | ---------------------- |
+| **Sprint 5.3**      | 1        | 3 weeks   | Ready to start | YES—gates Sprint 6     |
+| **Sprint 6.1**      | 2        | 3 weeks   | Waiting on 5.3 | YES—enables dashboards |
+| **Sprint 6.2**      | 3        | 4 weeks   | Queued         | Ambitious for deadline |
+| **LLM Enhancement** | 2.5      | 3 weeks   | NEW PROPOSAL   | High value-add         |
+| **Sprints 6.3-7.4** | 4+       | 15+ weeks | Post-symposium | Roadmap items          |
 
 ### Critical Path to Symposium
 
@@ -331,4 +331,5 @@ Target: 20 publishing tests + 18 baseline = 38 total passing
 **Strategic recommendation**: Pursue parallel LLM enhancement to create compelling demonstration of autonomous agent behavior for April 1 Symposium abstract deadline.
 
 **Symposium value proposition**:
+
 > "Cosmic Horizons bridges astronomy discovery with autonomous AI agents. The Jobs Console demonstrates real-time pipeline orchestration—from intelligent parameter validation through multi-stage calibration, reconstruction, and anomaly detection—powered by local LLM agents simulating CosmicAI's autonomous engines."

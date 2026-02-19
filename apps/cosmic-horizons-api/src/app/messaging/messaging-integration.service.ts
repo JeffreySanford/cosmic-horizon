@@ -173,7 +173,12 @@ export class MessagingIntegrationService
     }
 
     try {
-      await this.emitWithRetry(this.kafkaClient, 'element.raw_data', packet, 'Kafka');
+      await this.emitWithRetry(
+        this.kafkaClient,
+        'element.raw_data',
+        packet,
+        'Kafka',
+      );
       this.statsService.recordKafkaPublished();
     } catch (err) {
       this.statsService.recordError();

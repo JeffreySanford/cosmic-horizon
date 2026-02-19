@@ -30,7 +30,11 @@ export class CommentItemComponent {
   }
 
   get canReply(): boolean {
-    return this.auth.isAuthenticated() && !this.isPostLocked && !this.comment.deleted_at;
+    return (
+      this.auth.isAuthenticated() &&
+      !this.isPostLocked &&
+      !this.comment.deleted_at
+    );
   }
 
   get canReport(): boolean {
@@ -106,7 +110,7 @@ export class CommentItemComponent {
 
   hideComment(): void {
     if (!this.canDeleteAny) return;
-    
+
     this.commentsApi.hideComment(this.comment.id).subscribe({
       next: () => {
         this.replied.emit(); // Refresh view

@@ -12,11 +12,11 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     env:
-      NX_DAEMON: "false"
-      JWT_SECRET: "e2e-test-jwt-secret-min-32-characters-long"
-      SESSION_SECRET: "e2e-test-session-secret-min-32-characters"
-      NODE_ENV: "development"
-      BASE_URL: "http://localhost:4200"
+      NX_DAEMON: 'false'
+      JWT_SECRET: 'e2e-test-jwt-secret-min-32-characters-long'
+      SESSION_SECRET: 'e2e-test-session-secret-min-32-characters'
+      NODE_ENV: 'development'
+      BASE_URL: 'http://localhost:4200'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -31,7 +31,7 @@ jobs:
       - run: pnpm exec playwright install --with-deps
       - run: pnpm run start:ports:free
       - name: Start infra
-        run: pnpm run start:infra
+        run: pnpm run start:infra:jmx
       - name: Verify infra readiness
         shell: bash
         run: |

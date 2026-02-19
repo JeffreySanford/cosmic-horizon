@@ -3,12 +3,18 @@
   <div class="header">
     <div class="header-content">
       <h1>Job Orchestration</h1>
-      <p class="subtitle">Launch and monitor autonomous AI-assisted reprocessing workflows on TACC infrastructure</p>
+      <p class="subtitle">
+        Launch and monitor autonomous AI-assisted reprocessing workflows on TACC
+        infrastructure
+      </p>
     </div>
   </div>
 
   <!-- Tabbed Interface -->
-  <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="orchestration-tabs">
+  <mat-tab-group
+    [(selectedIndex)]="selectedTabIndex"
+    class="orchestration-tabs"
+  >
     <!-- Tab 1: Submit Job -->
     <mat-tab label="Submit Job">
       <ng-template mat-tab-label>
@@ -17,7 +23,9 @@
       </ng-template>
 
       <div class="tab-content">
-        <app-job-submission-form (jobSubmitted)="onJobSubmitted()"></app-job-submission-form>
+        <app-job-submission-form
+          (jobSubmitted)="onJobSubmitted()"
+        ></app-job-submission-form>
       </div>
     </mat-tab>
 
@@ -52,17 +60,23 @@
 
           <mat-card class="stat-card">
             <div class="stat-label">Running</div>
-            <div class="stat-value running">{{ (jobs | countByStatus: 'running') }}</div>
+            <div class="stat-value running">
+              {{ jobs | countByStatus: 'running' }}
+            </div>
           </mat-card>
 
           <mat-card class="stat-card">
             <div class="stat-label">Completed</div>
-            <div class="stat-value completed">{{ (jobs | countByStatus: 'completed') }}</div>
+            <div class="stat-value completed">
+              {{ jobs | countByStatus: 'completed' }}
+            </div>
           </mat-card>
 
           <mat-card class="stat-card">
             <div class="stat-label">Failed</div>
-            <div class="stat-value failed">{{ (jobs | countByStatus: 'failed') }}</div>
+            <div class="stat-value failed">
+              {{ jobs | countByStatus: 'failed' }}
+            </div>
           </mat-card>
         </div>
 
@@ -76,9 +90,17 @@
               </div>
               <p class="agent-description">{{ agent.description }}</p>
               <div class="agent-resources">
-                <span><strong>CPU:</strong> {{ agent.requiredResources.cpu }} cores</span>
-                <span><strong>Memory:</strong> {{ agent.requiredResources.memory }} GB</span>
-                <span *ngIf="agent.requiredResources.gpu"><strong>GPU:</strong> {{ agent.requiredResources.gpu }}</span>
+                <span
+                  ><strong>CPU:</strong>
+                  {{ agent.requiredResources.cpu }} cores</span
+                >
+                <span
+                  ><strong>Memory:</strong>
+                  {{ agent.requiredResources.memory }} GB</span
+                >
+                <span *ngIf="agent.requiredResources.gpu"
+                  ><strong>GPU:</strong> {{ agent.requiredResources.gpu }}</span
+                >
               </div>
             </mat-card>
           </div>

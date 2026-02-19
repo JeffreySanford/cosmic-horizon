@@ -18,7 +18,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "127.0.0.1:2181:2181"
+      - '127.0.0.1:2181:2181'
     volumes:
       - cosmic-horizons-zookeeper-data:/var/lib/zookeeper/data
     networks:
@@ -52,8 +52,8 @@ services:
       # Enable remote JMX for Prometheus JMX exporter (local/dev only)
       KAFKA_JMX_OPTS: '-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.rmi.port=9999 -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=cosmic-horizons-kafka'
     ports:
-      - "127.0.0.1:${KAFKA_PORT:-9092}:9092"
-      - "127.0.0.1:9999:9999"   # JMX port (for jmx-prometheus-exporter sidecar)
+      - '127.0.0.1:${KAFKA_PORT:-9092}:9092'
+      - '127.0.0.1:9999:9999' # JMX port (for jmx-prometheus-exporter sidecar)
     volumes:
       - cosmic-horizons-kafka-data:/var/lib/kafka/data
     networks:
@@ -62,7 +62,7 @@ services:
           - kafka
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z localhost 9092"]
+      test: ['CMD', 'sh', '-c', 'nc -z localhost 9092']
       interval: 5s
       timeout: 10s
       retries: 20
@@ -86,7 +86,7 @@ services:
       - KAFKA_SERVER=cosmic-horizons-kafka:29092
       - LOG_LEVEL=info
     ports:
-      - "127.0.0.1:9308:9308"
+      - '127.0.0.1:9308:9308'
     networks:
       - cosmic-horizons-network
     restart: unless-stopped
@@ -97,7 +97,7 @@ services:
   # - Exposes /metrics on port 9404
   # ==========================================================================
   cosmic-horizons-kafka-jmx-exporter:
-    profiles: ["jmx"]
+    profiles: ['jmx']
     # Build a local jmx_prometheus_httpserver image so CI/local runs do not depend on an external image
     build:
       context: ./docker/kafka-jmx-exporter
@@ -109,12 +109,13 @@ services:
     volumes:
       - ./docker/kafka-jmx-exporter-config.yml:/etc/jmx-exporter/config.yml:ro
     ports:
-      - "127.0.0.1:9404:9404"
+      - '127.0.0.1:9404:9404'
     networks:
       - cosmic-horizons-network
     restart: unless-stopped
     # port, config-file, and target-jmx-host:port
-    command: ["9404", "/etc/jmx-exporter/config.yml", "cosmic-horizons-kafka:9999"]
+    command:
+      ['9404', '/etc/jmx-exporter/config.yml', 'cosmic-horizons-kafka:9999']
 
   # ============================================================================
   # RABBITMQ (Ephemeral Real-time Messaging)
@@ -127,8 +128,8 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
       RABBITMQ_DEFAULT_VHOST: /
     ports:
-      - "127.0.0.1:5672:5672"       # AMQP protocol
-      - "127.0.0.1:15672:15672"     # Management UI
+      - '127.0.0.1:5672:5672' # AMQP protocol
+      - '127.0.0.1:15672:15672' # Management UI
     volumes:
       - cosmic-horizons-rabbitmq-data:/var/lib/rabbitmq
     networks:
@@ -147,12 +148,12 @@ services:
     image: apachepulsar/pulsar:latest
     container_name: cosmic-horizons-pulsar-standalone
     environment:
-      PULSAR_MEM: "-Xms1g -Xmx1g"
-      PULSAR_GC: "-XX:+UseG1GC -XX:MaxGCPauseMillis=10"
+      PULSAR_MEM: '-Xms1g -Xmx1g'
+      PULSAR_GC: '-XX:+UseG1GC -XX:MaxGCPauseMillis=10'
     ports:
-      - "6650:6650"   # Pulsar broker protocol
-      - "8080:8080"   # HTTP REST API
-      - "8081:8081"   # WebSocket
+      - '6650:6650' # Pulsar broker protocol
+      - '8080:8080' # HTTP REST API
+      - '8081:8081' # WebSocket
     volumes:
       - pulsar-standalone-data:/var/lib/pulsar
     networks:
@@ -160,7 +161,8 @@ services:
     command: bin/pulsar standalone
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/admin/v2/brokers/healthy"]
+      test:
+        ['CMD', 'curl', '-f', 'http://localhost:8080/admin/v2/brokers/healthy']
       interval: 10s
       timeout: 5s
       retries: 5

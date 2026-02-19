@@ -46,7 +46,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         ...(enableCoverage && {
           viewport: { width: 1280, height: 720 },

@@ -52,7 +52,8 @@ describe('AdminGuard', () => {
     );
 
     const stream = guard.canActivate();
-    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
+    const result =
+      typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
 
     expect(result).toBe(true);
     expect(authApiService.getMe).toHaveBeenCalledWith();
@@ -76,7 +77,8 @@ describe('AdminGuard', () => {
     );
 
     const stream = guard.canActivate();
-    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
+    const result =
+      typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
 
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/landing']);
@@ -93,10 +95,13 @@ describe('AdminGuard', () => {
 
   it('redirects to login when backend auth check fails', async () => {
     authSessionService.getRole.mockReturnValue('user');
-    authApiService.getMe.mockReturnValue(throwError(() => new Error('unauthorized')));
+    authApiService.getMe.mockReturnValue(
+      throwError(() => new Error('unauthorized')),
+    );
 
     const stream = guard.canActivate();
-    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
+    const result =
+      typeof stream === 'boolean' ? stream : await firstValueFrom(stream);
 
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);

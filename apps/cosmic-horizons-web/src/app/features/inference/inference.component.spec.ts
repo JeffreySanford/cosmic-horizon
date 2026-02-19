@@ -18,9 +18,7 @@ describe('InferenceComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [InferenceModule],
-      providers: [
-        { provide: MatDialog, useValue: mockDialog },
-      ],
+      providers: [{ provide: MatDialog, useValue: mockDialog }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InferenceComponent);

@@ -117,7 +117,12 @@ interface JobStatusChangedEvent extends EventBase {
   event_type: 'job.status.changed';
   payload: {
     job_id: string;
-    previous_status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+    previous_status:
+      | 'QUEUED'
+      | 'RUNNING'
+      | 'COMPLETED'
+      | 'FAILED'
+      | 'CANCELLED';
     new_status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
     reason?: string; // e.g., 'node allocation', 'timeout'
     transition_time_ms?: number; // How long in previous state
@@ -242,7 +247,11 @@ Administrative or system action for compliance.
 interface AuditActionRecordedEvent extends EventBase {
   event_type: 'audit.action.recorded';
   payload: {
-    action: 'job.cancelled' | 'job.throttled' | 'user.provisioned' | 'policy.changed';
+    action:
+      | 'job.cancelled'
+      | 'job.throttled'
+      | 'user.provisioned'
+      | 'policy.changed';
     actor_user_id: string;
     target_resource_id: string;
     target_resource_type: 'job' | 'user' | 'system';

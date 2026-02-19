@@ -81,7 +81,7 @@ export function createEventBase(
     idempotency_key?: string;
     parent_event_id?: string;
     tags?: string[];
-  }
+  },
 ): EventBase {
   return {
     event_id: options?.event_id || generateEventId(),
@@ -91,8 +91,12 @@ export function createEventBase(
     user_id,
     schema_version: options?.schema_version || 1,
     payload,
-    ...(options?.idempotency_key && { idempotency_key: options.idempotency_key }),
-    ...(options?.parent_event_id && { parent_event_id: options.parent_event_id }),
+    ...(options?.idempotency_key && {
+      idempotency_key: options.idempotency_key,
+    }),
+    ...(options?.parent_event_id && {
+      parent_event_id: options.parent_event_id,
+    }),
     ...(options?.tags && { tags: options.tags }),
   };
 }

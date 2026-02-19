@@ -88,4 +88,4 @@ Required footer/description lines:
 
 ---
 
-*Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved._

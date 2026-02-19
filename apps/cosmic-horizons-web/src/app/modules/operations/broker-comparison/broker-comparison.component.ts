@@ -12,12 +12,26 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { interval, Subject, takeUntil, BehaviorSubject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { BrokerDataService, BenchmarkBroker } from './services/broker-data.service';
-import { BenchmarkResult, BrokerComparisonDTO, BrokerMetricsDTO, SystemMetrics } from './models/broker-metrics.model';
+import {
+  BrokerDataService,
+  BenchmarkBroker,
+} from './services/broker-data.service';
+import {
+  BenchmarkResult,
+  BrokerComparisonDTO,
+  BrokerMetricsDTO,
+  SystemMetrics,
+} from './models/broker-metrics.model';
 import { SystemMetricsChartComponent } from './system-metrics-chart.component';
 
 type BrokerKey = 'rabbitmq' | 'kafka' | 'pulsar';
-type MetricKey = 'messagesPerSecond' | 'p99LatencyMs' | 'memoryUsageMb' | 'cpuPercentage' | 'connectionCount' | 'uptime';
+type MetricKey =
+  | 'messagesPerSecond'
+  | 'p99LatencyMs'
+  | 'memoryUsageMb'
+  | 'cpuPercentage'
+  | 'connectionCount'
+  | 'uptime';
 
 /**
  * BrokerComparisonComponent
@@ -56,7 +70,13 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
   isBenchmarkRunning = false;
   dataQualityBanner: string | null = null;
 
-  displayedColumns: string[] = ['metric', 'rabbitmq', 'pulsar', 'kafka', 'improvement'];
+  displayedColumns: string[] = [
+    'metric',
+    'rabbitmq',
+    'pulsar',
+    'kafka',
+    'improvement',
+  ];
   brokerStatuses: Record<string, 'ok' | 'warning' | 'error'> = {};
   brokerFeedEnabled: Record<BrokerKey, boolean> = {
     rabbitmq: true,
@@ -64,13 +84,16 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     pulsar: true,
   };
 
-  @ViewChild(SystemMetricsChartComponent) systemMetricsChart!: SystemMetricsChartComponent;
+  @ViewChild(SystemMetricsChartComponent)
+  systemMetricsChart!: SystemMetricsChartComponent;
 
   private destroy$ = new Subject<void>();
   private pollInterval$ = interval(5000); // Refresh every 5 seconds
   // System-metrics polling cadence (ms) — can be adjusted by child chart control
   systemMetricsPollingMs = 2000; // default 2s
-  private systemMetricsIntervalMs$ = new BehaviorSubject<number>(this.systemMetricsPollingMs);
+  private systemMetricsIntervalMs$ = new BehaviorSubject<number>(
+    this.systemMetricsPollingMs,
+  );
 
   private readonly brokerDataService = inject(BrokerDataService);
   private readonly ngZone = inject(NgZone);
@@ -133,7 +156,9 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
   }
 
   private hydrateWarmStartMetrics(): void {
-    const warmStart = this.brokerDataService.getWarmStartMetrics(24 * 60 * 60 * 1000);
+    const warmStart = this.brokerDataService.getWarmStartMetrics(
+      24 * 60 * 60 * 1000,
+    );
     if (!warmStart) {
       return;
     }
@@ -202,25 +227,27 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     this.error = null;
     this.setBenchmarkRunning(true);
 
-    this.brokerDataService.runBenchmark(false, undefined, {
-      brokers: this.getSelectedBrokersForRun(),
-      payloadKb: 2,
-      inflight: 250,
-      trials: 3,
-      seed: 42,
-      measuredOnly: true,
-    }).subscribe({
-      next: (result: BenchmarkResult) => {
-        console.log('Benchmark completed:', result);
-        this.clearBenchmarkRunningAsync();
-        // Reload metrics after benchmark completes
-        setTimeout(() => this.loadMetrics(true), 2000);
-      },
-      error: (err: unknown) => {
-        this.error = `Benchmark failed: ${this.getErrorMessage(err)}`;
-        this.clearBenchmarkRunningAsync();
-      },
-    });
+    this.brokerDataService
+      .runBenchmark(false, undefined, {
+        brokers: this.getSelectedBrokersForRun(),
+        payloadKb: 2,
+        inflight: 250,
+        trials: 3,
+        seed: 42,
+        measuredOnly: true,
+      })
+      .subscribe({
+        next: (result: BenchmarkResult) => {
+          console.log('Benchmark completed:', result);
+          this.clearBenchmarkRunningAsync();
+          // Reload metrics after benchmark completes
+          setTimeout(() => this.loadMetrics(true), 2000);
+        },
+        error: (err: unknown) => {
+          this.error = `Benchmark failed: ${this.getErrorMessage(err)}`;
+          this.clearBenchmarkRunningAsync();
+        },
+      });
   }
 
   /**
@@ -232,25 +259,27 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     this.error = null;
     this.setBenchmarkRunning(true);
 
-    this.brokerDataService.runBenchmark(true, BrokerComparisonComponent.STRESS_TEST_MESSAGE_COUNT, {
-      brokers: this.getSelectedBrokersForRun(),
-      payloadKb: 64,
-      inflight: 3000,
-      trials: 5,
-      seed: 42,
-      measuredOnly: true,
-    }).subscribe({
-      next: (result: BenchmarkResult) => {
-        console.log('Stress test completed:', result);
-        this.clearBenchmarkRunningAsync();
-        // Reload metrics after stress test completes (higher-load test uses longer delay).
-        setTimeout(() => this.loadMetrics(true), 10000);
-      },
-      error: (err: unknown) => {
-        this.error = `Stress test failed: ${this.getErrorMessage(err)}`;
-        this.clearBenchmarkRunningAsync();
-      },
-    });
+    this.brokerDataService
+      .runBenchmark(true, BrokerComparisonComponent.STRESS_TEST_MESSAGE_COUNT, {
+        brokers: this.getSelectedBrokersForRun(),
+        payloadKb: 64,
+        inflight: 3000,
+        trials: 5,
+        seed: 42,
+        measuredOnly: true,
+      })
+      .subscribe({
+        next: (result: BenchmarkResult) => {
+          console.log('Stress test completed:', result);
+          this.clearBenchmarkRunningAsync();
+          // Reload metrics after stress test completes (higher-load test uses longer delay).
+          setTimeout(() => this.loadMetrics(true), 10000);
+        },
+        error: (err: unknown) => {
+          this.error = `Stress test failed: ${this.getErrorMessage(err)}`;
+          this.clearBenchmarkRunningAsync();
+        },
+      });
   }
 
   /**
@@ -267,7 +296,11 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     if (status && status !== 'ok') {
       // Ensure feed remains off for unavailable brokers and inform the user.
       this.brokerFeedEnabled[broker] = false;
-      this.snackBar.open('Broker unavailable — feed is disabled until connectivity is restored', 'OK', { duration: 4000 });
+      this.snackBar.open(
+        'Broker unavailable — feed is disabled until connectivity is restored',
+        'OK',
+        { duration: 4000 },
+      );
       return;
     }
 
@@ -309,9 +342,16 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const { throughputImprovement, latencyImprovement, memoryEfficiency } = this.brokerMetrics.comparison;
-    const measured = this.brokerMetrics.dataQuality?.measuredBrokers.join(', ').toUpperCase() || 'none';
-    const fallback = this.brokerMetrics.dataQuality?.fallbackBrokers.join(', ').toUpperCase() || 'none';
+    const { throughputImprovement, latencyImprovement, memoryEfficiency } =
+      this.brokerMetrics.comparison;
+    const measured =
+      this.brokerMetrics.dataQuality?.measuredBrokers
+        .join(', ')
+        .toUpperCase() || 'none';
+    const fallback =
+      this.brokerMetrics.dataQuality?.fallbackBrokers
+        .join(', ')
+        .toUpperCase() || 'none';
     this.dataQualityBanner = this.brokerMetrics.dataQuality?.hasFallbackData
       ? `Data quality warning: fallback/simulated metrics detected (${fallback}).`
       : null;
@@ -324,20 +364,32 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
       `Evaluation mode: dynamic polling every 5s; deltas are computed only when both broker metrics are measured and baseline values are > 0.`,
       `Measured brokers: ${measured}. Fallback/simulated brokers: ${fallback}.`,
       ...(this.brokerMetrics.comparison.suppressedReasons?.length
-        ? [`Suppressed comparisons: ${this.brokerMetrics.comparison.suppressedReasons.join(' ')}`]
+        ? [
+            `Suppressed comparisons: ${this.brokerMetrics.comparison.suppressedReasons.join(' ')}`,
+          ]
         : []),
     ];
   }
 
-  private scheduleMetricsStateUpdate(data: BrokerComparisonDTO, setLoadingFalse = false): void {
+  private scheduleMetricsStateUpdate(
+    data: BrokerComparisonDTO,
+    setLoadingFalse = false,
+  ): void {
     // Clone incoming DTO to avoid accidental external mutations during checks.
     const safeData = structuredClone(data);
-    this.deferUiStateUpdate(() => {
-      this.applyMetricsStateUpdate(safeData, setLoadingFalse);
-    }, BrokerComparisonComponent.UI_UPDATE_DELAY_MS, true);
+    this.deferUiStateUpdate(
+      () => {
+        this.applyMetricsStateUpdate(safeData, setLoadingFalse);
+      },
+      BrokerComparisonComponent.UI_UPDATE_DELAY_MS,
+      true,
+    );
   }
 
-  private applyMetricsStateUpdate(data: BrokerComparisonDTO, setLoadingFalse = false): void {
+  private applyMetricsStateUpdate(
+    data: BrokerComparisonDTO,
+    setLoadingFalse = false,
+  ): void {
     this.brokerMetrics = data;
     this.lastRefresh = new Date();
     this.lastRefreshLabel = this.lastRefresh.toLocaleString();
@@ -354,9 +406,13 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
   }
 
   private clearBenchmarkRunningAsync(): void {
-    this.deferUiStateUpdate(() => {
-      this.setBenchmarkRunning(false);
-    }, BrokerComparisonComponent.BENCHMARK_RESET_DELAY_MS, false);
+    this.deferUiStateUpdate(
+      () => {
+        this.setBenchmarkRunning(false);
+      },
+      BrokerComparisonComponent.BENCHMARK_RESET_DELAY_MS,
+      false,
+    );
   }
 
   private clearInMemoryDashboardState(): void {
@@ -381,7 +437,11 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  private deferUiStateUpdate(action: () => void, delayMs = 0, runSynchronouslyInTests = true): void {
+  private deferUiStateUpdate(
+    action: () => void,
+    delayMs = 0,
+    runSynchronouslyInTests = true,
+  ): void {
     if (this.isTestEnvironment && runSynchronouslyInTests) {
       action();
       return;
@@ -396,7 +456,9 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
   }
 
   private getSelectedBrokersForRun(): BenchmarkBroker[] {
-    return (Object.entries(this.brokerFeedEnabled) as Array<[BrokerKey, boolean]>)
+    return (
+      Object.entries(this.brokerFeedEnabled) as Array<[BrokerKey, boolean]>
+    )
       .filter(([, enabled]) => enabled)
       .map(([broker]) => broker);
   }
@@ -417,13 +479,21 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     return formatter(value);
   }
 
-  private formatFeedConnectionValue(broker: BrokerKey, value: number | undefined): string | undefined {
+  private formatFeedConnectionValue(
+    broker: BrokerKey,
+    value: number | undefined,
+  ): string | undefined {
     if (!this.isBrokerFeedEnabled(broker)) return 'Feed Off';
     return value !== undefined ? value.toString() : undefined;
   }
 
-  private getFeedAwareImprovement(value: string | undefined): string | undefined {
-    if (!this.isBrokerFeedEnabled('rabbitmq') || !this.isBrokerFeedEnabled('pulsar')) {
+  private getFeedAwareImprovement(
+    value: string | undefined,
+  ): string | undefined {
+    if (
+      !this.isBrokerFeedEnabled('rabbitmq') ||
+      !this.isBrokerFeedEnabled('pulsar')
+    ) {
       return 'N/A (feed off)';
     }
     return value;
@@ -453,7 +523,10 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     return `Pulsar ${value} memory usage versus RabbitMQ`;
   }
 
-  public getMetricQualityLabel(broker: BrokerKey, metric: MetricKey): 'measured' | 'fallback' | 'missing' {
+  public getMetricQualityLabel(
+    broker: BrokerKey,
+    metric: MetricKey,
+  ): 'measured' | 'fallback' | 'missing' {
     const metrics = this.brokerMetrics?.brokers[broker];
     if (!metrics) return 'missing';
     const explicit = metrics.metricQuality?.[metric];
@@ -464,7 +537,11 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     return source === 'fallback' ? 'fallback' : 'measured';
   }
 
-  private appendQualityTag(value: string, broker: BrokerKey, metric: MetricKey): string {
+  private appendQualityTag(
+    value: string,
+    broker: BrokerKey,
+    metric: MetricKey,
+  ): string {
     if (value === 'Feed Off') return value;
     const quality = this.getMetricQualityLabel(broker, metric);
     return `${value} (${quality})`;
@@ -502,7 +579,9 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     return `status-${status}`;
   }
 
-  getBrokerConnectivityLabel(status: 'ok' | 'warning' | 'error' | undefined): string {
+  getBrokerConnectivityLabel(
+    status: 'ok' | 'warning' | 'error' | undefined,
+  ): string {
     return status === 'ok' ? 'CONNECTED' : 'UNAVAILABLE';
   }
 
@@ -511,7 +590,9 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
    */
   getImprovementClass(value: string | undefined): string {
     if (!value) return '';
-    return value.startsWith('+') ? 'improvement-positive' : 'improvement-negative';
+    return value.startsWith('+')
+      ? 'improvement-positive'
+      : 'improvement-negative';
   }
 
   /**
@@ -521,7 +602,9 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     if (!this.lastRefresh) return 'Never';
 
     const now = new Date();
-    const diffSeconds = Math.floor((now.getTime() - this.lastRefresh.getTime()) / 1000);
+    const diffSeconds = Math.floor(
+      (now.getTime() - this.lastRefresh.getTime()) / 1000,
+    );
 
     if (diffSeconds < 60) return 'Just now';
     if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)}m ago`;
@@ -539,65 +622,175 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     kafka: string | undefined;
     improvement: string | undefined;
   }> {
-    if (!this.brokerMetrics ||
-        typeof this.brokerMetrics !== 'object' ||
-        !this.brokerMetrics.brokers ||
-        typeof this.brokerMetrics.brokers !== 'object' ||
-        !this.brokerMetrics.comparison ||
-        typeof this.brokerMetrics.comparison !== 'object') {
+    if (
+      !this.brokerMetrics ||
+      typeof this.brokerMetrics !== 'object' ||
+      !this.brokerMetrics.brokers ||
+      typeof this.brokerMetrics.brokers !== 'object' ||
+      !this.brokerMetrics.comparison ||
+      typeof this.brokerMetrics.comparison !== 'object'
+    ) {
       return [];
     }
 
-    const rmq: BrokerMetricsDTO | undefined = this.brokerMetrics.brokers.rabbitmq;
-    const pulsar: BrokerMetricsDTO | undefined = this.brokerMetrics.brokers.pulsar;
-    const kafka: BrokerMetricsDTO | undefined = this.brokerMetrics.brokers.kafka;
+    const rmq: BrokerMetricsDTO | undefined =
+      this.brokerMetrics.brokers.rabbitmq;
+    const pulsar: BrokerMetricsDTO | undefined =
+      this.brokerMetrics.brokers.pulsar;
+    const kafka: BrokerMetricsDTO | undefined =
+      this.brokerMetrics.brokers.kafka;
 
     return [
       {
         metric: 'Throughput (msg/s)',
         rabbitmq: this.appendQualityTag(
-          this.formatFeedValue('rabbitmq', rmq?.messagesPerSecond, this.formatThroughput.bind(this)),
+          this.formatFeedValue(
+            'rabbitmq',
+            rmq?.messagesPerSecond,
+            this.formatThroughput.bind(this),
+          ),
           'rabbitmq',
           'messagesPerSecond',
         ),
         pulsar: this.appendQualityTag(
-          this.formatFeedValue('pulsar', pulsar?.messagesPerSecond, this.formatThroughput.bind(this)),
+          this.formatFeedValue(
+            'pulsar',
+            pulsar?.messagesPerSecond,
+            this.formatThroughput.bind(this),
+          ),
           'pulsar',
           'messagesPerSecond',
         ),
         kafka: this.appendQualityTag(
-          this.formatFeedValue('kafka', kafka?.messagesPerSecond, this.formatThroughput.bind(this)),
+          this.formatFeedValue(
+            'kafka',
+            kafka?.messagesPerSecond,
+            this.formatThroughput.bind(this),
+          ),
           'kafka',
           'messagesPerSecond',
         ),
-        improvement: this.getFeedAwareImprovement(this.brokerMetrics.comparison.throughputImprovement),
+        improvement: this.getFeedAwareImprovement(
+          this.brokerMetrics.comparison.throughputImprovement,
+        ),
       },
       {
         metric: 'P99 Latency (ms)',
-        rabbitmq: this.appendQualityTag(this.formatFeedValue('rabbitmq', rmq?.p99LatencyMs, this.formatLatency.bind(this)), 'rabbitmq', 'p99LatencyMs'),
-        pulsar: this.appendQualityTag(this.formatFeedValue('pulsar', pulsar?.p99LatencyMs, this.formatLatency.bind(this)), 'pulsar', 'p99LatencyMs'),
-        kafka: this.appendQualityTag(this.formatFeedValue('kafka', kafka?.p99LatencyMs, this.formatLatency.bind(this)), 'kafka', 'p99LatencyMs'),
-        improvement: this.getFeedAwareImprovement(this.brokerMetrics.comparison.latencyImprovement),
+        rabbitmq: this.appendQualityTag(
+          this.formatFeedValue(
+            'rabbitmq',
+            rmq?.p99LatencyMs,
+            this.formatLatency.bind(this),
+          ),
+          'rabbitmq',
+          'p99LatencyMs',
+        ),
+        pulsar: this.appendQualityTag(
+          this.formatFeedValue(
+            'pulsar',
+            pulsar?.p99LatencyMs,
+            this.formatLatency.bind(this),
+          ),
+          'pulsar',
+          'p99LatencyMs',
+        ),
+        kafka: this.appendQualityTag(
+          this.formatFeedValue(
+            'kafka',
+            kafka?.p99LatencyMs,
+            this.formatLatency.bind(this),
+          ),
+          'kafka',
+          'p99LatencyMs',
+        ),
+        improvement: this.getFeedAwareImprovement(
+          this.brokerMetrics.comparison.latencyImprovement,
+        ),
       },
       {
         metric: 'Memory Usage (MB)',
-        rabbitmq: this.appendQualityTag(this.formatFeedValue('rabbitmq', rmq?.memoryUsageMb, this.formatMemory.bind(this)), 'rabbitmq', 'memoryUsageMb'),
-        pulsar: this.appendQualityTag(this.formatFeedValue('pulsar', pulsar?.memoryUsageMb, this.formatMemory.bind(this)), 'pulsar', 'memoryUsageMb'),
-        kafka: this.appendQualityTag(this.formatFeedValue('kafka', kafka?.memoryUsageMb, this.formatMemory.bind(this)), 'kafka', 'memoryUsageMb'),
-        improvement: this.getFeedAwareImprovement(this.brokerMetrics.comparison.memoryEfficiency),
+        rabbitmq: this.appendQualityTag(
+          this.formatFeedValue(
+            'rabbitmq',
+            rmq?.memoryUsageMb,
+            this.formatMemory.bind(this),
+          ),
+          'rabbitmq',
+          'memoryUsageMb',
+        ),
+        pulsar: this.appendQualityTag(
+          this.formatFeedValue(
+            'pulsar',
+            pulsar?.memoryUsageMb,
+            this.formatMemory.bind(this),
+          ),
+          'pulsar',
+          'memoryUsageMb',
+        ),
+        kafka: this.appendQualityTag(
+          this.formatFeedValue(
+            'kafka',
+            kafka?.memoryUsageMb,
+            this.formatMemory.bind(this),
+          ),
+          'kafka',
+          'memoryUsageMb',
+        ),
+        improvement: this.getFeedAwareImprovement(
+          this.brokerMetrics.comparison.memoryEfficiency,
+        ),
       },
       {
         metric: 'Connections',
-        rabbitmq: this.appendQualityTag(this.formatFeedConnectionValue('rabbitmq', rmq?.connectionCount) || 'N/A', 'rabbitmq', 'connectionCount'),
-        pulsar: this.appendQualityTag(this.formatFeedConnectionValue('pulsar', pulsar?.connectionCount) || 'N/A', 'pulsar', 'connectionCount'),
-        kafka: this.appendQualityTag(this.formatFeedConnectionValue('kafka', kafka?.connectionCount) || 'N/A', 'kafka', 'connectionCount'),
+        rabbitmq: this.appendQualityTag(
+          this.formatFeedConnectionValue('rabbitmq', rmq?.connectionCount) ||
+            'N/A',
+          'rabbitmq',
+          'connectionCount',
+        ),
+        pulsar: this.appendQualityTag(
+          this.formatFeedConnectionValue('pulsar', pulsar?.connectionCount) ||
+            'N/A',
+          'pulsar',
+          'connectionCount',
+        ),
+        kafka: this.appendQualityTag(
+          this.formatFeedConnectionValue('kafka', kafka?.connectionCount) ||
+            'N/A',
+          'kafka',
+          'connectionCount',
+        ),
         improvement: undefined,
       },
       {
         metric: 'CPU Usage (%)',
-        rabbitmq: this.appendQualityTag(this.isBrokerFeedEnabled('rabbitmq') ? (rmq?.cpuPercentage !== undefined ? rmq.cpuPercentage.toFixed(1) : 'N/A') : 'Feed Off', 'rabbitmq', 'cpuPercentage'),
-        pulsar: this.appendQualityTag(this.isBrokerFeedEnabled('pulsar') ? (pulsar?.cpuPercentage !== undefined ? pulsar.cpuPercentage.toFixed(1) : 'N/A') : 'Feed Off', 'pulsar', 'cpuPercentage'),
-        kafka: this.appendQualityTag(this.isBrokerFeedEnabled('kafka') ? (kafka?.cpuPercentage !== undefined ? kafka.cpuPercentage.toFixed(1) : 'N/A') : 'Feed Off', 'kafka', 'cpuPercentage'),
+        rabbitmq: this.appendQualityTag(
+          this.isBrokerFeedEnabled('rabbitmq')
+            ? rmq?.cpuPercentage !== undefined
+              ? rmq.cpuPercentage.toFixed(1)
+              : 'N/A'
+            : 'Feed Off',
+          'rabbitmq',
+          'cpuPercentage',
+        ),
+        pulsar: this.appendQualityTag(
+          this.isBrokerFeedEnabled('pulsar')
+            ? pulsar?.cpuPercentage !== undefined
+              ? pulsar.cpuPercentage.toFixed(1)
+              : 'N/A'
+            : 'Feed Off',
+          'pulsar',
+          'cpuPercentage',
+        ),
+        kafka: this.appendQualityTag(
+          this.isBrokerFeedEnabled('kafka')
+            ? kafka?.cpuPercentage !== undefined
+              ? kafka.cpuPercentage.toFixed(1)
+              : 'N/A'
+            : 'Feed Off',
+          'kafka',
+          'cpuPercentage',
+        ),
         improvement: undefined,
       },
     ];

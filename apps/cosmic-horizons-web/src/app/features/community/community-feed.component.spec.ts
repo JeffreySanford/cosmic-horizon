@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommunityFeedComponent } from './community-feed.component';
 import { CommunityModule } from './community.module';
@@ -16,7 +19,9 @@ describe('CommunityFeedComponent (prototype)', () => {
 
     await TestBed.configureTestingModule({
       imports: [CommunityModule, HttpClientTestingModule],
-      providers: [{ provide: MatSnackBar, useValue: { open: snackBarOpenSpy } }],
+      providers: [
+        { provide: MatSnackBar, useValue: { open: snackBarOpenSpy } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CommunityFeedComponent);
@@ -48,12 +53,22 @@ describe('CommunityFeedComponent (prototype)', () => {
 
     component.create();
 
-    const postReq = httpMock.expectOne('http://localhost:3000/api/community/posts');
+    const postReq = httpMock.expectOne(
+      'http://localhost:3000/api/community/posts',
+    );
     expect(postReq.request.method).toBe('POST');
-    postReq.flush({ id: 'abc', title: 'hello', createdAt: new Date().toISOString() });
+    postReq.flush({
+      id: 'abc',
+      title: 'hello',
+      createdAt: new Date().toISOString(),
+    });
 
-    const reloadReq = httpMock.expectOne('http://localhost:3000/api/community/feed');
-    reloadReq.flush([{ id: 'abc', title: 'hello', createdAt: new Date().toISOString() }]);
+    const reloadReq = httpMock.expectOne(
+      'http://localhost:3000/api/community/feed',
+    );
+    reloadReq.flush([
+      { id: 'abc', title: 'hello', createdAt: new Date().toISOString() },
+    ]);
 
     expect(component.feed.length).toBe(1);
   });

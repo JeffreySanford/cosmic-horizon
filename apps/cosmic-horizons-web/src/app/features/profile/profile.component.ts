@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, DestroyRef, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  DestroyRef,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -42,28 +48,37 @@ export class ProfileComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
-      const routeUsername = params.get('username')?.trim() ?? '';
-      const sessionUsername = this.authSessionService.getUser()?.username?.trim() ?? '';
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const routeUsername = params.get('username')?.trim() ?? '';
+        const sessionUsername =
+          this.authSessionService.getUser()?.username?.trim() ?? '';
 
-      // DEBUG: trace route/session resolution
-      console.debug('[ProfileComponent] paramMap', { routeUsername, sessionUsername });
+        // DEBUG: trace route/session resolution
+        console.debug('[ProfileComponent] paramMap', {
+          routeUsername,
+          sessionUsername,
+        });
 
-      if (!routeUsername && sessionUsername) {
-        this.router.navigate(['/profile', sessionUsername], { replaceUrl: true });
-        return;
-      }
+        if (!routeUsername && sessionUsername) {
+          this.router.navigate(['/profile', sessionUsername], {
+            replaceUrl: true,
+          });
+          return;
+        }
 
-      const resolvedUsername = routeUsername || sessionUsername;
-      if (!resolvedUsername) {
-        this.error = 'Unable to resolve a profile username for this session.';
-        this.loading = false;
-        return;
-      }
+        const resolvedUsername = routeUsername || sessionUsername;
+        if (!resolvedUsername) {
+          this.error = 'Unable to resolve a profile username for this session.';
+          this.loading = false;
+          return;
+        }
 
-      this.isOwner = sessionUsername.length > 0 && resolvedUsername === sessionUsername;
-      this.loadProfile(resolvedUsername);
-    });
+        this.isOwner =
+          sessionUsername.length > 0 && resolvedUsername === sessionUsername;
+        this.loadProfile(resolvedUsername);
+      });
   }
 
   loadProfile(username: string): void {
@@ -106,7 +121,10 @@ export class ProfileComponent implements OnInit {
           } catch {
             /* ignore */
           }
-          console.debug('[ProfileComponent] loadProfile.finalize', { username, loading: this.loading });
+          console.debug('[ProfileComponent] loadProfile.finalize', {
+            username,
+            loading: this.loading,
+          });
         }),
       )
       .subscribe({
@@ -118,12 +136,17 @@ export class ProfileComponent implements OnInit {
           this.retryCount = 0;
           try {
             this.editForm.reset({
-              display_name: profile.user.display_name || profile.user.username || '',
+              display_name:
+                profile.user.display_name || profile.user.username || '',
               bio: profile.user.bio || '',
               avatar_url: profile.user.avatar_url || '',
             });
           } catch (e) {
-            console.error('[ProfileComponent] editForm.reset failed', e, profile);
+            console.error(
+              '[ProfileComponent] editForm.reset failed',
+              e,
+              profile,
+            );
             throw e;
           }
 
@@ -151,7 +174,10 @@ export class ProfileComponent implements OnInit {
     }
 
     this.retryCount += 1;
-    console.debug('[ProfileComponent] retryProfile', { username: this.currentUsername, attempt: this.retryCount });
+    console.debug('[ProfileComponent] retryProfile', {
+      username: this.currentUsername,
+      attempt: this.retryCount,
+    });
     this.loadProfile(this.currentUsername);
   }
 
@@ -171,7 +197,8 @@ export class ProfileComponent implements OnInit {
 
     this.editing = false;
     this.editForm.reset({
-      display_name: this.profile.user.display_name || this.profile.user.username || '',
+      display_name:
+        this.profile.user.display_name || this.profile.user.username || '',
       bio: this.profile.user.bio || '',
       avatar_url: this.profile.user.avatar_url || '',
     });
@@ -218,7 +245,8 @@ export class ProfileComponent implements OnInit {
             ...this.profile,
             user: {
               ...this.profile.user,
-              display_name: payload.display_name || this.profile.user.display_name,
+              display_name:
+                payload.display_name || this.profile.user.display_name,
               bio: payload.bio || undefined,
               avatar_url: payload.avatar_url || undefined,
             },

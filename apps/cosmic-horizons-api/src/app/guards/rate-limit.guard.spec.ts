@@ -65,7 +65,9 @@ describe('RateLimitGuard', () => {
       throw new Error('Expected rate limit guard to throw');
     } catch (error) {
       expect(error).toBeInstanceOf(HttpException);
-      expect((error as HttpException).getStatus()).toBe(HttpStatus.TOO_MANY_REQUESTS);
+      expect((error as HttpException).getStatus()).toBe(
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
   });
 

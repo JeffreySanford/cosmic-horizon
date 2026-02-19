@@ -38,7 +38,9 @@ const requiredEnvInProduction = (key: string, fallback: string): string => {
   if (!isProduction) {
     return fallback;
   }
-  throw new Error(`${key} is required for database configuration. Set it in environment variables.`);
+  throw new Error(
+    `${key} is required for database configuration. Set it in environment variables.`,
+  );
 };
 const loggingEnabled = envFlag('DB_LOGGING', false);
 const allowSensitiveDbLogging = envFlag('DB_ALLOW_SENSITIVE_LOGGING', false);
@@ -54,7 +56,10 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   host: envValue('DB_HOST', 'localhost'),
   port: parseInt(envValue('DB_PORT', '15432'), 10),
   username: requiredEnvInProduction('DB_USER', 'cosmic_horizons_user'),
-  password: requiredEnvInProduction('DB_PASSWORD', 'cosmic_horizons_password_dev'),
+  password: requiredEnvInProduction(
+    'DB_PASSWORD',
+    'cosmic_horizons_password_dev',
+  ),
   database: envValue('DB_NAME', 'cosmic_horizons'),
   entities: [
     User,

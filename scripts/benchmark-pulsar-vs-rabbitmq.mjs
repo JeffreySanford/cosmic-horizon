@@ -2,14 +2,14 @@
 
 /**
  * Performance Benchmark: RabbitMQ vs Pulsar
- * 
+ *
  * Tests both message brokers with identical workloads:
  * - Job submission events (same schema)
  * - Status update events
  * - Throughput, latency, and memory consumption
- * 
+ *
  * Usage: node scripts/benchmark-pulsar-vs-rabbitmq.mjs
- * 
+ *
  * Prerequisites:
  * - docker-compose.events.yml running (includes Pulsar)
  * - RabbitMQ: localhost:5672
@@ -44,7 +44,12 @@ async function getPulsarClientCtor() {
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const resultsDir = path.join(__dirname, '..', 'test-output', 'benchmark-results');
+const resultsDir = path.join(
+  __dirname,
+  '..',
+  'test-output',
+  'benchmark-results',
+);
 
 // Ensure results directory exists
 if (!fs.existsSync(resultsDir)) {
@@ -57,13 +62,23 @@ if (!fs.existsSync(resultsDir)) {
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const messageCountArg = args.find(arg => arg.startsWith('--messages='))?.split('=')[1];
-const stressTestArg = args.find(arg => arg === '--stress-test');
-const payloadKbArg = args.find(arg => arg.startsWith('--payload-kb='))?.split('=')[1];
-const inflightArg = args.find(arg => arg.startsWith('--inflight='))?.split('=')[1];
-const brokersArg = args.find(arg => arg.startsWith('--brokers='))?.split('=')[1];
-const trialsArg = args.find(arg => arg.startsWith('--trials='))?.split('=')[1];
-const seedArg = args.find(arg => arg.startsWith('--seed='))?.split('=')[1];
+const messageCountArg = args
+  .find((arg) => arg.startsWith('--messages='))
+  ?.split('=')[1];
+const stressTestArg = args.find((arg) => arg === '--stress-test');
+const payloadKbArg = args
+  .find((arg) => arg.startsWith('--payload-kb='))
+  ?.split('=')[1];
+const inflightArg = args
+  .find((arg) => arg.startsWith('--inflight='))
+  ?.split('=')[1];
+const brokersArg = args
+  .find((arg) => arg.startsWith('--brokers='))
+  ?.split('=')[1];
+const trialsArg = args
+  .find((arg) => arg.startsWith('--trials='))
+  ?.split('=')[1];
+const seedArg = args.find((arg) => arg.startsWith('--seed='))?.split('=')[1];
 
 function toPositiveInt(value, fallback) {
   const parsed = Number.parseInt(value ?? '', 10);
@@ -73,13 +88,16 @@ function toPositiveInt(value, fallback) {
 const isStressTest = Boolean(stressTestArg);
 const payloadKb = toPositiveInt(payloadKbArg, isStressTest ? 64 : 2);
 const inflight = toPositiveInt(inflightArg, isStressTest ? 3000 : 250);
-const messageCount = toPositiveInt(messageCountArg, isStressTest ? 50000 : 10000);
+const messageCount = toPositiveInt(
+  messageCountArg,
+  isStressTest ? 50000 : 10000,
+);
 const trials = toPositiveInt(trialsArg, 1);
 const seed = toPositiveInt(seedArg, 42);
 const requestedBrokers = (brokersArg ?? 'rabbitmq,pulsar')
   .split(',')
-  .map(value => value.trim().toLowerCase())
-  .filter(value => ['rabbitmq', 'pulsar', 'kafka'].includes(value));
+  .map((value) => value.trim().toLowerCase())
+  .filter((value) => ['rabbitmq', 'pulsar', 'kafka'].includes(value));
 
 const CONFIG = {
   messageCount,
@@ -90,26 +108,27 @@ const CONFIG = {
   inflight,
   trials,
   seed,
-  brokers: requestedBrokers.length > 0 ? requestedBrokers : ['rabbitmq', 'pulsar'],
-  
+  brokers:
+    requestedBrokers.length > 0 ? requestedBrokers : ['rabbitmq', 'pulsar'],
+
   rabbitmq: {
     url: 'amqp://guest:guest@localhost:5672',
     exchange: 'job.events.benchmark',
     queue: 'job-events-benchmark',
-    routingKey: 'job.submitted.benchmark'
+    routingKey: 'job.submitted.benchmark',
   },
-  
+
   pulsar: {
     serviceUrl: 'pulsar://localhost:6650',
     topic: 'persistent://public/default/job-events-benchmark',
-    namespace: 'public/default'
-  }
+    namespace: 'public/default',
+  },
 };
 
 function mulberry32(initialSeed) {
   let a = initialSeed >>> 0;
   return function next() {
-    a += 0x6D2B79F5;
+    a += 0x6d2b79f5;
     let t = a;
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
@@ -156,21 +175,19 @@ function generateJobSubmittedEvent(index) {
       gpuType: 'A100',
       gpuCount: 8,
       cpuCount: 64,
-      memoryGb: 256
+      memoryGb: 256,
     },
     metadata: {
       observationId: `obs-${Math.floor(index / 100)}`,
       targetName: 'M87',
       calibrationMode: 'direction-dependent',
       estimatedDuration: 14400,
-      priority: randomInt(10)
+      priority: randomInt(10),
     },
     syntheticPayload,
-    sourceSystem: 'cosmic-horizons-api'
+    sourceSystem: 'cosmic-horizons-api',
   };
 }
-
-
 
 // ============================================================================
 // RabbitMQ Benchmark
@@ -186,7 +203,7 @@ async function benchmarkRabbitMQ() {
     broker: 'RabbitMQ',
     testTime: new Date().toISOString(),
     config: CONFIG.rabbitmq,
-    phases: {}
+    phases: {},
   };
 
   try {
@@ -194,18 +211,28 @@ async function benchmarkRabbitMQ() {
     console.log('Connecting to RabbitMQ...');
     connection = await amqp.connect(CONFIG.rabbitmq.url);
     channel = await connection.createConfirmChannel();
-    
+
     // Setup exchange and queue
-    await channel.assertExchange(CONFIG.rabbitmq.exchange, 'topic', { durable: true });
-    const queueResult = await channel.assertQueue(CONFIG.rabbitmq.queue, { durable: true });
-    await channel.bindQueue(CONFIG.rabbitmq.queue, CONFIG.rabbitmq.exchange, CONFIG.rabbitmq.routingKey);
-    console.log(`✓ Connected. Queue messages before test: ${queueResult.messageCount}`);
+    await channel.assertExchange(CONFIG.rabbitmq.exchange, 'topic', {
+      durable: true,
+    });
+    const queueResult = await channel.assertQueue(CONFIG.rabbitmq.queue, {
+      durable: true,
+    });
+    await channel.bindQueue(
+      CONFIG.rabbitmq.queue,
+      CONFIG.rabbitmq.exchange,
+      CONFIG.rabbitmq.routingKey,
+    );
+    console.log(
+      `✓ Connected. Queue messages before test: ${queueResult.messageCount}`,
+    );
 
     // Phase 1: Publish throughput test
     console.log('\n[Phase 1] Publishing throughput test...');
     const pubStartMem = process.memoryUsage().heapUsed / 1024 / 1024;
     const pubStart = performance.now();
-    
+
     for (let i = 0; i < CONFIG.messageCount; i++) {
       const event = generateJobSubmittedEvent(i);
       channel.publish(
@@ -214,26 +241,30 @@ async function benchmarkRabbitMQ() {
         Buffer.from(JSON.stringify(event)),
         { persistent: true, contentType: 'application/json' },
       );
-      
+
       if ((i + 1) % CONFIG.batchSize === 0) {
         process.stdout.write(`\r  Published: ${i + 1}/${CONFIG.messageCount}`);
       }
     }
-    
+
     await channel.waitForConfirms();
     const pubDuration = performance.now() - pubStart;
     const pubEndMem = process.memoryUsage().heapUsed / 1024 / 1024;
-    
+
     results.phases.publish = {
       duration: pubDuration,
-      messagesPerSecond: (CONFIG.messageCount / (pubDuration / 1000)).toFixed(2),
+      messagesPerSecond: (CONFIG.messageCount / (pubDuration / 1000)).toFixed(
+        2,
+      ),
       memoryUsedMb: (pubEndMem - pubStartMem).toFixed(2),
-      avgLatencyMs: (pubDuration / CONFIG.messageCount).toFixed(4)
+      avgLatencyMs: (pubDuration / CONFIG.messageCount).toFixed(4),
     };
-    
+
     console.log(`\n  ✓ Published ${CONFIG.messageCount} messages`);
     console.log(`  - Duration: ${pubDuration.toFixed(2)}ms`);
-    console.log(`  - Throughput: ${results.phases.publish.messagesPerSecond} msg/s`);
+    console.log(
+      `  - Throughput: ${results.phases.publish.messagesPerSecond} msg/s`,
+    );
     console.log(`  - Memory used: ${results.phases.publish.memoryUsedMb} MB`);
 
     // Phase 2: Consume throughput test
@@ -247,11 +278,13 @@ async function benchmarkRabbitMQ() {
         if (msg) {
           channel.ack(msg);
           consumedCount++;
-          
+
           if (consumedCount % CONFIG.batchSize === 0) {
-            process.stdout.write(`\r  Consumed: ${consumedCount}/${CONFIG.messageCount}`);
+            process.stdout.write(
+              `\r  Consumed: ${consumedCount}/${CONFIG.messageCount}`,
+            );
           }
-          
+
           if (consumedCount >= CONFIG.messageCount) {
             resolve();
           }
@@ -261,17 +294,21 @@ async function benchmarkRabbitMQ() {
 
     const conDuration = performance.now() - conStart;
     const conEndMem = process.memoryUsage().heapUsed / 1024 / 1024;
-    
+
     results.phases.consume = {
       duration: conDuration,
-      messagesPerSecond: (CONFIG.messageCount / (conDuration / 1000)).toFixed(2),
+      messagesPerSecond: (CONFIG.messageCount / (conDuration / 1000)).toFixed(
+        2,
+      ),
       memoryUsedMb: (conEndMem - conStartMem).toFixed(2),
-      avgLatencyMs: (conDuration / CONFIG.messageCount).toFixed(4)
+      avgLatencyMs: (conDuration / CONFIG.messageCount).toFixed(4),
     };
 
     console.log(`\n  ✓ Consumed ${consumedCount} messages`);
     console.log(`  - Duration: ${conDuration.toFixed(2)}ms`);
-    console.log(`  - Throughput: ${results.phases.consume.messagesPerSecond} msg/s`);
+    console.log(
+      `  - Throughput: ${results.phases.consume.messagesPerSecond} msg/s`,
+    );
     console.log(`  - Memory used: ${results.phases.consume.memoryUsedMb} MB`);
 
     // Cleanup
@@ -279,7 +316,6 @@ async function benchmarkRabbitMQ() {
     await channel.deleteExchange(CONFIG.rabbitmq.exchange);
 
     return results;
-
   } catch (error) {
     console.error('RabbitMQ benchmark error:', error.message);
     return null;
@@ -302,7 +338,7 @@ async function benchmarkPulsar() {
     broker: 'Pulsar',
     testTime: new Date().toISOString(),
     config: CONFIG.pulsar,
-    phases: {}
+    phases: {},
   };
 
   let client, producer, consumer;
@@ -313,7 +349,7 @@ async function benchmarkPulsar() {
     // Connect
     console.log('Connecting to Pulsar cluster...');
     client = new PulsarClient({
-      serviceUrl: CONFIG.pulsar.serviceUrl
+      serviceUrl: CONFIG.pulsar.serviceUrl,
     });
     console.log('✓ Connected to Pulsar cluster');
 
@@ -323,7 +359,7 @@ async function benchmarkPulsar() {
       topic: CONFIG.pulsar.topic,
       batchingEnabled: true,
       batchingMaxPublishDelayMs: 10,
-      maxPendingMessages: 1000
+      maxPendingMessages: 1000,
     });
 
     const pubStartMem = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -332,9 +368,11 @@ async function benchmarkPulsar() {
     const pending = [];
     for (let i = 0; i < CONFIG.messageCount; i++) {
       const event = generateJobSubmittedEvent(i);
-      pending.push(producer.send({
-        data: Buffer.from(JSON.stringify(event))
-      }));
+      pending.push(
+        producer.send({
+          data: Buffer.from(JSON.stringify(event)),
+        }),
+      );
 
       if (pending.length >= CONFIG.inflight) {
         await Promise.all(pending.splice(0, pending.length));
@@ -353,14 +391,18 @@ async function benchmarkPulsar() {
 
     results.phases.publish = {
       duration: pubDuration,
-      messagesPerSecond: (CONFIG.messageCount / (pubDuration / 1000)).toFixed(2),
+      messagesPerSecond: (CONFIG.messageCount / (pubDuration / 1000)).toFixed(
+        2,
+      ),
       memoryUsedMb: (pubEndMem - pubStartMem).toFixed(2),
-      avgLatencyMs: (pubDuration / CONFIG.messageCount).toFixed(4)
+      avgLatencyMs: (pubDuration / CONFIG.messageCount).toFixed(4),
     };
 
     console.log(`\n  ✓ Published ${CONFIG.messageCount} messages`);
     console.log(`  - Duration: ${pubDuration.toFixed(2)}ms`);
-    console.log(`  - Throughput: ${results.phases.publish.messagesPerSecond} msg/s`);
+    console.log(
+      `  - Throughput: ${results.phases.publish.messagesPerSecond} msg/s`,
+    );
     console.log(`  - Memory used: ${results.phases.publish.memoryUsedMb} MB`);
 
     await producer.flush();
@@ -386,7 +428,9 @@ async function benchmarkPulsar() {
         consumedCount++;
 
         if (consumedCount % CONFIG.batchSize === 0) {
-          process.stdout.write(`\r  Consumed: ${consumedCount}/${CONFIG.messageCount}`);
+          process.stdout.write(
+            `\r  Consumed: ${consumedCount}/${CONFIG.messageCount}`,
+          );
         }
       }
     }
@@ -396,21 +440,26 @@ async function benchmarkPulsar() {
 
     results.phases.consume = {
       duration: conDuration,
-      messagesPerSecond: (CONFIG.messageCount / (conDuration / 1000)).toFixed(2),
+      messagesPerSecond: (CONFIG.messageCount / (conDuration / 1000)).toFixed(
+        2,
+      ),
       memoryUsedMb: (conEndMem - conStartMem).toFixed(2),
-      avgLatencyMs: (conDuration / CONFIG.messageCount).toFixed(4)
+      avgLatencyMs: (conDuration / CONFIG.messageCount).toFixed(4),
     };
 
     console.log(`\n  ✓ Consumed ${consumedCount} messages`);
     console.log(`  - Duration: ${conDuration.toFixed(2)}ms`);
-    console.log(`  - Throughput: ${results.phases.consume.messagesPerSecond} msg/s`);
+    console.log(
+      `  - Throughput: ${results.phases.consume.messagesPerSecond} msg/s`,
+    );
     console.log(`  - Memory used: ${results.phases.consume.memoryUsedMb} MB`);
 
     return results;
-
   } catch (error) {
     console.error('Pulsar benchmark error:', error.message);
-    console.error('Note: Ensure Pulsar is running with: docker compose -f docker-compose.yml -f docker-compose.events.yml up');
+    console.error(
+      'Note: Ensure Pulsar is running with: docker compose -f docker-compose.yml -f docker-compose.events.yml up',
+    );
     return null;
   } finally {
     if (consumer) await consumer.close();
@@ -439,8 +488,14 @@ async function benchmarkKafka() {
 
   try {
     const { Kafka, CompressionTypes } = await import('kafkajs');
-    const brokers = (process.env.KAFKA_BROKERS ?? 'localhost:9092').split(',').map(b => b.trim());
-    const kafka = new Kafka({ clientId: 'benchmark-script', brokers, retry: { retries: 5 } });
+    const brokers = (process.env.KAFKA_BROKERS ?? 'localhost:9092')
+      .split(',')
+      .map((b) => b.trim());
+    const kafka = new Kafka({
+      clientId: 'benchmark-script',
+      brokers,
+      retry: { retries: 5 },
+    });
 
     kafkaAdmin = kafka.admin();
     await kafkaAdmin.connect();
@@ -448,7 +503,10 @@ async function benchmarkKafka() {
 
     // Ensure topic exists (idempotent)
     try {
-      await kafkaAdmin.createTopics({ topics: [{ topic, numPartitions: 3, replicationFactor: 1 }], waitForLeaders: true });
+      await kafkaAdmin.createTopics({
+        topics: [{ topic, numPartitions: 3, replicationFactor: 1 }],
+        waitForLeaders: true,
+      });
     } catch (e) {
       // ignore topic already exists or creation issues in dev environments
     }
@@ -463,10 +521,17 @@ async function benchmarkKafka() {
     let batch = [];
     for (let i = 0; i < CONFIG.messageCount; i++) {
       const event = generateJobSubmittedEvent(i);
-      batch.push({ key: `evt-${CONFIG.seed}-${i}`, value: JSON.stringify(event) });
+      batch.push({
+        key: `evt-${CONFIG.seed}-${i}`,
+        value: JSON.stringify(event),
+      });
 
       if (batch.length >= Math.min(CONFIG.batchSize, CONFIG.inflight)) {
-        await producer.send({ topic, messages: batch, compression: CompressionTypes.GZIP });
+        await producer.send({
+          topic,
+          messages: batch,
+          compression: CompressionTypes.GZIP,
+        });
         batch = [];
       }
 
@@ -475,7 +540,11 @@ async function benchmarkKafka() {
       }
     }
     if (batch.length > 0) {
-      await producer.send({ topic, messages: batch, compression: CompressionTypes.GZIP });
+      await producer.send({
+        topic,
+        messages: batch,
+        compression: CompressionTypes.GZIP,
+      });
       batch = [];
     }
 
@@ -484,14 +553,18 @@ async function benchmarkKafka() {
 
     results.phases.publish = {
       duration: pubDuration,
-      messagesPerSecond: (CONFIG.messageCount / (pubDuration / 1000)).toFixed(2),
+      messagesPerSecond: (CONFIG.messageCount / (pubDuration / 1000)).toFixed(
+        2,
+      ),
       memoryUsedMb: (pubEndMem - pubStartMem).toFixed(2),
       avgLatencyMs: (pubDuration / CONFIG.messageCount).toFixed(4),
     };
 
     console.log(`\n  ✓ Published ${CONFIG.messageCount} messages`);
     console.log(`  - Duration: ${pubDuration.toFixed(2)}ms`);
-    console.log(`  - Throughput: ${results.phases.publish.messagesPerSecond} msg/s`);
+    console.log(
+      `  - Throughput: ${results.phases.publish.messagesPerSecond} msg/s`,
+    );
     console.log(`  - Memory used: ${results.phases.publish.memoryUsedMb} MB`);
 
     // Consumer: subscribe and consume messages
@@ -510,7 +583,9 @@ async function benchmarkKafka() {
       eachMessage: async () => {
         consumedCount++;
         if (consumedCount % CONFIG.batchSize === 0) {
-          process.stdout.write(`\r  Consumed: ${consumedCount}/${CONFIG.messageCount}`);
+          process.stdout.write(
+            `\r  Consumed: ${consumedCount}/${CONFIG.messageCount}`,
+          );
         }
         if (consumedCount >= CONFIG.messageCount && !finished) {
           finished = true;
@@ -535,14 +610,18 @@ async function benchmarkKafka() {
 
     results.phases.consume = {
       duration: conDuration,
-      messagesPerSecond: (CONFIG.messageCount / (conDuration / 1000)).toFixed(2),
+      messagesPerSecond: (CONFIG.messageCount / (conDuration / 1000)).toFixed(
+        2,
+      ),
       memoryUsedMb: (conEndMem - conStartMem).toFixed(2),
       avgLatencyMs: (conDuration / CONFIG.messageCount).toFixed(4),
     };
 
     console.log(`\n  ✓ Consumed ${consumedCount} messages`);
     console.log(`  - Duration: ${conDuration.toFixed(2)}ms`);
-    console.log(`  - Throughput: ${results.phases.consume.messagesPerSecond} msg/s`);
+    console.log(
+      `  - Throughput: ${results.phases.consume.messagesPerSecond} msg/s`,
+    );
     console.log(`  - Memory used: ${results.phases.consume.memoryUsedMb} MB`);
 
     return results;
@@ -550,9 +629,15 @@ async function benchmarkKafka() {
     console.error('Kafka benchmark error:', error?.message ?? String(error));
     return null;
   } finally {
-    try { if (producer) await producer.disconnect(); } catch (_) {}
-    try { if (consumer) await consumer.disconnect(); } catch (_) {}
-    try { if (kafkaAdmin) await kafkaAdmin.disconnect(); } catch (_) {}
+    try {
+      if (producer) await producer.disconnect();
+    } catch (_) {}
+    try {
+      if (consumer) await consumer.disconnect();
+    } catch (_) {}
+    try {
+      if (kafkaAdmin) await kafkaAdmin.disconnect();
+    } catch (_) {}
   }
 }
 
@@ -604,23 +689,50 @@ function compareResults(rabbitmqResults, pulsarResults, kafkaResults) {
 
     // Compute deltas vs RabbitMQ when both sides exist
     if (rmq && pulsar) {
-      const throughputImprovement = ((pulsar.messagesPerSecond - rmq.messagesPerSecond) / rmq.messagesPerSecond * 100).toFixed(2);
-      const latencyImprovement = ((rmq.avgLatencyMs - pulsar.avgLatencyMs) / rmq.avgLatencyMs * 100).toFixed(2);
-      const memoryImprovement = ((rmq.memoryUsedMb - pulsar.memoryUsedMb) / rmq.memoryUsedMb * 100).toFixed(2);
+      const throughputImprovement = (
+        ((pulsar.messagesPerSecond - rmq.messagesPerSecond) /
+          rmq.messagesPerSecond) *
+        100
+      ).toFixed(2);
+      const latencyImprovement = (
+        ((rmq.avgLatencyMs - pulsar.avgLatencyMs) / rmq.avgLatencyMs) *
+        100
+      ).toFixed(2);
+      const memoryImprovement = (
+        ((rmq.memoryUsedMb - pulsar.memoryUsedMb) / rmq.memoryUsedMb) *
+        100
+      ).toFixed(2);
 
       console.log(`\n  Pulsar vs RabbitMQ:`);
-      console.log(`    Throughput: ${throughputImprovement > 0 ? '+' : ''}${throughputImprovement}%`);
-      console.log(`    Latency: ${latencyImprovement > 0 ? '+' : ''}${latencyImprovement}%`);
-      console.log(`    Memory: ${memoryImprovement > 0 ? '+' : ''}${memoryImprovement}%`);
+      console.log(
+        `    Throughput: ${throughputImprovement > 0 ? '+' : ''}${throughputImprovement}%`,
+      );
+      console.log(
+        `    Latency: ${latencyImprovement > 0 ? '+' : ''}${latencyImprovement}%`,
+      );
+      console.log(
+        `    Memory: ${memoryImprovement > 0 ? '+' : ''}${memoryImprovement}%`,
+      );
     }
 
     if (rmq && kafka) {
-      const throughputImprovementK = ((kafka.messagesPerSecond - rmq.messagesPerSecond) / rmq.messagesPerSecond * 100).toFixed(2);
-      const memoryImprovementK = ((rmq.memoryUsedMb - kafka.memoryUsedMb) / rmq.memoryUsedMb * 100).toFixed(2);
+      const throughputImprovementK = (
+        ((kafka.messagesPerSecond - rmq.messagesPerSecond) /
+          rmq.messagesPerSecond) *
+        100
+      ).toFixed(2);
+      const memoryImprovementK = (
+        ((rmq.memoryUsedMb - kafka.memoryUsedMb) / rmq.memoryUsedMb) *
+        100
+      ).toFixed(2);
 
       console.log(`\n  Kafka vs RabbitMQ:`);
-      console.log(`    Throughput: ${throughputImprovementK > 0 ? '+' : ''}${throughputImprovementK}%`);
-      console.log(`    Memory: ${memoryImprovementK > 0 ? '+' : ''}${memoryImprovementK}%`);
+      console.log(
+        `    Throughput: ${throughputImprovementK > 0 ? '+' : ''}${throughputImprovementK}%`,
+      );
+      console.log(
+        `    Memory: ${memoryImprovementK > 0 ? '+' : ''}${memoryImprovementK}%`,
+      );
     }
   }
 }
@@ -633,13 +745,17 @@ function summarizeTrials(allTrialResults) {
   const brokerNames = ['rabbitmq', 'kafka', 'pulsar'];
   for (const brokerName of brokerNames) {
     const trialBrokerResults = allTrialResults
-      .map(result => result[brokerName])
+      .map((result) => result[brokerName])
       .filter(Boolean);
     if (trialBrokerResults.length === 0) continue;
 
     for (const phase of ['publish', 'consume']) {
-      const throughputs = trialBrokerResults.map(result => Number(result.phases[phase].messagesPerSecond));
-      const latencies = trialBrokerResults.map(result => Number(result.phases[phase].avgLatencyMs || 0));
+      const throughputs = trialBrokerResults.map((result) =>
+        Number(result.phases[phase].messagesPerSecond),
+      );
+      const latencies = trialBrokerResults.map((result) =>
+        Number(result.phases[phase].avgLatencyMs || 0),
+      );
 
       const throughputMedian = median(throughputs);
       const throughputP95 = percentile(throughputs, 95);
@@ -647,10 +763,10 @@ function summarizeTrials(allTrialResults) {
       const latencyP95 = percentile(latencies, 95);
 
       console.log(
-        `${brokerName.toUpperCase()} ${phase.toUpperCase()} throughput median/p95: ${throughputMedian?.toFixed(2)} / ${throughputP95?.toFixed(2)} msg/s`
+        `${brokerName.toUpperCase()} ${phase.toUpperCase()} throughput median/p95: ${throughputMedian?.toFixed(2)} / ${throughputP95?.toFixed(2)} msg/s`,
       );
       console.log(
-        `${brokerName.toUpperCase()} ${phase.toUpperCase()} latency median/p95: ${latencyMedian?.toFixed(4)} / ${latencyP95?.toFixed(4)} ms/msg`
+        `${brokerName.toUpperCase()} ${phase.toUpperCase()} latency median/p95: ${latencyMedian?.toFixed(4)} / ${latencyP95?.toFixed(4)} ms/msg`,
       );
     }
   }
@@ -670,13 +786,13 @@ function saveResults(rabbitmqResults, pulsarResults, kafkaResults) {
       inflight: CONFIG.inflight,
       trials: CONFIG.trials,
       seed: CONFIG.seed,
-      brokers: CONFIG.brokers
+      brokers: CONFIG.brokers,
     },
     results: {
       rabbitmq: rabbitmqResults,
       kafka: kafkaResults,
-      pulsar: pulsarResults
-    }
+      pulsar: pulsarResults,
+    },
   };
 
   fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
@@ -697,11 +813,15 @@ async function main() {
   console.log(`  Messages per test: ${CONFIG.messageCount.toLocaleString()}`);
   console.log(`  Batch size: ${CONFIG.batchSize}`);
   console.log(`  Payload size: ~${CONFIG.payloadKb} KB`);
-  console.log(`  In-flight publish window: ${CONFIG.inflight.toLocaleString()}`);
+  console.log(
+    `  In-flight publish window: ${CONFIG.inflight.toLocaleString()}`,
+  );
   console.log(`  Selected brokers: ${CONFIG.brokers.join(', ')}`);
   console.log(`  Trials: ${CONFIG.trials}`);
   console.log(`  Replay seed: ${CONFIG.seed}`);
-  console.log(`  Test type: ${isStressTest ? 'High Load Stress Test' : 'Standard Performance'}`);
+  console.log(
+    `  Test type: ${isStressTest ? 'High Load Stress Test' : 'Standard Performance'}`,
+  );
 
   try {
     const allTrialResults = [];
@@ -746,7 +866,6 @@ async function main() {
     console.log('\n' + '='.repeat(70));
     console.log('Benchmark completed successfully!');
     console.log('='.repeat(70));
-
   } catch (error) {
     console.error('\nFatal error during benchmark:', error);
     process.exit(1);

@@ -1,4 +1,11 @@
-import { Component, OnInit, Output, EventEmitter, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { JobOrchestrationService } from '../job-orchestration.service';
 import { Agent, JobSubmissionRequest } from '../job.models';
@@ -43,9 +50,18 @@ export class JobSubmissionFormComponent implements OnInit {
       agentId: ['alphacal-001', Validators.required],
       jobName: ['', [Validators.required, Validators.minLength(3)]],
       dataPath: ['', Validators.required],
-      cpuCores: [32, [Validators.required, Validators.min(1), Validators.max(128)]],
-      memoryGb: [128, [Validators.required, Validators.min(8), Validators.max(512)]],
-      gpuCount: [1, [Validators.required, Validators.min(0), Validators.max(8)]],
+      cpuCores: [
+        32,
+        [Validators.required, Validators.min(1), Validators.max(128)],
+      ],
+      memoryGb: [
+        128,
+        [Validators.required, Validators.min(8), Validators.max(512)],
+      ],
+      gpuCount: [
+        1,
+        [Validators.required, Validators.min(0), Validators.max(8)],
+      ],
     });
   }
 

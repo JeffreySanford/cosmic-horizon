@@ -11,7 +11,9 @@ export class KafkaService {
 
   async connect(): Promise<void> {
     if (!this.brokers.length) {
-      this.brokers = this.configService.get<string>('KAFKA_BROKERS', 'localhost:9092').split(',');
+      this.brokers = this.configService
+        .get<string>('KAFKA_BROKERS', 'localhost:9092')
+        .split(',');
     }
     this.admin = { connected: true };
     this.logger.log(`Kafka connected to ${this.brokers.join(', ')}`);
@@ -26,7 +28,10 @@ export class KafkaService {
     this.logger.debug(`Kafka topic ${name} created`);
   }
 
-  async produce(topic: string, messages: Array<Record<string, unknown>>): Promise<void> {
+  async produce(
+    topic: string,
+    messages: Array<Record<string, unknown>>,
+  ): Promise<void> {
     this.logger.debug(`Kafka produced ${messages.length} messages to ${topic}`);
   }
 
@@ -39,7 +44,9 @@ export class KafkaService {
     return !!this.admin;
   }
 
-  async getConsumerGroupMetadata(groupId: string): Promise<{ groupId: string; state: string; members: number }> {
+  async getConsumerGroupMetadata(
+    groupId: string,
+  ): Promise<{ groupId: string; state: string; members: number }> {
     return { groupId, state: 'Stable', members: 1 };
   }
 

@@ -14,11 +14,11 @@ Cosmic Horizons can be prepared as an **AI control plane** now by enforcing stab
 
 ## Integration Model
 
-| Layer | Broker Interface | CosmicAI Role |
-|---|---|---|
-| Control-plane orchestration | RabbitMQ | Trigger/ack loops for agent job starts, retries, and escalation actions |
-| Durable scientific event stream | Kafka | Agent inference inputs, model telemetry, reproducible replay/training slices |
-| Multi-tenant/federated pipelines | Pulsar | Cross-team agent products, tenant isolation, distributed subscription models |
+| Layer                            | Broker Interface | CosmicAI Role                                                                |
+| -------------------------------- | ---------------- | ---------------------------------------------------------------------------- |
+| Control-plane orchestration      | RabbitMQ         | Trigger/ack loops for agent job starts, retries, and escalation actions      |
+| Durable scientific event stream  | Kafka            | Agent inference inputs, model telemetry, reproducible replay/training slices |
+| Multi-tenant/federated pipelines | Pulsar           | Cross-team agent products, tenant isolation, distributed subscription models |
 
 ## Concrete Agent Docking Points
 

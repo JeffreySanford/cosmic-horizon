@@ -1,4 +1,10 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Logger } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+  Logger,
+} from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 import { LoggingService } from '../logging/logging.service';
 
@@ -62,9 +68,7 @@ export class RequestLoggerInterceptor implements NestInterceptor {
           const duration = Math.round(Date.now() - start);
           const httpRes = context.switchToHttp().getResponse<HttpResponse>();
           const status =
-            (err as { status?: number })?.status ??
-            httpRes?.statusCode ??
-            500;
+            (err as { status?: number })?.status ?? httpRes?.statusCode ?? 500;
 
           const log = {
             event: 'http_error',

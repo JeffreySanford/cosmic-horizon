@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, interval } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { Job, JobSubmissionRequest, JobSubmissionResponse, Agent } from './job.models';
+import {
+  Job,
+  JobSubmissionRequest,
+  JobSubmissionResponse,
+  Agent,
+} from './job.models';
 
 @Injectable({
   providedIn: 'root',
@@ -22,12 +27,13 @@ export class JobOrchestrationService {
    * Load mock agents for MVP
    */
   getAgents(): Observable<Agent[]> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       const mockAgents: Agent[] = [
         {
           id: 'alphacal-001',
           name: 'AlphaCal',
-          description: 'Autonomous interferometric calibration with direction-dependent effects',
+          description:
+            'Autonomous interferometric calibration with direction-dependent effects',
           version: '2.1.0',
           requiredResources: {
             cpu: 32,
@@ -38,7 +44,8 @@ export class JobOrchestrationService {
         {
           id: 'reconstruction-001',
           name: 'Radio Image Reconstruction',
-          description: 'GPU-accelerated reconstruction for billions of visibilities',
+          description:
+            'GPU-accelerated reconstruction for billions of visibilities',
           version: '3.0.2',
           requiredResources: {
             cpu: 64,
@@ -49,7 +56,8 @@ export class JobOrchestrationService {
         {
           id: 'anomaly-001',
           name: 'Anomaly Detection',
-          description: 'Transfer-learning models for events and calibration anomalies',
+          description:
+            'Transfer-learning models for events and calibration anomalies',
           version: '1.5.1',
           requiredResources: {
             cpu: 16,
@@ -67,7 +75,7 @@ export class JobOrchestrationService {
    * Submit a new job
    */
   submitJob(request: JobSubmissionRequest): Observable<JobSubmissionResponse> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       const jobId = `job-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const agent = this.getAgentName(request.agentId);
 
@@ -106,17 +114,15 @@ export class JobOrchestrationService {
    * Get job by ID
    */
   getJobById(jobId: string): Observable<Job | undefined> {
-    return this.jobs$.pipe(
-      map(jobs => jobs.find(job => job.id === jobId))
-    );
+    return this.jobs$.pipe(map((jobs) => jobs.find((job) => job.id === jobId)));
   }
 
   /**
    * Cancel a job
    */
   cancelJob(jobId: string): Observable<void> {
-    return new Observable(observer => {
-      const job = this.mockJobs.find(j => j.id === jobId);
+    return new Observable((observer) => {
+      const job = this.mockJobs.find((j) => j.id === jobId);
       if (job && (job.status === 'queued' || job.status === 'running')) {
         job.status = 'cancelled';
         job.cancelledAt = new Date();
@@ -132,9 +138,7 @@ export class JobOrchestrationService {
    */
   private startJobPolling(): void {
     interval(5000)
-      .pipe(
-        switchMap(() => this.jobs$),
-      )
+      .pipe(switchMap(() => this.jobs$))
       .subscribe(() => {
         this.simulateJobProgress();
       });
@@ -151,7 +155,10 @@ export class JobOrchestrationService {
         job.progress = 5;
       } else if (job.status === 'running') {
         job.progress = Math.min(job.progress + Math.random() * 15, 99);
-        job.estimatedTimeRemaining = Math.max(0, 3600 - (Date.now() - (job.startedAt?.getTime() || 0)) / 1000);
+        job.estimatedTimeRemaining = Math.max(
+          0,
+          3600 - (Date.now() - (job.startedAt?.getTime() || 0)) / 1000,
+        );
 
         if (Math.random() > 0.95) {
           job.status = 'completed';

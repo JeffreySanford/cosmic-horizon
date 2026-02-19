@@ -1,7 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan, MoreThan } from 'typeorm';
-import { BrokerMetrics, BrokerMetricsDTO, BrokerComparisonDTO, BrokerHistoryDTO } from './broker-metrics.entity';
+import {
+  BrokerMetrics,
+  BrokerMetricsDTO,
+  BrokerComparisonDTO,
+  BrokerHistoryDTO,
+} from './broker-metrics.entity';
 import { BrokerMetricsCollector } from './broker-metrics.collector';
 
 /**
@@ -13,7 +18,10 @@ import { BrokerMetricsCollector } from './broker-metrics.collector';
 @Injectable()
 export class BrokerMetricsService {
   private readonly logger = new Logger(BrokerMetricsService.name);
-  private metricsCache = new Map<string, { data: BrokerComparisonDTO; expiresAt: Date }>();
+  private metricsCache = new Map<
+    string,
+    { data: BrokerComparisonDTO; expiresAt: Date }
+  >();
   private readonly CACHE_TTL_MS = 60000; // 60 seconds
   private persistenceAvailable = true;
 
@@ -42,7 +50,9 @@ export class BrokerMetricsService {
       await Promise.allSettled([
         this.storeMetric('rabbitmq', brokerMetrics.rabbitmq),
         this.storeMetric('kafka', brokerMetrics.kafka),
-        ...(brokerMetrics.pulsar ? [this.storeMetric('pulsar', brokerMetrics.pulsar)] : []),
+        ...(brokerMetrics.pulsar
+          ? [this.storeMetric('pulsar', brokerMetrics.pulsar)]
+          : []),
       ]);
 
       const response = this.buildComparison(brokerMetrics);
@@ -55,7 +65,9 @@ export class BrokerMetricsService {
 
       return response;
     } catch (error) {
-      this.logger.error(`Failed to collect metrics: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to collect metrics: ${error instanceof Error ? error.message : String(error)}`,
+      );
       throw error;
     }
   }
@@ -91,7 +103,11 @@ export class BrokerMetricsService {
 
     // Build samples
     const samples = Array.from(grouped.entries()).map(([, brokerMap]) => ({
-      timestamp: (brokerMap.rabbitmq?.capturedAt || brokerMap.kafka?.capturedAt || brokerMap.pulsar?.capturedAt) || new Date(),
+      timestamp:
+        brokerMap.rabbitmq?.capturedAt ||
+        brokerMap.kafka?.capturedAt ||
+        brokerMap.pulsar?.capturedAt ||
+        new Date(),
       rabbitmq: this.metricToDTO(brokerMap.rabbitmq),
       kafka: this.metricToDTO(brokerMap.kafka),
       pulsar: brokerMap.pulsar ? this.metricToDTO(brokerMap.pulsar) : undefined,
@@ -117,7 +133,9 @@ export class BrokerMetricsService {
       capturedAt: LessThan(cutoffDate),
     });
 
-    this.logger.log(`Pruned ${result.affected || 0} old metrics entries (before ${cutoffDate.toISOString()})`);
+    this.logger.log(
+      `Pruned ${result.affected || 0} old metrics entries (before ${cutoffDate.toISOString()})`,
+    );
     return result.affected || 0;
   }
 
@@ -177,31 +195,58 @@ export class BrokerMetricsService {
     const suppressedReasons: string[] = [];
 
     if (brokerMetrics.rabbitmq.connected && brokerMetrics.pulsar?.connected) {
-      if (this.canCompareMetric(brokerMetrics.rabbitmq, brokerMetrics.pulsar, 'messagesPerSecond')) {
-        const rmqThroughput = brokerMetrics.rabbitmq.messagesPerSecond as number;
-        const pulsarThroughput = brokerMetrics.pulsar.messagesPerSecond as number;
-        const throughputDelta = ((pulsarThroughput - rmqThroughput) / rmqThroughput) * 100;
+      if (
+        this.canCompareMetric(
+          brokerMetrics.rabbitmq,
+          brokerMetrics.pulsar,
+          'messagesPerSecond',
+        )
+      ) {
+        const rmqThroughput = brokerMetrics.rabbitmq
+          .messagesPerSecond as number;
+        const pulsarThroughput = brokerMetrics.pulsar
+          .messagesPerSecond as number;
+        const throughputDelta =
+          ((pulsarThroughput - rmqThroughput) / rmqThroughput) * 100;
         comparison.throughputImprovement = `${throughputDelta >= 0 ? '+' : ''}${throughputDelta.toFixed(1)}%`;
       } else {
-        suppressedReasons.push('Throughput delta suppressed: baseline or quality not valid (requires measured data on both brokers).');
+        suppressedReasons.push(
+          'Throughput delta suppressed: baseline or quality not valid (requires measured data on both brokers).',
+        );
       }
 
-      if (this.canCompareMetric(brokerMetrics.rabbitmq, brokerMetrics.pulsar, 'p99LatencyMs')) {
+      if (
+        this.canCompareMetric(
+          brokerMetrics.rabbitmq,
+          brokerMetrics.pulsar,
+          'p99LatencyMs',
+        )
+      ) {
         const rmqLatency = brokerMetrics.rabbitmq.p99LatencyMs as number;
         const pulsarLatency = brokerMetrics.pulsar.p99LatencyMs as number;
         const latencyDelta = ((pulsarLatency - rmqLatency) / rmqLatency) * 100;
         comparison.latencyImprovement = `${latencyDelta >= 0 ? '+' : ''}${latencyDelta.toFixed(1)}%`;
       } else {
-        suppressedReasons.push('Latency delta suppressed: baseline or quality not valid (requires measured data on both brokers).');
+        suppressedReasons.push(
+          'Latency delta suppressed: baseline or quality not valid (requires measured data on both brokers).',
+        );
       }
 
-      if (this.canCompareMetric(brokerMetrics.rabbitmq, brokerMetrics.pulsar, 'memoryUsageMb')) {
+      if (
+        this.canCompareMetric(
+          brokerMetrics.rabbitmq,
+          brokerMetrics.pulsar,
+          'memoryUsageMb',
+        )
+      ) {
         const rmqMemory = brokerMetrics.rabbitmq.memoryUsageMb as number;
         const pulsarMemory = brokerMetrics.pulsar.memoryUsageMb as number;
         const memoryDelta = ((pulsarMemory - rmqMemory) / rmqMemory) * 100;
         comparison.memoryEfficiency = `${memoryDelta >= 0 ? '+' : ''}${memoryDelta.toFixed(1)}%`;
       } else {
-        suppressedReasons.push('Memory delta suppressed: baseline or quality not valid (requires measured data on both brokers).');
+        suppressedReasons.push(
+          'Memory delta suppressed: baseline or quality not valid (requires measured data on both brokers).',
+        );
       }
     }
 
@@ -209,14 +254,22 @@ export class BrokerMetricsService {
       comparison.suppressedReasons = suppressedReasons;
     }
 
-    const brokerNames: Array<'rabbitmq' | 'kafka' | 'pulsar'> = ['rabbitmq', 'kafka', 'pulsar'];
+    const brokerNames: Array<'rabbitmq' | 'kafka' | 'pulsar'> = [
+      'rabbitmq',
+      'kafka',
+      'pulsar',
+    ];
     const measuredBrokers = brokerNames.filter((name) => {
       const broker = brokerMetrics[name];
-      return broker?.connected && (broker?.dataSource ?? 'missing') === 'measured';
+      return (
+        broker?.connected && (broker?.dataSource ?? 'missing') === 'measured'
+      );
     });
     const fallbackBrokers = brokerNames.filter((name) => {
       const broker = brokerMetrics[name];
-      return broker?.connected && (broker?.dataSource ?? 'missing') === 'fallback';
+      return (
+        broker?.connected && (broker?.dataSource ?? 'missing') === 'fallback'
+      );
     });
 
     return {
@@ -252,7 +305,12 @@ export class BrokerMetricsService {
     if (baselineQuality !== 'measured' || candidateQuality !== 'measured') {
       return false;
     }
-    if (baseline === undefined || baseline === null || candidate === undefined || candidate === null) {
+    if (
+      baseline === undefined ||
+      baseline === null ||
+      candidate === undefined ||
+      candidate === null
+    ) {
       return false;
     }
     if (!Number.isFinite(baseline) || !Number.isFinite(candidate)) {
@@ -273,13 +331,17 @@ export class BrokerMetricsService {
     if (value === undefined || value === null) {
       return 'missing';
     }
-    return (broker.dataSource ?? 'measured') === 'fallback' ? 'fallback' : 'measured';
+    return (broker.dataSource ?? 'measured') === 'fallback'
+      ? 'fallback'
+      : 'measured';
   }
 
   /**
    * Helper: Convert entity to DTO
    */
-  private metricToDTO(metric: BrokerMetrics | undefined): Partial<BrokerMetricsDTO> {
+  private metricToDTO(
+    metric: BrokerMetrics | undefined,
+  ): Partial<BrokerMetricsDTO> {
     if (!metric) return {};
 
     return {

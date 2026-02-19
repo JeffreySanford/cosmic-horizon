@@ -24,7 +24,9 @@
       <div class="stat-group secondary">
         <div class="stat-card">
           <span class="stat-label">Messaging</span>
-          <span class="stat-value msg-status">{{ getMessagingStatusLabel() }}</span>
+          <span class="stat-value msg-status">{{
+            getMessagingStatusLabel()
+          }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-label">Tx/sec</span>
@@ -34,15 +36,21 @@
       <div class="stat-group secondary">
         <div class="stat-card">
           <span class="stat-label">Node→Hub</span>
-          <span class="stat-value">{{ liveStats?.nodeToHubPerSecond ?? 0 }}/s</span>
+          <span class="stat-value"
+            >{{ liveStats?.nodeToHubPerSecond ?? 0 }}/s</span
+          >
         </div>
         <div class="stat-card">
           <span class="stat-label">Hub→Hub</span>
-          <span class="stat-value">{{ liveStats?.hubToHubPerSecond ?? 0 }}/s</span>
+          <span class="stat-value"
+            >{{ liveStats?.hubToHubPerSecond ?? 0 }}/s</span
+          >
         </div>
         <div class="stat-card">
           <span class="stat-label">Queue Depth</span>
-          <span class="stat-value">{{ liveStats?.infra?.rabbitmq?.queueDepth ?? 0 }}</span>
+          <span class="stat-value">{{
+            liveStats?.infra?.rabbitmq?.queueDepth ?? 0
+          }}</span>
         </div>
       </div>
     </div>
@@ -52,7 +60,7 @@
     <div #chartContainer class="chart-container">
       <!-- D3 SVG will be injected here -->
     </div>
-    
+
     <div class="sidebar">
       <h2>Remote Sites</h2>
       <div class="site-list">
@@ -60,23 +68,32 @@
           <div class="site-card">
             <div class="site-header">
               <span class="site-name">{{ site.name }}</span>
-              <span class="cluster-badge" [class]="site.cluster">{{ site.cluster }}</span>
+              <span class="cluster-badge" [class]="site.cluster">{{
+                site.cluster
+              }}</span>
             </div>
             <div class="site-details">
               <div class="detail">
                 <span>Data Rate:</span>
-                <span class="rate">{{ site.totalDataRateGbps | number:'1.2-2' }} Gbps</span>
+                <span class="rate"
+                  >{{ site.totalDataRateGbps | number: '1.2-2' }} Gbps</span
+                >
               </div>
               <div class="detail">
                 <span>Status:</span>
                 <span class="status-text">
-                  {{ getSiteOperationalCount(site.id) }}/{{ getSiteTotalCount(site.id) }} Operational
+                  {{ getSiteOperationalCount(site.id) }}/{{
+                    getSiteTotalCount(site.id)
+                  }}
+                  Operational
                 </span>
               </div>
               @if (getSiteOfflineCount(site.id) > 0) {
                 <div class="detail">
                   <span>Offline:</span>
-                  <span class="status-offline">{{ getSiteOfflineCount(site.id) }} elements</span>
+                  <span class="status-offline"
+                    >{{ getSiteOfflineCount(site.id) }} elements</span
+                  >
                 </div>
               }
             </div>

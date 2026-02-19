@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 
 /**
  * Guard for protecting internal API routes.
@@ -19,13 +24,18 @@ export class IsInternalRoute implements CanActivate {
     // Allow authenticated users access to monitoring endpoints (broker metrics, health checks)
     if (user) {
       // For broker metrics and health endpoints, allow any authenticated user
-      if (request.url.includes('/brokers/') || request.url.includes('/health')) {
+      if (
+        request.url.includes('/brokers/') ||
+        request.url.includes('/health')
+      ) {
         return true;
       }
 
       // For other internal endpoints, require admin role
       const role = typeof user.role === 'string' ? user.role.toLowerCase() : '';
-      const rolesArr = Array.isArray(user.roles) ? user.roles.map((r: string) => r.toLowerCase()) : [];
+      const rolesArr = Array.isArray(user.roles)
+        ? user.roles.map((r: string) => r.toLowerCase())
+        : [];
       if (role === 'admin' || rolesArr.includes('admin')) {
         return true;
       }
@@ -36,6 +46,8 @@ export class IsInternalRoute implements CanActivate {
       return true;
     }
 
-    throw new ForbiddenException('Access to internal API routes requires authentication');
+    throw new ForbiddenException(
+      'Access to internal API routes requires authentication',
+    );
   }
 }

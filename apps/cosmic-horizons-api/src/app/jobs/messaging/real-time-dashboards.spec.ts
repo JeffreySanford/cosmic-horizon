@@ -2,10 +2,10 @@ import { ConfigService } from '@nestjs/config';
 
 /**
  * Priority 6.2: Real-Time Dashboards Tests
- * 
+ *
  * Tests dashboard rendering, state management, live updates, and visualization
  * performance. Validates 60 FPS rendering, multi-user collaboration, and <2s query time.
- * 
+ *
  * Test Coverage: 60 tests
  * - Dashboard State Management (10 tests)
  * - Live Data Streaming (12 tests)
@@ -45,7 +45,10 @@ class DashboardService {
     }
   }
 
-  async subscribeToDashboard(dashboardId: string, clientId: string): Promise<void> {
+  async subscribeToDashboard(
+    dashboardId: string,
+    clientId: string,
+  ): Promise<void> {
     if (!this.subscriptions.has(dashboardId)) {
       this.subscriptions.set(dashboardId, new Set());
     }
@@ -57,7 +60,10 @@ class DashboardService {
     }
   }
 
-  async unsubscribeFromDashboard(dashboardId: string, clientId: string): Promise<void> {
+  async unsubscribeFromDashboard(
+    dashboardId: string,
+    clientId: string,
+  ): Promise<void> {
     const subscribers = this.subscriptions.get(dashboardId);
     if (subscribers) {
       subscribers.delete(clientId);
@@ -147,7 +153,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
     });
 
     it('should initialize empty state for new dashboard', async () => {
-      await dashboardService.createDashboard('dashboard-1', { title: 'Monitor' });
+      await dashboardService.createDashboard('dashboard-1', {
+        title: 'Monitor',
+      });
 
       const dashboard = await dashboardService.getDashboard('dashboard-1');
       expect(dashboard.state).toBeDefined();
@@ -156,7 +164,10 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
 
     it('should update dashboard state with patches', async () => {
       await dashboardService.createDashboard('dashboard-1', {});
-      await dashboardService.updateDashboardState('dashboard-1', { jobCount: 10, activeJobs: 5 });
+      await dashboardService.updateDashboardState('dashboard-1', {
+        jobCount: 10,
+        activeJobs: 5,
+      });
 
       const dashboard = await dashboardService.getDashboard('dashboard-1');
       expect(dashboard.state.jobCount).toBe(10);
@@ -165,8 +176,12 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
 
     it('should merge state updates instead of overwriting', async () => {
       await dashboardService.createDashboard('dashboard-1', {});
-      await dashboardService.updateDashboardState('dashboard-1', { field1: 'value1' });
-      await dashboardService.updateDashboardState('dashboard-1', { field2: 'value2' });
+      await dashboardService.updateDashboardState('dashboard-1', {
+        field1: 'value1',
+      });
+      await dashboardService.updateDashboardState('dashboard-1', {
+        field2: 'value2',
+      });
 
       const dashboard = await dashboardService.getDashboard('dashboard-1');
       expect(dashboard.state.field1).toBe('value1');
@@ -175,7 +190,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
 
     it('should track lastUpdate timestamp for each state change', async () => {
       await dashboardService.createDashboard('dashboard-1', {});
-      await dashboardService.updateDashboardState('dashboard-1', { data: 'test' });
+      await dashboardService.updateDashboardState('dashboard-1', {
+        data: 'test',
+      });
 
       const dashboard = await dashboardService.getDashboard('dashboard-1');
       expect(dashboard.lastUpdate).toBeDefined();
@@ -212,14 +229,18 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
       const version1 = await dashboardService.getDashboard('dashboard-1');
       const initialState = { ...version1.state };
 
-      await dashboardService.updateDashboardState('dashboard-1', { newField: 'value' });
+      await dashboardService.updateDashboardState('dashboard-1', {
+        newField: 'value',
+      });
 
       expect(initialState).not.toEqual(version1.state); // Reference changes but value updates
     });
 
     it('should support state reset to initial config', async () => {
       await dashboardService.createDashboard('dashboard-1', {});
-      await dashboardService.updateDashboardState('dashboard-1', { complex: 'state' });
+      await dashboardService.updateDashboardState('dashboard-1', {
+        complex: 'state',
+      });
       await dashboardService.createDashboard('dashboard-1', {});
 
       const dashboard = await dashboardService.getDashboard('dashboard-1');
@@ -233,12 +254,16 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
 
   describe('Live Data Streaming', () => {
     beforeEach(async () => {
-      await dashboardService.createDashboard('dashboard-1', { title: 'Monitor' });
+      await dashboardService.createDashboard('dashboard-1', {
+        title: 'Monitor',
+      });
     });
 
     it('should stream data updates to subscribed clients', async () => {
       await dashboardService.subscribeToDashboard('dashboard-1', 'client-1');
-      const count = await dashboardService.publishUpdate('dashboard-1', { status: 'updated' });
+      const count = await dashboardService.publishUpdate('dashboard-1', {
+        status: 'updated',
+      });
 
       expect(count).toBe(1);
     });
@@ -248,7 +273,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
       await dashboardService.subscribeToDashboard('dashboard-1', 'client-2');
       await dashboardService.subscribeToDashboard('dashboard-1', 'client-3');
 
-      const count = await dashboardService.publishUpdate('dashboard-1', { status: 'updated' });
+      const count = await dashboardService.publishUpdate('dashboard-1', {
+        status: 'updated',
+      });
       expect(count).toBe(3);
     });
 
@@ -258,7 +285,7 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
       const updates = [];
       for (let i = 0; i < 10; i++) {
         updates.push(
-          dashboardService.publishUpdate('dashboard-1', { sequence: i })
+          dashboardService.publishUpdate('dashboard-1', { sequence: i }),
         );
       }
 
@@ -267,17 +294,25 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
     });
 
     it('should batch updates for efficiency', async () => {
-      const refreshInterval = mockConfigService.get('DASHBOARD_REFRESH_INTERVAL_MS');
+      const refreshInterval = mockConfigService.get(
+        'DASHBOARD_REFRESH_INTERVAL_MS',
+      );
       expect(refreshInterval).toBe(1000);
     });
 
     it('should compress large update payloads', async () => {
       const largeUpdate = {
-        data: Array.from({ length: 1000 }, (_, i) => ({ id: i, value: Math.random() })),
+        data: Array.from({ length: 1000 }, (_, i) => ({
+          id: i,
+          value: Math.random(),
+        })),
       };
 
       await dashboardService.subscribeToDashboard('dashboard-1', 'client-1');
-      const count = await dashboardService.publishUpdate('dashboard-1', largeUpdate);
+      const count = await dashboardService.publishUpdate(
+        'dashboard-1',
+        largeUpdate,
+      );
 
       expect(count).toBe(1);
     });
@@ -292,7 +327,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
       await dashboardService.publishUpdate('dashboard-1', { sequence: 1 });
 
       await dashboardService.subscribeToDashboard('dashboard-1', 'client-2');
-      const count = await dashboardService.publishUpdate('dashboard-1', { sequence: 2 });
+      const count = await dashboardService.publishUpdate('dashboard-1', {
+        sequence: 2,
+      });
 
       expect(count).toBe(2);
     });
@@ -324,7 +361,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
 
     it('should track update latency', async () => {
       await dashboardService.subscribeToDashboard('dashboard-1', 'client-1');
-      await dashboardService.publishUpdate('dashboard-1', { timestamp: Date.now() });
+      await dashboardService.publishUpdate('dashboard-1', {
+        timestamp: Date.now(),
+      });
 
       const latency = await dashboardService.getUpdateLatency();
       expect(latency).toBeLessThan(100);
@@ -376,7 +415,11 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
     });
 
     it('should support custom widget components', async () => {
-      const customWidget = { id: 'widget-4', type: 'custom', component: 'CustomJobViewer' };
+      const customWidget = {
+        id: 'widget-4',
+        type: 'custom',
+        component: 'CustomJobViewer',
+      };
       expect(customWidget.type).toBe('custom');
     });
 
@@ -463,7 +506,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
         status: 'RUNNING',
       }));
 
-      await dashboardService.publishUpdate('dashboard-1', { jobs: largeDataset });
+      await dashboardService.publishUpdate('dashboard-1', {
+        jobs: largeDataset,
+      });
     });
 
     it('should lazy-load visualizations below the fold', async () => {
@@ -499,7 +544,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
     });
 
     it('should use canvas rendering for high-frequency updates', async () => {
-      const updateInterval = mockConfigService.get('DASHBOARD_REFRESH_INTERVAL_MS');
+      const updateInterval = mockConfigService.get(
+        'DASHBOARD_REFRESH_INTERVAL_MS',
+      );
       expect(updateInterval).toBe(1000);
     });
 
@@ -530,7 +577,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
       await dashboardService.subscribeToDashboard('dashboard-1', 'user-1');
       await dashboardService.subscribeToDashboard('dashboard-1', 'user-2');
 
-      await dashboardService.updateDashboardState('dashboard-1', { filter: 'activeJobs' });
+      await dashboardService.updateDashboardState('dashboard-1', {
+        filter: 'activeJobs',
+      });
 
       expect(await dashboardService.getSubscriberCount('dashboard-1')).toBe(2);
     });
@@ -578,7 +627,7 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
         dashboardService.updateDashboardState('dashboard-1', {
           user,
           edit: { timestamp: Date.now() },
-        })
+        }),
       );
 
       await Promise.all(edits);
@@ -624,7 +673,9 @@ describe('Priority 6.2: Real-Time Dashboards Tests', () => {
 
     it('should implement conflict-free state merging', async () => {
       await dashboardService.subscribeToDashboard('dashboard-1', 'user-1');
-      await dashboardService.updateDashboardState('dashboard-1', { state: 'version1' });
+      await dashboardService.updateDashboardState('dashboard-1', {
+        state: 'version1',
+      });
     });
   });
 

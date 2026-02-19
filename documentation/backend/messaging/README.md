@@ -106,15 +106,15 @@ Detailed diagram: [MESSAGING-ARCHITECTURE.md § System Overview](./MESSAGING-ARC
 
 ## 📊 Key Metrics
 
-| Metric | Value | Reference |
-|--------|-------|-----------|
-| Telemetry Rate | ~600 packets/sec | 60 elements × 10 Hz |
-| Packet Size | 200-500 bytes | TelemetryPacket structure |
-| RabbitMQ Queue | element_telemetry_queue | Non-durable (mgmt plane) |
-| Kafka Topic | element.raw_data | Replicated (data plane) |
-| Monitor Poll | Every 2 seconds | Configurable in service |
-| WebSocket Broadcast | Every 1 second (stats) | Real-time (telemetry) |
-| Storage Backends | PostgreSQL + Redis | Audit + cache layer |
+| Metric              | Value                   | Reference                 |
+| ------------------- | ----------------------- | ------------------------- |
+| Telemetry Rate      | ~600 packets/sec        | 60 elements × 10 Hz       |
+| Packet Size         | 200-500 bytes           | TelemetryPacket structure |
+| RabbitMQ Queue      | element_telemetry_queue | Non-durable (mgmt plane)  |
+| Kafka Topic         | element.raw_data        | Replicated (data plane)   |
+| Monitor Poll        | Every 2 seconds         | Configurable in service   |
+| WebSocket Broadcast | Every 1 second (stats)  | Real-time (telemetry)     |
+| Storage Backends    | PostgreSQL + Redis      | Audit + cache layer       |
 
 ---
 
@@ -301,14 +301,14 @@ This documentation is part of Cosmic Horizons. See LICENSE at repository root.
 
 ## Version & Status
 
-| Component | Version | Status | Last Updated |
-|-----------|---------|--------|--------------|
-| Architecture | 1.0 | Stable | 2026-02-13 |
-| RabbitMQ Setup | 1.0 | Production-ready | 2026-02-13 |
-| Kafka Setup | 1.0 | Production-ready | 2026-02-13 |
-| API Reference | 1.0 | Stable | 2026-02-13 |
-| Implementation Guide | 1.0 | Stable | 2026-02-13 |
-| Troubleshooting | 1.0 | Comprehensive | 2026-02-13 |
+| Component            | Version | Status           | Last Updated |
+| -------------------- | ------- | ---------------- | ------------ |
+| Architecture         | 1.0     | Stable           | 2026-02-13   |
+| RabbitMQ Setup       | 1.0     | Production-ready | 2026-02-13   |
+| Kafka Setup          | 1.0     | Production-ready | 2026-02-13   |
+| API Reference        | 1.0     | Stable           | 2026-02-13   |
+| Implementation Guide | 1.0     | Stable           | 2026-02-13   |
+| Troubleshooting      | 1.0     | Comprehensive    | 2026-02-13   |
 
 ---
 

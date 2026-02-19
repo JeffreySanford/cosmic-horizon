@@ -88,7 +88,7 @@ Update user profile.
 
 Get user's posts.
 
-- **Params**: `id` (user ID)  
+- **Params**: `id` (user ID)
 - **Query**: `page`, `limit`
 - **Response**: `{ items: Post[], total, page, limit }`
 

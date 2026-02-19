@@ -44,7 +44,7 @@ The Cosmic Horizon serves as the **AI Control Plane** for autonomous agents deve
 - **Backend Orchestration**: `TaccIntegrationService` manages job submission, status polling, and result retrieval from TACC resources.
 - **Explainability**: Integration of agent-generated Science Ready Data Products (SRDPs) into Aladin snapshots for auditable results.
 
-```mermaid
+````mermaid
 flowchart LR
     U[Browser Client] --> W[Angular SSR Web<br/>apps/cosmic-horizons-web]
     W --> A[NestJS API<br/>apps/cosmic-horizons-api]
@@ -105,3 +105,4 @@ Mode B planning overview (timing, feasibility, permission assumptions):
 
 ---
 *Independent portal using public VLASS data; not affiliated with VLA/NRAO.*
+````

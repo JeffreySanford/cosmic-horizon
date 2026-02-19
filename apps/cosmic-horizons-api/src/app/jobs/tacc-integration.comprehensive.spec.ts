@@ -1,4 +1,8 @@
-import { TaccIntegrationService, TaccJobSubmission, TaccJobStatus } from './tacc-integration.service';
+import {
+  TaccIntegrationService,
+  TaccJobSubmission,
+  TaccJobStatus,
+} from './tacc-integration.service';
 import { ConfigService } from '@nestjs/config';
 
 describe('TACCIntegrationService - Comprehensive Coverage', () => {
@@ -77,11 +81,11 @@ describe('TACCIntegrationService - Comprehensive Coverage', () => {
       ];
 
       const results = await Promise.all(
-        submissions.map(s => service.submitJob(s)),
+        submissions.map((s) => service.submitJob(s)),
       );
 
       expect(results).toHaveLength(3);
-      expect(results.every(r => r.jobId)).toBe(true);
+      expect(results.every((r) => r.jobId)).toBe(true);
     });
 
     it('should handle job submission with all param types', async () => {
@@ -115,7 +119,7 @@ describe('TACCIntegrationService - Comprehensive Coverage', () => {
       const results = await Promise.all(submissions);
       expect(results).toHaveLength(10);
       // All job IDs should be unique
-      const jobIds = new Set(results.map(r => r.jobId));
+      const jobIds = new Set(results.map((r) => r.jobId));
       expect(jobIds.size).toBe(10);
     });
 
@@ -185,12 +189,12 @@ describe('TACCIntegrationService - Comprehensive Coverage', () => {
       for (let i = 0; i < 5; i++) {
         const status = await service.getJobStatus(submission.jobId);
         statuses.push(status);
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
       expect(statuses).toHaveLength(5);
       // All should be for same job
-      expect(new Set(statuses.map(s => s.id)).size).toBe(1);
+      expect(new Set(statuses.map((s) => s.id)).size).toBe(1);
     });
 
     it('should return consistent job IDs', async () => {
@@ -242,7 +246,7 @@ describe('TACCIntegrationService - Comprehensive Coverage', () => {
       }
 
       const cancellations = await Promise.all(
-        submissions.map(s => service.cancelJob(s.jobId)),
+        submissions.map((s) => service.cancelJob(s.jobId)),
       );
 
       expect(cancellations).toHaveLength(5);
@@ -296,11 +300,11 @@ describe('TACCIntegrationService - Comprehensive Coverage', () => {
       }
 
       const statuses = await Promise.all(
-        submissions.map(s => service.getJobStatus(s.jobId)),
+        submissions.map((s) => service.getJobStatus(s.jobId)),
       );
 
       expect(statuses).toHaveLength(3);
-      expect(statuses.every(s => s.id)).toBe(true);
+      expect(statuses.every((s) => s.id)).toBe(true);
     });
   });
 });

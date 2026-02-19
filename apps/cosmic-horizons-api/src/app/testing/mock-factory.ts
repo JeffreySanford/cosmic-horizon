@@ -37,9 +37,7 @@ export function createMockService<T extends object>(): jest.Mocked<T> {
 /**
  * Helper to create typed mocks for NestJS services
  */
-export function mockService<T extends object>(
-  prototype: T,
-): jest.Mocked<T> {
+export function mockService<T extends object>(prototype: T): jest.Mocked<T> {
   const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(prototype));
   const mock: any = {};
 
@@ -59,7 +57,9 @@ export function createMockRedisClient() {
   return {
     get: jest.fn() as jest.MockedFunction<any>,
     set: jest.fn() as jest.MockedFunction<any>,
-    setex: jest.fn() as jest.MockedFunction<(key: string, ttl: number, val: string) => Promise<string | null>>,
+    setex: jest.fn() as jest.MockedFunction<
+      (key: string, ttl: number, val: string) => Promise<string | null>
+    >,
     del: jest.fn() as jest.MockedFunction<any>,
     exists: jest.fn() as jest.MockedFunction<any>,
     expire: jest.fn() as jest.MockedFunction<any>,
@@ -79,7 +79,10 @@ export const TypeSafeAssertions = {
   /**
    * Assert that an object matches partial properties
    */
-  assertPartial: <T extends object>(actual: Partial<T>, expected: Partial<T>) => {
+  assertPartial: <T extends object>(
+    actual: Partial<T>,
+    expected: Partial<T>,
+  ) => {
     Object.entries(expected).forEach(([key, value]) => {
       expect((actual as any)[key]).toEqual(value);
     });

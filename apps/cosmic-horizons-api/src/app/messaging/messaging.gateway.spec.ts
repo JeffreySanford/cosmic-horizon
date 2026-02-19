@@ -24,7 +24,8 @@ type ClientOptions = {
 
 function createClient(options: ClientOptions = {}): GatewayTestClient {
   const headers: Record<string, string> = {};
-  const origin = options.origin === undefined ? 'http://localhost:4200' : options.origin;
+  const origin =
+    options.origin === undefined ? 'http://localhost:4200' : options.origin;
   if (origin !== null) {
     headers.origin = origin;
   }
@@ -73,7 +74,8 @@ describe('MessagingGateway', () => {
   let loggerDebug: jest.Mock;
 
   const originalFrontendUrl = process.env['FRONTEND_URL'];
-  const originalWebSocketMaxConnections = process.env['WEBSOCKET_MAX_CONNECTIONS_PER_USER'];
+  const originalWebSocketMaxConnections =
+    process.env['WEBSOCKET_MAX_CONNECTIONS_PER_USER'];
 
   function createGateway(): MessagingGateway {
     telemetrySubject = new Subject<Record<string, unknown>>();
@@ -133,7 +135,8 @@ describe('MessagingGateway', () => {
     jest.useRealTimers();
     jest.restoreAllMocks();
     process.env['FRONTEND_URL'] = originalFrontendUrl;
-    process.env['WEBSOCKET_MAX_CONNECTIONS_PER_USER'] = originalWebSocketMaxConnections;
+    process.env['WEBSOCKET_MAX_CONNECTIONS_PER_USER'] =
+      originalWebSocketMaxConnections;
   });
 
   describe('connection origin and token validation', () => {
@@ -153,7 +156,10 @@ describe('MessagingGateway', () => {
         role: 'user',
       });
 
-      const client = createClient({ origin: null, authToken: 'originless-token' });
+      const client = createClient({
+        origin: null,
+        authToken: 'originless-token',
+      });
       await gateway.handleConnection(client.socket);
 
       expect(client.disconnect).not.toHaveBeenCalled();
@@ -293,7 +299,9 @@ describe('MessagingGateway', () => {
 
     it('rejects client when user lookup throws', async () => {
       jwtService.verify.mockReturnValue({ sub: 'throws-user' });
-      authService.getCurrentUser.mockRejectedValue(new Error('user lookup failed'));
+      authService.getCurrentUser.mockRejectedValue(
+        new Error('user lookup failed'),
+      );
 
       const client = createClient({ authToken: 'valid-token' });
       await gateway.handleConnection(client.socket);
@@ -371,8 +379,14 @@ describe('MessagingGateway', () => {
         role: 'user',
       });
 
-      const firstClient = createClient({ id: 'socket-pool-1', authToken: 'good-token' });
-      const secondClient = createClient({ id: 'socket-pool-2', authToken: 'good-token' });
+      const firstClient = createClient({
+        id: 'socket-pool-1',
+        authToken: 'good-token',
+      });
+      const secondClient = createClient({
+        id: 'socket-pool-2',
+        authToken: 'good-token',
+      });
 
       await gateway.handleConnection(firstClient.socket);
       await gateway.handleConnection(secondClient.socket);
@@ -431,7 +445,10 @@ describe('MessagingGateway', () => {
         createClient({ id: 'socket-default-4', authToken: 'good-token' }),
         createClient({ id: 'socket-default-5', authToken: 'good-token' }),
       ];
-      const overflow = createClient({ id: 'socket-default-6', authToken: 'good-token' });
+      const overflow = createClient({
+        id: 'socket-default-6',
+        authToken: 'good-token',
+      });
 
       for (const client of clients) {
         await gateway.handleConnection(client.socket);
@@ -476,7 +493,9 @@ describe('MessagingGateway', () => {
   describe('join_job_channel handler', () => {
     it('joins requested job room', async () => {
       const client = createClient({ id: 'socket-job-1' });
-      const response = await gateway.joinJobChannel(client.socket, { jobId: 'job-123' });
+      const response = await gateway.joinJobChannel(client.socket, {
+        jobId: 'job-123',
+      });
 
       expect(client.join).toHaveBeenCalledWith('job:job-123');
       expect(response).toEqual({ joined: true, room: 'job:job-123' });
@@ -494,7 +513,10 @@ describe('MessagingGateway', () => {
 
     it('returns validation error when payload is undefined', async () => {
       const client = createClient({ id: 'socket-job-3' });
-      const response = await gateway.joinJobChannel(client.socket, undefined as never);
+      const response = await gateway.joinJobChannel(
+        client.socket,
+        undefined as never,
+      );
 
       expect(client.join).not.toHaveBeenCalled();
       expect(response).toEqual({ joined: false, error: 'jobId is required' });
@@ -510,7 +532,9 @@ describe('MessagingGateway', () => {
 
     it('returns validation error when jobId is only whitespace', async () => {
       const client = createClient({ id: 'socket-job-5' });
-      const response = await gateway.joinJobChannel(client.socket, { jobId: '    ' });
+      const response = await gateway.joinJobChannel(client.socket, {
+        jobId: '    ',
+      });
 
       expect(client.join).not.toHaveBeenCalled();
       expect(response).toEqual({ joined: false, error: 'jobId is required' });
@@ -522,35 +546,49 @@ describe('MessagingGateway', () => {
       gateway.emitToUser('user-42', 'job_notification', { ok: true });
 
       expect(serverTo).toHaveBeenCalledWith('user:user-42');
-      expect(roomEmit).toHaveBeenCalledWith('user:user-42', 'job_notification', { ok: true });
+      expect(roomEmit).toHaveBeenCalledWith(
+        'user:user-42',
+        'job_notification',
+        { ok: true },
+      );
     });
 
     it('emitJobUpdate broadcasts to user and job room when user id is provided', () => {
       gateway.emitJobUpdate('job-77', { status: 'RUNNING' }, 'user-42');
 
-      expect(roomEmit).toHaveBeenCalledWith('user:user-42', 'job_update', { status: 'RUNNING' });
-      expect(roomEmit).toHaveBeenCalledWith('job:job-77', 'job_update', { status: 'RUNNING' });
+      expect(roomEmit).toHaveBeenCalledWith('user:user-42', 'job_update', {
+        status: 'RUNNING',
+      });
+      expect(roomEmit).toHaveBeenCalledWith('job:job-77', 'job_update', {
+        status: 'RUNNING',
+      });
     });
 
     it('emitJobUpdate broadcasts only to job room when user id is missing', () => {
       gateway.emitJobUpdate('job-88', { status: 'QUEUED' });
 
       expect(roomEmit).toHaveBeenCalledTimes(1);
-      expect(roomEmit).toHaveBeenCalledWith('job:job-88', 'job_update', { status: 'QUEUED' });
+      expect(roomEmit).toHaveBeenCalledWith('job:job-88', 'job_update', {
+        status: 'QUEUED',
+      });
     });
 
     it('emitJobUpdate broadcasts only to job room when user id is empty string', () => {
       gateway.emitJobUpdate('job-89', { status: 'COMPLETE' }, '');
 
       expect(roomEmit).toHaveBeenCalledTimes(1);
-      expect(roomEmit).toHaveBeenCalledWith('job:job-89', 'job_update', { status: 'COMPLETE' });
+      expect(roomEmit).toHaveBeenCalledWith('job:job-89', 'job_update', {
+        status: 'COMPLETE',
+      });
     });
   });
 
   describe('gateway lifecycle behavior', () => {
     it('afterInit logs gateway initialization', () => {
       gateway.afterInit();
-      expect(loggerLog).toHaveBeenCalledWith('Messaging WebSocket Gateway Initialized');
+      expect(loggerLog).toHaveBeenCalledWith(
+        'Messaging WebSocket Gateway Initialized',
+      );
     });
 
     it('afterInit forwards telemetry packets to websocket clients', () => {
@@ -565,7 +603,10 @@ describe('MessagingGateway', () => {
       jest.useFakeTimers();
       gateway.afterInit();
 
-      expect(serverEmit).not.toHaveBeenCalledWith('stats_update', expect.anything());
+      expect(serverEmit).not.toHaveBeenCalledWith(
+        'stats_update',
+        expect.anything(),
+      );
 
       jest.advanceTimersByTime(1000);
       expect(serverEmit).toHaveBeenCalledWith('stats_update', { stats: true });
@@ -573,22 +614,31 @@ describe('MessagingGateway', () => {
 
     it('afterInit builds stats payload using monitor snapshot', () => {
       jest.useFakeTimers();
-      monitorService.getSnapshot.mockReturnValue({ monitorPayload: 'snapshot' });
+      monitorService.getSnapshot.mockReturnValue({
+        monitorPayload: 'snapshot',
+      });
       statsService.getSnapshot.mockReturnValue({ statsPayload: 'result' });
 
       gateway.afterInit();
       jest.advanceTimersByTime(1000);
 
       expect(monitorService.getSnapshot).toHaveBeenCalled();
-      expect(statsService.getSnapshot).toHaveBeenCalledWith({ monitorPayload: 'snapshot' });
-      expect(serverEmit).toHaveBeenCalledWith('stats_update', { statsPayload: 'result' });
+      expect(statsService.getSnapshot).toHaveBeenCalledWith({
+        monitorPayload: 'snapshot',
+      });
+      expect(serverEmit).toHaveBeenCalledWith('stats_update', {
+        statsPayload: 'result',
+      });
     });
 
     it('onModuleDestroy stops telemetry forwarding', () => {
       gateway.afterInit();
       const packetBeforeDestroy = { packetId: 'before-destroy' };
       telemetrySubject.next(packetBeforeDestroy);
-      expect(serverEmit).toHaveBeenCalledWith('telemetry_update', packetBeforeDestroy);
+      expect(serverEmit).toHaveBeenCalledWith(
+        'telemetry_update',
+        packetBeforeDestroy,
+      );
 
       gateway.onModuleDestroy();
       serverEmit.mockClear();
@@ -614,7 +664,9 @@ describe('MessagingGateway', () => {
       const client = createClient({ id: 'socket-disconnect-log' });
       gateway.handleDisconnect(client.socket);
 
-      expect(loggerLog).toHaveBeenCalledWith('Client disconnected: socket-disconnect-log');
+      expect(loggerLog).toHaveBeenCalledWith(
+        'Client disconnected: socket-disconnect-log',
+      );
     });
   });
 });

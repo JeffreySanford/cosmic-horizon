@@ -72,12 +72,18 @@ export class Post {
   @JoinColumn({ name: 'user_id' })
   user!: Relation<User>;
 
-  @OneToMany(() => Revision, (revision: Revision) => revision.post, { cascade: ['remove'] })
+  @OneToMany(() => Revision, (revision: Revision) => revision.post, {
+    cascade: ['remove'],
+  })
   revisions!: Relation<Revision[]>;
 
-  @OneToMany(() => Comment, (comment: Comment) => comment.post, { cascade: ['remove'] })
+  @OneToMany(() => Comment, (comment: Comment) => comment.post, {
+    cascade: ['remove'],
+  })
   comments!: Relation<Comment[]>;
 
-  @OneToMany(() => Snapshot, (snapshot: Snapshot) => snapshot.post, { cascade: ['remove'] })
+  @OneToMany(() => Snapshot, (snapshot: Snapshot) => snapshot.post, {
+    cascade: ['remove'],
+  })
   snapshots!: Relation<Snapshot[]>;
 }

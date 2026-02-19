@@ -42,12 +42,15 @@ export class EventReplayService {
   }): TrackedEventRecord {
     const partition = input.partition ?? 0;
     const topicPartitionKey = this.topicPartitionKey(input.topic, partition);
-    const fallbackOffset = this.nextOffsetByTopicPartition.get(topicPartitionKey) ?? 0;
+    const fallbackOffset =
+      this.nextOffsetByTopicPartition.get(topicPartitionKey) ?? 0;
     const parsedOffset =
       typeof input.offset === 'number'
         ? input.offset
         : Number.parseInt(input.offset ?? `${fallbackOffset}`, 10);
-    const offset = Number.isFinite(parsedOffset) ? parsedOffset : fallbackOffset;
+    const offset = Number.isFinite(parsedOffset)
+      ? parsedOffset
+      : fallbackOffset;
 
     this.nextOffsetByTopicPartition.set(topicPartitionKey, offset + 1);
 
@@ -114,7 +117,10 @@ export class EventReplayService {
 
     let filtered = allRecords;
 
-    if (typeof query.fromOffset === 'number' && Number.isFinite(query.fromOffset)) {
+    if (
+      typeof query.fromOffset === 'number' &&
+      Number.isFinite(query.fromOffset)
+    ) {
       const fromOffset = query.fromOffset;
       filtered = filtered.filter((record) => record.offset >= fromOffset);
     }

@@ -37,7 +37,11 @@ export class WebSocketService {
     this.logger.debug(`Broadcasting ${event} to ${this.clients.size} clients`);
   }
 
-  async sendToClient(clientId: string, event: string, data: Record<string, unknown>): Promise<void> {
+  async sendToClient(
+    clientId: string,
+    event: string,
+    data: Record<string, unknown>,
+  ): Promise<void> {
     void data;
     if (this.clients.has(clientId)) {
       this.logger.debug(`Sending ${event} to client ${clientId}`);
@@ -54,7 +58,11 @@ export class WebSocketService {
     }
   }
 
-  getMetrics(): { connectedClients: number; activeRooms: number; totalMessages: number } {
+  getMetrics(): {
+    connectedClients: number;
+    activeRooms: number;
+    totalMessages: number;
+  } {
     return {
       connectedClients: this.clients.size,
       activeRooms: this.rooms.size,

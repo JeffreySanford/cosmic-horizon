@@ -7,8 +7,16 @@
   color: #f0f6ff;
   background:
     linear-gradient(155deg, rgba(8, 15, 30, 0.98), rgba(9, 20, 41, 0.97)),
-    radial-gradient(circle at 18% 12%, rgba(255, 209, 102, 0.16), transparent 45%),
-    radial-gradient(circle at 86% 22%, rgba(84, 176, 255, 0.18), transparent 46%);
+    radial-gradient(
+      circle at 18% 12%,
+      rgba(255, 209, 102, 0.16),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 86% 22%,
+      rgba(84, 176, 255, 0.18),
+      transparent 46%
+    );
   border: 1px solid rgba(157, 200, 255, 0.35);
   box-shadow: 0 26px 55px rgba(0, 0, 0, 0.45);
 }

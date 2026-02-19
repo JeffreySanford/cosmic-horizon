@@ -18,8 +18,12 @@ export class AdminLogsController {
   ): Promise<LogsResponse> {
     const parsedOffset = Number(offset ?? 0);
     const parsedLimit = Number(limit ?? 100);
-    const safeOffset = Number.isFinite(parsedOffset) && parsedOffset >= 0 ? parsedOffset : 0;
-    const safeLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 && parsedLimit <= 500 ? parsedLimit : 100;
+    const safeOffset =
+      Number.isFinite(parsedOffset) && parsedOffset >= 0 ? parsedOffset : 0;
+    const safeLimit =
+      Number.isFinite(parsedLimit) && parsedLimit > 0 && parsedLimit <= 500
+        ? parsedLimit
+        : 100;
     const data = await this.logging.getRecent(safeLimit, safeOffset);
     return { data, total: data.length };
   }

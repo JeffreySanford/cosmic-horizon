@@ -14,6 +14,12 @@ const ephemerisRoutes: Routes = [
 
 @NgModule({
   declarations: [EphemerisComponent],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule, RouterModule.forChild(ephemerisRoutes)],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    RouterModule.forChild(ephemerisRoutes),
+  ],
 })
 export class EphemerisModule {}

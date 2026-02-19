@@ -99,15 +99,12 @@ describe('cosmic-horizons-api e2e', () => {
 
       for (let i = 0; i < 40; i += 1) {
         try {
-          const response = await axios.post(
-            '/api/users',
-            {
-              username: `ratelimit_user_${nonce}_${i}`,
-              email: `ratelimit_${nonce}_${i}@cosmic.local`,
-              display_name: `Rate Limit User ${i}`,
-              github_id: nonce + i,
-            },
-          );
+          const response = await axios.post('/api/users', {
+            username: `ratelimit_user_${nonce}_${i}`,
+            email: `ratelimit_${nonce}_${i}@cosmic.local`,
+            display_name: `Rate Limit User ${i}`,
+            github_id: nonce + i,
+          });
           createdUserIds.push(response.data.id as string);
         } catch (error) {
           const axiosError = error as AxiosError;
@@ -142,7 +139,9 @@ describe('cosmic-horizons-api e2e', () => {
       expect(createResponse.data).toHaveProperty('short_id');
       expect(createResponse.data).toHaveProperty('encoded_state');
 
-      const resolveResponse = await axios.get(`/api/view/${createResponse.data.short_id as string}`);
+      const resolveResponse = await axios.get(
+        `/api/view/${createResponse.data.short_id as string}`,
+      );
       expect(resolveResponse.status).toBe(200);
       expect(resolveResponse.data.state).toMatchObject({
         ra: 187.25,
@@ -192,7 +191,9 @@ describe('cosmic-horizons-api e2e', () => {
 
       expect(response.status).toBe(201);
       expect(response.data).toHaveProperty('id');
-      expect(response.data.image_url).toMatch(/^\/api\/view\/snapshots\/.+\.png$/);
+      expect(response.data.image_url).toMatch(
+        /^\/api\/view\/snapshots\/.+\.png$/,
+      );
       expect(response.data.size_bytes).toBeGreaterThan(0);
     });
 
@@ -232,7 +233,10 @@ describe('cosmic-horizons-api e2e', () => {
   describe('posts authorization and revision flow', () => {
     it('creates, updates, and publishes a post as owner', async () => {
       const nonce = Date.now();
-      const owner = await registerUser(`post_owner_${nonce}`, `post_owner_${nonce}@cosmic.local`);
+      const owner = await registerUser(
+        `post_owner_${nonce}`,
+        `post_owner_${nonce}@cosmic.local`,
+      );
       const authHeader = { Authorization: `Bearer ${owner.access_token}` };
 
       const createResponse = await axios.post(
@@ -284,8 +288,14 @@ describe('cosmic-horizons-api e2e', () => {
 
     it('rejects non-owner post modification with 403', async () => {
       const nonce = Date.now() + 1;
-      const owner = await registerUser(`post_owner2_${nonce}`, `post_owner2_${nonce}@cosmic.local`);
-      const otherUser = await registerUser(`post_other_${nonce}`, `post_other_${nonce}@cosmic.local`);
+      const owner = await registerUser(
+        `post_owner2_${nonce}`,
+        `post_owner2_${nonce}@cosmic.local`,
+      );
+      const otherUser = await registerUser(
+        `post_other_${nonce}`,
+        `post_other_${nonce}@cosmic.local`,
+      );
 
       const createResponse = await axios.post(
         '/api/posts',
@@ -314,7 +324,10 @@ describe('cosmic-horizons-api e2e', () => {
 
     it('supports owner moderation actions: hide/unhide and lock/unlock', async () => {
       const nonce = Date.now() + 2;
-      const owner = await registerUser(`post_owner3_${nonce}`, `post_owner3_${nonce}@cosmic.local`);
+      const owner = await registerUser(
+        `post_owner3_${nonce}`,
+        `post_owner3_${nonce}@cosmic.local`,
+      );
       const authHeader = { Authorization: `Bearer ${owner.access_token}` };
 
       const createResponse = await axios.post(
@@ -327,27 +340,50 @@ describe('cosmic-horizons-api e2e', () => {
       );
       const postId = createResponse.data.id as string;
 
-      const hideResponse = await axios.post(`/api/posts/${postId}/hide`, {}, { headers: authHeader });
+      const hideResponse = await axios.post(
+        `/api/posts/${postId}/hide`,
+        {},
+        { headers: authHeader },
+      );
       expect(hideResponse.status).toBe(201);
       expect(hideResponse.data.hidden_at).not.toBeNull();
 
-      const lockResponse = await axios.post(`/api/posts/${postId}/lock`, {}, { headers: authHeader });
+      const lockResponse = await axios.post(
+        `/api/posts/${postId}/lock`,
+        {},
+        { headers: authHeader },
+      );
       expect(lockResponse.status).toBe(201);
       expect(lockResponse.data.locked_at).not.toBeNull();
 
-      const unlockResponse = await axios.post(`/api/posts/${postId}/unlock`, {}, { headers: authHeader });
+      const unlockResponse = await axios.post(
+        `/api/posts/${postId}/unlock`,
+        {},
+        { headers: authHeader },
+      );
       expect(unlockResponse.status).toBe(201);
       expect(unlockResponse.data.locked_at).toBeNull();
 
-      const unhideResponse = await axios.post(`/api/posts/${postId}/unhide`, {}, { headers: authHeader });
+      const unhideResponse = await axios.post(
+        `/api/posts/${postId}/unhide`,
+        {},
+        { headers: authHeader },
+      );
       expect(unhideResponse.status).toBe(201);
       expect(unhideResponse.data.hidden_at).toBeNull();
     });
 
     describe('community moderation (RBAC) - e2e', () => {
       it('PATCH /api/community/posts/:id/approve requires moderator/admin (401/403/200)', async () => {
-        const payload = { title: `e2e-moderation-approve-${Date.now()}`, body: 'E2E approval test', author: 'e2e' };
-        const createRes = await axios.post('/api/community/posts?forceHidden=true', payload);
+        const payload = {
+          title: `e2e-moderation-approve-${Date.now()}`,
+          body: 'E2E approval test',
+          author: 'e2e',
+        };
+        const createRes = await axios.post(
+          '/api/community/posts?forceHidden=true',
+          payload,
+        );
         expect(createRes.status).toBe(201);
         const created = createRes.data;
 
@@ -361,12 +397,19 @@ describe('cosmic-horizons-api e2e', () => {
         }
 
         // authenticated normal user -> 403
-        const userLogin = await axios.post('/api/auth/login', { email: 'test@cosmic.local', password: 'Password123!' });
+        const userLogin = await axios.post('/api/auth/login', {
+          email: 'test@cosmic.local',
+          password: 'Password123!',
+        });
         expect(userLogin.status).toBe(201);
         const userToken = userLogin.data.access_token as string;
 
         try {
-          await axios.patch(`/api/community/posts/${created.id}/approve`, {}, { headers: { Authorization: `Bearer ${userToken}` } });
+          await axios.patch(
+            `/api/community/posts/${created.id}/approve`,
+            {},
+            { headers: { Authorization: `Bearer ${userToken}` } },
+          );
           throw new Error('Expected user approve to fail with 403');
         } catch (err) {
           const axiosErr = err as AxiosError;
@@ -374,11 +417,18 @@ describe('cosmic-horizons-api e2e', () => {
         }
 
         // admin -> 200
-        const adminLogin = await axios.post('/api/auth/login', { email: 'admin@cosmic.local', password: 'AdminPassword123!' });
+        const adminLogin = await axios.post('/api/auth/login', {
+          email: 'admin@cosmic.local',
+          password: 'AdminPassword123!',
+        });
         expect(adminLogin.status).toBe(201);
         const adminToken = adminLogin.data.access_token as string;
 
-        const approveRes = await axios.patch(`/api/community/posts/${created.id}/approve`, {}, { headers: { Authorization: `Bearer ${adminToken}` } });
+        const approveRes = await axios.patch(
+          `/api/community/posts/${created.id}/approve`,
+          {},
+          { headers: { Authorization: `Bearer ${adminToken}` } },
+        );
         expect(approveRes.status).toBe(200);
         expect(approveRes.data).toHaveProperty('ok', true);
 
@@ -390,7 +440,11 @@ describe('cosmic-horizons-api e2e', () => {
       });
 
       it('PATCH /api/community/posts/:id/hide requires moderator/admin (401/403/200)', async () => {
-        const payload = { title: `e2e-moderation-hide-${Date.now()}`, body: 'E2E hide test', author: 'e2e' };
+        const payload = {
+          title: `e2e-moderation-hide-${Date.now()}`,
+          body: 'E2E hide test',
+          author: 'e2e',
+        };
         const createRes = await axios.post('/api/community/posts', payload);
         expect(createRes.status).toBe(201);
         const created = createRes.data;
@@ -405,12 +459,19 @@ describe('cosmic-horizons-api e2e', () => {
         }
 
         // authenticated normal user -> 403
-        const userLogin = await axios.post('/api/auth/login', { email: 'test@cosmic.local', password: 'Password123!' });
+        const userLogin = await axios.post('/api/auth/login', {
+          email: 'test@cosmic.local',
+          password: 'Password123!',
+        });
         expect(userLogin.status).toBe(201);
         const userToken = userLogin.data.access_token as string;
 
         try {
-          await axios.patch(`/api/community/posts/${created.id}/hide`, {}, { headers: { Authorization: `Bearer ${userToken}` } });
+          await axios.patch(
+            `/api/community/posts/${created.id}/hide`,
+            {},
+            { headers: { Authorization: `Bearer ${userToken}` } },
+          );
           throw new Error('Expected user hide to fail with 403');
         } catch (err) {
           const axiosErr = err as AxiosError;
@@ -418,11 +479,18 @@ describe('cosmic-horizons-api e2e', () => {
         }
 
         // admin -> 200
-        const adminLogin = await axios.post('/api/auth/login', { email: 'admin@cosmic.local', password: 'AdminPassword123!' });
+        const adminLogin = await axios.post('/api/auth/login', {
+          email: 'admin@cosmic.local',
+          password: 'AdminPassword123!',
+        });
         expect(adminLogin.status).toBe(201);
         const adminToken = adminLogin.data.access_token as string;
 
-        const hideRes = await axios.patch(`/api/community/posts/${created.id}/hide`, {}, { headers: { Authorization: `Bearer ${adminToken}` } });
+        const hideRes = await axios.patch(
+          `/api/community/posts/${created.id}/hide`,
+          {},
+          { headers: { Authorization: `Bearer ${adminToken}` } },
+        );
         expect(hideRes.status).toBe(200);
         expect(hideRes.data).toHaveProperty('ok', true);
 

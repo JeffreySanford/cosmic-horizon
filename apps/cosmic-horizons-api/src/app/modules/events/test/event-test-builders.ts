@@ -1,6 +1,6 @@
 /**
  * Test Infrastructure for Events Module
- * 
+ *
  * Provides builders, mocks, and utilities for testing event publishing
  * Supports 45+ integration tests with latency measurement
  */
@@ -57,7 +57,9 @@ export class EventFactory {
    * Create a job status changed event
    * Strongly typed as JobStatusChangedEvent
    */
-  static jobStatusChanged(): EventFactory & { build: () => JobStatusChangedEvent } {
+  static jobStatusChanged(): EventFactory & {
+    build: () => JobStatusChangedEvent;
+  } {
     const factory = new EventFactory();
     factory.event.event_type = 'job.status.changed';
     factory.event.payload = {
@@ -74,7 +76,9 @@ export class EventFactory {
    * Create a notification sent event
    * Strongly typed as NotificationSentEvent
    */
-  static notificationSent(): EventFactory & { build: () => NotificationSentEvent } {
+  static notificationSent(): EventFactory & {
+    build: () => NotificationSentEvent;
+  } {
     const factory = new EventFactory();
     factory.event.event_type = 'notification.sent';
     factory.event.payload = {
@@ -163,7 +167,9 @@ export class TypeSafeEventBuilder {
   /**
    * Create a JobSubmittedEvent with full type safety
    */
-  static createJobSubmittedEvent(overrides?: Partial<JobSubmittedEvent>): JobSubmittedEvent {
+  static createJobSubmittedEvent(
+    overrides?: Partial<JobSubmittedEvent>,
+  ): JobSubmittedEvent {
     const defaults: JobSubmittedEvent = {
       event_id: generateEventId(),
       event_type: 'job.submitted',
@@ -200,7 +206,9 @@ export class TypeSafeEventBuilder {
   /**
    * Create a JobStatusChangedEvent with full type safety
    */
-  static createJobStatusChangedEvent(overrides?: Partial<JobStatusChangedEvent>): JobStatusChangedEvent {
+  static createJobStatusChangedEvent(
+    overrides?: Partial<JobStatusChangedEvent>,
+  ): JobStatusChangedEvent {
     const defaults: JobStatusChangedEvent = {
       event_id: generateEventId(),
       event_type: 'job.status.changed',
@@ -230,7 +238,9 @@ export class TypeSafeEventBuilder {
   /**
    * Create a NotificationSentEvent with full type safety
    */
-  static createNotificationSentEvent(overrides?: Partial<NotificationSentEvent>): NotificationSentEvent {
+  static createNotificationSentEvent(
+    overrides?: Partial<NotificationSentEvent>,
+  ): NotificationSentEvent {
     const defaults: NotificationSentEvent = {
       event_id: generateEventId(),
       event_type: 'notification.sent',
@@ -265,7 +275,10 @@ export class TypeSafeEventBuilder {
    * Build a job lifecycle chain: submitted → status changed → notification
    * Returns tuple of [JobSubmittedEvent, JobStatusChangedEvent, NotificationSentEvent]
    */
-  static createJobLifecycleChain(jobId: string, userId: string): [JobSubmittedEvent, JobStatusChangedEvent, NotificationSentEvent] {
+  static createJobLifecycleChain(
+    jobId: string,
+    userId: string,
+  ): [JobSubmittedEvent, JobStatusChangedEvent, NotificationSentEvent] {
     const correlationId = generateCorrelationId();
 
     const submitted = this.createJobSubmittedEvent({
@@ -417,7 +430,10 @@ export class MockRabbitMQPublisher {
   /**
    * Enable failure mode (for error handling tests)
    */
-  setFailureMode(shouldFail: boolean, mode: 'throw' | 'buffer' = 'throw'): void {
+  setFailureMode(
+    shouldFail: boolean,
+    mode: 'throw' | 'buffer' = 'throw',
+  ): void {
     this.shouldFail = shouldFail;
     this.failureMode = mode;
   }
@@ -464,7 +480,9 @@ export class MockRabbitMQPublisher {
    * Assert event was published
    */
   assertEventPublished(eventType: string): void {
-    const found = this.publishedEvents.some((p) => p.event.event_type === eventType);
+    const found = this.publishedEvents.some(
+      (p) => p.event.event_type === eventType,
+    );
     if (!found) {
       throw new Error(`Expected event of type "${eventType}" to be published`);
     }
@@ -476,7 +494,7 @@ export class MockRabbitMQPublisher {
   assertEventCount(expected: number): void {
     if (this.publishedEvents.length !== expected) {
       throw new Error(
-        `Expected ${expected} events, but got ${this.publishedEvents.length}`
+        `Expected ${expected} events, but got ${this.publishedEvents.length}`,
       );
     }
   }
@@ -495,7 +513,7 @@ export class MockRabbitMQPublisher {
 
     if (actual > maxMs) {
       throw new Error(
-        `Latency p${Math.floor(percentile * 100)} of ${actual.toFixed(2)}ms exceeds max ${maxMs}ms`
+        `Latency p${Math.floor(percentile * 100)} of ${actual.toFixed(2)}ms exceeds max ${maxMs}ms`,
       );
     }
   }

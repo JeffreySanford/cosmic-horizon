@@ -10,33 +10,33 @@ Kafka serves as the **data plane** for the Cosmic Horizons messaging system, han
 
 **Purpose**: Archive of raw visibility data and sensor telemetry at scale.
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
-| Partitions | 1 (dev), 3+ (prod) | Single partition for ordering; scale horizontally in production |
-| Replication Factor | 1 (dev), 3 (prod) | No replication in dev; 3-way in production for HA |
-| Log Retention (time) | 7 days | Balance between archive and storage cost (ngVLA: ~240 PB/year) |
-| Log Retention (size) | 100 GB | Fallback for dev environments |
-| Cleanup Policy | Delete | Move old segments to archive storage (S3/GCS) |
-| Compression | Snappy | Trade-off between compression ratio (~50%) and CPU |
+| Property             | Value              | Rationale                                                       |
+| -------------------- | ------------------ | --------------------------------------------------------------- |
+| Partitions           | 1 (dev), 3+ (prod) | Single partition for ordering; scale horizontally in production |
+| Replication Factor   | 1 (dev), 3 (prod)  | No replication in dev; 3-way in production for HA               |
+| Log Retention (time) | 7 days             | Balance between archive and storage cost (ngVLA: ~240 PB/year)  |
+| Log Retention (size) | 100 GB             | Fallback for dev environments                                   |
+| Cleanup Policy       | Delete             | Move old segments to archive storage (S3/GCS)                   |
+| Compression          | Snappy             | Trade-off between compression ratio (~50%) and CPU              |
 
 ### Payload Schema
 
 ```typescript
 // Emitted by MessagingIntegrationService
 interface KafkaPayload {
-  sourceId: string;                           // element-{site}-{n}
-  targetId: string;                           // site-{n}
-  routeType: 'node_to_hub' | 'hub_to_hub';   // Routing classification
-  elementId: string;                          // Physical element ID
-  siteId: string;                             // Observatory site
-  timestamp: string;                          // ISO 8601
+  sourceId: string; // element-{site}-{n}
+  targetId: string; // site-{n}
+  routeType: 'node_to_hub' | 'hub_to_hub'; // Routing classification
+  elementId: string; // Physical element ID
+  siteId: string; // Observatory site
+  timestamp: string; // ISO 8601
   metrics: {
-    vibration: number;                        // Accelerometer reading
-    powerUsage: number;                       // Watts
-    noiseFloor: number;                       // dBm
-    rfiLevel: number;                         // dBm (RFI detection)
+    vibration: number; // Accelerometer reading
+    powerUsage: number; // Watts
+    noiseFloor: number; // dBm
+    rfiLevel: number; // dBm (RFI detection)
   };
-  data_chunk?: string;                        // Base64-encoded visibility chunk
+  data_chunk?: string; // Base64-encoded visibility chunk
 }
 ```
 
@@ -65,6 +65,8 @@ docker compose -f docker-compose.yml -f docker-compose.events.yml --profile jmx 
 - Prometheus/JMX metrics will be available at: `http://localhost:9404/metrics`
 - The collector expects a metric such as `kafka_request_latency_seconds{quantile="0.99"}` (values in seconds) — the exporter config is provided in `docker/kafka-jmx-exporter-config.yml`.
 
+> Note: CI is now configured to start the `jmx` profile so the JMX exporter is available during CI runs for end-to-end metric collection and validation.
+
 ### docker-compose.yml (Kafka Section)
 
 ```yaml
@@ -78,7 +80,7 @@ services:
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_INIT_LIMIT: 5
     ports:
-      - "2181:2181"
+      - '2181:2181'
     networks:
       - cosmic
 
@@ -93,12 +95,12 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_LOG_RETENTION_HOURS: 168
-      KAFKA_LOG_RETENTION_BYTES: 107374182400  # 100 GB
+      KAFKA_LOG_RETENTION_BYTES: 107374182400 # 100 GB
       KAFKA_COMPRESSION_TYPE: snappy
     ports:
-      - "9092:9092"
+      - '9092:9092'
     networks:
       - cosmic
 
@@ -111,7 +113,7 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     ports:
-      - "8080:8080"
+      - '8080:8080'
     networks:
       - cosmic
 
@@ -196,32 +198,32 @@ helm install kafka confluentinc/cp-kafka \
 # Kafka Broker Configuration
 kafka:
   brokers: 3
-  
+
   replicas: 3
-  
+
   # JVM Performance
-  heapOptions: "-Xms4g -Xmx4g"
-  
+  heapOptions: '-Xms4g -Xmx4g'
+
   # Broker Configuration
   configurationOverrides:
-    "default.replication.factor": "3"
-    "min.insync.replicas": "2"
-    "log.retention.hours": "168"
-    "log.retention.bytes": "1099511627776"  # 1 TB per broker
-    "compression.type": "snappy"
-    "log.segment.bytes": "1073741824"       # 1 GB segment
-    "num.network.threads": "8"
-    "num.io.threads": "8"
-    "socket.send.buffer.bytes": "102400"
-    "socket.receive.buffer.bytes": "102400"
-    "socket.request.max.bytes": "104857600" # 100 MB
-    
+    'default.replication.factor': '3'
+    'min.insync.replicas': '2'
+    'log.retention.hours': '168'
+    'log.retention.bytes': '1099511627776' # 1 TB per broker
+    'compression.type': 'snappy'
+    'log.segment.bytes': '1073741824' # 1 GB segment
+    'num.network.threads': '8'
+    'num.io.threads': '8'
+    'socket.send.buffer.bytes': '102400'
+    'socket.receive.buffer.bytes': '102400'
+    'socket.request.max.bytes': '104857600' # 100 MB
+
   # Storage
   persistence:
     enabled: true
     size: 500Gi
-    storageClassName: "fast-ssd"
-    
+    storageClassName: 'fast-ssd'
+
   # Resource Requests
   resources:
     requests:
@@ -237,7 +239,7 @@ cp-zookeeper:
   persistence:
     enabled: true
     size: 50Gi
-    storageClassName: "fast-ssd"
+    storageClassName: 'fast-ssd'
   resources:
     requests:
       cpu: 1000m
@@ -427,14 +429,14 @@ docker-compose exec kafka rm -f /var/lib/kafka/data/element.raw_data*/00000*
 
 ## Performance Tuning
 
-| Parameter | Dev Default | Prod Recommended | Purpose |
-|-----------|-------------|------------------|---------|
-| num.network.threads | 3 | 8-16 | Network I/O threads |
-| num.io.threads | 8 | 16-32 | Disk I/O threads |
-| socket.send.buffer.bytes | 102400 | 524288 | TCP send buffer |
-| socket.receive.buffer.bytes | 102400 | 524288 | TCP receive buffer |
-| log.flush.interval.messages | 10000 | 100000 | Batch write size |
-| replica.lag.time.max.ms | 10000 | 30000 | Replica failure detection |
+| Parameter                   | Dev Default | Prod Recommended | Purpose                   |
+| --------------------------- | ----------- | ---------------- | ------------------------- |
+| num.network.threads         | 3           | 8-16             | Network I/O threads       |
+| num.io.threads              | 8           | 16-32            | Disk I/O threads          |
+| socket.send.buffer.bytes    | 102400      | 524288           | TCP send buffer           |
+| socket.receive.buffer.bytes | 102400      | 524288           | TCP receive buffer        |
+| log.flush.interval.messages | 10000       | 100000           | Batch write size          |
+| replica.lag.time.max.ms     | 10000       | 30000            | Replica failure detection |
 
 ## References
 

@@ -18,12 +18,48 @@
           </mat-form-field>
 
           <div class="editor-toolbar-actions">
-            <button mat-stroked-button type="button" (click)="insertMarkdown('**bold**')">Bold</button>
-            <button mat-stroked-button type="button" (click)="insertMarkdown('*italic*')">Italic</button>
-            <button mat-stroked-button type="button" (click)="insertMarkdown('# Heading')">Header</button>
-            <button mat-stroked-button type="button" (click)="insertMarkdown('[link](https://)')">Link</button>
-            <button mat-stroked-button type="button" (click)="insertMarkdown('\n> quote')">Quote</button>
-            <button mat-stroked-button type="button" (click)="openBlockBuilder()">Embed Viewer Block</button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="insertMarkdown('**bold**')"
+            >
+              Bold
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="insertMarkdown('*italic*')"
+            >
+              Italic
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="insertMarkdown('# Heading')"
+            >
+              Header
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="insertMarkdown('[link](https://)')"
+            >
+              Link
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="insertMarkdown('\n> quote')"
+            >
+              Quote
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="openBlockBuilder()"
+            >
+              Embed Viewer Block
+            </button>
           </div>
 
           <div class="editor-columns">
@@ -39,11 +75,26 @@
           </div>
         </form>
 
-        <p class="stats">Characters: {{ characterCount }} | Estimated read: {{ estimatedReadMinutes }} min</p>
+        <p class="stats">
+          Characters: {{ characterCount }} | Estimated read:
+          {{ estimatedReadMinutes }} min
+        </p>
 
         <div class="actions">
-          <button mat-stroked-button type="button" (click)="parseViewerBlocks()">Parse Viewer Blocks</button>
-          <button mat-flat-button color="accent" type="button" [disabled]="saving" (click)="saveDraft()">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="parseViewerBlocks()"
+          >
+            Parse Viewer Blocks
+          </button>
+          <button
+            mat-flat-button
+            color="accent"
+            type="button"
+            [disabled]="saving"
+            (click)="saveDraft()"
+          >
             @if (saving) {
               Saving...
             } @else {
@@ -82,8 +133,21 @@
               <input matInput type="text" formControlName="label" />
             </mat-form-field>
             <div class="builder-actions">
-              <button mat-stroked-button type="button" (click)="closeBlockBuilder()">Cancel</button>
-              <button mat-flat-button color="accent" type="button" (click)="insertViewerBlock()">Insert Block</button>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="closeBlockBuilder()"
+              >
+                Cancel
+              </button>
+              <button
+                mat-flat-button
+                color="accent"
+                type="button"
+                (click)="insertViewerBlock()"
+              >
+                Insert Block
+              </button>
             </div>
           </section>
         }
@@ -95,7 +159,11 @@
               <p>
                 <code>{{ block.raw }}</code>
               </p>
-              <a [routerLink]="['/view']" [queryParams]="{ state: block.encodedState }">Open in Viewer</a>
+              <a
+                [routerLink]="['/view']"
+                [queryParams]="{ state: block.encodedState }"
+                >Open in Viewer</a
+              >
             }
           </div>
         }

@@ -13,7 +13,10 @@ import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ModerationComponent } from './moderation.component';
-import { CommentsApiService, CommentReportModel } from '../posts/comments-api.service';
+import {
+  CommentsApiService,
+  CommentReportModel,
+} from '../posts/comments-api.service';
 
 describe('ModerationComponent', () => {
   let component: ModerationComponent;
@@ -165,7 +168,7 @@ describe('ModerationComponent', () => {
 
     it('should set error message on failure', async () => {
       commentsApiService.getAllReports.mockReturnValue(
-        throwError(() => new Error('Network error'))
+        throwError(() => new Error('Network error')),
       );
 
       component.loadReports();
@@ -176,7 +179,7 @@ describe('ModerationComponent', () => {
 
     it('should set loading to false on error', async () => {
       commentsApiService.getAllReports.mockReturnValue(
-        throwError(() => new Error('Server error'))
+        throwError(() => new Error('Server error')),
       );
 
       component.loadReports();
@@ -218,7 +221,10 @@ describe('ModerationComponent', () => {
       component.resolveReport('report-1', 'reviewed');
       await Promise.resolve();
 
-      expect(commentsApiService.resolveReport).toHaveBeenCalledWith('report-1', 'reviewed');
+      expect(commentsApiService.resolveReport).toHaveBeenCalledWith(
+        'report-1',
+        'reviewed',
+      );
     });
 
     it('should call resolveReport with correct parameters for dismissed status', async () => {
@@ -228,7 +234,10 @@ describe('ModerationComponent', () => {
       component.resolveReport('report-1', 'dismissed');
       await Promise.resolve();
 
-      expect(commentsApiService.resolveReport).toHaveBeenCalledWith('report-1', 'dismissed');
+      expect(commentsApiService.resolveReport).toHaveBeenCalledWith(
+        'report-1',
+        'dismissed',
+      );
     });
 
     it('should reload reports after successful resolution', async () => {
@@ -243,7 +252,9 @@ describe('ModerationComponent', () => {
     });
 
     it('should set error message on resolution failure', async () => {
-      commentsApiService.resolveReport.mockReturnValue(throwError(() => new Error('Failed')));
+      commentsApiService.resolveReport.mockReturnValue(
+        throwError(() => new Error('Failed')),
+      );
 
       component.resolveReport('report-1', 'reviewed');
       await Promise.resolve();
@@ -252,7 +263,9 @@ describe('ModerationComponent', () => {
     });
 
     it('should include status in error message for dismissed', async () => {
-      commentsApiService.resolveReport.mockReturnValue(throwError(() => new Error('Failed')));
+      commentsApiService.resolveReport.mockReturnValue(
+        throwError(() => new Error('Failed')),
+      );
 
       component.resolveReport('report-1', 'dismissed');
       await Promise.resolve();
@@ -288,7 +301,9 @@ describe('ModerationComponent', () => {
 
       expect(component.error).toBe('');
 
-      commentsApiService.resolveReport.mockReturnValue(throwError(() => new Error('Failed')));
+      commentsApiService.resolveReport.mockReturnValue(
+        throwError(() => new Error('Failed')),
+      );
       component.resolveReport('report-2', 'dismissed');
       await Promise.resolve();
 
@@ -323,7 +338,9 @@ describe('ModerationComponent', () => {
     });
 
     it('should set error message on hide failure', async () => {
-      commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Failed')));
+      commentsApiService.hideComment.mockReturnValue(
+        throwError(() => new Error('Failed')),
+      );
 
       component.hideComment('comment-1');
       await Promise.resolve();
@@ -356,7 +373,9 @@ describe('ModerationComponent', () => {
 
       expect(component.error).toBe('');
 
-      commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Not found')));
+      commentsApiService.hideComment.mockReturnValue(
+        throwError(() => new Error('Not found')),
+      );
       component.hideComment('comment-99');
       await Promise.resolve();
 
@@ -367,7 +386,7 @@ describe('ModerationComponent', () => {
   describe('error handling and state management', () => {
     it('should set error on load failure', async () => {
       commentsApiService.getAllReports.mockReturnValue(
-        throwError(() => new Error('Load failed'))
+        throwError(() => new Error('Load failed')),
       );
 
       component.loadReports();
@@ -377,7 +396,9 @@ describe('ModerationComponent', () => {
     });
 
     it('should preserve error when operation fails', async () => {
-      commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Failed')));
+      commentsApiService.hideComment.mockReturnValue(
+        throwError(() => new Error('Failed')),
+      );
 
       component.hideComment('comment-1');
       await Promise.resolve();
@@ -387,7 +408,9 @@ describe('ModerationComponent', () => {
 
     it('should overwrite previous error with new error', async () => {
       component.error = 'Load error';
-      commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Hide failed')));
+      commentsApiService.hideComment.mockReturnValue(
+        throwError(() => new Error('Hide failed')),
+      );
 
       component.hideComment('comment-1');
       await Promise.resolve();
@@ -396,8 +419,12 @@ describe('ModerationComponent', () => {
     });
 
     it('should handle rapid sequential operations with errors', async () => {
-      commentsApiService.resolveReport.mockReturnValue(throwError(() => new Error('Failed')));
-      commentsApiService.hideComment.mockReturnValue(throwError(() => new Error('Failed')));
+      commentsApiService.resolveReport.mockReturnValue(
+        throwError(() => new Error('Failed')),
+      );
+      commentsApiService.hideComment.mockReturnValue(
+        throwError(() => new Error('Failed')),
+      );
 
       component.resolveReport('report-1', 'reviewed');
       await Promise.resolve();

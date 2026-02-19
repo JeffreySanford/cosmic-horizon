@@ -72,7 +72,12 @@ export interface AuditJobLifecycleEvent extends EventBase {
   event_type: 'audit.job.lifecycle';
   payload: {
     job_id: string;
-    lifecycle_event: 'submitted' | 'started' | 'completed' | 'failed' | 'cancelled';
+    lifecycle_event:
+      | 'submitted'
+      | 'started'
+      | 'completed'
+      | 'failed'
+      | 'cancelled';
     previous_state?: string;
     new_state: string;
     initiated_by: string; // user_id or 'system'
@@ -95,7 +100,11 @@ export interface AuditComplianceCheckEvent extends EventBase {
   payload: {
     check_id: string;
     check_name: string;
-    check_type: 'data_retention' | 'access_control' | 'encryption' | 'audit_trail';
+    check_type:
+      | 'data_retention'
+      | 'access_control'
+      | 'encryption'
+      | 'audit_trail';
     status: 'pass' | 'fail' | 'warning';
     violations?: {
       resource_id: string;
@@ -119,24 +128,32 @@ export type AuditEvent =
 /**
  * Type guard helpers
  */
-export function isAuditActionRecordedEvent(event: EventBase): event is AuditActionRecordedEvent {
+export function isAuditActionRecordedEvent(
+  event: EventBase,
+): event is AuditActionRecordedEvent {
   return event.event_type === 'audit.action.recorded';
 }
 
-export function isAuditPolicyChangedEvent(event: EventBase): event is AuditPolicyChangedEvent {
+export function isAuditPolicyChangedEvent(
+  event: EventBase,
+): event is AuditPolicyChangedEvent {
   return event.event_type === 'audit.policy.changed';
 }
 
-export function isAuditDataAccessEvent(event: EventBase): event is AuditDataAccessEvent {
+export function isAuditDataAccessEvent(
+  event: EventBase,
+): event is AuditDataAccessEvent {
   return event.event_type === 'audit.data.access';
 }
 
-export function isAuditJobLifecycleEvent(event: EventBase): event is AuditJobLifecycleEvent {
+export function isAuditJobLifecycleEvent(
+  event: EventBase,
+): event is AuditJobLifecycleEvent {
   return event.event_type === 'audit.job.lifecycle';
 }
 
 export function isAuditComplianceCheckEvent(
-  event: EventBase
+  event: EventBase,
 ): event is AuditComplianceCheckEvent {
   return event.event_type === 'audit.compliance.check';
 }

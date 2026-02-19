@@ -41,4 +41,4 @@ When contacting VLA/NRAO/CosmicAI or presenting at conferences:
 
 ---
 
-*Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved._

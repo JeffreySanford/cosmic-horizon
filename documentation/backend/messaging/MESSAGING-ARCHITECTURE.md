@@ -12,7 +12,7 @@ The messaging architecture is designed to ingest, broker, and monitor telemetry 
 - **WebSocket live updates** for real-time Array Information monitoring UI
 - **Storage layer** integration with PostgreSQL and Redis
 
-``` text
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                       Web Client (UI)                           │
 │         Array Information Monitoring Dashboard                  │
@@ -90,10 +90,10 @@ Legend:
 
 **Transport Specifications**:
 
-| Transport | Queue/Topic | Durable | Purpose |
-|-----------|-------------|---------|---------|
-| RabbitMQ | element_telemetry_queue | No | Management plane: control signals, orch messages |
-| Kafka | element.raw_data | Yes | Data plane: raw visibility + telemetry archive |
+| Transport | Queue/Topic             | Durable | Purpose                                          |
+| --------- | ----------------------- | ------- | ------------------------------------------------ |
+| RabbitMQ  | element_telemetry_queue | No      | Management plane: control signals, orch messages |
+| Kafka     | element.raw_data        | Yes     | Data plane: raw visibility + telemetry archive   |
 
 **Source File**: `apps/cosmic-horizons-api/src/app/messaging/messaging-integration.service.ts`
 
@@ -118,19 +118,19 @@ MessagingInfraSnapshot = {
     connected: boolean,
     latencyMs: number | null,
     queueDepth: number | null,
-    consumers: number | null
+    consumers: number | null,
   },
   kafka: {
     connected: boolean,
     latencyMs: number | null,
     latestOffset: number | null,
-    partitions: number | null
+    partitions: number | null,
   },
   storage: {
     postgres: { connected, latencyMs },
-    redis: { connected, latencyMs }
-  }
-}
+    redis: { connected, latencyMs },
+  },
+};
 ```
 
 **Source File**: `apps/cosmic-horizons-api/src/app/messaging/messaging-monitor.service.ts`
@@ -157,10 +157,10 @@ MessagingInfraSnapshot = {
 
 **Events Emitted**:
 
-| Event | Interval | Payload |
-|-------|----------|---------|
-| `telemetry_update` | On capture (~100ms avg) | TelemetryPacket |
-| `stats_update` | Every 1 second | MessagingLiveStats |
+| Event              | Interval                | Payload            |
+| ------------------ | ----------------------- | ------------------ |
+| `telemetry_update` | On capture (~100ms avg) | TelemetryPacket    |
+| `stats_update`     | Every 1 second          | MessagingLiveStats |
 
 **Namespace**: `/messaging`
 
@@ -170,7 +170,7 @@ MessagingInfraSnapshot = {
 
 ### Telemetry Emission Path
 
-``` test
+```test
 1. MessagingService (simulation/NRAO feed)
    ↓
 2. Subject<TelemetryPacket> (in-process observable)
@@ -190,7 +190,7 @@ MessagingInfraSnapshot = {
 
 ### Monitoring Path
 
-``` text
+```text
 1. MessagingMonitorService polls every 2 seconds
    ├─ RabbitMQ Management API (HTTP GET)
    ├─ Kafka Admin client (TCP)
@@ -284,16 +284,16 @@ REDIS_PASSWORD=
 
 ## Performance Characteristics
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Telemetry Rate | ~600 packets/sec | 60 elements × 10 Hz |
-| Message Size | ~200-500 bytes | Per TelemetryPacket |
-| RabbitMQ Throughput | 5-10k msgs/sec | Single queue, non-durable |
-| Kafka Throughput | 50k+ msgs/sec | Cluster mode, replicated |
-| Monitor Poll Latency | <100ms | Parallel polling all endpoints |
-| WebSocket Broadcast | <50ms | Socket.IO to all connected clients |
-| CPU per Core | 5-15% | Idle state (development) |
-| Memory Peak | ~200MB | API server + all infrastructure clients |
+| Metric               | Value            | Notes                                   |
+| -------------------- | ---------------- | --------------------------------------- |
+| Telemetry Rate       | ~600 packets/sec | 60 elements × 10 Hz                     |
+| Message Size         | ~200-500 bytes   | Per TelemetryPacket                     |
+| RabbitMQ Throughput  | 5-10k msgs/sec   | Single queue, non-durable               |
+| Kafka Throughput     | 50k+ msgs/sec    | Cluster mode, replicated                |
+| Monitor Poll Latency | <100ms           | Parallel polling all endpoints          |
+| WebSocket Broadcast  | <50ms            | Socket.IO to all connected clients      |
+| CPU per Core         | 5-15%            | Idle state (development)                |
+| Memory Peak          | ~200MB           | API server + all infrastructure clients |
 
 ## References
 

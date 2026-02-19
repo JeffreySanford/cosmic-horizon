@@ -21,10 +21,10 @@ module.exports = {
   // Target: Maintain 90%+ across all metrics
   coverageThreshold: {
     global: {
-      branches: 90,    // Target: 90%+ branch coverage
-      functions: 90,   // Target: 90%+ function coverage
-      lines: 90,       // Target: 90%+ line coverage
-      statements: 90,  // Target: 90%+ statement coverage
+      branches: 90, // Target: 90%+ branch coverage
+      functions: 90, // Target: 90%+ function coverage
+      lines: 90, // Target: 90%+ line coverage
+      statements: 90, // Target: 90%+ statement coverage
     },
   },
   coverageReporters: [

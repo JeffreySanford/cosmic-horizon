@@ -10,14 +10,20 @@ export class JobEventsService {
       publish(topic: string, payload: Record<string, unknown>): Promise<void>;
     },
     private readonly eventRegistry: {
-      validateEvent(eventType: string, payload: Record<string, unknown>): Promise<void>;
+      validateEvent(
+        eventType: string,
+        payload: Record<string, unknown>,
+      ): Promise<void>;
     },
   ) {}
 
   async emitJobSubmittedEvent(job: Record<string, unknown>): Promise<string> {
     const eventId = generateEventId();
     await this.eventRegistry.validateEvent('JOB_SUBMITTED', job);
-    await this.eventPublisher.publish('jobs.submitted', { id: eventId, ...job });
+    await this.eventPublisher.publish('jobs.submitted', {
+      id: eventId,
+      ...job,
+    });
     this.logger.debug(`Job submitted event emitted: ${eventId}`);
     return eventId;
   }
@@ -28,28 +34,54 @@ export class JobEventsService {
     metadata?: Record<string, unknown>,
   ): Promise<string> {
     const eventId = generateEventId();
-    await this.eventRegistry.validateEvent('JOB_STATUS_CHANGED', { jobId, status, ...metadata });
-    await this.eventPublisher.publish('jobs.status', { id: eventId, jobId, status, ...metadata });
+    await this.eventRegistry.validateEvent('JOB_STATUS_CHANGED', {
+      jobId,
+      status,
+      ...metadata,
+    });
+    await this.eventPublisher.publish('jobs.status', {
+      id: eventId,
+      jobId,
+      status,
+      ...metadata,
+    });
     return eventId;
   }
 
-  async emitJobCompletedEvent(jobId: string, result: Record<string, unknown>): Promise<string> {
+  async emitJobCompletedEvent(
+    jobId: string,
+    result: Record<string, unknown>,
+  ): Promise<string> {
     const eventId = generateEventId();
     await this.eventRegistry.validateEvent('JOB_COMPLETED', { jobId, result });
-    await this.eventPublisher.publish('jobs.completed', { id: eventId, jobId, result });
+    await this.eventPublisher.publish('jobs.completed', {
+      id: eventId,
+      jobId,
+      result,
+    });
     return eventId;
   }
 
-  async emitJobErrorEvent(jobId: string, error: Record<string, unknown>): Promise<string> {
+  async emitJobErrorEvent(
+    jobId: string,
+    error: Record<string, unknown>,
+  ): Promise<string> {
     const eventId = generateEventId();
     await this.eventRegistry.validateEvent('JOB_ERROR', { jobId, error });
-    await this.eventPublisher.publish('jobs.error', { id: eventId, jobId, error });
+    await this.eventPublisher.publish('jobs.error', {
+      id: eventId,
+      jobId,
+      error,
+    });
     return eventId;
   }
 
-  async verifyEventOrdering(eventSequence: Array<{ timestamp: Date }>): Promise<boolean> {
+  async verifyEventOrdering(
+    eventSequence: Array<{ timestamp: Date }>,
+  ): Promise<boolean> {
     for (let i = 1; i < eventSequence.length; i++) {
-      if (eventSequence[i].timestamp < eventSequence[i - 1].timestamp) return false;
+      if (eventSequence[i].timestamp < eventSequence[i - 1].timestamp)
+        return false;
     }
     return true;
   }

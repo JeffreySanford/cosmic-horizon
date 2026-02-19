@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Query, UseGuards, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { spawn } from 'node:child_process';
 import { createWriteStream, existsSync, mkdirSync } from 'node:fs';
@@ -64,7 +71,8 @@ export class BrokerMetricsController {
   @Get('stats')
   @ApiOperation({
     summary: 'Get current broker metrics',
-    description: 'Returns real-time statistics for all configured brokers (RabbitMQ, Kafka, Pulsar)',
+    description:
+      'Returns real-time statistics for all configured brokers (RabbitMQ, Kafka, Pulsar)',
   })
   @ApiResponse({
     status: 200,
@@ -80,11 +88,17 @@ export class BrokerMetricsController {
     required: false,
     type: Boolean,
   })
-  async getStats(@Query('forceRefresh') forceRefresh?: string): Promise<BrokerComparisonDTO> {
+  async getStats(
+    @Query('forceRefresh') forceRefresh?: string,
+  ): Promise<BrokerComparisonDTO> {
     try {
-      return await this.brokerMetricsService.getCurrentMetrics(forceRefresh === 'true');
+      return await this.brokerMetricsService.getCurrentMetrics(
+        forceRefresh === 'true',
+      );
     } catch (error) {
-      this.logger.error(`Failed to get broker stats: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to get broker stats: ${error instanceof Error ? error.message : String(error)}`,
+      );
       throw error;
     }
   }
@@ -116,7 +130,8 @@ export class BrokerMetricsController {
   @Get('history')
   @ApiOperation({
     summary: 'Get historical broker metrics',
-    description: 'Returns time-series data for building performance trend charts',
+    description:
+      'Returns time-series data for building performance trend charts',
   })
   @ApiQuery({
     name: 'hours',
@@ -130,10 +145,13 @@ export class BrokerMetricsController {
   })
   async getHistory(@Query('hours') hours?: number): Promise<BrokerHistoryDTO> {
     try {
-      const hoursToQuery = hours !== undefined ? Math.max(1, Math.min(168, hours)) : 24; // Cap at 7 days
+      const hoursToQuery =
+        hours !== undefined ? Math.max(1, Math.min(168, hours)) : 24; // Cap at 7 days
       return await this.brokerMetricsService.getHistoricalMetrics(hoursToQuery);
     } catch (error) {
-      this.logger.error(`Failed to get broker history: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to get broker history: ${error instanceof Error ? error.message : String(error)}`,
+      );
       throw error;
     }
   }
@@ -175,11 +193,13 @@ export class BrokerMetricsController {
   @Post('benchmark')
   @ApiOperation({
     summary: 'Trigger broker performance benchmark',
-    description: 'Runs message comparison test across all brokers. Supports standard and heavy stress profiles.',
+    description:
+      'Runs message comparison test across all brokers. Supports standard and heavy stress profiles.',
   })
   @ApiQuery({
     name: 'stressTest',
-    description: 'Run high-load stress test with heavy defaults (5M messages, 64KB payload, high inflight)',
+    description:
+      'Run high-load stress test with heavy defaults (5M messages, 64KB payload, high inflight)',
     required: false,
     type: Boolean,
   })
@@ -197,13 +217,15 @@ export class BrokerMetricsController {
   })
   @ApiQuery({
     name: 'inflight',
-    description: 'Maximum in-flight publish operations (higher values increase memory pressure)',
+    description:
+      'Maximum in-flight publish operations (higher values increase memory pressure)',
     required: false,
     type: Number,
   })
   @ApiQuery({
     name: 'brokers',
-    description: 'Comma-separated broker list (rabbitmq,kafka,pulsar) for per-run execution',
+    description:
+      'Comma-separated broker list (rabbitmq,kafka,pulsar) for per-run execution',
     required: false,
     type: String,
   })
@@ -221,7 +243,8 @@ export class BrokerMetricsController {
   })
   @ApiQuery({
     name: 'measuredOnly',
-    description: 'When true (default), block benchmark runs that rely on fallback/simulated metrics',
+    description:
+      'When true (default), block benchmark runs that rely on fallback/simulated metrics',
     required: false,
     type: Boolean,
   })
@@ -265,15 +288,36 @@ export class BrokerMetricsController {
     const customInflight = this.parsePositiveInt(inflight);
     const customTrials = this.parsePositiveInt(trials);
     const customSeed = this.parsePositiveInt(seed);
-    const finalMessageCount = this.clamp(customMessageCount || (isStressTest ? this.STRESS_DEFAULT_MESSAGES : 10000), 1000, 20000000);
-    const finalPayloadKb = this.clamp(customPayloadKb || (isStressTest ? this.STRESS_DEFAULT_PAYLOAD_KB : this.STANDARD_DEFAULT_PAYLOAD_KB), 1, 256);
-    const finalInflight = this.clamp(customInflight || (isStressTest ? this.STRESS_DEFAULT_INFLIGHT : this.STANDARD_DEFAULT_INFLIGHT), 1, 10000);
+    const finalMessageCount = this.clamp(
+      customMessageCount ||
+        (isStressTest ? this.STRESS_DEFAULT_MESSAGES : 10000),
+      1000,
+      20000000,
+    );
+    const finalPayloadKb = this.clamp(
+      customPayloadKb ||
+        (isStressTest
+          ? this.STRESS_DEFAULT_PAYLOAD_KB
+          : this.STANDARD_DEFAULT_PAYLOAD_KB),
+      1,
+      256,
+    );
+    const finalInflight = this.clamp(
+      customInflight ||
+        (isStressTest
+          ? this.STRESS_DEFAULT_INFLIGHT
+          : this.STANDARD_DEFAULT_INFLIGHT),
+      1,
+      10000,
+    );
     const finalTrials = this.clamp(customTrials || 3, 1, 20);
     const finalSeed = customSeed || 42;
     const enforceMeasuredOnly = measuredOnly !== 'false';
 
     if (this.activeBenchmarkJobId) {
-      this.logger.warn(`Benchmark request ignored; job already running: ${this.activeBenchmarkJobId}`);
+      this.logger.warn(
+        `Benchmark request ignored; job already running: ${this.activeBenchmarkJobId}`,
+      );
       return {
         status: 'running',
         jobId: this.activeBenchmarkJobId,
@@ -286,9 +330,13 @@ export class BrokerMetricsController {
 
     const health = await this.brokerMetricsService.getCurrentMetrics(true);
 
-    const unavailable = selectedBrokers.filter((broker) => !health.brokers[broker]?.connected);
+    const unavailable = selectedBrokers.filter(
+      (broker) => !health.brokers[broker]?.connected,
+    );
     if (unavailable.length > 0) {
-      this.logger.warn(`Benchmark blocked; unavailable brokers: ${unavailable.join(', ')}`);
+      this.logger.warn(
+        `Benchmark blocked; unavailable brokers: ${unavailable.join(', ')}`,
+      );
       return {
         status: 'blocked',
         jobId: '',
@@ -356,8 +404,16 @@ export class BrokerMetricsController {
     trials: number;
     seed: number;
   }): void {
-    const benchmarkScriptPath = path.resolve(process.cwd(), 'scripts', 'benchmark-pulsar-vs-rabbitmq.mjs');
-    const runLogsDir = path.resolve(process.cwd(), 'test-output', 'benchmark-runs');
+    const benchmarkScriptPath = path.resolve(
+      process.cwd(),
+      'scripts',
+      'benchmark-pulsar-vs-rabbitmq.mjs',
+    );
+    const runLogsDir = path.resolve(
+      process.cwd(),
+      'test-output',
+      'benchmark-runs',
+    );
     if (!existsSync(runLogsDir)) {
       mkdirSync(runLogsDir, { recursive: true });
     }
@@ -375,14 +431,21 @@ export class BrokerMetricsController {
       ...(config.isStressTest ? ['--stress-test'] : []),
     ];
 
-    this.logger.log(`Launching benchmark job ${config.jobId}: node ${args.join(' ')}`);
-    const child = spawn('node', args, { cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe'] });
+    this.logger.log(
+      `Launching benchmark job ${config.jobId}: node ${args.join(' ')}`,
+    );
+    const child = spawn('node', args, {
+      cwd: process.cwd(),
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
     child.stdout?.pipe(logStream);
     child.stderr?.pipe(logStream);
 
     child.on('error', (error: Error) => {
-      this.logger.error(`Benchmark process error (${config.jobId}): ${error.message}`);
+      this.logger.error(
+        `Benchmark process error (${config.jobId}): ${error.message}`,
+      );
       this.activeBenchmarkJobId = null;
       logStream.end();
     });
@@ -391,7 +454,9 @@ export class BrokerMetricsController {
       if (code === 0) {
         this.logger.log(`Benchmark job ${config.jobId} completed successfully`);
       } else {
-        this.logger.error(`Benchmark job ${config.jobId} exited with code ${code}`);
+        this.logger.error(
+          `Benchmark job ${config.jobId} exited with code ${code}`,
+        );
       }
       this.activeBenchmarkJobId = null;
       logStream.end();
@@ -411,7 +476,10 @@ export class BrokerMetricsController {
   }
 
   private isTestEnvironment(): boolean {
-    return process.env['NODE_ENV'] === 'test' || typeof process.env['JEST_WORKER_ID'] !== 'undefined';
+    return (
+      process.env['NODE_ENV'] === 'test' ||
+      typeof process.env['JEST_WORKER_ID'] !== 'undefined'
+    );
   }
 
   private parseSelectedBrokers(raw: string | undefined): BrokerKey[] {
@@ -421,7 +489,10 @@ export class BrokerMetricsController {
     const parsed = raw
       .split(',')
       .map((value) => value.trim().toLowerCase())
-      .filter((value): value is BrokerKey => value === 'rabbitmq' || value === 'kafka' || value === 'pulsar');
+      .filter(
+        (value): value is BrokerKey =>
+          value === 'rabbitmq' || value === 'kafka' || value === 'pulsar',
+      );
     const deduped = Array.from(new Set(parsed));
     return deduped.length > 0 ? deduped : ['rabbitmq', 'pulsar'];
   }
@@ -462,7 +533,11 @@ export class BrokerMetricsController {
       },
     },
   })
-  async getSystemMetrics(): Promise<{ cpu: number; memory: number; disk: number }> {
+  async getSystemMetrics(): Promise<{
+    cpu: number;
+    memory: number;
+    disk: number;
+  }> {
     // In a real implementation, this would query system metrics
     // For now, return simulated data
     return {
@@ -493,7 +568,9 @@ export class BrokerMetricsController {
     return {
       rabbitmq: metrics.brokers.rabbitmq.connected ? 'ok' : 'unavailable',
       kafka: metrics.brokers.kafka.connected ? 'ok' : 'unavailable',
-      ...(metrics.brokers.pulsar ? { pulsar: metrics.brokers.pulsar.connected ? 'ok' : 'unavailable' } : {}),
+      ...(metrics.brokers.pulsar
+        ? { pulsar: metrics.brokers.pulsar.connected ? 'ok' : 'unavailable' }
+        : {}),
     };
   }
 }

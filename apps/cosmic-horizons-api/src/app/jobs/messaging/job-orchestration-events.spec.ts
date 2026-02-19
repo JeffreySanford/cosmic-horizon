@@ -3,11 +3,11 @@ import * as EventModels from '@cosmic-horizons/event-models';
 
 /**
  * Priority 5.3: Job Orchestration Events Tests
- * 
+ *
  * Tests comprehensive event-driven job lifecycle including submission, status tracking,
  * completion, error handling, and event ordering/idempotency. Validates end-to-end
  * event propagation with <100ms P99 latency and guaranteed delivery.
- * 
+ *
  * Test Coverage: 50 tests
  * - Job Submission Events (8 tests)
  * - Status Change Events (10 tests)
@@ -22,34 +22,58 @@ class JobEventsService {
   constructor(
     private eventPublisher: any,
     private eventRegistry: any,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   async emitJobSubmittedEvent(job: any): Promise<string> {
     const eventId = EventModels.generateEventId();
     await this.eventRegistry.validateEvent('JOB_SUBMITTED', job);
-    await this.eventPublisher.publish('jobs.submitted', { id: eventId, ...job });
+    await this.eventPublisher.publish('jobs.submitted', {
+      id: eventId,
+      ...job,
+    });
     return eventId;
   }
 
-  async emitJobStatusChangedEvent(jobId: string, status: string, metadata?: any): Promise<string> {
+  async emitJobStatusChangedEvent(
+    jobId: string,
+    status: string,
+    metadata?: any,
+  ): Promise<string> {
     const eventId = EventModels.generateEventId();
-    await this.eventRegistry.validateEvent('JOB_STATUS_CHANGED', { jobId, status, ...metadata });
-    await this.eventPublisher.publish('jobs.status', { id: eventId, jobId, status, ...metadata });
+    await this.eventRegistry.validateEvent('JOB_STATUS_CHANGED', {
+      jobId,
+      status,
+      ...metadata,
+    });
+    await this.eventPublisher.publish('jobs.status', {
+      id: eventId,
+      jobId,
+      status,
+      ...metadata,
+    });
     return eventId;
   }
 
   async emitJobCompletedEvent(jobId: string, result: any): Promise<string> {
     const eventId = EventModels.generateEventId();
     await this.eventRegistry.validateEvent('JOB_COMPLETED', { jobId, result });
-    await this.eventPublisher.publish('jobs.completed', { id: eventId, jobId, result });
+    await this.eventPublisher.publish('jobs.completed', {
+      id: eventId,
+      jobId,
+      result,
+    });
     return eventId;
   }
 
   async emitJobErrorEvent(jobId: string, error: any): Promise<string> {
     const eventId = EventModels.generateEventId();
     await this.eventRegistry.validateEvent('JOB_ERROR', { jobId, error });
-    await this.eventPublisher.publish('jobs.error', { id: eventId, jobId, error });
+    await this.eventPublisher.publish('jobs.error', {
+      id: eventId,
+      jobId,
+      error,
+    });
     return eventId;
   }
 
@@ -58,12 +82,20 @@ class JobEventsService {
     return Promise.resolve();
   }
 
-  async triggerJobCallback(jobId: string, status: string, metadata?: any): Promise<void> {
+  async triggerJobCallback(
+    jobId: string,
+    status: string,
+    metadata?: any,
+  ): Promise<void> {
     // Mock implementation - no-op for testing
     return Promise.resolve();
   }
 
-  async replayEventRange(eventType: string, startTimestamp: Date, endTimestamp: Date): Promise<number> {
+  async replayEventRange(
+    eventType: string,
+    startTimestamp: Date,
+    endTimestamp: Date,
+  ): Promise<number> {
     return 10;
   }
 
@@ -74,7 +106,8 @@ class JobEventsService {
   async verifyEventOrdering(eventSequence: any[]): Promise<boolean> {
     // Check if timestamps are monotonically increasing
     for (let i = 1; i < eventSequence.length; i++) {
-      if (eventSequence[i].timestamp < eventSequence[i - 1].timestamp) return false;
+      if (eventSequence[i].timestamp < eventSequence[i - 1].timestamp)
+        return false;
     }
     return true;
   }
@@ -114,7 +147,11 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       isCompatible: jest.fn().mockReturnValue(true),
     };
 
-    jobEventsService = new JobEventsService(eventPublisher, eventRegistry, mockConfigService as any);
+    jobEventsService = new JobEventsService(
+      eventPublisher,
+      eventRegistry,
+      mockConfigService as any,
+    );
   });
 
   afterEach(() => {
@@ -194,7 +231,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       }));
 
       const eventIds = await Promise.all(
-        jobs.map((job) => jobEventsService.emitJobSubmittedEvent(job))
+        jobs.map((job) => jobEventsService.emitJobSubmittedEvent(job)),
       );
 
       expect(eventIds).toHaveLength(5);
@@ -243,7 +280,10 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
   describe('Status Change Events', () => {
     it('should emit JobStatusChangedEvent on status update', async () => {
       const jobId = EventModels.generateUUID();
-      const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'RUNNING');
+      const eventId = await jobEventsService.emitJobStatusChangedEvent(
+        jobId,
+        'RUNNING',
+      );
       expect(eventId).toBeDefined();
     });
 
@@ -252,14 +292,20 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const statuses = ['QUEUED', 'RUNNING'];
 
       for (const status of statuses) {
-        const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, status);
+        const eventId = await jobEventsService.emitJobStatusChangedEvent(
+          jobId,
+          status,
+        );
         expect(eventId).toBeDefined();
       }
     });
 
     it('should emit event for RUNNING to COMPLETED transition', async () => {
       const jobId = EventModels.generateUUID();
-      const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'COMPLETED');
+      const eventId = await jobEventsService.emitJobStatusChangedEvent(
+        jobId,
+        'COMPLETED',
+      );
       expect(eventId).toBeDefined();
     });
 
@@ -268,7 +314,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const eventId = await jobEventsService.emitJobStatusChangedEvent(
         jobId,
         'FAILED',
-        { reason: 'RFI detected', code: 'RFI_001' }
+        { reason: 'RFI detected', code: 'RFI_001' },
       );
       expect(eventId).toBeDefined();
     });
@@ -278,7 +324,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const eventId = await jobEventsService.emitJobStatusChangedEvent(
         jobId,
         'RETRY',
-        { attempt: 2, nextRetryTime: new Date(Date.now() + 60000) }
+        { attempt: 2, nextRetryTime: new Date(Date.now() + 60000) },
       );
       expect(eventId).toBeDefined();
     });
@@ -288,7 +334,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const eventId = await jobEventsService.emitJobStatusChangedEvent(
         jobId,
         'CANCELLED',
-        { requestedBy: 'user-123', reason: 'Manual cancellation' }
+        { requestedBy: 'user-123', reason: 'Manual cancellation' },
       );
       expect(eventId).toBeDefined();
     });
@@ -298,14 +344,17 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const eventId = await jobEventsService.emitJobStatusChangedEvent(
         jobId,
         'PAUSED',
-        { reason: 'Resource constraint', resumeTime: new Date() }
+        { reason: 'Resource constraint', resumeTime: new Date() },
       );
       expect(eventId).toBeDefined();
     });
 
     it('should emit event for job RESUMED state', async () => {
       const jobId = EventModels.generateUUID();
-      const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'RESUMED');
+      const eventId = await jobEventsService.emitJobStatusChangedEvent(
+        jobId,
+        'RESUMED',
+      );
       expect(eventId).toBeDefined();
     });
 
@@ -317,7 +366,11 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
         totalDuration: 120000,
       };
 
-      const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'RUNNING', metadata);
+      const eventId = await jobEventsService.emitJobStatusChangedEvent(
+        jobId,
+        'RUNNING',
+        metadata,
+      );
       expect(eventId).toBeDefined();
     });
 
@@ -459,7 +512,10 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       };
 
       const jobId = EventModels.generateUUID();
-      const eventId = await jobEventsService.emitJobErrorEvent(jobId, permanentError);
+      const eventId = await jobEventsService.emitJobErrorEvent(
+        jobId,
+        permanentError,
+      );
       expect(eventId).toBeDefined();
     });
 
@@ -472,7 +528,10 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       };
 
       const jobId = EventModels.generateUUID();
-      const eventId = await jobEventsService.emitJobErrorEvent(jobId, transientError);
+      const eventId = await jobEventsService.emitJobErrorEvent(
+        jobId,
+        transientError,
+      );
       expect(eventId).toBeDefined();
     });
 
@@ -484,7 +543,10 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       };
 
       const jobId = EventModels.generateUUID();
-      const eventId = await jobEventsService.emitJobErrorEvent(jobId, permanentError);
+      const eventId = await jobEventsService.emitJobErrorEvent(
+        jobId,
+        permanentError,
+      );
       expect(eventId).toBeDefined();
     });
 
@@ -621,7 +683,9 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
 
     it('should not reject events outside deduplication window', async () => {
       const eventId = EventModels.generateUUID();
-      const deduplicationWindow = mockConfigService.get('EVENT_DEDUPLICATION_WINDOW_MS');
+      const deduplicationWindow = mockConfigService.get(
+        'EVENT_DEDUPLICATION_WINDOW_MS',
+      );
 
       const isDupe = await jobEventsService.deduplicateEvent(eventId);
       expect(deduplicationWindow).toBe(60000);
@@ -646,7 +710,10 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
         timestamp: new Date(Date.now() - 100), // Slightly behind
       };
 
-      const isOrdered = await jobEventsService.verifyEventOrdering([event1, event2]);
+      const isOrdered = await jobEventsService.verifyEventOrdering([
+        event1,
+        event2,
+      ]);
       expect(typeof isOrdered).toBe('boolean');
     });
 
@@ -654,9 +721,13 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const jobId = EventModels.generateUUID();
       const idempotencyKey = EventModels.generateUUID();
 
-      const eventId = await jobEventsService.emitJobStatusChangedEvent(jobId, 'RUNNING', {
-        idempotencyKey,
-      });
+      const eventId = await jobEventsService.emitJobStatusChangedEvent(
+        jobId,
+        'RUNNING',
+        {
+          idempotencyKey,
+        },
+      );
 
       expect(eventId).toBeDefined();
       expect(idempotencyKey).toBeDefined();
@@ -675,7 +746,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const replayedCount = await jobEventsService.replayEventRange(
         'JobStatusChanged',
         startTimestamp,
-        endTimestamp
+        endTimestamp,
       );
 
       expect(typeof replayedCount).toBe('number');
@@ -690,7 +761,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const replayedCount = await jobEventsService.replayEventRange(
         'JobSubmitted',
         startTimestamp,
-        endTimestamp
+        endTimestamp,
       );
 
       expect(replayedCount).toBeGreaterThanOrEqual(0);
@@ -703,7 +774,7 @@ describe('Priority 5.3: Job Orchestration Events Tests', () => {
       const replayedCount = await jobEventsService.replayEventRange(
         'JobStatusChanged',
         startTimestamp,
-        endTimestamp
+        endTimestamp,
       );
 
       expect(typeof replayedCount).toBe('number');

@@ -1,9 +1,21 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { BehaviorSubject, Subject, combineLatest } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
-import { AppLogEntry, AppLoggerService, LogDetails, LogDetailValue } from '../../services/app-logger.service';
+import {
+  AppLogEntry,
+  AppLoggerService,
+  LogDetails,
+  LogDetailValue,
+} from '../../services/app-logger.service';
 
 type LogTileFilter = 'all' | 'verbose' | 'errors' | 'warnings' | 'info';
 
@@ -31,8 +43,18 @@ interface LogRow {
   standalone: false,
 })
 export class LogsComponent implements OnInit, AfterViewInit, OnDestroy {
-  readonly displayedColumns = ['at', 'level', 'area', 'event', 'message', 'status', 'user', 'context'];
-  readonly dataSource: MatTableDataSource<LogRow> = new MatTableDataSource<LogRow>([]);
+  readonly displayedColumns = [
+    'at',
+    'level',
+    'area',
+    'event',
+    'message',
+    'status',
+    'user',
+    'context',
+  ];
+  readonly dataSource: MatTableDataSource<LogRow> =
+    new MatTableDataSource<LogRow>([]);
   readonly tiles: LogLevelTile[] = [
     { id: 'all', label: 'All', count: 0 },
     { id: 'verbose', label: 'Verbose', count: 0 },
@@ -155,12 +177,26 @@ export class LogsComponent implements OnInit, AfterViewInit, OnDestroy {
   private toRow(entry: AppLogEntry): LogRow {
     const details: LogDetails = entry.details ?? {};
     const status = this.pickValue(details, ['status_code', 'status']) ?? '-';
-    const user = this.pickValue(details, ['user_email', 'email', 'user_id']) ?? '-';
-    const message = this.pickValue(details, ['message', 'error', 'reason']) ?? '-';
-    const ignored = new Set(['status_code', 'status', 'user_email', 'email', 'user_id', 'message', 'error', 'reason']);
+    const user =
+      this.pickValue(details, ['user_email', 'email', 'user_id']) ?? '-';
+    const message =
+      this.pickValue(details, ['message', 'error', 'reason']) ?? '-';
+    const ignored = new Set([
+      'status_code',
+      'status',
+      'user_email',
+      'email',
+      'user_id',
+      'message',
+      'error',
+      'reason',
+    ]);
     const context = Object.entries(details)
       .filter(([key]) => !ignored.has(key))
-      .map(([key, value]) => `${key.replace(/_/g, ' ')}=${this.readableValue(value)}`)
+      .map(
+        ([key, value]) =>
+          `${key.replace(/_/g, ' ')}=${this.readableValue(value)}`,
+      )
       .join(' | ');
 
     return {

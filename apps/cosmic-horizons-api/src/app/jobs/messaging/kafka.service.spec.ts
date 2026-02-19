@@ -10,7 +10,7 @@ describe('KafkaService', () => {
     mockConfigService = {
       get: jest.fn((key: string, defaultValue?: string) => {
         const config: Record<string, string> = {
-          'KAFKA_BROKERS': 'broker1:9092,broker2:9092,broker3:9092',
+          KAFKA_BROKERS: 'broker1:9092,broker2:9092,broker3:9092',
         };
         return config[key] ?? defaultValue;
       }),

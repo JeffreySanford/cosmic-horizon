@@ -92,11 +92,12 @@ export class AppController {
       if (!Array.isArray(parsed)) {
         throw new Error('Invalid docs catalog format');
       }
-      return parsed.filter((entry) =>
-        typeof entry.id === 'string' &&
-        typeof entry.label === 'string' &&
-        typeof entry.section === 'string' &&
-        typeof entry.sourcePath === 'string'
+      return parsed.filter(
+        (entry) =>
+          typeof entry.id === 'string' &&
+          typeof entry.label === 'string' &&
+          typeof entry.section === 'string' &&
+          typeof entry.sourcePath === 'string',
       );
     } catch {
       // Fallback protects local dev if catalog build has not run yet.

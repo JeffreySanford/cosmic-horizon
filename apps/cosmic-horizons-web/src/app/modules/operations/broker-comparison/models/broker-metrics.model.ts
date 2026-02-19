@@ -11,10 +11,17 @@ export interface BrokerMetricsDTO {
   partitionCount?: number;
   brokerCount?: number;
   dataSource?: 'measured' | 'fallback' | 'missing';
-  metricQuality?: Partial<Record<
-    'messagesPerSecond' | 'p99LatencyMs' | 'memoryUsageMb' | 'cpuPercentage' | 'connectionCount' | 'uptime',
-    'measured' | 'fallback' | 'missing'
-  >>;
+  metricQuality?: Partial<
+    Record<
+      | 'messagesPerSecond'
+      | 'p99LatencyMs'
+      | 'memoryUsageMb'
+      | 'cpuPercentage'
+      | 'connectionCount'
+      | 'uptime',
+      'measured' | 'fallback' | 'missing'
+    >
+  >;
 }
 
 export interface BrokerComparisonDTO {

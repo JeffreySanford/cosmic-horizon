@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { BrokerDataService } from './broker-data.service';
 import { BrokerComparisonDTO } from '../models/broker-metrics.model';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -91,9 +94,10 @@ describe('BrokerDataService', () => {
     it('should include forceRefresh query when requested', async () => {
       const p = firstValueFrom(service.getCurrentMetrics(true));
 
-      const req = httpMock.expectOne((request) =>
-        request.url === '/api/internal/brokers/stats' &&
-        request.params.get('forceRefresh') === 'true',
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === '/api/internal/brokers/stats' &&
+          request.params.get('forceRefresh') === 'true',
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockBrokerData);
@@ -125,9 +129,10 @@ describe('BrokerDataService', () => {
         expect(data.samples).toBeDefined();
       });
 
-      const req = httpMock.expectOne((request) =>
-        request.url.includes('/api/internal/brokers/history') &&
-        request.params.get('hours') === '24',
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url.includes('/api/internal/brokers/history') &&
+          request.params.get('hours') === '24',
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockHistory);
@@ -143,9 +148,10 @@ describe('BrokerDataService', () => {
         expect(true).toBe(true);
       });
 
-      const req = httpMock.expectOne((request) =>
-        request.url.includes('/api/internal/brokers/history') &&
-        request.params.get('hours') === '48',
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url.includes('/api/internal/brokers/history') &&
+          request.params.get('hours') === '48',
       );
       req.flush(mockHistory);
     });
@@ -162,7 +168,10 @@ describe('BrokerDataService', () => {
 
       const req = httpMock.expectOne((request) => {
         const hours = request.params.get('hours');
-        return request.url.includes('/api/internal/brokers/history') && hours === '72';
+        return (
+          request.url.includes('/api/internal/brokers/history') &&
+          hours === '72'
+        );
       });
       const httpParams = req.request.params;
       expect(httpParams.get('hours')).toBe('72');
@@ -194,7 +203,11 @@ describe('BrokerDataService', () => {
 
       const req = httpMock.expectOne('/api/internal/brokers/benchmark');
       expect(req.request.body).toEqual({});
-      req.flush({ status: 'queued', jobId: 'bm-123', estimatedDurationSeconds: 60 });
+      req.flush({
+        status: 'queued',
+        jobId: 'bm-123',
+        estimatedDurationSeconds: 60,
+      });
     });
 
     it('should handle benchmark errors', () => {
@@ -219,46 +232,60 @@ describe('BrokerDataService', () => {
     });
 
     it('should include advanced benchmark options in query params', () => {
-      service.runBenchmark(true, 5000000, {
-        brokers: ['rabbitmq', 'pulsar'],
-        payloadKb: 64,
-        inflight: 3000,
-        trials: 5,
-        seed: 42,
-        measuredOnly: true,
-      }).subscribe(() => {
-        expect(true).toBe(true);
-      });
+      service
+        .runBenchmark(true, 5000000, {
+          brokers: ['rabbitmq', 'pulsar'],
+          payloadKb: 64,
+          inflight: 3000,
+          trials: 5,
+          seed: 42,
+          measuredOnly: true,
+        })
+        .subscribe(() => {
+          expect(true).toBe(true);
+        });
 
-      const req = httpMock.expectOne((request) =>
-        request.url === '/api/internal/brokers/benchmark' &&
-        request.params.get('stressTest') === 'true' &&
-        request.params.get('messageCount') === '5000000' &&
-        request.params.get('brokers') === 'rabbitmq,pulsar' &&
-        request.params.get('payloadKb') === '64' &&
-        request.params.get('inflight') === '3000' &&
-        request.params.get('trials') === '5' &&
-        request.params.get('seed') === '42' &&
-        request.params.get('measuredOnly') === 'true',
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === '/api/internal/brokers/benchmark' &&
+          request.params.get('stressTest') === 'true' &&
+          request.params.get('messageCount') === '5000000' &&
+          request.params.get('brokers') === 'rabbitmq,pulsar' &&
+          request.params.get('payloadKb') === '64' &&
+          request.params.get('inflight') === '3000' &&
+          request.params.get('trials') === '5' &&
+          request.params.get('seed') === '42' &&
+          request.params.get('measuredOnly') === 'true',
       );
       expect(req.request.method).toBe('POST');
-      req.flush({ status: 'queued', jobId: 'bm-123', estimatedDurationSeconds: 60 });
+      req.flush({
+        status: 'queued',
+        jobId: 'bm-123',
+        estimatedDurationSeconds: 60,
+      });
     });
 
     it('should include measuredOnly=false when explicitly disabled', () => {
-      service.runBenchmark(false, 10000, {
-        brokers: ['rabbitmq', 'pulsar'],
-        measuredOnly: false,
-      }).subscribe(() => {
-        expect(true).toBe(true);
-      });
+      service
+        .runBenchmark(false, 10000, {
+          brokers: ['rabbitmq', 'pulsar'],
+          measuredOnly: false,
+        })
+        .subscribe(() => {
+          expect(true).toBe(true);
+        });
 
-      const req = httpMock.expectOne((request) =>
-        request.url === '/api/internal/brokers/benchmark' &&
-        request.params.get('measuredOnly') === 'false',
+      const req = httpMock.expectOne(
+        (request) =>
+          request.url === '/api/internal/brokers/benchmark' &&
+          request.params.get('measuredOnly') === 'false',
       );
       expect(req.request.method).toBe('POST');
-      req.flush({ status: 'queued', jobId: 'bm-456', estimatedDurationSeconds: 20 });
+      req.flush({
+        status: 'queued',
+        jobId: 'bm-456',
+        estimatedDurationSeconds: 20,
+      });
     });
   });
 

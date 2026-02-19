@@ -79,7 +79,9 @@ export class NotificationService {
   /**
    * Broadcast notification via WebSocket to connected clients
    */
-  async broadcastViaWebSocket(notification: NotificationPayload): Promise<void> {
+  async broadcastViaWebSocket(
+    notification: NotificationPayload,
+  ): Promise<void> {
     try {
       this.logger.debug(
         `Broadcasting ${notification.type} notification for job ${notification.job_id}`,
@@ -97,7 +99,11 @@ export class NotificationService {
         'job_notification',
         payload,
       );
-      this.messagingGateway.emitJobUpdate(notification.job_id, payload, notification.user_id);
+      this.messagingGateway.emitJobUpdate(
+        notification.job_id,
+        payload,
+        notification.user_id,
+      );
     } catch (error) {
       this.logger.error(`Failed to broadcast WebSocket notification: ${error}`);
       throw error;
@@ -107,13 +113,16 @@ export class NotificationService {
   /**
    * Store in-app notification in database
    */
-  async storeInAppNotification(notification: NewInAppNotification): Promise<void> {
+  async storeInAppNotification(
+    notification: NewInAppNotification,
+  ): Promise<void> {
     try {
       if (!this.notificationsMap.has(notification.user_id)) {
         this.notificationsMap.set(notification.user_id, []);
       }
 
-      const userNotifications = this.notificationsMap.get(notification.user_id) ?? [];
+      const userNotifications =
+        this.notificationsMap.get(notification.user_id) ?? [];
       userNotifications.push({
         ...notification,
         created_at: new Date().toISOString(),

@@ -17,11 +17,11 @@ This document describes how to set up Apache Pulsar locally alongside your exist
 
 ### Cost Profile (Local Dev)
 
-| Component | Cost (Annual) |
-|-----------|---------------|
-| 3-node Pulsar (Docker) | **$0** (runs on your machine) |
-| RabbitMQ + Kafka stack | **$0** (also local Docker) |
-| Cloud-hosted Pulsar | ~$5k-15k/month (if needed later) |
+| Component              | Cost (Annual)                    |
+| ---------------------- | -------------------------------- |
+| 3-node Pulsar (Docker) | **$0** (runs on your machine)    |
+| RabbitMQ + Kafka stack | **$0** (also local Docker)       |
+| Cloud-hosted Pulsar    | ~$5k-15k/month (if needed later) |
 
 ### Development Workflow
 

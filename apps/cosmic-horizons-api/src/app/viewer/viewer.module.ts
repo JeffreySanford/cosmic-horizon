@@ -9,7 +9,11 @@ import { ViewerService } from './viewer.service';
 import { LoggingModule } from '../logging/logging.module';
 
 @Module({
-  imports: [DatabaseModule, LoggingModule, TypeOrmModule.forFeature([ViewerState, ViewerSnapshot])],
+  imports: [
+    DatabaseModule,
+    LoggingModule,
+    TypeOrmModule.forFeature([ViewerState, ViewerSnapshot]),
+  ],
   controllers: [ViewerController],
   providers: [ViewerService, RateLimitGuard],
   exports: [ViewerService],

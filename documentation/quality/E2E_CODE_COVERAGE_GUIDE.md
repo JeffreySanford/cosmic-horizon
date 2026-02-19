@@ -39,13 +39,13 @@ Code coverage measures how much of your application code is executed during test
 
 ### Playwright vs Jest Coverage
 
-| Aspect | Playwright (Web) | Jest (API) |
-|--------|------------------|-----------|
-| Coverage mechanism | V8 instrumentation | Built-in Istanbul |
-| Measurement | Browser JavaScript | Server-side code |
-| Performance | Lower impact | Minimal overhead |
-| Report format | HAR/JSON | lcov/JSON |
-| Independence | Runs separately | Part of test suite |
+| Aspect             | Playwright (Web)   | Jest (API)         |
+| ------------------ | ------------------ | ------------------ |
+| Coverage mechanism | V8 instrumentation | Built-in Istanbul  |
+| Measurement        | Browser JavaScript | Server-side code   |
+| Performance        | Lower impact       | Minimal overhead   |
+| Report format      | HAR/JSON           | lcov/JSON          |
+| Independence       | Runs separately    | Part of test suite |
 
 ## Web E2E Coverage (Playwright)
 
@@ -84,16 +84,16 @@ Import and use the coverage utilities:
 
 ```typescript
 import { test } from '@playwright/test';
-import { 
-  extractCoverageMetrics, 
+import {
+  extractCoverageMetrics,
   formatCoverageTable,
-  CoverageReport 
+  CoverageReport,
 } from './support/coverage.utils';
 
 test('user journey with coverage', async ({ page }) => {
   // Your test code
   await page.goto('/dashboard');
-  
+
   // At the end of test, extract metrics
   const metrics = await extractCoverageMetrics(page);
   console.log(formatCoverageTable(metrics));
@@ -388,13 +388,13 @@ import { chromium } from '@playwright/test';
 test('direct V8 coverage', async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext();
-  
+
   // Enable V8 coverage
   await context.initializeObjects?.();
-  
+
   const page = await context.newPage();
   // ... test code ...
-  
+
   await browser.close();
 });
 ```

@@ -25,7 +25,10 @@
     // Also ensure window.navigator.platform
     if (typeof window !== 'undefined' && window.navigator) {
       try {
-        if (window.navigator.platform === undefined || window.navigator.platform === '') {
+        if (
+          window.navigator.platform === undefined ||
+          window.navigator.platform === ''
+        ) {
           Object.defineProperty(window.navigator, 'platform', {
             value: 'Linux x86_64',
             writable: true,
@@ -61,7 +64,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { JobsConsoleComponent } from './jobs-console.component';
 
-
 describe('JobsConsoleComponent', () => {
   let component: JobsConsoleComponent;
   let fixture: ComponentFixture<JobsConsoleComponent>;
@@ -81,14 +83,10 @@ describe('JobsConsoleComponent', () => {
         MatProgressBarModule,
         MatChipsModule,
         MatSnackBarModule,
-        NoopAnimationsModule
+        NoopAnimationsModule,
       ],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
-    })
-    .compileComponents();
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(JobsConsoleComponent);
     component = fixture.componentInstance;

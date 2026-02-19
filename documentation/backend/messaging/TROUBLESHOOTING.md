@@ -10,7 +10,7 @@
 
 **Error Message**:
 
-``` text
+```text
 MessagingIntegrationService - Failed to connect to RabbitMQ
 Error: connect ECONNREFUSED 127.0.0.1:5672
 ```
@@ -400,11 +400,11 @@ sudo iptables -L -n | grep 9092  # Kafka
 # Measure network latency
 docker run --rm alpine/fluentd:latest-onbuild \
   ping -c 10 rabbitmq
-  
+
 # Check broker performance
 docker-compose exec rabbitmq \
   rabbitmqctl list_queues name messages memory
-  
+
 # Reduce monitoring poll frequency (if acceptable)
 # Edit messaging-monitor.service.ts:
 // const POLL_INTERVAL_MS = 5000;  // Increase from 2000 to reduce CPU
@@ -496,7 +496,7 @@ docker-compose.yml:
   rabbitmq:
     environment:
       RABBITMQ_CHANNEL_MAX: 4096
-  
+
   kafka:
     environment:
       KAFKA_NUM_NETWORK_THREADS: 16

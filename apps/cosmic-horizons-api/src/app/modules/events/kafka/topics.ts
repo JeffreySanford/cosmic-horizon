@@ -5,7 +5,10 @@
  * Partitioning strategies and retention policies for each topic
  */
 
-import { KAFKA_TOPICS, KAFKA_TOPIC_CONFIG } from '@cosmic-horizons/event-models';
+import {
+  KAFKA_TOPICS,
+  KAFKA_TOPIC_CONFIG,
+} from '@cosmic-horizons/event-models';
 
 type KafkaTopicName = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];
 
@@ -45,7 +48,8 @@ export const KAFKA_TOPICS_METADATA: Record<string, TopicMetadata> = {
     description:
       'Performance metrics: CPU, GPU, memory, I/O, compute time per job',
     partitions: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_METRICS].partitions,
-    replication: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_METRICS].replication_factor,
+    replication:
+      KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_METRICS].replication_factor,
     retention_ms: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_METRICS].retention_ms,
     compression: 'snappy',
     cleanup_policy: 'delete',
@@ -70,7 +74,8 @@ export const KAFKA_TOPICS_METADATA: Record<string, TopicMetadata> = {
     description:
       'Audit trail for compliance and operational auditing (90-day retention for HIPAA/SOC2)',
     partitions: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.AUDIT_TRAIL].partitions,
-    replication: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.AUDIT_TRAIL].replication_factor,
+    replication:
+      KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.AUDIT_TRAIL].replication_factor,
     retention_ms: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.AUDIT_TRAIL].retention_ms,
     compression: 'snappy',
     cleanup_policy: 'delete',
@@ -121,7 +126,7 @@ export function getAllTopicNames(): string[] {
  */
 export function isValidTopic(topicName: string): boolean {
   return (Object.values(KAFKA_TOPICS) as KafkaTopicName[]).includes(
-    topicName as KafkaTopicName
+    topicName as KafkaTopicName,
   );
 }
 

@@ -33,4 +33,4 @@ const routes: Routes = [
     MatInputModule,
   ],
 })
-export class ProfileModule { }
+export class ProfileModule {}

@@ -35,7 +35,11 @@ export class PostRepository {
 
   async findPublished(): Promise<Post[]> {
     return this.repo.find({
-      where: { status: PostStatus.PUBLISHED, deleted_at: IsNull(), hidden_at: IsNull() },
+      where: {
+        status: PostStatus.PUBLISHED,
+        deleted_at: IsNull(),
+        hidden_at: IsNull(),
+      },
       relations: ['user'],
       order: { published_at: 'DESC' },
     });
@@ -46,7 +50,10 @@ export class PostRepository {
     return this.repo.save(entity);
   }
 
-  async update(id: string, post: Omit<Partial<Post>, 'user' | 'revisions' | 'comments' | 'snapshots'>): Promise<Post | null> {
+  async update(
+    id: string,
+    post: Omit<Partial<Post>, 'user' | 'revisions' | 'comments' | 'snapshots'>,
+  ): Promise<Post | null> {
     await this.repo.update({ id, deleted_at: IsNull() }, post);
     return this.findById(id);
   }
@@ -55,7 +62,7 @@ export class PostRepository {
     const now = new Date();
     await this.repo.update(
       { id, deleted_at: IsNull() },
-      { status: PostStatus.PUBLISHED, published_at: now, updated_at: now }
+      { status: PostStatus.PUBLISHED, published_at: now, updated_at: now },
     );
     return this.findById(id);
   }
@@ -63,13 +70,16 @@ export class PostRepository {
   async unpublish(id: string): Promise<Post | null> {
     await this.repo.update(
       { id, deleted_at: IsNull() },
-      { status: PostStatus.DRAFT, published_at: null }
+      { status: PostStatus.DRAFT, published_at: null },
     );
     return this.findById(id);
   }
 
   async hide(id: string): Promise<Post | null> {
-    await this.repo.update({ id, deleted_at: IsNull() }, { hidden_at: new Date() });
+    await this.repo.update(
+      { id, deleted_at: IsNull() },
+      { hidden_at: new Date() },
+    );
     return this.findById(id);
   }
 
@@ -79,7 +89,10 @@ export class PostRepository {
   }
 
   async lock(id: string): Promise<Post | null> {
-    await this.repo.update({ id, deleted_at: IsNull() }, { locked_at: new Date() });
+    await this.repo.update(
+      { id, deleted_at: IsNull() },
+      { locked_at: new Date() },
+    );
     return this.findById(id);
   }
 
@@ -91,7 +104,7 @@ export class PostRepository {
   async softDelete(id: string): Promise<boolean> {
     const result = await this.repo.update(
       { id, deleted_at: IsNull() },
-      { deleted_at: new Date() }
+      { deleted_at: new Date() },
     );
     return (result.affected ?? 0) > 0;
   }

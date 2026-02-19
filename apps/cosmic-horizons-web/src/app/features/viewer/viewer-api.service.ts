@@ -72,11 +72,16 @@ export class ViewerApiService {
   private readonly apiBaseUrl = 'http://localhost:3000';
 
   createState(state: ViewerStateModel): Observable<ViewerStateResponse> {
-    return this.http.post<ViewerStateResponse>(`${this.apiBaseUrl}/api/view/state`, { state });
+    return this.http.post<ViewerStateResponse>(
+      `${this.apiBaseUrl}/api/view/state`,
+      { state },
+    );
   }
 
   resolveState(shortId: string): Observable<ViewerStateResponse> {
-    return this.http.get<ViewerStateResponse>(`${this.apiBaseUrl}/api/view/${encodeURIComponent(shortId)}`);
+    return this.http.get<ViewerStateResponse>(
+      `${this.apiBaseUrl}/api/view/${encodeURIComponent(shortId)}`,
+    );
   }
 
   createSnapshot(payload: {
@@ -84,10 +89,18 @@ export class ViewerApiService {
     short_id?: string;
     state?: ViewerStateModel;
   }): Observable<ViewerSnapshotResponse> {
-    return this.http.post<ViewerSnapshotResponse>(`${this.apiBaseUrl}/api/view/snapshot`, payload);
+    return this.http.post<ViewerSnapshotResponse>(
+      `${this.apiBaseUrl}/api/view/snapshot`,
+      payload,
+    );
   }
 
-  getNearbyLabels(ra: number, dec: number, radiusDeg: number, limit = 12): Observable<NearbyCatalogLabelModel[]> {
+  getNearbyLabels(
+    ra: number,
+    dec: number,
+    radiusDeg: number,
+    limit = 12,
+  ): Observable<NearbyCatalogLabelModel[]> {
     const params = new URLSearchParams({
       ra: ra.toString(),
       dec: dec.toString(),
@@ -95,14 +108,22 @@ export class ViewerApiService {
       limit: limit.toString(),
     });
 
-    return this.http.get<NearbyCatalogLabelModel[]>(`${this.apiBaseUrl}/api/view/labels/nearby?${params.toString()}`);
+    return this.http.get<NearbyCatalogLabelModel[]>(
+      `${this.apiBaseUrl}/api/view/labels/nearby?${params.toString()}`,
+    );
   }
 
   getCutoutTelemetry(): Observable<CutoutTelemetryModel> {
-    return this.http.get<CutoutTelemetryModel>(`${this.apiBaseUrl}/api/view/telemetry`);
+    return this.http.get<CutoutTelemetryModel>(
+      `${this.apiBaseUrl}/api/view/telemetry`,
+    );
   }
 
-  scienceDataUrl(state: ViewerStateModel, label?: string, detail: 'standard' | 'high' | 'max' = 'standard'): string {
+  scienceDataUrl(
+    state: ViewerStateModel,
+    label?: string,
+    detail: 'standard' | 'high' | 'max' = 'standard',
+  ): string {
     const params = new URLSearchParams({
       ra: state.ra.toString(),
       dec: state.dec.toString(),

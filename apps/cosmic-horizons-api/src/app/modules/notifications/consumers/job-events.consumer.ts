@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { EachMessagePayload } from 'kafkajs';
 import { KafkaService } from '../../events/kafka.service';
 import { NotificationService } from '../services/notification.service';
@@ -33,7 +38,9 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
       ['job-lifecycle'],
       this.handleJobEvent.bind(this),
     );
-    this.logger.log('JobEventsConsumer initialized and subscribed to job-lifecycle');
+    this.logger.log(
+      'JobEventsConsumer initialized and subscribed to job-lifecycle',
+    );
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -46,7 +53,9 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
    */
   private async handleJobEvent(payload: EachMessagePayload): Promise<void> {
     try {
-      const event = JSON.parse(payload.message.value?.toString() || '{}') as JobLifecycleEvent;
+      const event = JSON.parse(
+        payload.message.value?.toString() || '{}',
+      ) as JobLifecycleEvent;
       this.logger.debug(
         `Received job event: ${event.event_type} for job ${event.job_id}`,
       );

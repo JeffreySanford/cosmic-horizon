@@ -27,15 +27,24 @@ export class MessagingSocketIoAdapter extends IoAdapter {
     super(appOrHttpServer);
   }
 
-  override createIOServer(port: number, options?: ServerOptions): ReturnType<IoAdapter['createIOServer']> {
+  override createIOServer(
+    port: number,
+    options?: ServerOptions,
+  ): ReturnType<IoAdapter['createIOServer']> {
     const merged: ServerOptions = {
       cors: {
         origin: resolveAllowedOrigins(),
         credentials: true,
       },
       transports: ['websocket', 'polling'],
-      pingInterval: readPositiveInt(process.env['WEBSOCKET_HEARTBEAT_MS'], 30000),
-      pingTimeout: readPositiveInt(process.env['WEBSOCKET_PING_TIMEOUT_MS'], 20000),
+      pingInterval: readPositiveInt(
+        process.env['WEBSOCKET_HEARTBEAT_MS'],
+        30000,
+      ),
+      pingTimeout: readPositiveInt(
+        process.env['WEBSOCKET_PING_TIMEOUT_MS'],
+        20000,
+      ),
       maxHttpBufferSize: readPositiveInt(
         process.env['WEBSOCKET_MAX_BUFFER_BYTES'],
         1_000_000,

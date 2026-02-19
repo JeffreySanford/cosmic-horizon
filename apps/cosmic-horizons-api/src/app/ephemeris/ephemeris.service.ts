@@ -22,27 +22,33 @@ export class EphemerisService {
 
   constructor(
     private readonly cache: CacheService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
   ) {}
 
   async calculatePosition(
     objectName: string,
-    epochIso: string = new Date().toISOString()
+    epochIso: string = new Date().toISOString(),
   ): Promise<EphemerisResult | null> {
     const object = objectName.trim().toLowerCase();
     const dateKey = epochIso.split('T')[0];
     const cacheKey = `ephem:${object}:${dateKey}`;
 
     // Check cache first
-    const cached = await this.cache.get<Omit<EphemerisResult, 'source'> | EphemerisResult>(cacheKey);
+    const cached = await this.cache.get<
+      Omit<EphemerisResult, 'source'> | EphemerisResult
+    >(cacheKey);
     if (cached) {
       const target = cached.target ?? object;
       return {
         ...cached,
         target,
         source: 'cache',
-        sky_preview_url: cached.sky_preview_url ?? this.buildSkyPreviewUrl(cached.ra, cached.dec),
-        aladin_url: cached.aladin_url ?? this.buildAladinUrl(cached.ra, cached.dec, target),
+        sky_preview_url:
+          cached.sky_preview_url ??
+          this.buildSkyPreviewUrl(cached.ra, cached.dec),
+        aladin_url:
+          cached.aladin_url ??
+          this.buildAladinUrl(cached.ra, cached.dec, target),
       };
     }
 
@@ -53,7 +59,10 @@ export class EphemerisService {
 
     if (body === null) {
       // If not a major body, check for asteroid fallback (placeholder for JPL Horizons or similar)
-      const asteroidResult = await this.handleAsteroidFallback(object, epochIso);
+      const asteroidResult = await this.handleAsteroidFallback(
+        object,
+        epochIso,
+      );
       if (asteroidResult) return asteroidResult;
 
       this.logger.warn(`Unknown object attempted: ${object}`);
@@ -67,9 +76,9 @@ export class EphemerisService {
 
       const result: EphemerisResult = {
         target: object,
-        ra: raDeg,                       // Right ascension: convert hours (astronomy-engine) to degrees
-        dec: decDeg,                     // Declination in degrees
-        accuracy_arcsec: 0.1,            // Typical accuracy of astronomy-engine
+        ra: raDeg, // Right ascension: convert hours (astronomy-engine) to degrees
+        dec: decDeg, // Declination in degrees
+        accuracy_arcsec: 0.1, // Typical accuracy of astronomy-engine
         epoch: epochIso,
         source: 'astronomy-engine',
         object_type: this.classifyObject(object),
@@ -89,22 +98,25 @@ export class EphemerisService {
 
   private getAstronomyObject(name: string): Astronomy.Body | null {
     const objectMap: Record<string, Astronomy.Body> = {
-      'sun': Astronomy.Body.Sun,
-      'moon': Astronomy.Body.Moon,
-      'mercury': Astronomy.Body.Mercury,
-      'venus': Astronomy.Body.Venus,
-      'mars': Astronomy.Body.Mars,
-      'jupiter': Astronomy.Body.Jupiter,
-      'saturn': Astronomy.Body.Saturn,
-      'uranus': Astronomy.Body.Uranus,
-      'neptune': Astronomy.Body.Neptune,
-      'pluto': Astronomy.Body.Pluto
+      sun: Astronomy.Body.Sun,
+      moon: Astronomy.Body.Moon,
+      mercury: Astronomy.Body.Mercury,
+      venus: Astronomy.Body.Venus,
+      mars: Astronomy.Body.Mars,
+      jupiter: Astronomy.Body.Jupiter,
+      saturn: Astronomy.Body.Saturn,
+      uranus: Astronomy.Body.Uranus,
+      neptune: Astronomy.Body.Neptune,
+      pluto: Astronomy.Body.Pluto,
     };
 
     return objectMap[name.toLowerCase()] ?? null;
   }
 
-  private async handleAsteroidFallback(name: string, epochIso: string): Promise<EphemerisResult | null> {
+  private async handleAsteroidFallback(
+    name: string,
+    epochIso: string,
+  ): Promise<EphemerisResult | null> {
     const date = new Date(epochIso);
     const dateStr = date.toISOString().split('T')[0];
     const nextDay = new Date(date);
@@ -124,12 +136,16 @@ export class EphemerisService {
       START_TIME: `'${dateStr}'`,
       STOP_TIME: `'${nextDayStr}'`,
       STEP_SIZE: '1d',
-      QUANTITIES: '1'
+      QUANTITIES: '1',
     };
 
     try {
-      this.logger.log(`Fetching JPL Horizons data for ${name} at ${dateStr}...`);
-      const response = await firstValueFrom(this.httpService.get(url, { params }));
+      this.logger.log(
+        `Fetching JPL Horizons data for ${name} at ${dateStr}...`,
+      );
+      const response = await firstValueFrom(
+        this.httpService.get(url, { params }),
+      );
       const resultString = response.data?.result;
 
       if (!resultString || resultString.includes('No matches found')) {
@@ -160,11 +176,17 @@ export class EphemerisService {
       const parts = raDecLine.replace(/\s+/g, ' ').split(' ');
       // parts[0]: Date, parts[1]: Time, parts[2]: RA_H, parts[3]: RA_M, parts[4]: RA_S, parts[5]: DEC_D, parts[6]: DEC_M, parts[7]: DEC_S
 
-      const raHours = parseFloat(parts[2]) + parseFloat(parts[3]) / 60 + parseFloat(parts[4]) / 3600;
+      const raHours =
+        parseFloat(parts[2]) +
+        parseFloat(parts[3]) / 60 +
+        parseFloat(parts[4]) / 3600;
       const raDeg = raHours * 15;
 
       const decSign = parts[5].startsWith('-') ? -1 : 1;
-      const decDeg = Math.abs(parseFloat(parts[5])) + parseFloat(parts[6]) / 60 + parseFloat(parts[7]) / 3600;
+      const decDeg =
+        Math.abs(parseFloat(parts[5])) +
+        parseFloat(parts[6]) / 60 +
+        parseFloat(parts[7]) / 3600;
       const finalDec = decDeg * decSign;
 
       const normalizedName = name.toLowerCase();
@@ -193,7 +215,17 @@ export class EphemerisService {
   }
 
   private classifyObject(name: string): EphemerisResult['object_type'] {
-    const planets = ['mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'sun'];
+    const planets = [
+      'mercury',
+      'venus',
+      'mars',
+      'jupiter',
+      'saturn',
+      'uranus',
+      'neptune',
+      'pluto',
+      'sun',
+    ];
     if (planets.includes(name.toLowerCase())) {
       return 'planet';
     }
@@ -208,7 +240,7 @@ export class EphemerisService {
     params.set('projection', 'TAN');
     params.set('ra', ra.toFixed(6));
     params.set('dec', dec.toFixed(6));
-    params.set('fov', (2 * Math.PI / 180).toString());
+    params.set('fov', ((2 * Math.PI) / 180).toString());
     params.set('width', '512');
     params.set('height', '512');
     return `https://alasky.cds.unistra.fr/hips-image-services/hips2fits?${params.toString()}`;

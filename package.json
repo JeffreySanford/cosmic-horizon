@@ -21,6 +21,7 @@
     "start:ports:free": "node scripts/ensure-ports-free.mjs",
     "start:infra:check": "node scripts/ensure-docker-ready.mjs",
     "start:infra": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait",
+    "start:infra:jmx": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml --profile jmx up -d --wait",
     "start:infra:reset": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml down --remove-orphans --volumes && docker compose -f docker-compose.yml -f docker-compose.events.yml build --pull && docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait",
     "start:infra:brokers": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait",
     "start:infra:brokers:reset": "pnpm run start:infra:check && docker compose -f docker-compose.yml -f docker-compose.events.yml down --remove-orphans --volumes && docker compose -f docker-compose.yml -f docker-compose.events.yml build --pull && docker compose -f docker-compose.yml -f docker-compose.events.yml up -d --wait",

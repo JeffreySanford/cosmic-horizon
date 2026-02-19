@@ -1,8 +1,25 @@
-import { Injectable, Logger, BadRequestException, ForbiddenException, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { CreateUserDto, UpdateUserDto, CreatePostDto, UpdatePostDto } from './dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  CreatePostDto,
+  UpdatePostDto,
+} from './dto';
 import { User, Post, AuditAction, AuditEntityType } from './entities';
-import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository } from './repositories';
+import {
+  UserRepository,
+  PostRepository,
+  AuditLogRepository,
+  RevisionRepository,
+} from './repositories';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -27,9 +44,7 @@ export class AppService implements OnModuleInit {
   async getHealthStatus() {
     try {
       const isConnected = this.dataSource.isInitialized;
-      const dbStatus = isConnected
-        ? 'connected'
-        : 'disconnected';
+      const dbStatus = isConnected ? 'connected' : 'disconnected';
 
       this.logger.log(`Database status: ${dbStatus}`);
 
@@ -40,7 +55,10 @@ export class AppService implements OnModuleInit {
         environment: process.env.NODE_ENV || 'development',
       };
     } catch (error) {
-      this.logger.error('Health check failed', error instanceof Error ? error.message : error);
+      this.logger.error(
+        'Health check failed',
+        error instanceof Error ? error.message : error,
+      );
       return {
         status: 'error',
         timestamp: new Date().toISOString(),
@@ -72,9 +90,13 @@ export class AppService implements OnModuleInit {
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const existingUser = await this.userRepository.findByUsername(createUserDto.username);
+    const existingUser = await this.userRepository.findByUsername(
+      createUserDto.username,
+    );
     if (existingUser) {
-      throw new BadRequestException(`Username ${createUserDto.username} already exists`);
+      throw new BadRequestException(
+        `Username ${createUserDto.username} already exists`,
+      );
     }
     const user = await this.userRepository.create(createUserDto);
     await this.auditLogRepository.createAuditLog({
@@ -164,7 +186,11 @@ export class AppService implements OnModuleInit {
     return post;
   }
 
-  async updatePost(id: string, actorUserId: string, updatePostDto: UpdatePostDto): Promise<Post> {
+  async updatePost(
+    id: string,
+    actorUserId: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<Post> {
     const post = await this.postRepository.findById(id);
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
@@ -175,7 +201,11 @@ export class AppService implements OnModuleInit {
     if (!updatedPost) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
-    await this.createRevisionSnapshot(updatedPost, actorUserId, 'Post content updated');
+    await this.createRevisionSnapshot(
+      updatedPost,
+      actorUserId,
+      'Post content updated',
+    );
     await this.auditLogRepository.createAuditLog({
       user_id: actorUserId,
       action: AuditAction.UPDATE,
@@ -200,7 +230,11 @@ export class AppService implements OnModuleInit {
     if (!publishedPost) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
-    await this.createRevisionSnapshot(publishedPost, actorUserId, 'Published post revision');
+    await this.createRevisionSnapshot(
+      publishedPost,
+      actorUserId,
+      'Published post revision',
+    );
     await this.auditLogRepository.createAuditLog({
       user_id: actorUserId,
       action: AuditAction.PUBLISH,
@@ -275,7 +309,10 @@ export class AppService implements OnModuleInit {
       action: AuditAction.HIDE,
       entity_type: AuditEntityType.POST,
       entity_id: id,
-      changes: { before: { hidden_at: post.hidden_at }, after: { hidden_at: hiddenPost.hidden_at } },
+      changes: {
+        before: { hidden_at: post.hidden_at },
+        after: { hidden_at: hiddenPost.hidden_at },
+      },
     });
 
     return hiddenPost;
@@ -298,7 +335,10 @@ export class AppService implements OnModuleInit {
       action: AuditAction.UNHIDE,
       entity_type: AuditEntityType.POST,
       entity_id: id,
-      changes: { before: { hidden_at: post.hidden_at }, after: { hidden_at: unhiddenPost.hidden_at } },
+      changes: {
+        before: { hidden_at: post.hidden_at },
+        after: { hidden_at: unhiddenPost.hidden_at },
+      },
     });
 
     return unhiddenPost;
@@ -321,7 +361,10 @@ export class AppService implements OnModuleInit {
       action: AuditAction.LOCK,
       entity_type: AuditEntityType.POST,
       entity_id: id,
-      changes: { before: { locked_at: post.locked_at }, after: { locked_at: lockedPost.locked_at } },
+      changes: {
+        before: { locked_at: post.locked_at },
+        after: { locked_at: lockedPost.locked_at },
+      },
     });
 
     return lockedPost;
@@ -344,7 +387,10 @@ export class AppService implements OnModuleInit {
       action: AuditAction.UNLOCK,
       entity_type: AuditEntityType.POST,
       entity_id: id,
-      changes: { before: { locked_at: post.locked_at }, after: { locked_at: unlockedPost.locked_at } },
+      changes: {
+        before: { locked_at: post.locked_at },
+        after: { locked_at: unlockedPost.locked_at },
+      },
     });
 
     return unlockedPost;
@@ -360,7 +406,10 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  private async assertCanModeratePost(post: Post, actorUserId: string): Promise<void> {
+  private async assertCanModeratePost(
+    post: Post,
+    actorUserId: string,
+  ): Promise<void> {
     const actor = await this.userRepository.findById(actorUserId);
     if (!actor) {
       throw new ForbiddenException('Acting user was not found');
@@ -369,11 +418,17 @@ export class AppService implements OnModuleInit {
     const isOwner = post.user_id === actorUserId;
     const isModerator = actor.role === 'moderator' || actor.role === 'admin';
     if (!isOwner && !isModerator) {
-      throw new ForbiddenException('Only moderators, admins, or post owners can moderate this post');
+      throw new ForbiddenException(
+        'Only moderators, admins, or post owners can moderate this post',
+      );
     }
   }
 
-  private async createRevisionSnapshot(post: Post, actorUserId: string, changeSummary: string): Promise<void> {
+  private async createRevisionSnapshot(
+    post: Post,
+    actorUserId: string,
+    changeSummary: string,
+  ): Promise<void> {
     await this.revisionRepository.create({
       post_id: post.id,
       user_id: actorUserId,

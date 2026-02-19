@@ -67,7 +67,7 @@ describe('JobQueueListComponent', () => {
     component.ngOnChanges();
 
     const jobs = await firstValueFrom(component.filteredJobs$);
-    expect(jobs.every(job => job.status === 'running')).toBe(true);
+    expect(jobs.every((job) => job.status === 'running')).toBe(true);
   });
 
   it('should return correct status color', () => {

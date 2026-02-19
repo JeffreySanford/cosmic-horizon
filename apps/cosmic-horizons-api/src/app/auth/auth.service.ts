@@ -1,4 +1,11 @@
-import { Injectable, BadRequestException, ConflictException, OnModuleInit, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+  OnModuleInit,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import Strategy from 'passport-github';
 import { UserRepository } from '../repositories';
 import { CreateUserDto } from '../dto';
@@ -54,7 +61,8 @@ export class AuthService implements OnModuleInit {
     }
 
     const username =
-      (typeof profile.username === 'string' && profile.username.trim().length > 0
+      (typeof profile.username === 'string' &&
+      profile.username.trim().length > 0
         ? profile.username.trim()
         : null) ?? `github_${githubId}`;
 
@@ -111,7 +119,10 @@ export class AuthService implements OnModuleInit {
     const email = credentials.email.trim().toLowerCase();
     const password = credentials.password;
 
-    const user = await this.userRepository.findByEmailAndPassword(email, password);
+    const user = await this.userRepository.findByEmailAndPassword(
+      email,
+      password,
+    );
 
     if (!user) {
       console.warn(`[AUTH] Login attempt failed for email: ${email}`);
@@ -168,7 +179,10 @@ export class AuthService implements OnModuleInit {
   /**
    * Convenient wrapper for loginWithCredentials following standard auth pattern
    */
-  async login(email: string, password: string): Promise<{ access_token: string; refresh_token: string }> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.loginWithCredentials({ email, password });
     return this.issueAuthTokens(user);
   }
@@ -219,7 +233,9 @@ export class AuthService implements OnModuleInit {
     };
   }
 
-  async refreshAuthTokens(refreshToken: string): Promise<{ user: User; tokens: AuthTokenPair }> {
+  async refreshAuthTokens(
+    refreshToken: string,
+  ): Promise<{ user: User; tokens: AuthTokenPair }> {
     const normalized = refreshToken.trim();
     if (!normalized) {
       throw new UnauthorizedException('Refresh token is required');
@@ -236,7 +252,10 @@ export class AuthService implements OnModuleInit {
     }
 
     const expiresAt = new Date(existing.expires_at);
-    if (Number.isNaN(expiresAt.valueOf()) || expiresAt.getTime() <= Date.now()) {
+    if (
+      Number.isNaN(expiresAt.valueOf()) ||
+      expiresAt.getTime() <= Date.now()
+    ) {
       throw new UnauthorizedException('Refresh token has expired');
     }
 
@@ -292,7 +311,9 @@ export class AuthService implements OnModuleInit {
     return safeDays * 24 * 60 * 60 * 1000;
   }
 
-  private async findRefreshTokenRecord(tokenHash: string): Promise<RefreshTokenRecord | null> {
+  private async findRefreshTokenRecord(
+    tokenHash: string,
+  ): Promise<RefreshTokenRecord | null> {
     const rows = (await this.dataSource.query(
       `
         SELECT id, user_id, expires_at, revoked_at

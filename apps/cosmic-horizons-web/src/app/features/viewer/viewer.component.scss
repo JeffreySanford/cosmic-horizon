@@ -1,8 +1,16 @@
 .viewer-container {
   min-height: 100vh;
   background:
-    radial-gradient(1200px 520px at 8% -12%, rgba(88, 125, 255, 0.16) 0%, rgba(88, 125, 255, 0) 60%),
-    radial-gradient(900px 460px at 104% 4%, rgba(255, 198, 92, 0.2) 0%, rgba(255, 198, 92, 0) 64%),
+    radial-gradient(
+      1200px 520px at 8% -12%,
+      rgba(88, 125, 255, 0.16) 0%,
+      rgba(88, 125, 255, 0) 60%
+    ),
+    radial-gradient(
+      900px 460px at 104% 4%,
+      rgba(255, 198, 92, 0.2) 0%,
+      rgba(255, 198, 92, 0) 64%
+    ),
     radial-gradient(circle at 20% 10%, #0c1326 0%, #050814 55%, #03050d 100%);
   color: #f7e8bb;
 }
@@ -93,9 +101,21 @@
   margin-top: -4px;
 }
 
-:host ::ng-deep .target-search .mdc-text-field--focused .mdc-notched-outline__leading,
-:host ::ng-deep .target-search .mdc-text-field--focused .mdc-notched-outline__notch,
-:host ::ng-deep .target-search .mdc-text-field--focused .mdc-notched-outline__trailing {
+:host
+  ::ng-deep
+  .target-search
+  .mdc-text-field--focused
+  .mdc-notched-outline__leading,
+:host
+  ::ng-deep
+  .target-search
+  .mdc-text-field--focused
+  .mdc-notched-outline__notch,
+:host
+  ::ng-deep
+  .target-search
+  .mdc-text-field--focused
+  .mdc-notched-outline__trailing {
   border-color: rgba(238, 201, 118, 0.9) !important;
   box-shadow: none;
 }
@@ -225,7 +245,11 @@
   color: #d7f4ff;
 }
 
-:host ::ng-deep .viewer-overlay-controls .mat-mdc-slide-toggle .mdc-switch__track::after {
+:host
+  ::ng-deep
+  .viewer-overlay-controls
+  .mat-mdc-slide-toggle
+  .mdc-switch__track::after {
   background-color: rgba(125, 211, 252, 0.9);
 }
 
@@ -475,8 +499,10 @@
 ::ng-deep .mat-mdc-slide-toggle.mat-primary.mat-checked {
   .mdc-switch__icon-like,
   .mdc-switch__handle::after {
-    background: #20C997 !important;
-    box-shadow: 0 0 16px rgba(32, 201, 151, 0.9), inset 0 0 6px rgba(32, 201, 151, 0.6) !important;
+    background: #20c997 !important;
+    box-shadow:
+      0 0 16px rgba(32, 201, 151, 0.9),
+      inset 0 0 6px rgba(32, 201, 151, 0.6) !important;
   }
   .mdc-switch__track {
     background-color: rgba(20, 180, 150, 1) !important;
@@ -487,8 +513,10 @@
 ::ng-deep .mat-mdc-slide-toggle.mat-accent.mat-checked {
   .mdc-switch__icon-like,
   .mdc-switch__handle::after {
-    background: #20C997 !important;
-    box-shadow: 0 0 16px rgba(32, 201, 151, 0.9), inset 0 0 6px rgba(32, 201, 151, 0.6) !important;
+    background: #20c997 !important;
+    box-shadow:
+      0 0 16px rgba(32, 201, 151, 0.9),
+      inset 0 0 6px rgba(32, 201, 151, 0.6) !important;
   }
   .mdc-switch__track {
     background-color: rgba(20, 180, 150, 1) !important;

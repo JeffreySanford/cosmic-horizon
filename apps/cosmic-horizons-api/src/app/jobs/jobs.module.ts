@@ -14,7 +14,17 @@ import { EventsModule } from '../modules/events/events.module';
     EventsModule, // Phase 3: Event infrastructure integration
   ],
   controllers: [JobsController],
-  providers: [TaccIntegrationService, JobRepository, JobOrchestratorService, DatasetStagingService],
-  exports: [TaccIntegrationService, JobRepository, JobOrchestratorService, DatasetStagingService],
+  providers: [
+    TaccIntegrationService,
+    JobRepository,
+    JobOrchestratorService,
+    DatasetStagingService,
+  ],
+  exports: [
+    TaccIntegrationService,
+    JobRepository,
+    JobOrchestratorService,
+    DatasetStagingService,
+  ],
 })
 export class JobsModule {}

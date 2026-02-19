@@ -2,7 +2,10 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { AppLogEntry, AppLoggerService } from '../../services/app-logger.service';
+import {
+  AppLogEntry,
+  AppLoggerService,
+} from '../../services/app-logger.service';
 import { LogsComponent } from './logs.component';
 
 describe('LogsComponent', () => {

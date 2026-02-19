@@ -57,7 +57,7 @@ jobs:
           pnpm nx run-many --target=test --all --output-style=stream 2>&1 | tee ci-unit-tests.log
       - run: pnpm run start:ports:free
       - name: Start infra
-        run: pnpm run start:infra
+        run: pnpm run start:infra:jmx
       - name: Verify infra readiness
         shell: bash
         run: |

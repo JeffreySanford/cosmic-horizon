@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CommentRepository } from '../repositories/comment.repository';
 import { PostRepository } from '../repositories/post.repository';
 import { CommentReportRepository } from '../repositories/comment-report.repository';
@@ -36,7 +40,9 @@ export class CommentsService {
     }
 
     if (post.status !== PostStatus.PUBLISHED && post.user_id !== userId) {
-      throw new ForbiddenException('Cannot comment on unpublished posts of other users');
+      throw new ForbiddenException(
+        'Cannot comment on unpublished posts of other users',
+      );
     }
 
     if (post.locked_at) {
@@ -44,13 +50,17 @@ export class CommentsService {
     }
 
     if (dto.parent_id) {
-        const parent = await this.commentRepository.findById(dto.parent_id);
-        if (!parent) {
-            throw new NotFoundException(`Parent comment with ID ${dto.parent_id} not found`);
-        }
-        if (parent.post_id !== dto.post_id) {
-            throw new ForbiddenException('Parent comment belongs to a different post');
-        }
+      const parent = await this.commentRepository.findById(dto.parent_id);
+      if (!parent) {
+        throw new NotFoundException(
+          `Parent comment with ID ${dto.parent_id} not found`,
+        );
+      }
+      if (parent.post_id !== dto.post_id) {
+        throw new ForbiddenException(
+          'Parent comment belongs to a different post',
+        );
+      }
     }
 
     const commentData: Partial<Comment> = {
@@ -74,7 +84,11 @@ export class CommentsService {
     return comment;
   }
 
-  async updateComment(id: string, userId: string, dto: UpdateCommentDto): Promise<Comment> {
+  async updateComment(
+    id: string,
+    userId: string,
+    dto: UpdateCommentDto,
+  ): Promise<Comment> {
     const comment = await this.commentRepository.findById(id);
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
@@ -86,7 +100,7 @@ export class CommentsService {
 
     const updated = await this.commentRepository.update(id, dto.content);
     if (!updated) {
-        throw new NotFoundException(`Comment with ID ${id} not found`);
+      throw new NotFoundException(`Comment with ID ${id} not found`);
     }
 
     await this.auditLogRepository.createAuditLog({
@@ -112,9 +126,11 @@ export class CommentsService {
     // Allow owner or post owner to delete comments
     const post = await this.postRepository.findById(comment.post_id);
     const isPostOwner = post?.user_id === userId;
-    
+
     if (comment.user_id !== userId && !isPostOwner) {
-      throw new ForbiddenException('You do not have permission to delete this comment');
+      throw new ForbiddenException(
+        'You do not have permission to delete this comment',
+      );
     }
 
     const deleted = await this.commentRepository.softDelete(id);
@@ -130,7 +146,11 @@ export class CommentsService {
     return deleted;
   }
 
-  async reportComment(commentId: string, userId: string, dto: ReportCommentDto): Promise<CommentReport> {
+  async reportComment(
+    commentId: string,
+    userId: string,
+    dto: ReportCommentDto,
+  ): Promise<CommentReport> {
     const comment = await this.commentRepository.findById(commentId);
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${commentId} not found`);
@@ -176,7 +196,11 @@ export class CommentsService {
     return this.commentReportRepository.findAll();
   }
 
-  async resolveReport(id: string, userId: string, status: 'reviewed' | 'dismissed'): Promise<CommentReport | null> {
+  async resolveReport(
+    id: string,
+    userId: string,
+    status: 'reviewed' | 'dismissed',
+  ): Promise<CommentReport | null> {
     return this.commentReportRepository.resolve(id, userId, status);
   }
 }

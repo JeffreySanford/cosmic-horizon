@@ -70,9 +70,9 @@ describe('CommentsService - Permission & Error Scenarios (Branch Coverage)', () 
     it('should throw NotFoundException when post does not exist', async () => {
       postRepository.findById.mockResolvedValueOnce(null);
 
-      await expect(service.getCommentsByPost('non-existent-post')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.getCommentsByPost('non-existent-post'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('should return comments for existing post', async () => {
@@ -92,7 +92,9 @@ describe('CommentsService - Permission & Error Scenarios (Branch Coverage)', () 
     });
 
     it('should handle database errors gracefully', async () => {
-      postRepository.findById.mockRejectedValueOnce(new Error('Database connection failed'));
+      postRepository.findById.mockRejectedValueOnce(
+        new Error('Database connection failed'),
+      );
 
       await expect(service.getCommentsByPost('post-1')).rejects.toThrow();
     });
@@ -547,9 +549,15 @@ describe('CommentsService - Permission & Error Scenarios (Branch Coverage)', () 
         id: 'report-1',
         status: 'reviewed',
       };
-      commentReportRepository.resolve?.mockResolvedValueOnce(reportResult as any);
+      commentReportRepository.resolve?.mockResolvedValueOnce(
+        reportResult as any,
+      );
 
-      const resolved = await service.resolveReport('report-1', 'moderator-user', 'reviewed');
+      const resolved = await service.resolveReport(
+        'report-1',
+        'moderator-user',
+        'reviewed',
+      );
 
       expect(resolved?.id).toBe('report-1');
       expect(resolved?.status).toBe('reviewed');
@@ -558,7 +566,11 @@ describe('CommentsService - Permission & Error Scenarios (Branch Coverage)', () 
     it('should handle resolve returning null', async () => {
       commentReportRepository.resolve.mockResolvedValueOnce(null);
 
-      const result = await service.resolveReport('non-existent', 'moderator-user', 'dismissed');
+      const result = await service.resolveReport(
+        'non-existent',
+        'moderator-user',
+        'dismissed',
+      );
 
       expect(result).toBeNull();
     });

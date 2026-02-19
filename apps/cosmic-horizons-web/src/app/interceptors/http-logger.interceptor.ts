@@ -1,4 +1,11 @@
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+  HttpResponse,
+} from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { AppLoggerService } from '../services/app-logger.service';
@@ -12,7 +19,10 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
   private readonly logger = inject(AppLoggerService);
   private readonly session = inject(AuthSessionService);
 
-  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<HttpResponse<unknown>>> {
+  intercept(
+    req: HttpRequest<unknown>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<HttpResponse<unknown>>> {
     const startedAt = performance.now();
     const requestBytes = this.estimateSize(req.body);
     const correlationId = '272762e810cea2de53a2f';
@@ -29,7 +39,9 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
               status_code: event.status ?? 0,
               duration_ms: durationMs,
               request_bytes: requestBytes,
-              response_bytes: this.parseNumber(event.headers.get('content-length')),
+              response_bytes: this.parseNumber(
+                event.headers.get('content-length'),
+              ),
               correlation_id: correlationId,
               user_id: user?.id ?? null,
               user_email: user?.email ?? null,
@@ -47,7 +59,9 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
             duration_ms: durationMs,
             error: err.message,
             request_bytes: requestBytes,
-            response_bytes: this.parseNumber(err.headers?.get?.('content-length')),
+            response_bytes: this.parseNumber(
+              err.headers?.get?.('content-length'),
+            ),
             correlation_id: correlationId,
             user_id: user?.id ?? null,
             user_email: user?.email ?? null,

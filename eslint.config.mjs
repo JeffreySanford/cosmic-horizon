@@ -122,7 +122,16 @@ export default [
     },
   },
   {
-    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js', '**/test-setup.ts', '**/test-setup.js', '**/*.error.spec.ts', '**/*.error-*.spec.ts'],
+    files: [
+      '**/*.spec.ts',
+      '**/*.test.ts',
+      '**/*.spec.js',
+      '**/*.test.js',
+      '**/test-setup.ts',
+      '**/test-setup.js',
+      '**/*.error.spec.ts',
+      '**/*.error-*.spec.ts',
+    ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',

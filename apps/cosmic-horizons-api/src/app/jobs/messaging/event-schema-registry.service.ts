@@ -2,7 +2,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 
 /**
  * Event Schema Registry & Validation Service
- * 
+ *
  * Manages event schemas with:
  * - Version management and semantic versioning
  * - Schema validation and conformance checking
@@ -54,7 +54,7 @@ export class EventSchemaRegistry {
 
       if (!this.isValidSemanticVersion(schema.version)) {
         throw new BadRequestException(
-          `Invalid semantic version: ${schema.version}. Expected format: major.minor.patch`
+          `Invalid semantic version: ${schema.version}. Expected format: major.minor.patch`,
         );
       }
 
@@ -71,7 +71,7 @@ export class EventSchemaRegistry {
       // Check if version already exists
       if (registration.versions.has(schema.version)) {
         throw new BadRequestException(
-          `Schema version ${schema.version} already registered for ${eventType}`
+          `Schema version ${schema.version} already registered for ${eventType}`,
         );
       }
 
@@ -81,7 +81,9 @@ export class EventSchemaRegistry {
       // Build compatibility matrix
       this.updateCompatibilityMatrix(registration);
     } catch (error) {
-      this.logger.error(`Failed to register schema: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to register schema: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw error;
     }
   }
@@ -92,29 +94,37 @@ export class EventSchemaRegistry {
   getSchema(eventType: string, version?: string): EventSchema {
     const registration = this.registrations.get(eventType);
     if (!registration) {
-      throw new BadRequestException(`No schemas registered for event type: ${eventType}`);
+      throw new BadRequestException(
+        `No schemas registered for event type: ${eventType}`,
+      );
     }
 
     if (version) {
       const schema = registration.versions.get(version);
       if (!schema) {
         throw new BadRequestException(
-          `Schema version ${version} not found for ${eventType}`
+          `Schema version ${version} not found for ${eventType}`,
         );
       }
       return schema;
     }
 
     // Return latest version
-    const versions = Array.from(registration.versions.keys()).sort(this.compareVersions);
+    const versions = Array.from(registration.versions.keys()).sort(
+      this.compareVersions,
+    );
     const latestVersion = versions[versions.length - 1];
     if (!latestVersion) {
-      throw new BadRequestException(`No schema versions registered for event type: ${eventType}`);
+      throw new BadRequestException(
+        `No schema versions registered for event type: ${eventType}`,
+      );
     }
 
     const latestSchema = registration.versions.get(latestVersion);
     if (!latestSchema) {
-      throw new BadRequestException(`Schema version ${latestVersion} not found for ${eventType}`);
+      throw new BadRequestException(
+        `Schema version ${latestVersion} not found for ${eventType}`,
+      );
     }
 
     return latestSchema;
@@ -126,7 +136,7 @@ export class EventSchemaRegistry {
   validateEvent(
     eventType: string,
     event: Record<string, unknown>,
-    version?: string
+    version?: string,
   ): ValidationError[] {
     try {
       const schema = this.getSchema(eventType, version);
@@ -159,7 +169,11 @@ export class EventSchemaRegistry {
         }
 
         // Enum validation
-        if (field.enum && Array.isArray(field.enum) && !field.enum.includes(value as never)) {
+        if (
+          field.enum &&
+          Array.isArray(field.enum) &&
+          !field.enum.includes(value as never)
+        ) {
           errors.push({
             field: field.name,
             error: `Value must be one of: ${field.enum.join(', ')}`,
@@ -169,13 +183,15 @@ export class EventSchemaRegistry {
 
       if (errors.length > 0) {
         this.logger.warn(
-          `Validation failed for ${eventType}: ${errors.map((e) => e.error).join(', ')}`
+          `Validation failed for ${eventType}: ${errors.map((e) => e.error).join(', ')}`,
         );
       }
 
       return errors;
     } catch (error) {
-      this.logger.error(`Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw error;
     }
   }
@@ -186,12 +202,14 @@ export class EventSchemaRegistry {
   isCompatible(
     eventType: string,
     oldVersion: string,
-    newVersion: string
+    newVersion: string,
   ): boolean {
     try {
       const registration = this.registrations.get(eventType);
       if (!registration) {
-        throw new BadRequestException(`No schemas registered for event type: ${eventType}`);
+        throw new BadRequestException(
+          `No schemas registered for event type: ${eventType}`,
+        );
       }
 
       const compatibility = registration.compatibilityMatrix.get(oldVersion);
@@ -201,7 +219,9 @@ export class EventSchemaRegistry {
 
       return compatibility.get(newVersion) ?? false;
     } catch (error) {
-      this.logger.error(`Compatibility check error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Compatibility check error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       return false;
     }
   }
@@ -212,7 +232,9 @@ export class EventSchemaRegistry {
   getSchemaVersions(eventType: string): string[] {
     const registration = this.registrations.get(eventType);
     if (!registration) {
-      throw new BadRequestException(`No schemas registered for event type: ${eventType}`);
+      throw new BadRequestException(
+        `No schemas registered for event type: ${eventType}`,
+      );
     }
 
     return Array.from(registration.versions.keys()).sort(this.compareVersions);
@@ -265,7 +287,10 @@ export class EventSchemaRegistry {
         }
 
         // Check if version2 is a forward-compatible upgrade from version1
-        const isForwardCompatible = this.checkForwardCompatibility(schema1, schema2);
+        const isForwardCompatible = this.checkForwardCompatibility(
+          schema1,
+          schema2,
+        );
         const compatibilityMap = registration.compatibilityMatrix.get(version1);
         if (compatibilityMap) {
           compatibilityMap.set(version2, isForwardCompatible);
@@ -277,7 +302,10 @@ export class EventSchemaRegistry {
   /**
    * Internal: Check if newSchema is forward compatible with oldSchema
    */
-  private checkForwardCompatibility(oldSchema: EventSchema, newSchema: EventSchema): boolean {
+  private checkForwardCompatibility(
+    oldSchema: EventSchema,
+    newSchema: EventSchema,
+  ): boolean {
     const oldFields = new Map(oldSchema.fields.map((f) => [f.name, f]));
     const newFields = new Map(newSchema.fields.map((f) => [f.name, f]));
 
@@ -301,7 +329,11 @@ export class EventSchemaRegistry {
 
     // New fields must have defaults if they're required
     for (const [fieldName, newField] of newFields.entries()) {
-      if (!oldFields.has(fieldName) && newField.required && newField.default === undefined) {
+      if (
+        !oldFields.has(fieldName) &&
+        newField.required &&
+        newField.default === undefined
+      ) {
         return false;
       }
     }
@@ -321,9 +353,14 @@ export class EventSchemaRegistry {
       case 'boolean':
         return typeof value === 'boolean';
       case 'date':
-        return value instanceof Date || (typeof value === 'string' && !isNaN(Date.parse(value)));
+        return (
+          value instanceof Date ||
+          (typeof value === 'string' && !isNaN(Date.parse(value)))
+        );
       case 'object':
-        return typeof value === 'object' && value !== null && !Array.isArray(value);
+        return (
+          typeof value === 'object' && value !== null && !Array.isArray(value)
+        );
       case 'array':
         return Array.isArray(value);
       default:

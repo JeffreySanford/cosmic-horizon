@@ -16,16 +16,22 @@
     </div>
   </div>
 
-  <div class="jobs-list" *ngIf="(filteredJobs$ | async) as jobs">
+  <div class="jobs-list" *ngIf="filteredJobs$ | async as jobs">
     <div *ngIf="jobs.length === 0" class="empty-state">
       <mat-icon class="empty-icon">inbox</mat-icon>
-      <p>No jobs {{ selectedStatus !== 'all' ? 'with status ' + selectedStatus : 'yet' }}</p>
+      <p>
+        No jobs
+        {{ selectedStatus !== 'all' ? 'with status ' + selectedStatus : 'yet' }}
+      </p>
     </div>
 
     <div *ngFor="let job of jobs" class="job-card" [ngClass]="job.status">
       <div class="job-header">
         <div class="job-title">
-          <mat-icon class="status-icon" [style.color]="getStatusColor(job.status)">
+          <mat-icon
+            class="status-icon"
+            [style.color]="getStatusColor(job.status)"
+          >
             {{ getStatusIcon(job.status) }}
           </mat-icon>
           <div class="title-group">
@@ -54,12 +60,18 @@
       </div>
 
       <!-- Progress Bar -->
-      <div *ngIf="job.status === 'running' || job.status === 'queued'" class="progress-section">
+      <div
+        *ngIf="job.status === 'running' || job.status === 'queued'"
+        class="progress-section"
+      >
         <div class="progress-header">
           <span>Progress</span>
           <span class="progress-percent">{{ job.progress }}%</span>
         </div>
-        <mat-progress-bar [value]="job.progress" mode="determinate"></mat-progress-bar>
+        <mat-progress-bar
+          [value]="job.progress"
+          mode="determinate"
+        ></mat-progress-bar>
         <div *ngIf="job.estimatedTimeRemaining" class="time-remaining">
           Estimated: {{ formatTimeRemaining(job.estimatedTimeRemaining) }}
         </div>
@@ -78,7 +90,9 @@
       </div>
 
       <div *ngIf="job.status === 'failed'" class="error-info">
-        <p class="error-message">{{ job.errorMessage || 'Job failed. Check logs for details.' }}</p>
+        <p class="error-message">
+          {{ job.errorMessage || 'Job failed. Check logs for details.' }}
+        </p>
       </div>
 
       <!-- Actions -->

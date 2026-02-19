@@ -20,7 +20,14 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "'unsafe-eval'", 'blob:', 'https:'],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'wasm-unsafe-eval'",
+          "'unsafe-eval'",
+          'blob:',
+          'https:',
+        ],
         styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
         imgSrc: ["'self'", 'data:', 'blob:', 'https:', 'http:'],
         fontSrc: ["'self'", 'data:', 'https:'],
@@ -84,4 +91,5 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
 /**
  * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.
  */
-export const reqHandler: ReturnType<typeof createNodeRequestHandler> = createNodeRequestHandler(app);
+export const reqHandler: ReturnType<typeof createNodeRequestHandler> =
+  createNodeRequestHandler(app);

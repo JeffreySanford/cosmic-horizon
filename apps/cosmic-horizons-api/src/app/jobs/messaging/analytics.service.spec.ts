@@ -150,7 +150,10 @@ describe('AnalyticsService', () => {
     it('should respect time window parameter', async () => {
       await service.trackMetric('windowed.metric', 50, { period: '1h' });
 
-      const summary = await service.getMetricSummary('windowed.metric', 3600000);
+      const summary = await service.getMetricSummary(
+        'windowed.metric',
+        3600000,
+      );
 
       expect(summary.count).toBe(1);
     });
@@ -236,7 +239,9 @@ describe('AnalyticsService', () => {
       const promises = [];
 
       for (let i = 0; i < 50; i++) {
-        promises.push(service.trackMetric('rapid.metric', Math.random() * 1000));
+        promises.push(
+          service.trackMetric('rapid.metric', Math.random() * 1000),
+        );
       }
 
       await Promise.all(promises);
@@ -274,7 +279,7 @@ describe('AnalyticsService', () => {
       const metricName = 'timestamp.test';
 
       await service.trackMetric(metricName, 10);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       await service.trackMetric(metricName, 10);
 
       const summary = await service.getMetricSummary(metricName, 0);

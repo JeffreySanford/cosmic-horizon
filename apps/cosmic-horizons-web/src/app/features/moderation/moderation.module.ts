@@ -10,11 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ModerationRoutingModule } from './moderation-routing.module';
 import { ModerationComponent } from './moderation.component';
 
-
 @NgModule({
-  declarations: [
-    ModerationComponent
-  ],
+  declarations: [ModerationComponent],
   imports: [
     CommonModule,
     ModerationRoutingModule,
@@ -23,7 +20,7 @@ import { ModerationComponent } from './moderation.component';
     MatCardModule,
     MatIconModule,
     MatChipsModule,
-    MatProgressSpinnerModule
-  ]
+    MatProgressSpinnerModule,
+  ],
 })
-export class ModerationModule { }
+export class ModerationModule {}

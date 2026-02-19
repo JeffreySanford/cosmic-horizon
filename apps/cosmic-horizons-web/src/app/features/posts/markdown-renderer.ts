@@ -56,7 +56,10 @@ export function renderSafeMarkdownHtml(
     .map((block) => block.trim())
     .filter((block) => block.length > 0)
     .map((block) => {
-      if (/^<h[1-3]>/.test(block) || /^<div class="preview-viewer-block/.test(block)) {
+      if (
+        /^<h[1-3]>/.test(block) ||
+        /^<div class="preview-viewer-block/.test(block)
+      ) {
         return block;
       }
       return `<p>${block.replace(/\n/g, '<br />')}</p>`;

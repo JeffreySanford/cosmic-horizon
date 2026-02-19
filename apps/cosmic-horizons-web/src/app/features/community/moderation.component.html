@@ -13,12 +13,19 @@
             <mat-list-item>
               <div class="item-content">
                 <strong>{{ item.title }}</strong>
-                <p class="meta">{{ item.author || 'anonymous' }} — {{ item.createdAt | date:'short' }}</p>
+                <p class="meta">
+                  {{ item.author || 'anonymous' }} —
+                  {{ item.createdAt | date: 'short' }}
+                </p>
                 <p class="body">{{ item.body }}</p>
               </div>
               <div class="actions">
-                <button mat-mini-button color="primary" (click)="approve(item)">Approve</button>
-                <button mat-mini-button color="warn" (click)="hide(item)">Hide</button>
+                <button mat-mini-button color="primary" (click)="approve(item)">
+                  Approve
+                </button>
+                <button mat-mini-button color="warn" (click)="hide(item)">
+                  Hide
+                </button>
               </div>
             </mat-list-item>
           </ng-container>

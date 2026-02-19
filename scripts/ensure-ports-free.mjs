@@ -25,7 +25,10 @@ function readEnvFile() {
       continue;
     }
     const key = line.slice(0, separator).trim();
-    const value = line.slice(separator + 1).trim().replace(/^['"]|['"]$/g, '');
+    const value = line
+      .slice(separator + 1)
+      .trim()
+      .replace(/^['"]|['"]$/g, '');
     map[key] = value;
   }
   return map;
@@ -34,7 +37,10 @@ function readEnvFile() {
 const env = readEnvFile();
 const apiPort = Number(env.API_PORT ?? '3000');
 const frontendPort = Number(env.FRONTEND_PORT ?? '4200');
-const PORTS = [apiPort, frontendPort].filter((port, index, array) => Number.isFinite(port) && port > 0 && array.indexOf(port) === index);
+const PORTS = [apiPort, frontendPort].filter(
+  (port, index, array) =>
+    Number.isFinite(port) && port > 0 && array.indexOf(port) === index,
+);
 
 function waitMs(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
@@ -82,12 +88,16 @@ function getListeningPidsWindows(port) {
       .filter((value) => Number.isFinite(value) && value > 0);
   }
 
-  const netstatRes = spawnSync('netstat', ['-ano', '-p', 'tcp'], { encoding: 'utf8' });
+  const netstatRes = spawnSync('netstat', ['-ano', '-p', 'tcp'], {
+    encoding: 'utf8',
+  });
   if (netstatRes.status !== 0) return [];
 
   const pids = new Set();
   for (const line of netstatRes.stdout.split(/\r?\n/)) {
-    const match = line.match(/^\s*TCP\s+\S+:(\d+)\s+\S+\s+LISTENING\s+(\d+)\s*$/i);
+    const match = line.match(
+      /^\s*TCP\s+\S+:(\d+)\s+\S+\s+LISTENING\s+(\d+)\s*$/i,
+    );
     if (!match) continue;
     const linePort = Number(match[1]);
     const pid = Number(match[2]);
@@ -182,7 +192,9 @@ for (let attempt = 1; attempt <= 4; attempt += 1) {
 
 if (stillBusy.length > 0) {
   for (const item of stillBusy) {
-    console.error(`Port ${item.port} is still in use by PID(s): ${item.pids.join(', ')}`);
+    console.error(
+      `Port ${item.port} is still in use by PID(s): ${item.pids.join(', ')}`,
+    );
   }
   process.exit(1);
 }

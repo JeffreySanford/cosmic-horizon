@@ -172,4 +172,4 @@ External conference/submission use: **apply corrections above first**, especiall
 
 ---
 
-*Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved._

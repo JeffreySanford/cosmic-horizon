@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
@@ -12,7 +17,10 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   constructor(private configService: ConfigService) {}
 
   async onModuleInit(): Promise<void> {
-    const enabled = this.configService.get<string>('REDIS_CACHE_ENABLED', 'false').toLowerCase() === 'true';
+    const enabled =
+      this.configService
+        .get<string>('REDIS_CACHE_ENABLED', 'false')
+        .toLowerCase() === 'true';
     if (!enabled) {
       this.redisEnabled = false;
       return;
@@ -20,11 +28,20 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
     const host = this.configService.get<string>('REDIS_HOST', '127.0.0.1');
     const port = this.configService.get<number>('REDIS_PORT', 6379);
-    const password = this.configService.get<string>('REDIS_PASSWORD')?.trim() || undefined;
-    const connectTimeout = this.configService.get<number>('REDIS_CONNECT_TIMEOUT_MS', 2000);
-    const redisTlsEnabled = this.configService.get<string>('REDIS_TLS_ENABLED', 'false').toLowerCase() === 'true';
+    const password =
+      this.configService.get<string>('REDIS_PASSWORD')?.trim() || undefined;
+    const connectTimeout = this.configService.get<number>(
+      'REDIS_CONNECT_TIMEOUT_MS',
+      2000,
+    );
+    const redisTlsEnabled =
+      this.configService
+        .get<string>('REDIS_TLS_ENABLED', 'false')
+        .toLowerCase() === 'true';
     const redisTlsRejectUnauthorized =
-      this.configService.get<string>('REDIS_TLS_REJECT_UNAUTHORIZED', 'true').toLowerCase() !== 'false';
+      this.configService
+        .get<string>('REDIS_TLS_REJECT_UNAUTHORIZED', 'true')
+        .toLowerCase() !== 'false';
 
     const client = new Redis({
       host,
@@ -48,7 +65,8 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       this.redisEnabled = true;
       this.logger.log(`Redis cache enabled at ${host}:${port}.`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown redis error';
+      const message =
+        error instanceof Error ? error.message : 'unknown redis error';
       this.logger.warn(`Redis cache unavailable (${message}).`);
       client.disconnect();
       this.redisClient = null;

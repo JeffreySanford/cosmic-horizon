@@ -87,11 +87,11 @@ IMPROVEMENT:  +36.8%       |  -27.1%       |  -27.9%
 
 For your **1000 events/sec** job coordinator:
 
-| Metric | RabbitMQ | Pulsar | Savings |
-|--------|----------|--------|---------|
-| Batch latency | 850ms | 620ms | **230ms/batch** |
-| Memory footprint | Large | Smaller | **28% less** |
-| Storage (30-day) | SSD only | SSD+S3 | **80% cheaper** |
+| Metric           | RabbitMQ | Pulsar  | Savings         |
+| ---------------- | -------- | ------- | --------------- |
+| Batch latency    | 850ms    | 620ms   | **230ms/batch** |
+| Memory footprint | Large    | Smaller | **28% less**    |
+| Storage (30-day) | SSD only | SSD+S3  | **80% cheaper** |
 
 ---
 
@@ -165,7 +165,7 @@ node scripts/pulsar-setup.mjs  # Re-initialize
 ### Local Development (Now)
 
 - **Pulsar**: $0 (Docker on your machine)
-- **RabbitMQ/Kafka**: $0 (Docker on your machine)  
+- **RabbitMQ/Kafka**: $0 (Docker on your machine)
 - **Total**: **$0**
 
 ### Phase 4 Pilot (TACC Integration)
@@ -184,15 +184,15 @@ node scripts/pulsar-setup.mjs  # Re-initialize
 
 ## 🔗 Quick Links
 
-| Resource | Location |
-|----------|----------|
-| Quick Start | [QUICKSTART.md](QUICKSTART.md) |
-| Full Setup Guide | [LOCAL-EVALUATION.md](LOCAL-EVALUATION.md) |
-| Current Architecture | [../architecture/ARCHITECTURE.md](../architecture/ARCHITECTURE.md) |
-| Event Streaming ADR | [../architecture/ADR-EVENT-STREAMING.md](../architecture/ADR-EVENT-STREAMING.md) |
-| Apache Pulsar Docs | <https://pulsar.apache.org/docs/> |
-| Pulsar vs Kafka | <https://pulsar.apache.org/docs/migration-kafka/> |
-| StreamNative Cloud | <https://www.streamnative.io/cloud> |
+| Resource             | Location                                                                         |
+| -------------------- | -------------------------------------------------------------------------------- |
+| Quick Start          | [QUICKSTART.md](QUICKSTART.md)                                                   |
+| Full Setup Guide     | [LOCAL-EVALUATION.md](LOCAL-EVALUATION.md)                                       |
+| Current Architecture | [../architecture/ARCHITECTURE.md](../architecture/ARCHITECTURE.md)               |
+| Event Streaming ADR  | [../architecture/ADR-EVENT-STREAMING.md](../architecture/ADR-EVENT-STREAMING.md) |
+| Apache Pulsar Docs   | <https://pulsar.apache.org/docs/>                                                |
+| Pulsar vs Kafka      | <https://pulsar.apache.org/docs/migration-kafka/>                                |
+| StreamNative Cloud   | <https://www.streamnative.io/cloud>                                              |
 
 ---
 
@@ -203,20 +203,20 @@ node scripts/pulsar-setup.mjs  # Re-initialize
 ✓ Working Pulsar cluster on localhost  
 ✓ Side-by-side performance comparison with RabbitMQ  
 ✓ Real-world benchmark data  
-✓ Monitoring UIs for both brokers  
+✓ Monitoring UIs for both brokers
 
 ### Short-term (Phase 4)
 
 ✓ Evidence for migration decision  
 ✓ Integration examples (NestJS)  
-✓ Namespace/topic structure for production  
+✓ Namespace/topic structure for production
 
 ### Long-term
 
 ✓ 30-40% performance improvement  
 ✓ 50% operations overhead reduction  
 ✓ Ready for geo-replication to TACC  
-✓ Unified platform for all event streaming  
+✓ Unified platform for all event streaming
 
 ---
 

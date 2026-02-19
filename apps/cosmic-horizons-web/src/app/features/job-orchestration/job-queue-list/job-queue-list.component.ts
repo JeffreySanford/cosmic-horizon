@@ -1,4 +1,12 @@
-import { Component, OnInit, OnChanges, Output, EventEmitter, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnChanges,
+  Output,
+  EventEmitter,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { JobOrchestrationService } from '../job-orchestration.service';
 import { Job, JobStatus } from '../job.models';
 import { Observable } from 'rxjs';
@@ -18,7 +26,14 @@ export class JobQueueListComponent implements OnInit, OnChanges {
   @Output() jobCancelled = new EventEmitter<string>();
 
   filteredJobs$!: Observable<Job[]>;
-  statusFilters: (JobStatus | 'all')[] = ['all', 'running', 'queued', 'completed', 'failed', 'cancelled'];
+  statusFilters: (JobStatus | 'all')[] = [
+    'all',
+    'running',
+    'queued',
+    'completed',
+    'failed',
+    'cancelled',
+  ];
   selectedStatus: JobStatus | 'all' = 'all';
 
   ngOnInit(): void {
@@ -31,11 +46,11 @@ export class JobQueueListComponent implements OnInit, OnChanges {
 
   private updateFilteredJobs(): void {
     this.filteredJobs$ = this.jobService.getJobs().pipe(
-      map(jobs => {
+      map((jobs) => {
         if (this.selectedStatus === 'all') {
           return jobs;
         }
-        return jobs.filter(job => job.status === this.selectedStatus);
+        return jobs.filter((job) => job.status === this.selectedStatus);
       }),
     );
   }
@@ -84,7 +99,8 @@ export class JobQueueListComponent implements OnInit, OnChanges {
 
   calculateDuration(job: Job): string {
     if (!job.startedAt || !job.completedAt) return '-';
-    const duration = (job.completedAt.getTime() - job.startedAt.getTime()) / 1000;
+    const duration =
+      (job.completedAt.getTime() - job.startedAt.getTime()) / 1000;
     return this.formatTimeRemaining(duration);
   }
 

@@ -23,17 +23,27 @@
             <mat-card-title>{{ model.title }}</mat-card-title>
             <mat-card-subtitle>{{ model.sourcePath }}</mat-card-subtitle>
             <span class="spacer"></span>
-            <button mat-icon-button routerLink="/docs" aria-label="Close document">
+            <button
+              mat-icon-button
+              routerLink="/docs"
+              aria-label="Close document"
+            >
               <mat-icon>close</mat-icon>
             </button>
           </mat-card-header>
           <mat-card-content>
             @if (model.state === 'ready') {
-              <article class="markdown-content" [innerHTML]="model.html"></article>
+              <article
+                class="markdown-content"
+                [innerHTML]="model.html"
+              ></article>
             } @else if (model.state === 'loading') {
               <div class="markdown-placeholder">
                 <mat-icon>hourglass_empty</mat-icon>
-                <p>Loading markdown for <code>{{ docId }}</code>...</p>
+                <p>
+                  Loading markdown for <code>{{ docId }}</code
+                  >...
+                </p>
               </div>
             } @else {
               <div class="markdown-error" role="alert">
@@ -47,7 +57,7 @@
     </div>
   } @else {
     <div class="docs-grid">
-      @for (section of (sections$ | async); track section.title) {
+      @for (section of sections$ | async; track section.title) {
         <mat-card class="section-card">
           <mat-card-header>
             <mat-icon mat-card-avatar>{{ section.icon }}</mat-icon>
@@ -71,11 +81,19 @@
 
   <div class="docs-footer">
     <mat-card class="disclaimer-card">
-        <mat-card-content>
-          <mat-icon>warning</mat-icon>
-          <p><strong>Independence:</strong> Cosmic Horizon is an independent project by Jeffrey Sanford using public astronomy data; it is not affiliated with VLA/NRAO.</p>
-          <p><strong>Status:</strong> The internal docs hub now renders curated markdown from the repository and includes ADR-style architecture links.</p>
-        </mat-card-content>
-      </mat-card>
+      <mat-card-content>
+        <mat-icon>warning</mat-icon>
+        <p>
+          <strong>Independence:</strong> Cosmic Horizon is an independent
+          project by Jeffrey Sanford using public astronomy data; it is not
+          affiliated with VLA/NRAO.
+        </p>
+        <p>
+          <strong>Status:</strong> The internal docs hub now renders curated
+          markdown from the repository and includes ADR-style architecture
+          links.
+        </p>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

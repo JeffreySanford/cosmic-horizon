@@ -41,7 +41,11 @@ export class JobRepository {
     });
   }
 
-  async findByUser(userId: string, limit = 50, offset = 0): Promise<[Job[], number]> {
+  async findByUser(
+    userId: string,
+    limit = 50,
+    offset = 0,
+  ): Promise<[Job[], number]> {
     return this.repository.findAndCount({
       where: { user_id: userId },
       order: { created_at: 'DESC' },
@@ -57,7 +61,11 @@ export class JobRepository {
     });
   }
 
-  async updateStatus(id: string, status: JobStatus, progress?: number): Promise<void> {
+  async updateStatus(
+    id: string,
+    status: JobStatus,
+    progress?: number,
+  ): Promise<void> {
     await this.repository.update(
       { id },
       {
@@ -73,10 +81,7 @@ export class JobRepository {
     await this.repository.update({ id }, { progress });
   }
 
-  async updateResult(
-    id: string,
-    result: Job['result'],
-  ): Promise<void> {
+  async updateResult(id: string, result: Job['result']): Promise<void> {
     await this.repository.update({ id }, { result });
   }
 

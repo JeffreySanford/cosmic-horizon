@@ -32,7 +32,9 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
       disconnect: jest.fn().mockResolvedValue(undefined),
     };
 
-    (Redis as jest.MockedClass<typeof Redis>).mockImplementation(() => mockRedisClient as any);
+    (Redis as jest.MockedClass<typeof Redis>).mockImplementation(
+      () => mockRedisClient as any,
+    );
   });
 
   afterEach(() => {
@@ -49,13 +51,16 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
           if (key === 'REDIS_CONNECT_TIMEOUT_MS') return 100;
           // Return defaults for TLS/Auth config
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           if (key === 'REDIS_PASSWORD') return undefined;
           return defaultVal;
         }),
       } as any;
 
-      (mockRedisClient.connect as jest.Mock).mockRejectedValueOnce(new Error('Connection refused'));
+      (mockRedisClient.connect as jest.Mock).mockRejectedValueOnce(
+        new Error('Connection refused'),
+      );
 
       service = new CacheService(configService);
       await service.onModuleInit();
@@ -74,13 +79,16 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
           if (key === 'REDIS_HOST') return 'localhost';
           if (key === 'REDIS_PORT') return 6379;
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           if (key === 'REDIS_PASSWORD') return undefined;
           return defaultVal;
         }),
       } as any;
 
-      (mockRedisClient.ping as jest.Mock).mockRejectedValueOnce(new Error('PONG timeout'));
+      (mockRedisClient.ping as jest.Mock).mockRejectedValueOnce(
+        new Error('PONG timeout'),
+      );
 
       service = new CacheService(configService);
       await service.onModuleInit();
@@ -115,13 +123,16 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
           if (key === 'REDIS_CACHE_ENABLED') return 'true';
           if (key === 'REDIS_HOST') return 'localhost';
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           if (key === 'REDIS_PASSWORD') return undefined;
           return defaultVal;
         }),
       } as any;
 
-      (mockRedisClient.get as jest.Mock).mockRejectedValue(new Error('Connection lost'));
+      (mockRedisClient.get as jest.Mock).mockRejectedValue(
+        new Error('Connection lost'),
+      );
 
       service = new CacheService(configService);
       await service.onModuleInit();
@@ -141,7 +152,8 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
           if (key === 'REDIS_HOST') return 'localhost';
           if (key === 'REDIS_PORT') return 6379;
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           if (key === 'REDIS_PASSWORD') return undefined;
           return defaultVal;
         }),
@@ -163,7 +175,8 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
           if (key === 'REDIS_CACHE_ENABLED') return 'true';
           if (key === 'REDIS_HOST') return 'localhost';
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           if (key === 'REDIS_PASSWORD') return undefined;
           return defaultVal;
         }),
@@ -267,9 +280,10 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
         get: jest.fn((key, defaultVal) => {
           if (key === 'REDIS_CACHE_ENABLED') return 'true';
           if (key === 'REDIS_HOST') return 'localhost';
-          if (key === 'REDIS_PASSWORD') return '  secret123  ';  // With spaces
+          if (key === 'REDIS_PASSWORD') return '  secret123  '; // With spaces
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           return defaultVal;
         }),
       } as any;
@@ -286,7 +300,8 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
           if (key === 'REDIS_HOST') return 'localhost';
           if (key === 'REDIS_PASSWORD') return undefined;
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           return defaultVal;
         }),
       } as any;
@@ -375,7 +390,8 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
           if (key === 'REDIS_CACHE_ENABLED') return 'true';
           if (key === 'REDIS_HOST') return 'localhost';
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           if (key === 'REDIS_PASSWORD') return undefined;
           return defaultVal;
         }),
@@ -409,13 +425,16 @@ describe('CacheService - Error Scenarios (Branch Coverage)', () => {
           if (key === 'REDIS_CACHE_ENABLED') return 'true';
           if (key === 'REDIS_HOST') return 'localhost';
           if (key === 'REDIS_TLS_ENABLED') return defaultVal || 'false';
-          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED') return defaultVal || 'true';
+          if (key === 'REDIS_TLS_REJECT_UNAUTHORIZED')
+            return defaultVal || 'true';
           if (key === 'REDIS_PASSWORD') return undefined;
           return defaultVal;
         }),
       } as any;
 
-      (mockRedisClient.del as jest.Mock).mockRejectedValue(new Error('Delete failed'));
+      (mockRedisClient.del as jest.Mock).mockRejectedValue(
+        new Error('Delete failed'),
+      );
 
       service = new CacheService(configService);
       await service.onModuleInit();

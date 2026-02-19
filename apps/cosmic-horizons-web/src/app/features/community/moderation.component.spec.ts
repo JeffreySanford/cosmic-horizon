@@ -32,13 +32,19 @@ describe('ModerationComponent', () => {
   });
 
   it('loads pending items on init', () => {
-    (apiMock.getPending as any).mockReturnValueOnce(of([{ id: '1', title: 'x', createdAt: new Date().toISOString() }] as any));
+    (apiMock.getPending as any).mockReturnValueOnce(
+      of([{ id: '1', title: 'x', createdAt: new Date().toISOString() }] as any),
+    );
     fixture.detectChanges();
     expect(apiMock.getPending).toHaveBeenCalled();
   });
 
   it('calls approvePost when approve invoked', () => {
-    const item = { id: '1', title: 'x', createdAt: new Date().toISOString() } as any;
+    const item = {
+      id: '1',
+      title: 'x',
+      createdAt: new Date().toISOString(),
+    } as any;
     (apiMock.getPending as any).mockReturnValueOnce(of([item]));
     fixture.detectChanges();
 

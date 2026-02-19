@@ -19,7 +19,7 @@ describe('comments e2e', () => {
         title: 'Comment Test Post',
         content: 'Post for testing comments.',
       },
-      { headers: { Authorization: `Bearer ${authToken}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } },
     );
     postId = postRes.data.id;
 
@@ -27,7 +27,7 @@ describe('comments e2e', () => {
     await axios.post(
       `/api/posts/${postId}/publish`,
       {},
-      { headers: { Authorization: `Bearer ${authToken}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } },
     );
   });
 
@@ -38,7 +38,7 @@ describe('comments e2e', () => {
         post_id: postId,
         content: 'This is a test comment.',
       },
-      { headers: { Authorization: `Bearer ${authToken}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } },
     );
 
     expect(response.status).toBe(201);
@@ -54,7 +54,7 @@ describe('comments e2e', () => {
         post_id: postId,
         content: 'Parent comment',
       },
-      { headers: { Authorization: `Bearer ${authToken}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } },
     );
     const parentId = parentRes.data.id;
 
@@ -66,7 +66,7 @@ describe('comments e2e', () => {
         parent_id: parentId,
         content: 'This is a reply.',
       },
-      { headers: { Authorization: `Bearer ${authToken}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } },
     );
 
     expect(replyRes.status).toBe(201);
@@ -89,14 +89,14 @@ describe('comments e2e', () => {
         post_id: postId,
         content: 'Update me',
       },
-      { headers: { Authorization: `Bearer ${authToken}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } },
     );
     const commentId = createRes.data.id;
 
     const updateRes = await axios.put(
       `/api/comments/${commentId}`,
       { content: 'I am updated' },
-      { headers: { Authorization: `Bearer ${authToken}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } },
     );
 
     expect(updateRes.status).toBe(200);
@@ -110,7 +110,7 @@ describe('comments e2e', () => {
         post_id: postId,
         content: 'Delete me',
       },
-      { headers: { Authorization: `Bearer ${authToken}` } }
+      { headers: { Authorization: `Bearer ${authToken}` } },
     );
     const commentId = createRes.data.id;
 
@@ -121,7 +121,9 @@ describe('comments e2e', () => {
     expect(deleteRes.status).toBe(204);
 
     const checkRes = await axios.get(`/api/comments/post/${postId}`);
-    const deletedFound = (checkRes.data as Array<{ id: string }>).find((c) => c.id === commentId);
+    const deletedFound = (checkRes.data as Array<{ id: string }>).find(
+      (c) => c.id === commentId,
+    );
     expect(deletedFound).toBeUndefined();
   });
 });

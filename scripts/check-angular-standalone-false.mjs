@@ -4,16 +4,26 @@ import process from 'node:process';
 import ts from 'typescript';
 
 const root = process.cwd();
-const files = [...collectTsFiles(resolve(root, 'apps')), ...collectTsFiles(resolve(root, 'libs'))];
+const files = [
+  ...collectTsFiles(resolve(root, 'apps')),
+  ...collectTsFiles(resolve(root, 'libs')),
+];
 const errors = [];
 
 for (const file of files) {
   const sourceText = readFileSync(file, 'utf8');
-  const sourceFile = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
+  const sourceFile = ts.createSourceFile(
+    file,
+    sourceText,
+    ts.ScriptTarget.Latest,
+    true,
+  );
 
   const visit = (node) => {
     if (ts.isClassDeclaration(node)) {
-      const decorators = ts.canHaveDecorators(node) ? ts.getDecorators(node) : undefined;
+      const decorators = ts.canHaveDecorators(node)
+        ? ts.getDecorators(node)
+        : undefined;
       if (decorators && decorators.length > 0) {
         for (const decorator of decorators) {
           if (!ts.isCallExpression(decorator.expression)) {
@@ -47,17 +57,23 @@ for (const file of files) {
           );
 
           if (!standaloneProp) {
-            errors.push(`${toRelative(file)}: @${decoratorName} is missing standalone: false`);
+            errors.push(
+              `${toRelative(file)}: @${decoratorName} is missing standalone: false`,
+            );
             continue;
           }
 
           if (!ts.isPropertyAssignment(standaloneProp)) {
-            errors.push(`${toRelative(file)}: @${decoratorName} standalone property must be a literal false`);
+            errors.push(
+              `${toRelative(file)}: @${decoratorName} standalone property must be a literal false`,
+            );
             continue;
           }
 
           if (standaloneProp.initializer.kind !== ts.SyntaxKind.FalseKeyword) {
-            errors.push(`${toRelative(file)}: @${decoratorName} standalone must be set to false`);
+            errors.push(
+              `${toRelative(file)}: @${decoratorName} standalone must be set to false`,
+            );
           }
         }
       }
@@ -80,7 +96,9 @@ if (errors.length > 0) {
 console.log('Angular standalone check passed.');
 
 function toRelative(file) {
-  return resolve(file).replace(`${resolve(root)}\\`, '').replaceAll('\\', '/');
+  return resolve(file)
+    .replace(`${resolve(root)}\\`, '')
+    .replaceAll('\\', '/');
 }
 
 function collectTsFiles(dir) {
@@ -104,7 +122,11 @@ function collectTsFiles(dir) {
       continue;
     }
 
-    if (entry.endsWith('.spec.ts') || entry.endsWith('.test.ts') || entry.endsWith('.stories.ts')) {
+    if (
+      entry.endsWith('.spec.ts') ||
+      entry.endsWith('.test.ts') ||
+      entry.endsWith('.stories.ts')
+    ) {
       continue;
     }
 

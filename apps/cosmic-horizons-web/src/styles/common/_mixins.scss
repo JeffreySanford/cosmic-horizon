@@ -154,7 +154,8 @@
 
 /// Hover state styling
 @mixin md3-hover {
-  transition: background-color $md3-transition-duration-short $md3-transition-easing-standard;
+  transition: background-color $md3-transition-duration-short
+    $md3-transition-easing-standard;
 
   &:hover {
     background-color: rgba(0, 0, 0, $md3-opacity-hover);
@@ -215,13 +216,15 @@
 /// Apply standard transition
 /// @param {String} $properties - Properties to transition
 @mixin md3-transition($properties: all) {
-  transition: $properties $md3-transition-duration-standard $md3-transition-easing-standard;
+  transition: $properties $md3-transition-duration-standard
+    $md3-transition-easing-standard;
 }
 
 /// Apply emphasized transition
 /// @param {String} $properties - Properties to transition
 @mixin md3-transition-emphasized($properties: all) {
-  transition: $properties $md3-transition-duration-long $md3-transition-easing-emphasized;
+  transition: $properties $md3-transition-duration-long
+    $md3-transition-easing-emphasized;
 }
 
 // ============================================================================

@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import type { MessagingInfraSnapshot, MessagingLiveStats, TelemetryPacket } from './messaging.types';
+import type {
+  MessagingInfraSnapshot,
+  MessagingLiveStats,
+  TelemetryPacket,
+} from './messaging.types';
 
 const EMPTY_INFRA: MessagingInfraSnapshot = {
   rabbitmq: {
@@ -120,9 +124,15 @@ export class MessagingStatsService {
     this.rates.packetsPerSecond = Math.round(this.window.packets / seconds);
     this.rates.nodeToHubPerSecond = Math.round(this.window.nodeToHub / seconds);
     this.rates.hubToHubPerSecond = Math.round(this.window.hubToHub / seconds);
-    this.rates.rabbitPublishedPerSecond = Math.round(this.window.rabbitPublished / seconds);
-    this.rates.kafkaPublishedPerSecond = Math.round(this.window.kafkaPublished / seconds);
-    this.rates.persistentWritesPerSecond = Math.round(this.window.persistentWrites / seconds);
+    this.rates.rabbitPublishedPerSecond = Math.round(
+      this.window.rabbitPublished / seconds,
+    );
+    this.rates.kafkaPublishedPerSecond = Math.round(
+      this.window.kafkaPublished / seconds,
+    );
+    this.rates.persistentWritesPerSecond = Math.round(
+      this.window.persistentWrites / seconds,
+    );
 
     this.window = {
       packets: 0,

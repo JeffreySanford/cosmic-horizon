@@ -28,7 +28,9 @@
         <div class="stat-header">
           <span class="stat-label">Peak Throughput</span>
         </div>
-        <div class="stat-value">{{ formatThroughput(getPeakThroughput()) }}</div>
+        <div class="stat-value">
+          {{ formatThroughput(getPeakThroughput()) }}
+        </div>
       </mat-card>
     </div>
 
@@ -36,10 +38,17 @@
     <div class="agents-section">
       <h2>Agent Status</h2>
       <div class="agents-grid">
-        <mat-card *ngFor="let agent of agents" class="agent-card" [ngClass]="agent.status">
+        <mat-card
+          *ngFor="let agent of agents"
+          class="agent-card"
+          [ngClass]="agent.status"
+        >
           <div class="agent-header">
             <div class="agent-name">{{ agent.name }}</div>
-            <div class="agent-status" [style.color]="getStatusColor(agent.status)">
+            <div
+              class="agent-status"
+              [style.color]="getStatusColor(agent.status)"
+            >
               {{ agent.status | uppercase }}
             </div>
           </div>
@@ -47,18 +56,25 @@
           <div class="agent-metrics">
             <div class="metric">
               <span class="metric-label">Progress</span>
-              <mat-progress-bar [value]="agent.progress" mode="determinate"></mat-progress-bar>
+              <mat-progress-bar
+                [value]="agent.progress"
+                mode="determinate"
+              ></mat-progress-bar>
               <span class="metric-value">{{ agent.progress }}%</span>
             </div>
 
             <div class="metric">
               <span class="metric-label">Throughput</span>
-              <span class="metric-value throughput">{{ formatThroughput(agent.throughput) }}</span>
+              <span class="metric-value throughput">{{
+                formatThroughput(agent.throughput)
+              }}</span>
             </div>
 
             <div class="metric">
               <span class="metric-label">Last Update</span>
-              <span class="metric-value">{{ agent.lastUpdate | date: 'short' }}</span>
+              <span class="metric-value">{{
+                agent.lastUpdate | date: 'short'
+              }}</span>
             </div>
           </div>
         </mat-card>
@@ -86,7 +102,9 @@
             </div>
             <div class="detail">
               <span class="label">Est. Completion:</span>
-              <span class="value">{{ session.estimatedCompletion | date: 'short' }}</span>
+              <span class="value">{{
+                session.estimatedCompletion | date: 'short'
+              }}</span>
             </div>
           </div>
         </mat-card>
@@ -111,7 +129,9 @@
       <div class="quick-stats">
         <div class="quick-stat">
           <span class="label">Total Runtime</span>
-          <span class="value">{{ activeSessions.length > 0 ? '1h 24m' : '-' }}</span>
+          <span class="value">{{
+            activeSessions.length > 0 ? '1h 24m' : '-'
+          }}</span>
         </div>
         <div class="quick-stat">
           <span class="label">Data Processed</span>
@@ -129,8 +149,8 @@
 
       <div class="panel-info">
         <p class="info-text">
-          Permission granted to monitor autonomous agent inference workflows. Data is encrypted and stored
-          securely.
+          Permission granted to monitor autonomous agent inference workflows.
+          Data is encrypted and stored securely.
         </p>
       </div>
 

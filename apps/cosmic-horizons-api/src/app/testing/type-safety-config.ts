@@ -202,7 +202,9 @@ export class BuilderTypeValidator<T extends Record<string, any>> {
       try {
         this.validate(obj);
       } catch (error) {
-        throw new TypeError(`Validation failed for object[${idx}]: ${String(error)}`);
+        throw new TypeError(
+          `Validation failed for object[${idx}]: ${String(error)}`,
+        );
       }
     });
   }

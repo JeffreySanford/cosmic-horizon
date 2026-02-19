@@ -15,7 +15,13 @@
  *   COVERAGE_FORMAT=type  - Report format (html, json, text)
  */
 
-import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+} from 'node:fs';
 import { join } from 'node:path';
 
 // Configuration
@@ -144,28 +150,42 @@ function aggregateCoverage(files) {
       ...aggregated.statements,
       percentage:
         aggregated.statements.total > 0
-          ? Math.round((aggregated.statements.covered / aggregated.statements.total) * 100 * 100) / 100
+          ? Math.round(
+              (aggregated.statements.covered / aggregated.statements.total) *
+                100 *
+                100,
+            ) / 100
           : 0,
     },
     functions: {
       ...aggregated.functions,
       percentage:
         aggregated.functions.total > 0
-          ? Math.round((aggregated.functions.covered / aggregated.functions.total) * 100 * 100) / 100
+          ? Math.round(
+              (aggregated.functions.covered / aggregated.functions.total) *
+                100 *
+                100,
+            ) / 100
           : 0,
     },
     branches: {
       ...aggregated.branches,
       percentage:
         aggregated.branches.total > 0
-          ? Math.round((aggregated.branches.covered / aggregated.branches.total) * 100 * 100) / 100
+          ? Math.round(
+              (aggregated.branches.covered / aggregated.branches.total) *
+                100 *
+                100,
+            ) / 100
           : 0,
     },
     lines: {
       ...aggregated.lines,
       percentage:
         aggregated.lines.total > 0
-          ? Math.round((aggregated.lines.covered / aggregated.lines.total) * 100 * 100) / 100
+          ? Math.round(
+              (aggregated.lines.covered / aggregated.lines.total) * 100 * 100,
+            ) / 100
           : 0,
     },
   };
@@ -179,7 +199,13 @@ function aggregateCoverage(files) {
 function formatAsText(aggregated) {
   const rows = [
     ['Coverage Type', 'Covered', 'Total', 'Percentage', 'Status'],
-    ['─'.repeat(20), '─'.repeat(10), '─'.repeat(10), '─'.repeat(12), '─'.repeat(8)],
+    [
+      '─'.repeat(20),
+      '─'.repeat(10),
+      '─'.repeat(10),
+      '─'.repeat(12),
+      '─'.repeat(8),
+    ],
   ];
 
   const thresholds = {
@@ -201,7 +227,9 @@ function formatAsText(aggregated) {
     ]);
   }
 
-  return rows.map(row => row.map(cell => cell.padEnd(20)).join(' | ')).join('\n');
+  return rows
+    .map((row) => row.map((cell) => cell.padEnd(20)).join(' | '))
+    .join('\n');
 }
 
 /**
@@ -402,7 +430,9 @@ function main() {
   const files = findCoverageFiles();
 
   if (files.length === 0) {
-    console.log('⚠️  No coverage files found. Make sure to run tests with COVERAGE=true');
+    console.log(
+      '⚠️  No coverage files found. Make sure to run tests with COVERAGE=true',
+    );
     process.exit(1);
   }
 

@@ -34,7 +34,7 @@ export class EphemerisApiService {
     if (query.epoch) params.append('epoch', query.epoch);
 
     return this.http.get<EphemerisResult>(
-      `${this.apiBaseUrl}/api/view/ephem/search?${params.toString()}`
+      `${this.apiBaseUrl}/api/view/ephem/search?${params.toString()}`,
     );
   }
 }

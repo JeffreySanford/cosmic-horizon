@@ -75,7 +75,10 @@ export class HipsTilePrefetchService implements OnDestroy {
     this.deactivate();
   }
 
-  private patchedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  private patchedFetch(
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> {
     const originalFetch = this.originalFetch;
     if (!originalFetch) {
       return fetch(input, init);
@@ -118,7 +121,11 @@ export class HipsTilePrefetchService implements OnDestroy {
       return init.method.toUpperCase();
     }
 
-    if (typeof input !== 'string' && !(input instanceof URL) && typeof input.method === 'string') {
+    if (
+      typeof input !== 'string' &&
+      !(input instanceof URL) &&
+      typeof input.method === 'string'
+    ) {
       return input.method.toUpperCase();
     }
 
@@ -132,7 +139,11 @@ export class HipsTilePrefetchService implements OnDestroy {
         return false;
       }
 
-      if (!/\/Norder\d+\/Dir\d+\/Npix\d+\.(?:jpg|jpeg|png|webp|fits)$/i.test(url.pathname)) {
+      if (
+        !/\/Norder\d+\/Dir\d+\/Npix\d+\.(?:jpg|jpeg|png|webp|fits)$/i.test(
+          url.pathname,
+        )
+      ) {
         return false;
       }
 
@@ -172,13 +183,20 @@ export class HipsTilePrefetchService implements OnDestroy {
     });
   }
 
-  private async storeResponseInCache(url: string, response: Response): Promise<void> {
+  private async storeResponseInCache(
+    url: string,
+    response: Response,
+  ): Promise<void> {
     if (!response.ok || response.type === 'opaque') {
       return;
     }
 
     const contentType = response.headers.get('content-type') ?? '';
-    if (!/(image\/|application\/fits|application\/octet-stream)/i.test(contentType)) {
+    if (
+      !/(image\/|application\/fits|application\/octet-stream)/i.test(
+        contentType,
+      )
+    ) {
       return;
     }
 
@@ -259,7 +277,10 @@ export class HipsTilePrefetchService implements OnDestroy {
       return;
     }
 
-    const neighbors = this.neighborTileUrls(seedUrl).slice(0, this.maxPrefetchPerTile);
+    const neighbors = this.neighborTileUrls(seedUrl).slice(
+      0,
+      this.maxPrefetchPerTile,
+    );
     for (const url of neighbors) {
       if (this.inFlight.has(url) || this.getFreshCacheEntry(url)) {
         continue;
@@ -267,7 +288,11 @@ export class HipsTilePrefetchService implements OnDestroy {
 
       this.inFlight.add(url);
       try {
-        const response = await originalFetch(url, { cache: 'force-cache', mode: 'cors', credentials: 'omit' });
+        const response = await originalFetch(url, {
+          cache: 'force-cache',
+          mode: 'cors',
+          credentials: 'omit',
+        });
         await this.storeResponseInCache(url, response);
       } catch {
         // Best effort prefetch only.
@@ -288,15 +313,31 @@ export class HipsTilePrefetchService implements OnDestroy {
     if (parsed.order < 15) {
       const childBase = parsed.pixel * 4;
       for (let i = 0; i < 4; i += 1) {
-        candidates.add(this.buildTileUrl(parsed.prefix, parsed.order + 1, childBase + i, parsed.extension));
+        candidates.add(
+          this.buildTileUrl(
+            parsed.prefix,
+            parsed.order + 1,
+            childBase + i,
+            parsed.extension,
+          ),
+        );
       }
     }
 
-    const sameOrderOffsets = [-4, -3, -2, -1, 1, 2, 3, 4, -16, 16, -32, 32, -64, 64];
+    const sameOrderOffsets = [
+      -4, -3, -2, -1, 1, 2, 3, 4, -16, 16, -32, 32, -64, 64,
+    ];
     for (const offset of sameOrderOffsets) {
       const pixel = parsed.pixel + offset;
       if (pixel >= 0) {
-        candidates.add(this.buildTileUrl(parsed.prefix, parsed.order, pixel, parsed.extension));
+        candidates.add(
+          this.buildTileUrl(
+            parsed.prefix,
+            parsed.order,
+            pixel,
+            parsed.extension,
+          ),
+        );
       }
     }
 
@@ -308,7 +349,12 @@ export class HipsTilePrefetchService implements OnDestroy {
           const grandChildBase = childPixel * 4;
           for (let j = 0; j < 4; j += 1) {
             candidates.add(
-              this.buildTileUrl(parsed.prefix, parsed.order + 2, grandChildBase + j, parsed.extension),
+              this.buildTileUrl(
+                parsed.prefix,
+                parsed.order + 2,
+                grandChildBase + j,
+                parsed.extension,
+              ),
             );
           }
         }
@@ -317,7 +363,14 @@ export class HipsTilePrefetchService implements OnDestroy {
 
     if (parsed.order > 0) {
       const parentPixel = Math.floor(parsed.pixel / 4);
-      candidates.add(this.buildTileUrl(parsed.prefix, parsed.order - 1, parentPixel, parsed.extension));
+      candidates.add(
+        this.buildTileUrl(
+          parsed.prefix,
+          parsed.order - 1,
+          parentPixel,
+          parsed.extension,
+        ),
+      );
     }
 
     candidates.delete(seedUrl);
@@ -325,7 +378,9 @@ export class HipsTilePrefetchService implements OnDestroy {
   }
 
   private parseTileUrl(rawUrl: string): ParsedTileUrl | null {
-    const match = rawUrl.match(/^(.*)\/Norder(\d+)\/Dir\d+\/Npix(\d+)\.(jpg|jpeg|png|webp|fits)$/i);
+    const match = rawUrl.match(
+      /^(.*)\/Norder(\d+)\/Dir\d+\/Npix(\d+)\.(jpg|jpeg|png|webp|fits)$/i,
+    );
     if (!match) {
       return null;
     }
@@ -338,7 +393,12 @@ export class HipsTilePrefetchService implements OnDestroy {
     };
   }
 
-  private buildTileUrl(prefix: string, order: number, pixel: number, extension: string): string {
+  private buildTileUrl(
+    prefix: string,
+    order: number,
+    pixel: number,
+    extension: string,
+  ): string {
     const dir = Math.floor(pixel / 10_000) * 10_000;
     return `${prefix}/Norder${order}/Dir${dir}/Npix${pixel}.${extension}`;
   }

@@ -19,24 +19,40 @@ export class CommunityApiService {
   private readonly http = inject(HttpClient);
 
   getFeed(): Observable<DiscoveryModel[]> {
-    return this.http.get<DiscoveryModel[]>(`${this.apiBase}/api/community/feed`);
+    return this.http.get<DiscoveryModel[]>(
+      `${this.apiBase}/api/community/feed`,
+    );
   }
 
   // Admin: get pending (hidden) discoveries
   getPending(): Observable<DiscoveryModel[]> {
-    return this.http.get<DiscoveryModel[]>(`${this.apiBase}/api/community/posts/pending`);
+    return this.http.get<DiscoveryModel[]>(
+      `${this.apiBase}/api/community/posts/pending`,
+    );
   }
 
-  createPost(payload: { title: string; body?: string; author?: string; tags?: string[] }, opts?: { forceHidden?: boolean }) {
+  createPost(
+    payload: { title: string; body?: string; author?: string; tags?: string[] },
+    opts?: { forceHidden?: boolean },
+  ) {
     const qp = opts?.forceHidden ? '?forceHidden=true' : '';
-    return this.http.post<DiscoveryModel>(`${this.apiBase}/api/community/posts${qp}`, payload);
+    return this.http.post<DiscoveryModel>(
+      `${this.apiBase}/api/community/posts${qp}`,
+      payload,
+    );
   }
 
   approvePost(id: string) {
-    return this.http.patch(`${this.apiBase}/api/community/posts/${id}/approve`, {});
+    return this.http.patch(
+      `${this.apiBase}/api/community/posts/${id}/approve`,
+      {},
+    );
   }
 
   hidePost(id: string) {
-    return this.http.patch(`${this.apiBase}/api/community/posts/${id}/hide`, {});
+    return this.http.patch(
+      `${this.apiBase}/api/community/posts/${id}/hide`,
+      {},
+    );
   }
 }

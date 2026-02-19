@@ -23,7 +23,10 @@ describe('Week 3 E2E Workflow', () => {
   let complianceAuditorService: jest.Mocked<ComplianceAuditorService>;
   let systemHealthMonitorService: jest.Mocked<SystemHealthMonitorService>;
 
-  const handlersByTopic: Record<string, (payload: EachMessagePayload) => Promise<void>> = {};
+  const handlersByTopic: Record<
+    string,
+    (payload: EachMessagePayload) => Promise<void>
+  > = {};
 
   beforeEach(async () => {
     moduleRef = await Test.createTestingModule({
@@ -65,7 +68,9 @@ describe('Week 3 E2E Workflow', () => {
           provide: TaccIntegrationService,
           useValue: {
             submitJob: jest.fn().mockResolvedValue({ jobId: 'tacc-1' }),
-            getJobStatus: jest.fn().mockResolvedValue({ status: 'RUNNING', progress: 0.5 }),
+            getJobStatus: jest
+              .fn()
+              .mockResolvedValue({ status: 'RUNNING', progress: 0.5 }),
             cancelJob: jest.fn().mockResolvedValue(true),
           },
         },
@@ -82,7 +87,11 @@ describe('Week 3 E2E Workflow', () => {
             subscribe: jest
               .fn()
               .mockImplementation(
-                async (_groupId: string, topics: string[], handler: (payload: EachMessagePayload) => Promise<void>) => {
+                async (
+                  _groupId: string,
+                  topics: string[],
+                  handler: (payload: EachMessagePayload) => Promise<void>,
+                ) => {
                   for (const topic of topics) {
                     handlersByTopic[topic] = handler;
                   }
@@ -201,7 +210,9 @@ describe('Week 3 E2E Workflow', () => {
 
     expect(notificationService.sendJobCompletionEmail).toHaveBeenCalledTimes(1);
     expect(metricsService.aggregateJobMetrics).toHaveBeenCalledTimes(1);
-    expect(complianceAuditorService.storeImmutableEvent).toHaveBeenCalledTimes(1);
+    expect(complianceAuditorService.storeImmutableEvent).toHaveBeenCalledTimes(
+      1,
+    );
   });
 
   it('processes failure workflow and health signal', async () => {
@@ -235,8 +246,12 @@ describe('Week 3 E2E Workflow', () => {
       },
     } as EachMessagePayload);
 
-    expect(notificationService.sendJobFailureNotification).toHaveBeenCalledTimes(1);
-    expect(systemHealthMonitorService.processHealthEvent).toHaveBeenCalledTimes(1);
+    expect(
+      notificationService.sendJobFailureNotification,
+    ).toHaveBeenCalledTimes(1);
+    expect(systemHealthMonitorService.processHealthEvent).toHaveBeenCalledTimes(
+      1,
+    );
   });
 
   it('handles cancellation event and stores in-app notification', async () => {

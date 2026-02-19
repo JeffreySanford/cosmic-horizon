@@ -18,6 +18,12 @@ const viewerRoutes: Routes = [
 
 @NgModule({
   declarations: [ViewerComponent],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule, RouterModule.forChild(viewerRoutes)],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    RouterModule.forChild(viewerRoutes),
+  ],
 })
 export class ViewerModule {}

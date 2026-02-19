@@ -14,7 +14,9 @@ describe('LoggingService - Branch Coverage', () => {
       lrange: jest.fn(),
       quit: jest.fn(),
     };
-    (Redis as jest.MockedClass<typeof Redis>).mockImplementation(() => mockRedisClient);
+    (Redis as jest.MockedClass<typeof Redis>).mockImplementation(
+      () => mockRedisClient,
+    );
   });
 
   describe('Constructor - Redis disabled', () => {
@@ -119,7 +121,11 @@ describe('LoggingService - Branch Coverage', () => {
 
     it('should add log to buffer and push to Redis', async () => {
       const svc = new LoggingService();
-      const entry = { type: 'http' as const, severity: 'info' as LogSeverity, message: 'Test log' };
+      const entry = {
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Test log',
+      };
 
       await svc.add(entry);
 
@@ -130,18 +136,32 @@ describe('LoggingService - Branch Coverage', () => {
 
     it('should trim Redis list to redisTrim size', async () => {
       const svc = new LoggingService();
-      const entry = { type: 'http' as const, severity: 'info' as LogSeverity, message: 'Test' };
+      const entry = {
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Test',
+      };
 
       await svc.add(entry);
 
-      expect(mockRedisClient.ltrim).toHaveBeenCalledWith('logs:recent', 0, 1999);
+      expect(mockRedisClient.ltrim).toHaveBeenCalledWith(
+        'logs:recent',
+        0,
+        1999,
+      );
     });
 
     it('should handle Redis lpush failure and disable Redis', async () => {
       const svc = new LoggingService();
-      mockRedisClient.lpush.mockRejectedValueOnce(new Error('Redis unavailable'));
+      mockRedisClient.lpush.mockRejectedValueOnce(
+        new Error('Redis unavailable'),
+      );
 
-      const entry = { type: 'http' as const, severity: 'info' as LogSeverity, message: 'Test' };
+      const entry = {
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Test',
+      };
       await svc.add(entry);
 
       // After error, Redis should be disabled
@@ -154,7 +174,11 @@ describe('LoggingService - Branch Coverage', () => {
       mockRedisClient.lpush.mockResolvedValue(1);
       mockRedisClient.ltrim.mockRejectedValueOnce(new Error('ltrim failed'));
 
-      const entry = { type: 'http' as const, severity: 'info' as LogSeverity, message: 'Test' };
+      const entry = {
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Test',
+      };
       await svc.add(entry);
 
       expect(svc['redis']).toBeNull();
@@ -164,7 +188,11 @@ describe('LoggingService - Branch Coverage', () => {
       const svc = new LoggingService();
       mockRedisClient.lpush.mockRejectedValueOnce({});
 
-      const entry = { type: 'http' as const, severity: 'info' as LogSeverity, message: 'Test' };
+      const entry = {
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Test',
+      };
       await svc.add(entry);
 
       expect(svc['redis']).toBeNull();
@@ -178,7 +206,11 @@ describe('LoggingService - Branch Coverage', () => {
 
     it('should only add to buffer when Redis disabled', async () => {
       const svc = new LoggingService();
-      const entry = { type: 'http' as const, severity: 'info' as LogSeverity, message: 'Test' };
+      const entry = {
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Test',
+      };
 
       await svc.add(entry);
 
@@ -205,10 +237,26 @@ describe('LoggingService - Branch Coverage', () => {
       const svc = new LoggingService();
       Object.defineProperty(svc, 'maxBuffer', { value: 3, configurable: true });
 
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log 1' });
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log 2' });
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log 3' });
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log 4' });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log 1',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log 2',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log 3',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log 4',
+      });
 
       expect(svc['buffer'].length).toBe(3);
       expect(svc['buffer'][0].message).toBe('Log 2');
@@ -246,14 +294,22 @@ describe('LoggingService - Branch Coverage', () => {
 
       await svc.getRecent(50, 100);
 
-      expect(mockRedisClient.lrange).toHaveBeenCalledWith('logs:recent', 100, 149);
+      expect(mockRedisClient.lrange).toHaveBeenCalledWith(
+        'logs:recent',
+        100,
+        149,
+      );
     });
 
     it('should disable Redis on lrange failure and return buffer', async () => {
       const svc = new LoggingService();
       mockRedisClient.lrange.mockRejectedValueOnce(new Error('Redis down'));
 
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Buffer log' });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Buffer log',
+      });
 
       const result = await svc.getRecent(10, 0);
 
@@ -281,9 +337,21 @@ describe('LoggingService - Branch Coverage', () => {
     it('should return buffer logs in reverse order', async () => {
       const svc = new LoggingService();
 
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log 1' });
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log 2' });
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log 3' });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log 1',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log 2',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log 3',
+      });
 
       const result = await svc.getRecent(10, 0);
 
@@ -296,7 +364,11 @@ describe('LoggingService - Branch Coverage', () => {
       const svc = new LoggingService();
 
       for (let i = 1; i <= 5; i++) {
-        await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: `Log ${i}` });
+        await svc.add({
+          type: 'http' as const,
+          severity: 'info' as LogSeverity,
+          message: `Log ${i}`,
+        });
       }
 
       const result = await svc.getRecent(2, 1);
@@ -310,7 +382,11 @@ describe('LoggingService - Branch Coverage', () => {
       const svc = new LoggingService();
 
       for (let i = 1; i <= 10; i++) {
-        await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: `Log ${i}` });
+        await svc.add({
+          type: 'http' as const,
+          severity: 'info' as LogSeverity,
+          message: `Log ${i}`,
+        });
       }
 
       const result = await svc.getRecent(3, 0);
@@ -321,7 +397,11 @@ describe('LoggingService - Branch Coverage', () => {
     it('should return empty array when offset exceeds buffer size', async () => {
       const svc = new LoggingService();
 
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log 1' });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log 1',
+      });
 
       const result = await svc.getRecent(10, 100);
 
@@ -337,11 +417,31 @@ describe('LoggingService - Branch Coverage', () => {
     it('should count logs by severity', async () => {
       const svc = new LoggingService();
 
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Info 1' });
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Info 2' });
-      await svc.add({ type: 'http' as const, severity: 'warn' as LogSeverity, message: 'Warn 1' });
-      await svc.add({ type: 'http' as const, severity: 'error' as LogSeverity, message: 'Error 1' });
-      await svc.add({ type: 'http' as const, severity: 'debug' as LogSeverity, message: 'Debug 1' });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Info 1',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Info 2',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'warn' as LogSeverity,
+        message: 'Warn 1',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'error' as LogSeverity,
+        message: 'Error 1',
+      });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'debug' as LogSeverity,
+        message: 'Debug 1',
+      });
 
       const summary = await svc.getSummary();
 
@@ -378,7 +478,9 @@ describe('LoggingService - Branch Coverage', () => {
       const svc = new LoggingService();
 
       for (let i = 0; i < 100; i++) {
-        const severity = (['info', 'warn', 'error', 'debug'] as LogSeverity[])[i % 4];
+        const severity = (['info', 'warn', 'error', 'debug'] as LogSeverity[])[
+          i % 4
+        ];
         await svc.add({ type: 'http' as const, severity, message: `Log ${i}` });
       }
 
@@ -394,7 +496,11 @@ describe('LoggingService - Branch Coverage', () => {
       const svc = new LoggingService();
 
       // Add logs with different severities
-      await svc.add({ type: 'http' as const, severity: 'info' as LogSeverity, message: 'Log' });
+      await svc.add({
+        type: 'http' as const,
+        severity: 'info' as LogSeverity,
+        message: 'Log',
+      });
 
       // Manually add a log with unknown severity to test edge case
       svc['buffer'].push({
@@ -463,7 +569,9 @@ describe('LoggingService - Branch Coverage', () => {
 
       expect(entry.id).toBeDefined();
       expect(entry.at).toBeDefined();
-      expect(new Date(entry.at).getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(new Date(entry.at).getTime()).toBeGreaterThanOrEqual(
+        before.getTime(),
+      );
       expect(new Date(entry.at).getTime()).toBeLessThanOrEqual(after.getTime());
       expect(entry.type).toBe('http');
       expect(entry.severity).toBe('info');

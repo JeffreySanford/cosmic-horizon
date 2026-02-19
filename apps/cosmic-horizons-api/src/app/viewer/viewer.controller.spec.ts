@@ -67,7 +67,8 @@ describe('ViewerController', () => {
 
   it('creates snapshot with valid image data', async () => {
     const snapshotPayload = {
-      image_data_url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO1N7nQAAAAASUVORK5CYII=',
+      image_data_url:
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO1N7nQAAAAASUVORK5CYII=',
     };
 
     const mockResponse = {
@@ -95,7 +96,14 @@ describe('ViewerController', () => {
       fileName: 'M87-Core.fits',
     });
 
-    const result = await controller.downloadCutout('187.25', '2.05', '1.5', 'VLASS', 'M87-Core', 'standard');
+    const result = await controller.downloadCutout(
+      '187.25',
+      '2.05',
+      '1.5',
+      'VLASS',
+      'M87-Core',
+      'standard',
+    );
 
     expect(viewerService.downloadCutout).toHaveBeenCalledWith({
       ra: 187.25,
@@ -116,7 +124,14 @@ describe('ViewerController', () => {
       fileName: 'cutout.fits',
     });
 
-    await controller.downloadCutout('187.25', '2.05', '1.5', 'VLASS', undefined, 'high');
+    await controller.downloadCutout(
+      '187.25',
+      '2.05',
+      '1.5',
+      'VLASS',
+      undefined,
+      'high',
+    );
 
     expect(viewerService.downloadCutout).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -127,14 +142,31 @@ describe('ViewerController', () => {
 
   it('retrieves nearby labels with valid parameters', async () => {
     const mockLabels = [
-      { name: 'M 87', ra: 187.7, dec: 12.39, object_type: 'Galaxy', angular_distance_deg: 0.01, confidence: 0.95 },
+      {
+        name: 'M 87',
+        ra: 187.7,
+        dec: 12.39,
+        object_type: 'Galaxy',
+        angular_distance_deg: 0.01,
+        confidence: 0.95,
+      },
     ];
 
     viewerService.getNearbyLabels.mockResolvedValue(mockLabels as any);
 
-    const result = await controller.getNearbyLabels('187.7', '12.39', '0.08', '10');
+    const result = await controller.getNearbyLabels(
+      '187.7',
+      '12.39',
+      '0.08',
+      '10',
+    );
 
-    expect(viewerService.getNearbyLabels).toHaveBeenCalledWith(187.7, 12.39, 0.08, 10);
+    expect(viewerService.getNearbyLabels).toHaveBeenCalledWith(
+      187.7,
+      12.39,
+      0.08,
+      10,
+    );
     expect(result).toHaveLength(1);
   });
 
@@ -143,7 +175,12 @@ describe('ViewerController', () => {
 
     await controller.getNearbyLabels('187.7', '12.39', '0.08');
 
-    expect(viewerService.getNearbyLabels).toHaveBeenCalledWith(187.7, 12.39, 0.08, 12);
+    expect(viewerService.getNearbyLabels).toHaveBeenCalledWith(
+      187.7,
+      12.39,
+      0.08,
+      12,
+    );
   });
 
   it('resolves viewer state by short ID', async () => {
@@ -191,7 +228,14 @@ describe('ViewerController', () => {
       fileName: 'cutout-max.fits',
     });
 
-    await controller.downloadCutout('187.25', '2.05', '1.5', 'VLASS', undefined, 'max');
+    await controller.downloadCutout(
+      '187.25',
+      '2.05',
+      '1.5',
+      'VLASS',
+      undefined,
+      'max',
+    );
 
     expect(viewerService.downloadCutout).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -207,7 +251,14 @@ describe('ViewerController', () => {
       fileName: 'cutout.fits',
     });
 
-    await controller.downloadCutout('187.25', '2.05', '1.5', 'VLASS', undefined, 'unknown');
+    await controller.downloadCutout(
+      '187.25',
+      '2.05',
+      '1.5',
+      'VLASS',
+      undefined,
+      'unknown',
+    );
 
     expect(viewerService.downloadCutout).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -223,7 +274,14 @@ describe('ViewerController', () => {
       fileName: 'M87.fits',
     });
 
-    await controller.downloadCutout('187.25', '2.05', '1.5', 'VLASS', 'M87', 'standard');
+    await controller.downloadCutout(
+      '187.25',
+      '2.05',
+      '1.5',
+      'VLASS',
+      'M87',
+      'standard',
+    );
 
     expect(viewerService.downloadCutout).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -257,16 +315,33 @@ describe('ViewerController', () => {
 
     await controller.getNearbyLabels('180.0', '0.0', '1.5', '5');
 
-    expect(viewerService.getNearbyLabels).toHaveBeenCalledWith(180.0, 0.0, 1.5, 5);
+    expect(viewerService.getNearbyLabels).toHaveBeenCalledWith(
+      180.0,
+      0.0,
+      1.5,
+      5,
+    );
   });
 
   it('handles float coordinates in nearby labels', async () => {
     const mockLabels = [
-      { name: 'Source A', ra: 125.678, dec: -45.123, object_type: 'Quasar', angular_distance_deg: 0.005, confidence: 0.99 },
+      {
+        name: 'Source A',
+        ra: 125.678,
+        dec: -45.123,
+        object_type: 'Quasar',
+        angular_distance_deg: 0.005,
+        confidence: 0.99,
+      },
     ];
     viewerService.getNearbyLabels.mockResolvedValue(mockLabels as any);
 
-    const result = await controller.getNearbyLabels('125.675', '-45.125', '0.05', '1');
+    const result = await controller.getNearbyLabels(
+      '125.675',
+      '-45.125',
+      '0.05',
+      '1',
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0].confidence).toBeGreaterThanOrEqual(0.9);
@@ -353,11 +428,22 @@ describe('ViewerController', () => {
 
   it('handles resolution with different precision levels', async () => {
     const mockLabels = [
-      { name: 'High Precision', ra: 12.3456789, dec: 45.6789012, object_type: 'Star', angular_distance_deg: 0.00001, confidence: 0.999 },
+      {
+        name: 'High Precision',
+        ra: 12.3456789,
+        dec: 45.6789012,
+        object_type: 'Star',
+        angular_distance_deg: 0.00001,
+        confidence: 0.999,
+      },
     ];
     viewerService.getNearbyLabels.mockResolvedValue(mockLabels as any);
 
-    const result = await controller.getNearbyLabels('12.345678', '45.678901', '0.1');
+    const result = await controller.getNearbyLabels(
+      '12.345678',
+      '45.678901',
+      '0.1',
+    );
 
     expect(result[0].ra).toBeDefined();
     expect(result[0].dec).toBeDefined();

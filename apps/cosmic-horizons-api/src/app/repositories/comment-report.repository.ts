@@ -37,14 +37,18 @@ export class CommentReportRepository {
     return this.repo.save(entity);
   }
 
-  async resolve(id: string, resolverId: string, status: 'reviewed' | 'dismissed'): Promise<CommentReport | null> {
+  async resolve(
+    id: string,
+    resolverId: string,
+    status: 'reviewed' | 'dismissed',
+  ): Promise<CommentReport | null> {
     await this.repo.update(
       { id },
       {
         status,
         resolved_at: new Date(),
         resolved_by: resolverId,
-      }
+      },
     );
     return this.findById(id);
   }

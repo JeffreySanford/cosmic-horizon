@@ -6,14 +6,18 @@ services:
       POSTGRES_USER: ${DB_USER:-cosmic_horizons_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-cosmic_horizons_password_dev}
       POSTGRES_DB: ${DB_NAME:-cosmic_horizons}
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=en_US.UTF-8'
     ports:
-      - "127.0.0.1:${DB_PORT:-15432}:5432"
+      - '127.0.0.1:${DB_PORT:-15432}:5432'
     volumes:
       - cosmic-horizons-postgres-data:/var/lib/postgresql/data
       - ./docs/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-cosmic_horizons_user} -d ${DB_NAME:-cosmic_horizons}']
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${DB_USER:-cosmic_horizons_user} -d ${DB_NAME:-cosmic_horizons}',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,7 +29,7 @@ services:
     image: redis:7-alpine
     container_name: cosmic-horizons-redis
     ports:
-      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
     volumes:
       - cosmic-horizons-redis-data:/data
     # Development: auth disabled to avoid WRONGPASS errors with empty REDIS_PASSWORD
@@ -43,8 +47,6 @@ services:
     networks:
       - cosmic-horizons-network
     restart: unless-stopped
-
-
 
 volumes:
   cosmic-horizons-postgres-data:

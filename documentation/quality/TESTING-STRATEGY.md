@@ -14,7 +14,7 @@ This strategy covers in-scope MVP architecture only:
 
 ## Baseline Gate (Required)
 
-```bash
+````bash
 pnpm nx run-many --target=test --all
 
 ```text
@@ -73,3 +73,4 @@ These three commands are the minimum quality bar for merge readiness.
 
 ---
 *Independent portal using public VLASS data; not affiliated with VLA/NRAO.*
+````

@@ -101,24 +101,32 @@ export type NotificationEvent =
 /**
  * Type guard helpers
  */
-export function isNotificationSentEvent(event: EventBase): event is NotificationSentEvent {
+export function isNotificationSentEvent(
+  event: EventBase,
+): event is NotificationSentEvent {
   return event.event_type === 'notification.sent';
 }
 
-export function isNotificationReadEvent(event: EventBase): event is NotificationReadEvent {
+export function isNotificationReadEvent(
+  event: EventBase,
+): event is NotificationReadEvent {
   return event.event_type === 'notification.read';
 }
 
 export function isNotificationDismissedEvent(
-  event: EventBase
+  event: EventBase,
 ): event is NotificationDismissedEvent {
   return event.event_type === 'notification.dismissed';
 }
 
-export function isAlertRaisedEvent(event: EventBase): event is AlertRaisedEvent {
+export function isAlertRaisedEvent(
+  event: EventBase,
+): event is AlertRaisedEvent {
   return event.event_type === 'alert.raised';
 }
 
-export function isAlertResolvedEvent(event: EventBase): event is AlertResolvedEvent {
+export function isAlertResolvedEvent(
+  event: EventBase,
+): event is AlertResolvedEvent {
   return event.event_type === 'alert.resolved';
 }

@@ -58,7 +58,9 @@ export class MetricsService {
       });
       jobMetrics.lastUpdated = new Date();
 
-      this.logger.debug(`Aggregated metrics for job ${jobId} (samples: ${jobMetrics.samples.length})`);
+      this.logger.debug(
+        `Aggregated metrics for job ${jobId} (samples: ${jobMetrics.samples.length})`,
+      );
     } catch (error) {
       this.logger.error(`Failed to aggregate metrics for ${jobId}: ${error}`);
       throw error;
@@ -84,8 +86,8 @@ export class MetricsService {
     const samples = metrics.samples;
     const totalCpu = samples.reduce((sum, s) => sum + s.cpu_usage_percent, 0);
     const totalMemory = samples.reduce((sum, s) => sum + s.memory_usage_mb, 0);
-    const maxCpu = Math.max(...samples.map(s => s.cpu_usage_percent));
-    const maxMemory = Math.max(...samples.map(s => s.memory_usage_mb));
+    const maxCpu = Math.max(...samples.map((s) => s.cpu_usage_percent));
+    const maxMemory = Math.max(...samples.map((s) => s.memory_usage_mb));
 
     return {
       job_id: jobId,
@@ -118,7 +120,10 @@ export class MetricsService {
       }
 
       // In production, this would broadcast via WebSocket to connected dashboard
-      this.logger.debug(`Broadcasting metrics update for job ${jobId}:`, metrics);
+      this.logger.debug(
+        `Broadcasting metrics update for job ${jobId}:`,
+        metrics,
+      );
 
       // TODO: Implement WebSocket broadcast
       // this.websocketGateway.broadcastMetrics(metrics);
@@ -153,7 +158,7 @@ export class MetricsService {
       }
     }
 
-    entriesToDelete.forEach(jobId => this.metricsMap.delete(jobId));
+    entriesToDelete.forEach((jobId) => this.metricsMap.delete(jobId));
     this.logger.debug(`Cleared ${clearedCount} old metrics entries`);
 
     return clearedCount;

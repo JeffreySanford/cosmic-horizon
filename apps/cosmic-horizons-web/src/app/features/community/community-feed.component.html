@@ -5,15 +5,23 @@
     <mat-card-content>
       <div class="compose">
         <input placeholder="Title" [(ngModel)]="newTitle" />
-        <textarea placeholder="Body (optional)" [(ngModel)]="newBody"></textarea>
-        <button mat-raised-button color="primary" (click)="create()">Post</button>
+        <textarea
+          placeholder="Body (optional)"
+          [(ngModel)]="newBody"
+        ></textarea>
+        <button mat-raised-button color="primary" (click)="create()">
+          Post
+        </button>
       </div>
       <mat-list>
         <ng-container *ngFor="let item of feed">
           <mat-list-item>
             <div class="item-content">
               <strong>{{ item.title }}</strong>
-              <p class="meta">{{ item.author || 'anonymous' }} — {{ item.createdAt | date:'short' }}</p>
+              <p class="meta">
+                {{ item.author || 'anonymous' }} —
+                {{ item.createdAt | date: 'short' }}
+              </p>
               <p class="body">{{ item.body }}</p>
             </div>
           </mat-list-item>

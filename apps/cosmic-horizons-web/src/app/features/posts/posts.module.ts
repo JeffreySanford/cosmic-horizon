@@ -24,8 +24,18 @@ const postsRoutes: Routes = [
 ];
 
 @NgModule({
-  declarations: [PostsListComponent, PostEditorComponent, PostDetailComponent, CommentItemComponent],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule, RouterModule.forChild(postsRoutes)],
+  declarations: [
+    PostsListComponent,
+    PostEditorComponent,
+    PostDetailComponent,
+    CommentItemComponent,
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    RouterModule.forChild(postsRoutes),
+  ],
 })
 export class PostsModule {}
-

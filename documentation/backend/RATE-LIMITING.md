@@ -16,7 +16,7 @@ Three-tier rate limiting:
 
 ### Guards
 
-```typescript
+````typescript
 // apps/cosmic-horizons-api/src/app/guards/throttle.guard.ts
 
 import { Injectable, BadRequestException } from '@nestjs/common';
@@ -275,3 +275,4 @@ describe('Rate Limiting', () => {
 ---
 
 *Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+````

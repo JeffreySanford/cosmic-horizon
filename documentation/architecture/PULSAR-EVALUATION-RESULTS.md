@@ -47,10 +47,12 @@ Environment: Local Docker (`docker-compose.yml` + `docker-compose.events.yml`) o
 ## Assessment Against Target
 
 Expected target for Pulsar evaluation was approximately:
+
 - `+30-40%` throughput improvement
 - `+20-30%` memory efficiency improvement
 
 Current local run outcome:
+
 - Throughput target: **not met**
 - Latency target: **not met**
 - Memory target: **inconclusive** (heap-delta method is noisy for decision-grade comparison)

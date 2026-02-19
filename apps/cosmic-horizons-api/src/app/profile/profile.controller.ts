@@ -29,7 +29,8 @@ export class ProfileController {
   @HttpCode(HttpStatus.OK)
   async updateMyProfile(
     @Request() req: AuthenticatedRequest,
-    @Body() updateData: { display_name?: string; bio?: string; avatar_url?: string }
+    @Body()
+    updateData: { display_name?: string; bio?: string; avatar_url?: string },
   ) {
     return this.profileService.updateProfile(req.user.id, updateData);
   }

@@ -22,11 +22,11 @@ pnpm run test:coverage:report:json
 
 ## Current Coverage Status
 
-| Project | Statements | Branches | Functions | Lines | Trend |
-|---------|-----------|----------|-----------|-------|-------|
-| **cosmic-horizons-api** | 69.23% ✅ | 50.06% ✅ | 61.41% ✅ | 70% ✅ | 📈 |
-| **Target (Q2 2026)** | 75% | 60% | 75% | 80% | → |
-| **Target (Q4 2026)** | 85% | 75% | 85% | 85% | → |
+| Project                 | Statements | Branches  | Functions | Lines  | Trend |
+| ----------------------- | ---------- | --------- | --------- | ------ | ----- |
+| **cosmic-horizons-api** | 69.23% ✅  | 50.06% ✅ | 61.41% ✅ | 70% ✅ | 📈    |
+| **Target (Q2 2026)**    | 75%        | 60%       | 75%       | 80%    | →     |
+| **Target (Q4 2026)**    | 85%        | 75%       | 85%       | 85%    | →     |
 
 **Overall**: 1268 unit tests passing ✅
 

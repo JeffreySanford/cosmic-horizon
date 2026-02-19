@@ -49,8 +49,15 @@ export class ViewerController {
     const fov = Number(fovRaw);
     const survey = typeof surveyRaw === 'string' ? surveyRaw : '';
 
-    if (!Number.isFinite(ra) || !Number.isFinite(dec) || !Number.isFinite(fov) || survey.trim().length < 2) {
-      throw new BadRequestException('ra, dec, fov, and survey query params are required.');
+    if (
+      !Number.isFinite(ra) ||
+      !Number.isFinite(dec) ||
+      !Number.isFinite(fov) ||
+      survey.trim().length < 2
+    ) {
+      throw new BadRequestException(
+        'ra, dec, fov, and survey query params are required.',
+      );
     }
 
     const result = await this.viewerService.downloadCutout({
@@ -59,7 +66,8 @@ export class ViewerController {
       fov,
       survey,
       label: labelRaw,
-      detail: detailRaw === 'high' || detailRaw === 'max' ? detailRaw : 'standard',
+      detail:
+        detailRaw === 'high' || detailRaw === 'max' ? detailRaw : 'standard',
     });
 
     return new StreamableFile(result.buffer, {
@@ -81,8 +89,14 @@ export class ViewerController {
     const radius = Number(radiusRaw);
     const limit = Number(limitRaw ?? '12');
 
-    if (!Number.isFinite(ra) || !Number.isFinite(dec) || !Number.isFinite(radius)) {
-      throw new BadRequestException('ra, dec, and radius query params are required.');
+    if (
+      !Number.isFinite(ra) ||
+      !Number.isFinite(dec) ||
+      !Number.isFinite(radius)
+    ) {
+      throw new BadRequestException(
+        'ra, dec, and radius query params are required.',
+      );
     }
 
     if (radius <= 0 || radius > 2) {
@@ -93,7 +107,12 @@ export class ViewerController {
       throw new BadRequestException('limit must be between 1 and 25.');
     }
 
-    return this.viewerService.getNearbyLabels(ra, dec, radius, Math.floor(limit));
+    return this.viewerService.getNearbyLabels(
+      ra,
+      dec,
+      radius,
+      Math.floor(limit),
+    );
   }
 
   @Get('telemetry')

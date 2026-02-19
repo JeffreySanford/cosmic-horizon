@@ -2,11 +2,11 @@ import { ConfigService } from '@nestjs/config';
 
 /**
  * Priority 6.3: Performance Analytics Tests
- * 
+ *
  * Tests system monitoring, metrics collection, bottleneck identification,
  * and performance optimization. Validates sub-100ms P99 latency, 99.99% availability,
  * and 1000+ events/sec throughput.
- * 
+ *
  * Test Coverage: 55 tests
  * - Metrics Collection (10 tests)
  * - Time-Series Database (12 tests)
@@ -28,7 +28,7 @@ class PerformanceAnalyticsService {
     name: string,
     value: number,
     tags?: Record<string, string>,
-    timestamp?: Date
+    timestamp?: Date,
   ): void {
     if (!this.metrics.has(name)) {
       this.metrics.set(name, []);
@@ -41,11 +41,19 @@ class PerformanceAnalyticsService {
     });
   }
 
-  recordLatency(operation: string, durationMs: number, tags?: Record<string, string>): void {
+  recordLatency(
+    operation: string,
+    durationMs: number,
+    tags?: Record<string, string>,
+  ): void {
     this.recordMetric(`${operation}_latency`, durationMs, tags);
   }
 
-  recordThroughput(operation: string, count: number, tags?: Record<string, string>): void {
+  recordThroughput(
+    operation: string,
+    count: number,
+    tags?: Record<string, string>,
+  ): void {
     this.recordMetric(`${operation}_throughput`, count, tags);
   }
 
@@ -53,11 +61,11 @@ class PerformanceAnalyticsService {
     metricName: string,
     startTime: Date,
     endTime: Date,
-    aggregation?: string
+    aggregation?: string,
   ): Promise<any[]> {
     const results = this.metrics.get(metricName) || [];
     return results.filter(
-      (m) => m.timestamp >= startTime && m.timestamp <= endTime
+      (m) => m.timestamp >= startTime && m.timestamp <= endTime,
     );
   }
 
@@ -65,17 +73,19 @@ class PerformanceAnalyticsService {
     metricName: string,
     startTime: Date,
     endTime: Date,
-    bucketSizeMs?: number
+    bucketSizeMs?: number,
   ): Promise<any[]> {
     const data = this.metrics.get(metricName) || [];
-    return data.filter((m) => m.timestamp >= startTime && m.timestamp <= endTime);
+    return data.filter(
+      (m) => m.timestamp >= startTime && m.timestamp <= endTime,
+    );
   }
 
   calculatePercentile(
     metricName: string,
     percentile: number,
     startTime?: Date,
-    endTime?: Date
+    endTime?: Date,
   ): number {
     const values = this.metrics.get(metricName) || [];
     if (!values.length) return 0;
@@ -88,7 +98,7 @@ class PerformanceAnalyticsService {
   async createAlert(
     name: string,
     condition: any,
-    notification: any
+    notification: any,
   ): Promise<void> {
     if (!this.alerts.has(name)) {
       this.alerts.set(name, []);
@@ -176,7 +186,9 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
   };
 
   beforeEach(() => {
-    analyticsService = new PerformanceAnalyticsService(mockConfigService as any);
+    analyticsService = new PerformanceAnalyticsService(
+      mockConfigService as any,
+    );
   });
 
   afterEach(() => {
@@ -203,7 +215,9 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
     });
 
     it('should record latency metrics in milliseconds', () => {
-      analyticsService.recordLatency('database.query', 45, { operation: 'SELECT' });
+      analyticsService.recordLatency('database.query', 45, {
+        operation: 'SELECT',
+      });
       analyticsService.recordLatency('api.request', 120, { endpoint: '/jobs' });
     });
 
@@ -257,7 +271,12 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
     beforeEach(() => {
       // Record time-series data
       for (let i = 0; i < 60; i++) {
-        analyticsService.recordMetric('cpu.usage', 40 + Math.random() * 20, {}, new Date(Date.now() - i * 60000));
+        analyticsService.recordMetric(
+          'cpu.usage',
+          40 + Math.random() * 20,
+          {},
+          new Date(Date.now() - i * 60000),
+        );
       }
     });
 
@@ -265,7 +284,7 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
       const results = await analyticsService.queryMetrics(
         'cpu.usage',
         new Date(Date.now() - 3600000),
-        new Date()
+        new Date(),
       );
 
       expect(results.length).toBeGreaterThan(0);
@@ -275,8 +294,16 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
       const startTime = new Date(Date.now() - 3600000);
       const endTime = new Date();
 
-      const results = await analyticsService.queryMetrics('cpu.usage', startTime, endTime);
-      expect(results.every((r) => r.timestamp >= startTime && r.timestamp <= endTime)).toBe(true);
+      const results = await analyticsService.queryMetrics(
+        'cpu.usage',
+        startTime,
+        endTime,
+      );
+      expect(
+        results.every(
+          (r) => r.timestamp >= startTime && r.timestamp <= endTime,
+        ),
+      ).toBe(true);
     });
 
     it('should support downsampling for large time ranges', async () => {
@@ -284,7 +311,7 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
         'cpu.usage',
         new Date(Date.now() - 86400000), // 24 hours
         new Date(),
-        300000 // 5-minute buckets
+        300000, // 5-minute buckets
       );
 
       expect(results).toBeDefined();
@@ -295,7 +322,7 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
         'cpu.usage',
         new Date(Date.now() - 3600000),
         new Date(),
-        'avg'
+        'avg',
       );
 
       expect(results).toBeDefined();
@@ -321,13 +348,17 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
     });
 
     it('should handle tag-based filtering', async () => {
-      analyticsService.recordMetric('request.latency', 50, { endpoint: '/api/jobs' });
-      analyticsService.recordMetric('request.latency', 120, { endpoint: '/api/status' });
+      analyticsService.recordMetric('request.latency', 50, {
+        endpoint: '/api/jobs',
+      });
+      analyticsService.recordMetric('request.latency', 120, {
+        endpoint: '/api/status',
+      });
 
       const results = await analyticsService.queryMetrics(
         'request.latency',
         new Date(Date.now() - 3600000),
-        new Date()
+        new Date(),
       );
 
       expect(results.length).toBeGreaterThanOrEqual(0);
@@ -375,7 +406,7 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
       const results = await analyticsService.queryMetrics(
         'latency.histogram',
         startTime,
-        endTime
+        endTime,
       );
 
       expect(results).toBeDefined();
@@ -388,13 +419,13 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
       const cpuResults = await analyticsService.queryMetrics(
         'cpu.usage',
         new Date(Date.now() - 3600000),
-        new Date()
+        new Date(),
       );
 
       const memoryResults = await analyticsService.queryMetrics(
         'memory.usage',
         new Date(Date.now() - 3600000),
-        new Date()
+        new Date(),
       );
 
       expect(cpuResults).toBeDefined();
@@ -403,12 +434,14 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
 
     it('should use indexes for tag-based queries', async () => {
       analyticsService.recordMetric('request.count', 100, { service: 'api' });
-      analyticsService.recordMetric('request.count', 200, { service: 'worker' });
+      analyticsService.recordMetric('request.count', 200, {
+        service: 'worker',
+      });
 
       const results = await analyticsService.queryMetrics(
         'request.count',
         new Date(Date.now() - 3600000),
-        new Date()
+        new Date(),
       );
 
       expect(results.length).toBeGreaterThanOrEqual(0);
@@ -446,10 +479,14 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
 
   describe('Alerting System', () => {
     it('should create alert with condition', async () => {
-      await analyticsService.createAlert('high_cpu', { threshold: 85, duration: 300 }, {
-        channel: 'slack',
-        message: 'CPU usage high',
-      });
+      await analyticsService.createAlert(
+        'high_cpu',
+        { threshold: 85, duration: 300 },
+        {
+          channel: 'slack',
+          message: 'CPU usage high',
+        },
+      );
 
       expect(analyticsService.getMetrics().alertsCount).toBeGreaterThan(0);
     });
@@ -460,9 +497,13 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
     });
 
     it('should trigger alert when threshold exceeded', async () => {
-      await analyticsService.createAlert('memory_alert', { threshold: 90 }, {
-        channel: 'email',
-      });
+      await analyticsService.createAlert(
+        'memory_alert',
+        { threshold: 90 },
+        {
+          channel: 'email',
+        },
+      );
 
       analyticsService.recordMetric('memory.usage', 95);
 
@@ -473,10 +514,16 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
     });
 
     it('should debounce repeated alerts', async () => {
-      await analyticsService.createAlert('flapping_alert', { threshold: 50 }, {});
+      await analyticsService.createAlert(
+        'flapping_alert',
+        { threshold: 50 },
+        {},
+      );
 
       for (let i = 0; i < 5; i++) {
-        await analyticsService.triggerAlert('flapping_alert', { value: i * 10 });
+        await analyticsService.triggerAlert('flapping_alert', {
+          value: i * 10,
+        });
       }
     });
 
@@ -486,9 +533,13 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
     });
 
     it('should send notifications to multiple channels', async () => {
-      await analyticsService.createAlert('multi_channel_alert', {}, {
-        channels: ['slack', 'email', 'pagerduty'],
-      });
+      await analyticsService.createAlert(
+        'multi_channel_alert',
+        {},
+        {
+          channels: ['slack', 'email', 'pagerduty'],
+        },
+      );
     });
 
     it('should include context in alert notifications', async () => {
@@ -539,7 +590,8 @@ describe('Priority 6.3: Performance Analytics Tests', () => {
     });
 
     it('should track memory allocation during profiling', async () => {
-      const profileId = await analyticsService.startProfiler('memory_intensive');
+      const profileId =
+        await analyticsService.startProfiler('memory_intensive');
       const profile = await analyticsService.stopProfiler(profileId);
 
       expect(profile.startMemory).toBeDefined();

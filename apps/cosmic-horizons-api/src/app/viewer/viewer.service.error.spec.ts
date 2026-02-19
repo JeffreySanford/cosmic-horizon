@@ -20,7 +20,9 @@ describe('ViewerService - Error Scenarios (Branch Coverage)', () => {
     create: jest.Mock;
     save: jest.Mock;
   };
-  let auditLogRepository: jest.Mocked<Pick<AuditLogRepository, 'createAuditLog'>>;
+  let auditLogRepository: jest.Mocked<
+    Pick<AuditLogRepository, 'createAuditLog'>
+  >;
   let loggingService: jest.Mocked<Pick<LoggingService, 'add'>>;
 
   beforeEach(() => {
@@ -87,7 +89,7 @@ describe('ViewerService - Error Scenarios (Branch Coverage)', () => {
 
     it('should fallback to secondary survey when primary unavailable', async () => {
       const fetchMock = jest.spyOn(global, 'fetch');
-      
+
       // First call fails, second call succeeds
       fetchMock
         .mockRejectedValueOnce(new Error('Primary survey timeout'))
@@ -166,7 +168,7 @@ describe('ViewerService - Error Scenarios (Branch Coverage)', () => {
     it('should reject states with invalid RA coordinate', async () => {
       await expect(
         service.createState({
-          ra: 400,  // RA must be 0-360
+          ra: 400, // RA must be 0-360
           dec: 20,
           fov: 2,
           survey: 'VLASS',
@@ -178,7 +180,7 @@ describe('ViewerService - Error Scenarios (Branch Coverage)', () => {
       await expect(
         service.createState({
           ra: 10,
-          dec: -100,  // dec must be -90 to 90
+          dec: -100, // dec must be -90 to 90
           fov: 2,
           survey: 'VLASS',
         }),
@@ -190,7 +192,7 @@ describe('ViewerService - Error Scenarios (Branch Coverage)', () => {
         service.createState({
           ra: 10,
           dec: 20,
-          fov: 0,  // FOV must be > 0
+          fov: 0, // FOV must be > 0
           survey: 'VLASS',
         }),
       ).rejects.toBeInstanceOf(BadRequestException);
@@ -289,7 +291,7 @@ describe('ViewerService - Error Scenarios (Branch Coverage)', () => {
   describe('Resolution Fallback', () => {
     it('should fallback to lower resolution when high-res unavailable', async () => {
       const fetchMock = jest.spyOn(global, 'fetch');
-      
+
       // High-res fails, medium-res succeeds
       fetchMock
         .mockRejectedValueOnce(new Error('High-res timeout'))
@@ -452,7 +454,7 @@ describe('ViewerService - Error Scenarios (Branch Coverage)', () => {
   describe('Concurrent Operations', () => {
     it('should handle concurrent cutout requests with fallbacks', async () => {
       const fetchMock = jest.spyOn(global, 'fetch');
-      
+
       // Both requests get same response
       fetchMock.mockResolvedValue({
         ok: true,
@@ -476,7 +478,9 @@ describe('ViewerService - Error Scenarios (Branch Coverage)', () => {
       ]);
 
       expect(results).toHaveLength(2);
-      expect(results.every((r) => r !== undefined && r.buffer !== undefined)).toBe(true);
+      expect(
+        results.every((r) => r !== undefined && r.buffer !== undefined),
+      ).toBe(true);
     });
   });
 });

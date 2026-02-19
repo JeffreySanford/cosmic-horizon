@@ -1,4 +1,7 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -63,11 +66,16 @@ describe('PostsApiService', () => {
     configure('browser');
     sessionStorage.setItem('auth_token', 'token-123');
 
-    const p = firstValueFrom(service.createPost({ title: 'Title', content: 'Body content for post.' }));
+    const p = firstValueFrom(
+      service.createPost({ title: 'Title', content: 'Body content for post.' }),
+    );
 
     const req = httpMock.expectOne('http://localhost:3000/api/posts');
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ title: 'Title', content: 'Body content for post.' });
+    expect(req.request.body).toEqual({
+      title: 'Title',
+      content: 'Body content for post.',
+    });
     req.flush({});
 
     await p;
@@ -77,7 +85,9 @@ describe('PostsApiService', () => {
     configure('browser');
     sessionStorage.setItem('auth_token', 'token-123');
 
-    const p = firstValueFrom(service.updatePost('post-1', { title: 'Updated' }));
+    const p = firstValueFrom(
+      service.updatePost('post-1', { title: 'Updated' }),
+    );
 
     const req = httpMock.expectOne('http://localhost:3000/api/posts/post-1');
     expect(req.request.method).toBe('PUT');
@@ -93,7 +103,9 @@ describe('PostsApiService', () => {
 
     const p = firstValueFrom(service.publishPost('post-1'));
 
-    const req = httpMock.expectOne('http://localhost:3000/api/posts/post-1/publish');
+    const req = httpMock.expectOne(
+      'http://localhost:3000/api/posts/post-1/publish',
+    );
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({});
     req.flush({});
@@ -121,11 +133,15 @@ describe('PostsApiService', () => {
     const pHide = firstValueFrom(service.hidePost('post-1'));
     const pLock = firstValueFrom(service.lockPost('post-1'));
 
-    const hideReq = httpMock.expectOne('http://localhost:3000/api/posts/post-1/hide');
+    const hideReq = httpMock.expectOne(
+      'http://localhost:3000/api/posts/post-1/hide',
+    );
     expect(hideReq.request.method).toBe('POST');
     hideReq.flush({});
 
-    const lockReq = httpMock.expectOne('http://localhost:3000/api/posts/post-1/lock');
+    const lockReq = httpMock.expectOne(
+      'http://localhost:3000/api/posts/post-1/lock',
+    );
     expect(lockReq.request.method).toBe('POST');
     lockReq.flush({});
 

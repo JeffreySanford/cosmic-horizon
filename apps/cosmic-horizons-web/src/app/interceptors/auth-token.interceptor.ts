@@ -15,7 +15,10 @@ export class AuthTokenInterceptor implements HttpInterceptor {
   private readonly authSessionService = inject(AuthSessionService);
   private readonly authApiService = inject(AuthApiService);
 
-  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+  intercept(
+    req: HttpRequest<unknown>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<unknown>> {
     if (this.shouldSkipAuth(req) || req.headers.has('Authorization')) {
       return next.handle(req);
     }
@@ -43,22 +46,24 @@ export class AuthTokenInterceptor implements HttpInterceptor {
           return throwError(() => error);
         }
 
-        return this.authApiService.refresh({ refresh_token: refreshToken }).pipe(
-          switchMap((response) => {
-            this.authSessionService.setSession(response);
-            const retriedRequest = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${response.access_token}`,
-                'X-Auth-Retry': '1',
-              },
-            });
-            return next.handle(retriedRequest);
-          }),
-          catchError((refreshError: unknown) => {
-            this.authSessionService.clearSession();
-            return throwError(() => refreshError);
-          }),
-        );
+        return this.authApiService
+          .refresh({ refresh_token: refreshToken })
+          .pipe(
+            switchMap((response) => {
+              this.authSessionService.setSession(response);
+              const retriedRequest = req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${response.access_token}`,
+                  'X-Auth-Retry': '1',
+                },
+              });
+              return next.handle(retriedRequest);
+            }),
+            catchError((refreshError: unknown) => {
+              this.authSessionService.clearSession();
+              return throwError(() => refreshError);
+            }),
+          );
       }),
     );
   }
@@ -73,7 +78,10 @@ export class AuthTokenInterceptor implements HttpInterceptor {
     );
   }
 
-  private shouldAttemptRefresh(req: HttpRequest<unknown>, error: unknown): error is HttpErrorResponse {
+  private shouldAttemptRefresh(
+    req: HttpRequest<unknown>,
+    error: unknown,
+  ): error is HttpErrorResponse {
     if (this.shouldSkipAuth(req)) {
       return false;
     }

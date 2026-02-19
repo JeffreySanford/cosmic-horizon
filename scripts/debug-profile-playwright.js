@@ -10,20 +10,36 @@ const { chromium } = require('playwright');
   page.on('requestfinished', async (request) => {
     if (request.url().includes('/api/profiles/')) {
       const response = await request.response();
-      console.log('API', request.method(), request.url(), '->', response.status());
+      console.log(
+        'API',
+        request.method(),
+        request.url(),
+        '->',
+        response.status(),
+      );
     }
   });
 
-  page.on('requestfailed', (req) => console.log('REQUEST FAILED:', req.url(), req.failure()));
+  page.on('requestfailed', (req) =>
+    console.log('REQUEST FAILED:', req.url(), req.failure()),
+  );
 
   console.log('Navigating to profile page...');
-  await page.goto('http://localhost:4200/profile/testuser', { waitUntil: 'networkidle' });
+  await page.goto('http://localhost:4200/profile/testuser', {
+    waitUntil: 'networkidle',
+  });
 
   // Wait a little for SPA fetches to complete
   await page.waitForTimeout(1000);
 
-  const loadingVisible = await page.locator('text=Loading profile...').isVisible().catch(() => false);
-  const name = await page.locator('mat-card-title').textContent().catch(() => null);
+  const loadingVisible = await page
+    .locator('text=Loading profile...')
+    .isVisible()
+    .catch(() => false);
+  const name = await page
+    .locator('mat-card-title')
+    .textContent()
+    .catch(() => null);
   console.log('Loading visible:', loadingVisible);
   console.log('Profile name (mat-card-title):', name && name.trim());
 

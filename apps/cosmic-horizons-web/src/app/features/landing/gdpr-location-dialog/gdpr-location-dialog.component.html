@@ -2,7 +2,8 @@
   <div class="dialog-header">
     <h2>Location Permission (GDPR)</h2>
     <p class="subtitle">
-      We would like to gather your location data to personalize your sky preview.
+      We would like to gather your location data to personalize your sky
+      preview.
     </p>
   </div>
 
@@ -11,7 +12,8 @@
       <mat-icon>privacy_tip</mat-icon>
       <p>
         Your location data will be used only to display a customized sky preview
-        for your region. This data will not be stored or shared with third parties.
+        for your region. This data will not be stored or shared with third
+        parties.
       </p>
     </div>
 
@@ -24,8 +26,16 @@
       </mat-checkbox>
     </div>
 
-    @if (userConsent && (locationData.latitude === null || locationData.longitude === null)) {
-      <button mat-raised-button color="primary" (click)="requestLocation()" class="location-btn">
+    @if (
+      userConsent &&
+      (locationData.latitude === null || locationData.longitude === null)
+    ) {
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="requestLocation()"
+        class="location-btn"
+      >
         <mat-icon>location_on</mat-icon>
         Detect My Location
       </button>
@@ -35,11 +45,11 @@
       <div class="location-display">
         <p>
           <strong>Latitude:</strong>
-          {{ locationData.latitude | number : '1.4-4' }}
+          {{ locationData.latitude | number: '1.4-4' }}
         </p>
         <p>
           <strong>Longitude:</strong>
-          {{ locationData.longitude | number : '1.4-4' }}
+          {{ locationData.longitude | number: '1.4-4' }}
         </p>
       </div>
     }
@@ -55,7 +65,11 @@
       mat-raised-button
       color="primary"
       (click)="confirmLocation()"
-      [disabled]="!userConsent || locationData.latitude === null || locationData.longitude === null"
+      [disabled]="
+        !userConsent ||
+        locationData.latitude === null ||
+        locationData.longitude === null
+      "
     >
       Continue
     </button>

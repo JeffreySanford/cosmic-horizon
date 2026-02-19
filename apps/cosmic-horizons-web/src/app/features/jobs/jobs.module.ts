@@ -14,7 +14,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { JobsRoutingModule } from './jobs-routing.module';
 import { JobsConsoleComponent } from './jobs-console.component';
 
-
 @NgModule({
   declarations: [JobsConsoleComponent],
   imports: [
@@ -29,7 +28,7 @@ import { JobsConsoleComponent } from './jobs-console.component';
     MatIconModule,
     MatProgressBarModule,
     MatChipsModule,
-    MatSnackBarModule
-  ]
+    MatSnackBarModule,
+  ],
 })
-export class JobsModule { }
+export class JobsModule {}

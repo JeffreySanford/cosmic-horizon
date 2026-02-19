@@ -30,7 +30,7 @@
   .reports-table {
     width: 100%;
     background: transparent;
-    
+
     th {
       color: #eec976;
       font-weight: 500;
@@ -65,7 +65,8 @@
     }
   }
 
-  .loading-state, .empty-state {
+  .loading-state,
+  .empty-state {
     text-align: center;
     padding: 64px;
     color: #a4a9b6;

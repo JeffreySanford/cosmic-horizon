@@ -15,7 +15,8 @@ export class CommunityService {
   private readonly logger = new Logger(CommunityService.name);
 
   constructor(
-    @InjectRepository(Discovery) private readonly discoveryRepo: Repository<Discovery>,
+    @InjectRepository(Discovery)
+    private readonly discoveryRepo: Repository<Discovery>,
     private readonly eventsService: EventsService,
     private readonly auditLogRepository: AuditLogRepository,
     private readonly userRepository: UserRepository,
@@ -49,7 +50,9 @@ export class CommunityService {
       // Ensure the discoveries table (and 'hidden' column) exist so we can seed
       // without relying on TypeORM migrations being executed.
       try {
-        await this.discoveryRepo.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+        await this.discoveryRepo.query(
+          `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`,
+        );
         await this.discoveryRepo.query(`
           CREATE TABLE IF NOT EXISTS "discoveries" (
             "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -60,9 +63,14 @@ export class CommunityService {
             "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
           )
         `);
-        await this.discoveryRepo.query(`ALTER TABLE "discoveries" ADD COLUMN IF NOT EXISTS "hidden" boolean NOT NULL DEFAULT false`);
+        await this.discoveryRepo.query(
+          `ALTER TABLE "discoveries" ADD COLUMN IF NOT EXISTS "hidden" boolean NOT NULL DEFAULT false`,
+        );
       } catch (ensureErr) {
-        this.logger.warn('Could not ensure discoveries table/schema at startup (continuing):', ensureErr instanceof Error ? ensureErr.message : ensureErr);
+        this.logger.warn(
+          'Could not ensure discoveries table/schema at startup (continuing):',
+          ensureErr instanceof Error ? ensureErr.message : ensureErr,
+        );
       }
 
       const existing = await this.discoveryRepo.count();
@@ -116,7 +124,10 @@ export class CommunityService {
         body: r.body ?? undefined,
         author: r.author,
         tags: r.tags ?? undefined,
-        createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : new Date(r.created_at).toISOString(),
+        createdAt:
+          r.created_at instanceof Date
+            ? r.created_at.toISOString()
+            : new Date(r.created_at).toISOString(),
       }));
     } catch (err) {
       this.logger.error('CommunityService.getFeed failed', err as Error);
@@ -139,7 +150,10 @@ export class CommunityService {
         body: r.body ?? undefined,
         author: r.author,
         tags: r.tags ?? undefined,
-        createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : new Date(r.created_at).toISOString(),
+        createdAt:
+          r.created_at instanceof Date
+            ? r.created_at.toISOString()
+            : new Date(r.created_at).toISOString(),
       }));
     } catch (err) {
       this.logger.error('CommunityService.getPendingFeed failed', err as Error);
@@ -147,7 +161,10 @@ export class CommunityService {
     }
   }
 
-  async hideDiscovery(id: string, actorUserId?: string | null): Promise<boolean> {
+  async hideDiscovery(
+    id: string,
+    actorUserId?: string | null,
+  ): Promise<boolean> {
     const found = await this.discoveryRepo.findOne({ where: { id } });
     if (!found) return false;
 
@@ -168,14 +185,20 @@ export class CommunityService {
         changes: { before, after: { hidden: saved.hidden } },
       });
     } catch {
-      this.logger.warn('Failed to write audit log for hideDiscovery (continuing)');
+      this.logger.warn(
+        'Failed to write audit log for hideDiscovery (continuing)',
+      );
     }
 
     return true;
   }
 
-  async createDiscovery(dto: CreateDiscoveryDto, options?: { forceHidden?: boolean, autoApprove?: boolean }): Promise<DiscoveryEvent> {
-    const moderationEnabled = process.env.FEATURE_COMMUNITY_MODERATION === 'true';
+  async createDiscovery(
+    dto: CreateDiscoveryDto,
+    options?: { forceHidden?: boolean; autoApprove?: boolean },
+  ): Promise<DiscoveryEvent> {
+    const moderationEnabled =
+      process.env.FEATURE_COMMUNITY_MODERATION === 'true';
     const forceHidden = options?.forceHidden === true;
     const autoApprove = options?.autoApprove === true;
 
@@ -205,7 +228,9 @@ export class CommunityService {
       try {
         await this.eventsService.publishNotification(event);
       } catch {
-        this.logger.warn('Failed to publish discovery.created notification (continuing)');
+        this.logger.warn(
+          'Failed to publish discovery.created notification (continuing)',
+        );
       }
     }
 
@@ -215,11 +240,17 @@ export class CommunityService {
       body: saved.body ?? undefined,
       author: saved.author,
       tags: saved.tags ?? undefined,
-      createdAt: saved.created_at instanceof Date ? saved.created_at.toISOString() : new Date(saved.created_at).toISOString(),
+      createdAt:
+        saved.created_at instanceof Date
+          ? saved.created_at.toISOString()
+          : new Date(saved.created_at).toISOString(),
     };
   }
 
-  async approveDiscovery(id: string, actorUserId?: string | null): Promise<DiscoveryEvent | null> {
+  async approveDiscovery(
+    id: string,
+    actorUserId?: string | null,
+  ): Promise<DiscoveryEvent | null> {
     const found = await this.discoveryRepo.findOne({ where: { id } });
     if (!found) return null;
 
@@ -233,7 +264,10 @@ export class CommunityService {
         body: found.body ?? undefined,
         author: found.author,
         tags: found.tags ?? undefined,
-        createdAt: found.created_at instanceof Date ? found.created_at.toISOString() : new Date(found.created_at).toISOString(),
+        createdAt:
+          found.created_at instanceof Date
+            ? found.created_at.toISOString()
+            : new Date(found.created_at).toISOString(),
       };
     }
 
@@ -251,7 +285,9 @@ export class CommunityService {
     try {
       await this.eventsService.publishNotification(event);
     } catch {
-      this.logger.warn('Failed to publish discovery.created notification after approve (continuing)');
+      this.logger.warn(
+        'Failed to publish discovery.created notification after approve (continuing)',
+      );
     }
 
     // audit trail (best-effort)
@@ -264,7 +300,9 @@ export class CommunityService {
         changes: { before, after: { hidden: saved.hidden } },
       });
     } catch {
-      this.logger.warn('Failed to write audit log for approveDiscovery (continuing)');
+      this.logger.warn(
+        'Failed to write audit log for approveDiscovery (continuing)',
+      );
     }
 
     return {
@@ -273,8 +311,10 @@ export class CommunityService {
       body: saved.body ?? undefined,
       author: saved.author,
       tags: saved.tags ?? undefined,
-      createdAt: saved.created_at instanceof Date ? saved.created_at.toISOString() : new Date(saved.created_at).toISOString(),
+      createdAt:
+        saved.created_at instanceof Date
+          ? saved.created_at.toISOString()
+          : new Date(saved.created_at).toISOString(),
     };
   }
-
 }

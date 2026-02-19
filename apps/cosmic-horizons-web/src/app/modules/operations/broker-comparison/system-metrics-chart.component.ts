@@ -1,4 +1,13 @@
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  OnInit,
+  OnDestroy,
+  Input,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import * as d3 from 'd3';
 
 export interface SystemMetric {
@@ -15,7 +24,11 @@ type SystemMetricsInput = {
   disk: number | { percentage: number };
 };
 
-type ChartView = 'system' | 'throughputImpact' | 'memoryImpact' | 'latencyImpact';
+type ChartView =
+  | 'system'
+  | 'throughputImpact'
+  | 'memoryImpact'
+  | 'latencyImpact';
 
 type BrokerComparisonInput = {
   timestamp?: Date | string;
@@ -63,7 +76,11 @@ type SeriesDefinition = {
         <h3>System Resource Monitor</h3>
         <div class="view-selector">
           <label for="chart-view">View</label>
-          <select id="chart-view" [value]="selectedView" (change)="onViewChange($any($event.target).value)">
+          <select
+            id="chart-view"
+            [value]="selectedView"
+            (change)="onViewChange($any($event.target).value)"
+          >
             <option value="system">System (CPU/Memory/Disk)</option>
             <option value="throughputImpact">Broker Throughput Impact</option>
             <option value="memoryImpact">Broker Memory Impact</option>
@@ -72,7 +89,11 @@ type SeriesDefinition = {
         </div>
         <div class="view-selector">
           <label for="payload-size">Payload</label>
-          <select id="payload-size" [value]="messageSizePreset" (change)="onMessageSizePresetChange($any($event.target).value)">
+          <select
+            id="payload-size"
+            [value]="messageSizePreset"
+            (change)="onMessageSizePresetChange($any($event.target).value)"
+          >
             <option value="512">512 B/msg</option>
             <option value="2048">2 KB/msg</option>
             <option value="8192">8 KB/msg</option>
@@ -93,7 +114,11 @@ type SeriesDefinition = {
 
         <div class="view-selector">
           <label for="sample-interval">Sample</label>
-          <select id="sample-interval" [value]="samplingInterval" (change)="onSamplingIntervalChange(+$any($event.target).value)">
+          <select
+            id="sample-interval"
+            [value]="samplingInterval"
+            (change)="onSamplingIntervalChange(+$any($event.target).value)"
+          >
             <option value="20">20 ms</option>
             <option value="100">100 ms</option>
             <option value="300">300 ms</option>
@@ -108,7 +133,10 @@ type SeriesDefinition = {
         <div class="legend">
           @for (item of legendItems; track item.label) {
             <div class="legend-item">
-              <div class="legend-color" [style.backgroundColor]="item.color"></div>
+              <div
+                class="legend-color"
+                [style.backgroundColor]="item.color"
+              ></div>
               <span>{{ item.label }}</span>
             </div>
           }
@@ -117,117 +145,125 @@ type SeriesDefinition = {
       <div #chartContainer class="chart-container"></div>
     </div>
   `,
-  styles: [`
-    .system-metrics-chart {
-      background: white;
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin: 16px 0;
-    }
+  styles: [
+    `
+      .system-metrics-chart {
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 16px 0;
+      }
 
-    .chart-header {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
+      .chart-header {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
 
-    .chart-header h3 {
-      margin: 0;
-      color: #333;
-      font-size: 18px;
-      font-weight: 500;
-    }
+      .chart-header h3 {
+        margin: 0;
+        color: #333;
+        font-size: 18px;
+        font-weight: 500;
+      }
 
-    .legend {
-      display: flex;
-      gap: 16px;
-    }
+      .legend {
+        display: flex;
+        gap: 16px;
+      }
 
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      color: #666;
-    }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #666;
+      }
 
-    .legend-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 2px;
-    }
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+      }
 
-    .view-selector {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #666;
-    }
+      .view-selector {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #666;
+      }
 
-    .view-selector select {
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 12px;
-      color: #333;
-      background: #fff;
-    }
+      .view-selector select {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 12px;
+        color: #333;
+        background: #fff;
+      }
 
-    .view-selector input {
-      width: 90px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 12px;
-      color: #333;
-    }
+      .view-selector input {
+        width: 90px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 12px;
+        color: #333;
+      }
 
-    .chart-container {
-      width: 100%;
-      height: 300px;
-      position: relative;
-    }
+      .chart-container {
+        width: 100%;
+        height: 300px;
+        position: relative;
+      }
 
-    .axis text {
-      font-size: 11px;
-      fill: #666;
-    }
+      .axis text {
+        font-size: 11px;
+        fill: #666;
+      }
 
-    .axis line,
-    .axis path {
-      stroke: #ddd;
-    }
+      .axis line,
+      .axis path {
+        stroke: #ddd;
+      }
 
-    .grid line {
-      stroke: #f0f0f0;
-      stroke-dasharray: 2,2;
-    }
+      .grid line {
+        stroke: #f0f0f0;
+        stroke-dasharray: 2, 2;
+      }
 
-    .line {
-      fill: none;
-      stroke-width: 2;
-    }
+      .line {
+        fill: none;
+        stroke-width: 2;
+      }
 
-    .line.cpu { stroke: #ff6b6b; }
-    .line.memory { stroke: #4ecdc4; }
-    .line.disk { stroke: #45b7d1; }
+      .line.cpu {
+        stroke: #ff6b6b;
+      }
+      .line.memory {
+        stroke: #4ecdc4;
+      }
+      .line.disk {
+        stroke: #45b7d1;
+      }
 
-    .tooltip {
-      position: absolute;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      pointer-events: none;
-      z-index: 1000;
-    }
-  `]
+      .tooltip {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        pointer-events: none;
+        z-index: 1000;
+      }
+    `,
+  ],
 })
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export class SystemMetricsChartComponent implements OnInit, OnDestroy {
@@ -251,7 +287,9 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   customMessageBytes = 2048;
 
   selectedView: ChartView = 'system';
-  legendItems: Array<{ label: string; color: string }> = [...SystemMetricsChartComponent.DEFAULT_SYSTEM_LEGEND];
+  legendItems: Array<{ label: string; color: string }> = [
+    ...SystemMetricsChartComponent.DEFAULT_SYSTEM_LEGEND,
+  ];
 
   // Internal throttling for chart updates
   private lastRenderAt = 0;
@@ -305,14 +343,20 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
       disk = Number((metrics.disk as { percentage: number }).percentage);
     } else {
       // Flat structure
-      cpu = Number((metrics.cpu as number));
-      memory = Number((metrics.memory as number));
-      disk = Number((metrics.disk as number));
+      cpu = Number(metrics.cpu as number);
+      memory = Number(metrics.memory as number);
+      disk = Number(metrics.disk as number);
     }
 
     // Skip invalid data points
-    if (isNaN(cpu) || isNaN(memory) || isNaN(disk) ||
-        !isFinite(cpu) || !isFinite(memory) || !isFinite(disk)) {
+    if (
+      isNaN(cpu) ||
+      isNaN(memory) ||
+      isNaN(disk) ||
+      !isFinite(cpu) ||
+      !isFinite(memory) ||
+      !isFinite(disk)
+    ) {
       console.warn('Skipping invalid system metrics data:', metrics);
       return;
     }
@@ -339,7 +383,9 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   }
 
   updateBrokerData(metrics: BrokerComparisonInput): void {
-    const timestamp = metrics.timestamp ? new Date(metrics.timestamp) : new Date();
+    const timestamp = metrics.timestamp
+      ? new Date(metrics.timestamp)
+      : new Date();
     const rmq = metrics.brokers?.rabbitmq;
     const pulsar = metrics.brokers?.pulsar;
 
@@ -371,7 +417,8 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     this.width = element.clientWidth - this.margin.left - this.margin.right;
     this.height = element.clientHeight - this.margin.top - this.margin.bottom;
 
-    this.svg = d3.select(element)
+    this.svg = d3
+      .select(element)
       .append('svg')
       .attr('width', this.width + this.margin.left + this.margin.right)
       .attr('height', this.height + this.margin.top + this.margin.bottom)
@@ -379,7 +426,8 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
       .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
 
     // Add background rectangle
-    this.svg.append('rect')
+    this.svg
+      .append('rect')
       .attr('width', this.width)
       .attr('height', this.height)
       .attr('fill', 'white')
@@ -395,32 +443,42 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     this.yAxis = d3.axisLeft(this.yScale).ticks(5);
 
     // Add grid lines
-    this.svg.append('g')
+    this.svg
+      .append('g')
       .attr('class', 'grid')
-      .call(d3.axisLeft(this.yScale).ticks(5).tickSize(-this.width).tickFormat('' as any))
+      .call(
+        d3
+          .axisLeft(this.yScale)
+          .ticks(5)
+          .tickSize(-this.width)
+          .tickFormat('' as any),
+      )
       .selectAll('line')
       .attr('stroke', '#f0f0f0')
       .attr('stroke-dasharray', '2,2');
 
     // Add axes
-    this.svg.append('g')
+    this.svg
+      .append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0,${this.height})`)
       .call(this.xAxis)
       .selectAll('text')
       .attr('fill', '#666');
 
-    this.svg.append('g')
+    this.svg
+      .append('g')
       .attr('class', 'y-axis')
       .call(this.yAxis)
       .selectAll('text')
       .attr('fill', '#666');
 
     // Add Y axis label
-    this.yAxisLabel = this.svg.append('text')
+    this.yAxisLabel = this.svg
+      .append('text')
       .attr('transform', 'rotate(-90)')
       .attr('y', 0 - this.margin.left)
-      .attr('x', 0 - (this.height / 2))
+      .attr('x', 0 - this.height / 2)
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
       .style('fill', '#666')
@@ -429,7 +487,9 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     this.lineLayer = this.svg.append('g').attr('class', 'line-layer');
 
     // Create tooltip
-    this.tooltip = d3.select('body').append('div')
+    this.tooltip = d3
+      .select('body')
+      .append('div')
       .attr('class', 'tooltip')
       .style('position', 'absolute')
       .style('background', 'rgba(0, 0, 0, 0.8)')
@@ -442,7 +502,8 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
       .style('opacity', 0);
 
     // Add mouse tracking for tooltip
-    this.svg.append('rect')
+    this.svg
+      .append('rect')
       .attr('width', this.width)
       .attr('height', this.height)
       .style('fill', 'none')
@@ -455,7 +516,10 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     const config = this.getDisplayConfiguration();
     this.displayData = config.data;
     this.activeSeries = config.series;
-    const nextLegendItems = config.series.map((item) => ({ label: item.label, color: item.color }));
+    const nextLegendItems = config.series.map((item) => ({
+      label: item.label,
+      color: item.color,
+    }));
     if (!this.areLegendItemsEqual(this.legendItems, nextLegendItems)) {
       this.legendItems = nextLegendItems;
     }
@@ -466,13 +530,19 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     }
 
     // Update scales
-    const timeExtent = d3.extent(this.displayData, (d) => d.timestamp) as [Date, Date];
+    const timeExtent = d3.extent(this.displayData, (d) => d.timestamp) as [
+      Date,
+      Date,
+    ];
     this.xScale.domain(timeExtent);
 
     const values = this.displayData.flatMap((point) =>
       this.activeSeries
         .map((series) => point[series.key])
-        .filter((value): value is number => typeof value === 'number' && Number.isFinite(value)),
+        .filter(
+          (value): value is number =>
+            typeof value === 'number' && Number.isFinite(value),
+        ),
     );
 
     if (values.length === 0) {
@@ -499,7 +569,9 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     this.svg.select('.x-axis').call(this.xAxis);
     this.svg.select('.y-axis').call(this.yAxis);
     this.svg.selectAll('.x-axis text, .y-axis text').attr('fill', '#666');
-    this.svg.selectAll('.x-axis path, .x-axis line, .y-axis path, .y-axis line').attr('stroke', '#ddd');
+    this.svg
+      .selectAll('.x-axis path, .x-axis line, .y-axis path, .y-axis line')
+      .attr('stroke', '#ddd');
     this.yAxisLabel.text(config.yLabel);
 
     const pathSelection = this.lineLayer
@@ -538,7 +610,12 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     const i = bisect(this.displayData, x0, 1);
     const d0 = this.displayData[Math.max(0, i - 1)];
     const d1 = this.displayData[Math.min(this.displayData.length - 1, i)];
-    const d = !d1 || x0.getTime() - d0.timestamp.getTime() <= d1.timestamp.getTime() - x0.getTime() ? d0 : d1;
+    const d =
+      !d1 ||
+      x0.getTime() - d0.timestamp.getTime() <=
+        d1.timestamp.getTime() - x0.getTime()
+        ? d0
+        : d1;
 
     const valueLines = this.activeSeries
       .map((series) => {
@@ -556,31 +633,39 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
         }
 
         const rawPoint = this.getNearestBrokerPoint(d.timestamp);
-        const rawThroughput = series.key === 'rabbitmq' ? rawPoint?.rabbitmqThroughput : rawPoint?.pulsarThroughput;
-        const throughputText = typeof rawThroughput === 'number' && Number.isFinite(rawThroughput)
-          ? `${rawThroughput.toLocaleString()} msg/s`
-          : 'N/A';
-        const bitRateText = typeof rawThroughput === 'number' && Number.isFinite(rawThroughput)
-          ? this.formatBitsPerSecond(this.toBitsPerSecond(rawThroughput))
-          : 'N/A';
+        const rawThroughput =
+          series.key === 'rabbitmq'
+            ? rawPoint?.rabbitmqThroughput
+            : rawPoint?.pulsarThroughput;
+        const throughputText =
+          typeof rawThroughput === 'number' && Number.isFinite(rawThroughput)
+            ? `${rawThroughput.toLocaleString()} msg/s`
+            : 'N/A';
+        const bitRateText =
+          typeof rawThroughput === 'number' && Number.isFinite(rawThroughput)
+            ? this.formatBitsPerSecond(this.toBitsPerSecond(rawThroughput))
+            : 'N/A';
 
         return `<div>${series.label}: ${value.toFixed(1)}% change (${throughputText}, ${bitRateText})</div>`;
       })
       .join('');
 
-    const throughputAssumptionNote = this.selectedView === 'throughputImpact'
-      ? `<div style="opacity:.8">bitrate uses ${this.averageMessageBytes.toLocaleString()} bytes/message</div>`
-      : '';
+    const throughputAssumptionNote =
+      this.selectedView === 'throughputImpact'
+        ? `<div style="opacity:.8">bitrate uses ${this.averageMessageBytes.toLocaleString()} bytes/message</div>`
+        : '';
 
     this.tooltip
       .style('opacity', 1)
-      .html(`
+      .html(
+        `
         <div><strong>${d.timestamp.toLocaleTimeString()}</strong></div>
         ${valueLines}
         ${throughputAssumptionNote}
-      `)
-      .style('left', (event.pageX + 10) + 'px')
-      .style('top', (event.pageY - 10) + 'px');
+      `,
+      )
+      .style('left', event.pageX + 10 + 'px')
+      .style('top', event.pageY - 10 + 'px');
   }
 
   private hideTooltip() {
@@ -607,9 +692,19 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     const diskVal = Number(disk);
 
     // Skip invalid data points
-    if (isNaN(cpuVal) || isNaN(memoryVal) || isNaN(diskVal) ||
-        !isFinite(cpuVal) || !isFinite(memoryVal) || !isFinite(diskVal)) {
-      console.warn('Skipping invalid system metrics data:', { cpu, memory, disk });
+    if (
+      isNaN(cpuVal) ||
+      isNaN(memoryVal) ||
+      isNaN(diskVal) ||
+      !isFinite(cpuVal) ||
+      !isFinite(memoryVal) ||
+      !isFinite(diskVal)
+    ) {
+      console.warn('Skipping invalid system metrics data:', {
+        cpu,
+        memory,
+        disk,
+      });
       return;
     }
 
@@ -617,7 +712,7 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
       timestamp: new Date(),
       cpu: cpuVal,
       memory: memoryVal,
-      disk: diskVal
+      disk: diskVal,
     };
 
     this.data.push(newPoint);
@@ -650,7 +745,12 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (value !== '512' && value !== '2048' && value !== '8192' && value !== '65536') {
+    if (
+      value !== '512' &&
+      value !== '2048' &&
+      value !== '8192' &&
+      value !== '65536'
+    ) {
       return;
     }
 
@@ -669,7 +769,11 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getDisplayConfiguration(): { data: ChartPoint[]; series: SeriesDefinition[]; yLabel: string } {
+  private getDisplayConfiguration(): {
+    data: ChartPoint[];
+    series: SeriesDefinition[];
+    yLabel: string;
+  } {
     if (this.selectedView === 'system') {
       return {
         data: this.data.map((point) => ({
@@ -680,7 +784,11 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
         })),
         series: [
           { key: 'cpu', label: 'CPU Usage', color: this.seriesColors.cpu },
-          { key: 'memory', label: 'Memory Usage', color: this.seriesColors.memory },
+          {
+            key: 'memory',
+            label: 'Memory Usage',
+            color: this.seriesColors.memory,
+          },
           { key: 'disk', label: 'Disk I/O', color: this.seriesColors.disk },
         ],
         yLabel: 'Usage (%)',
@@ -723,24 +831,30 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     systemLabel: string,
     yLabel: string,
   ): { data: ChartPoint[]; series: SeriesDefinition[]; yLabel: string } {
-    const sourceRows = this.brokerData.reduce<Array<{ timestamp: Date; rabbitmq?: number; pulsar?: number; system?: number }>>(
-      (rows, point) => {
-        const systemPoint = this.getNearestSystemPoint(point.timestamp);
-        if (!systemPoint) {
-          return rows;
-        }
-        rows.push({
-          timestamp: point.timestamp,
-          rabbitmq: this.safeNumber(point[rabbitKey]),
-          pulsar: this.safeNumber(point[pulsarKey]),
-          system: this.safeNumber(systemPoint[systemKey] as number),
-        });
+    const sourceRows = this.brokerData.reduce<
+      Array<{
+        timestamp: Date;
+        rabbitmq?: number;
+        pulsar?: number;
+        system?: number;
+      }>
+    >((rows, point) => {
+      const systemPoint = this.getNearestSystemPoint(point.timestamp);
+      if (!systemPoint) {
         return rows;
-      },
-      [],
-    );
+      }
+      rows.push({
+        timestamp: point.timestamp,
+        rabbitmq: this.safeNumber(point[rabbitKey]),
+        pulsar: this.safeNumber(point[pulsarKey]),
+        system: this.safeNumber(systemPoint[systemKey] as number),
+      });
+      return rows;
+    }, []);
 
-    const rabbitBase = this.firstPositive(sourceRows.map((row) => row.rabbitmq));
+    const rabbitBase = this.firstPositive(
+      sourceRows.map((row) => row.rabbitmq),
+    );
     const pulsarBase = this.firstPositive(sourceRows.map((row) => row.pulsar));
     const systemBase = this.firstPositive(sourceRows.map((row) => row.system));
 
@@ -754,9 +868,17 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     return {
       data: normalized,
       series: [
-        { key: 'rabbitmq', label: 'RabbitMQ', color: this.seriesColors.rabbitmq },
+        {
+          key: 'rabbitmq',
+          label: 'RabbitMQ',
+          color: this.seriesColors.rabbitmq,
+        },
         { key: 'pulsar', label: 'Pulsar', color: this.seriesColors.pulsar },
-        { key: 'system', label: systemLabel, color: this.seriesColors.systemImpact },
+        {
+          key: 'system',
+          label: systemLabel,
+          color: this.seriesColors.systemImpact,
+        },
       ],
       yLabel,
     };
@@ -775,7 +897,9 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     return this.data[0];
   }
 
-  private getNearestBrokerPoint(timestamp: Date): BrokerMetricPoint | undefined {
+  private getNearestBrokerPoint(
+    timestamp: Date,
+  ): BrokerMetricPoint | undefined {
     if (this.brokerData.length === 0) return undefined;
 
     for (let index = this.brokerData.length - 1; index >= 0; index -= 1) {
@@ -789,10 +913,16 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   }
 
   private firstPositive(values: Array<number | undefined>): number | undefined {
-    return values.find((value) => typeof value === 'number' && Number.isFinite(value) && value > 0);
+    return values.find(
+      (value) =>
+        typeof value === 'number' && Number.isFinite(value) && value > 0,
+    );
   }
 
-  private toPercentChange(value: number | undefined, baseline: number | undefined): number | undefined {
+  private toPercentChange(
+    value: number | undefined,
+    baseline: number | undefined,
+  ): number | undefined {
     if (
       value === undefined ||
       baseline === undefined ||
@@ -832,7 +962,8 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   }
 
   private applyAverageMessageBytes(value: number): void {
-    const normalized = Number.isFinite(value) && value > 0 ? Math.round(value) : 2048;
+    const normalized =
+      Number.isFinite(value) && value > 0 ? Math.round(value) : 2048;
     this.averageMessageBytes = normalized;
     this.hideTooltip();
   }
@@ -853,7 +984,10 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     }
 
     for (let index = 0; index < current.length; index += 1) {
-      if (current[index].label !== next[index].label || current[index].color !== next[index].color) {
+      if (
+        current[index].label !== next[index].label ||
+        current[index].color !== next[index].color
+      ) {
         return false;
       }
     }

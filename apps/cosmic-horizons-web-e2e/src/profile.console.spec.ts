@@ -13,19 +13,29 @@ test.describe('Profile — console & retry behavior', () => {
     await page.goto('/profile/adminuser');
 
     // wait for UI render (API may be served quickly)
-    await page.locator('mat-card-title').waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('mat-card-title')
+      .waitFor({ state: 'visible', timeout: 10000 });
 
     // Check debug logs we added in the component
-    const foundStart = consoleMessages.some((m) => m.includes('[ProfileComponent] loadProfile.start'));
-    const foundNext = consoleMessages.some((m) => m.includes('[ProfileComponent] getProfile.next'));
-    const foundFinalize = consoleMessages.some((m) => m.includes('[ProfileComponent] loadProfile.finalize'));
+    const foundStart = consoleMessages.some((m) =>
+      m.includes('[ProfileComponent] loadProfile.start'),
+    );
+    const foundNext = consoleMessages.some((m) =>
+      m.includes('[ProfileComponent] getProfile.next'),
+    );
+    const foundFinalize = consoleMessages.some((m) =>
+      m.includes('[ProfileComponent] loadProfile.finalize'),
+    );
 
     expect(foundStart, 'should log loadProfile.start').toBeTruthy();
     expect(foundNext, 'should log getProfile.next').toBeTruthy();
     expect(foundFinalize, 'should log loadProfile.finalize').toBeTruthy();
   });
 
-  test('shows Try again button on server error and succeeds on retry', async ({ browser }) => {
+  test('shows Try again button on server error and succeeds on retry', async ({
+    browser,
+  }) => {
     // Use a fresh browser context so cached/in-memory profile data can't short-circuit the network request
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -49,7 +59,14 @@ test.describe('Profile — console & retry behavior', () => {
           status: 200,
           contentType: 'application/json',
           headers: { 'access-control-allow-origin': '*' },
-          body: JSON.stringify({ user: { username: 'adminuser', display_name: 'Admin User', created_at: new Date().toISOString() }, posts: [] }),
+          body: JSON.stringify({
+            user: {
+              username: 'adminuser',
+              display_name: 'Admin User',
+              created_at: new Date().toISOString(),
+            },
+            posts: [],
+          }),
         });
       }
     });
@@ -70,13 +87,18 @@ test.describe('Profile — console & retry behavior', () => {
       console.log('[E2E DEBUG] response ->', res.status(), res.url());
     });
 
-
-
     // Load the SPA (client bundle) then navigate client-side so the component issues a fresh GET
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     // ensure no seeded session prevents the component from issuing a network request
-    await page.evaluate(() => { try { sessionStorage.removeItem('auth_user'); sessionStorage.removeItem('auth_token'); } catch (e) { /* ignore */ } });
+    await page.evaluate(() => {
+      try {
+        sessionStorage.removeItem('auth_user');
+        sessionStorage.removeItem('auth_token');
+      } catch (e) {
+        /* ignore */
+      }
+    });
 
     // navigate client-side so the ProfileComponent performs the GET (this will be the *first* route call -> 500)
     await page.evaluate(() => {
@@ -85,7 +107,10 @@ test.describe('Profile — console & retry behavior', () => {
     });
 
     // wait for the app's profile GET and assert it received the simulated 500
-    const errorResp = await page.waitForResponse((r) => PROFILE_API_PATH.test(r.url()) && r.status() === 500, { timeout: 5000 });
+    const errorResp = await page.waitForResponse(
+      (r) => PROFILE_API_PATH.test(r.url()) && r.status() === 500,
+      { timeout: 5000 },
+    );
     expect(errorResp.status()).toBe(500);
 
     // surface profile debug logs if present (helps CI failure inspection)
@@ -96,7 +121,10 @@ test.describe('Profile — console & retry behavior', () => {
     expect(reqUrls.some((u) => PROFILE_API_PATH.test(u))).toBeTruthy();
 
     // Error card and Try again button should be visible when server returns 500
-    const hasErrorCard = await page.locator('.error-card').isVisible().catch(() => false);
+    const hasErrorCard = await page
+      .locator('.error-card')
+      .isVisible()
+      .catch(() => false);
     if (!hasErrorCard) {
       // dump helpful debug context and fail with a descriptive message
       const bodyText = await page.locator('body').innerText();
@@ -106,7 +134,9 @@ test.describe('Profile — console & retry behavior', () => {
       console.log('[E2E DEBUG] requests seen:', reqUrls.slice(-20));
       // eslint-disable-next-line no-console
       console.log('[E2E DEBUG] consoleMessages:', consoleMessages.slice(-50));
-      throw new Error('Expected error UI (.error-card) to be visible after simulated 500 — check debug output above.');
+      throw new Error(
+        'Expected error UI (.error-card) to be visible after simulated 500 — check debug output above.',
+      );
     }
 
     await expect(page.locator('.error-card button')).toHaveText('Try again');
@@ -115,10 +145,15 @@ test.describe('Profile — console & retry behavior', () => {
     await page.click('.error-card button');
 
     // wait for the retry request and ensure it returned 200
-    const successResp = await page.waitForResponse((r) => PROFILE_API_PATH.test(r.url()) && r.status() === 200, { timeout: 5000 });
+    const successResp = await page.waitForResponse(
+      (r) => PROFILE_API_PATH.test(r.url()) && r.status() === 200,
+      { timeout: 5000 },
+    );
     expect(successResp.status()).toBe(200);
 
-    await page.locator('mat-card-title').waitFor({ state: 'visible', timeout: 5000 });
+    await page
+      .locator('mat-card-title')
+      .waitFor({ state: 'visible', timeout: 5000 });
     await expect(page.locator('mat-card-title')).toHaveText('Admin User');
 
     await context.close();

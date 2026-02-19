@@ -31,7 +31,6 @@ describe('JobEventsService', () => {
     jest.spyOn(Logger.prototype, 'debug').mockImplementation(() => undefined);
     jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
-
   });
 
   afterEach(() => {
@@ -54,10 +53,13 @@ describe('JobEventsService', () => {
       const eventId = await service.emitJobSubmittedEvent(job);
 
       expect(eventId).toBe('test-uuid-12345');
-      expect(mockEventRegistry.validateEvent).toHaveBeenCalledWith('JOB_SUBMITTED', job);
+      expect(mockEventRegistry.validateEvent).toHaveBeenCalledWith(
+        'JOB_SUBMITTED',
+        job,
+      );
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
         'jobs.submitted',
-        expect.objectContaining(job)
+        expect.objectContaining(job),
       );
     });
 
@@ -97,7 +99,7 @@ describe('JobEventsService', () => {
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
         'jobs.submitted',
-        expect.objectContaining(job)
+        expect.objectContaining(job),
       );
     });
   });
@@ -106,13 +108,13 @@ describe('JobEventsService', () => {
     it('should emit job status change event', async () => {
       const eventId = await service.emitJobStatusChangedEvent(
         'job-123',
-        'RUNNING'
+        'RUNNING',
       );
 
       expect(eventId).toBe('test-uuid-12345');
       expect(mockEventRegistry.validateEvent).toHaveBeenCalledWith(
         'JOB_STATUS_CHANGED',
-        { jobId: 'job-123', status: 'RUNNING' }
+        { jobId: 'job-123', status: 'RUNNING' },
       );
       expect(mockEventPublisher.publish).toHaveBeenCalledWith('jobs.status', {
         id: 'test-uuid-12345',
@@ -132,7 +134,7 @@ describe('JobEventsService', () => {
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
         'jobs.status',
-        expect.objectContaining(metadata)
+        expect.objectContaining(metadata),
       );
     });
 
@@ -140,7 +142,9 @@ describe('JobEventsService', () => {
       const statuses = ['QUEUED', 'RUNNING', 'COMPLETED', 'FAILED'];
 
       for (const status of statuses) {
-        (EventModels.generateEventId as jest.Mock).mockReturnValueOnce(`uuid-for-${status}`);
+        (EventModels.generateEventId as jest.Mock).mockReturnValueOnce(
+          `uuid-for-${status}`,
+        );
         await service.emitJobStatusChangedEvent('job-id', status);
       }
 
@@ -149,19 +153,13 @@ describe('JobEventsService', () => {
     });
 
     it('should handle status changes without metadata', async () => {
-      await service.emitJobStatusChangedEvent(
-        'job-789',
-        'COMPLETED'
-      );
+      await service.emitJobStatusChangedEvent('job-789', 'COMPLETED');
 
-      expect(mockEventPublisher.publish).toHaveBeenCalledWith(
-        'jobs.status',
-        {
-          id: 'test-uuid-12345',
-          jobId: 'job-789',
-          status: 'COMPLETED',
-        }
-      );
+      expect(mockEventPublisher.publish).toHaveBeenCalledWith('jobs.status', {
+        id: 'test-uuid-12345',
+        jobId: 'job-789',
+        status: 'COMPLETED',
+      });
     });
   });
 
@@ -178,13 +176,16 @@ describe('JobEventsService', () => {
       expect(eventId).toBe('test-uuid-12345');
       expect(mockEventRegistry.validateEvent).toHaveBeenCalledWith(
         'JOB_COMPLETED',
-        { jobId: 'job-123', result }
+        { jobId: 'job-123', result },
       );
-      expect(mockEventPublisher.publish).toHaveBeenCalledWith('jobs.completed', {
-        id: 'test-uuid-12345',
-        jobId: 'job-123',
-        result,
-      });
+      expect(mockEventPublisher.publish).toHaveBeenCalledWith(
+        'jobs.completed',
+        {
+          id: 'test-uuid-12345',
+          jobId: 'job-123',
+          result,
+        },
+      );
     });
 
     it('should handle complex result objects', async () => {
@@ -205,7 +206,7 @@ describe('JobEventsService', () => {
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
         'jobs.completed',
-        expect.objectContaining({ result })
+        expect.objectContaining({ result }),
       );
     });
 
@@ -214,7 +215,7 @@ describe('JobEventsService', () => {
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
         'jobs.completed',
-        expect.objectContaining({ result: {} })
+        expect.objectContaining({ result: {} }),
       );
     });
   });
@@ -228,7 +229,7 @@ describe('JobEventsService', () => {
       expect(eventId).toBe('test-uuid-12345');
       expect(mockEventRegistry.validateEvent).toHaveBeenCalledWith(
         'JOB_ERROR',
-        { jobId: 'job-123', error }
+        { jobId: 'job-123', error },
       );
       expect(mockEventPublisher.publish).toHaveBeenCalledWith('jobs.error', {
         id: 'test-uuid-12345',
@@ -245,7 +246,7 @@ describe('JobEventsService', () => {
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
         'jobs.error',
-        expect.objectContaining({ error })
+        expect.objectContaining({ error }),
       );
     });
 
@@ -254,7 +255,7 @@ describe('JobEventsService', () => {
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
         'jobs.error',
-        expect.objectContaining({ error: 'Timeout after 3600 seconds' })
+        expect.objectContaining({ error: 'Timeout after 3600 seconds' }),
       );
     });
 
@@ -343,13 +344,19 @@ describe('JobEventsService', () => {
     it('should handle multiple event emissions in sequence', async () => {
       const job = { id: 'job-999', agent: 'Orchestrator' };
 
-      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce('evt-submitted');
+      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce(
+        'evt-submitted',
+      );
       await service.emitJobSubmittedEvent(job);
 
-      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce('evt-started');
+      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce(
+        'evt-started',
+      );
       await service.emitJobStatusChangedEvent('job-999', 'RUNNING');
 
-      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce('evt-completed');
+      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce(
+        'evt-completed',
+      );
       await service.emitJobCompletedEvent('job-999', { success: true });
 
       expect(mockEventPublisher.publish).toHaveBeenCalledTimes(3);
@@ -357,12 +364,14 @@ describe('JobEventsService', () => {
     });
 
     it('should handle error after job starts', async () => {
-      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce('evt-error');
+      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce(
+        'evt-error',
+      );
       await service.emitJobErrorEvent('job-999', new Error('Execution failed'));
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
         'jobs.error',
-        expect.objectContaining({ jobId: 'job-999' })
+        expect.objectContaining({ jobId: 'job-999' }),
       );
     });
   });

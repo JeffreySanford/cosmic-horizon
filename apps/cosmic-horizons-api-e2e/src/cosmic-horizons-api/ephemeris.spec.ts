@@ -12,12 +12,9 @@ describe('ephemeris e2e', () => {
   });
 
   it('GET /api/view/ephem/search returns Mars position', async () => {
-    const response = await axios.get(
-      '/api/view/ephem/search?target=mars',
-      {
-        headers: { Authorization: `Bearer ${authToken}` },
-      }
-    );
+    const response = await axios.get('/api/view/ephem/search?target=mars', {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
 
     expect(response.status).toBe(200);
     expect(response.data).toHaveProperty('ra');
@@ -42,12 +39,9 @@ describe('ephemeris e2e', () => {
 
   it('GET /api/view/ephem/search returns asteroid position (JPL fallback)', async () => {
     // Note: This relies on external network access in E2E if not mocked in the test runner.
-    const response = await axios.get(
-      '/api/view/ephem/search?target=eros',
-      {
-        headers: { Authorization: `Bearer ${authToken}` },
-      }
-    );
+    const response = await axios.get('/api/view/ephem/search?target=eros', {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
 
     expect(response.status).toBe(200);
     expect(['jpl-horizons', 'cache']).toContain(response.data.source);
@@ -60,7 +54,7 @@ describe('ephemeris e2e', () => {
         '/api/view/ephem/search?target=nonexistent-object-xyz-123',
         {
           headers: { Authorization: `Bearer ${authToken}` },
-        }
+        },
       );
       throw new Error('Should have failed');
     } catch (error) {

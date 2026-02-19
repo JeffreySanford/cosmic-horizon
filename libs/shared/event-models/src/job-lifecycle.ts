@@ -122,15 +122,21 @@ export type JobLifecycleEvent =
 /**
  * Type guard helpers
  */
-export function isJobSubmittedEvent(event: EventBase): event is JobSubmittedEvent {
+export function isJobSubmittedEvent(
+  event: EventBase,
+): event is JobSubmittedEvent {
   return event.event_type === 'job.submitted';
 }
 
-export function isJobStatusChangedEvent(event: EventBase): event is JobStatusChangedEvent {
+export function isJobStatusChangedEvent(
+  event: EventBase,
+): event is JobStatusChangedEvent {
   return event.event_type === 'job.status.changed';
 }
 
-export function isJobCompletedEvent(event: EventBase): event is JobCompletedEvent {
+export function isJobCompletedEvent(
+  event: EventBase,
+): event is JobCompletedEvent {
   return event.event_type === 'job.completed';
 }
 
@@ -138,6 +144,8 @@ export function isJobFailedEvent(event: EventBase): event is JobFailedEvent {
   return event.event_type === 'job.failed';
 }
 
-export function isJobCancelledEvent(event: EventBase): event is JobCancelledEvent {
+export function isJobCancelledEvent(
+  event: EventBase,
+): event is JobCancelledEvent {
   return event.event_type === 'job.cancelled';
 }

@@ -2,7 +2,7 @@
 
 /**
  * Generate and analyze coverage reports across all projects.
- * 
+ *
  * Usage:
  *   node scripts/generate-coverage-reports.mjs
  *   node scripts/generate-coverage-reports.mjs --format json
@@ -30,7 +30,9 @@ const config = {
 
 // Parse CLI arguments
 const args = process.argv.slice(2);
-const format = args.includes('--format') ? args[args.indexOf('--format') + 1] : 'text-summary';
+const format = args.includes('--format')
+  ? args[args.indexOf('--format') + 1]
+  : 'text-summary';
 const thresholdOnly = args.includes('--threshold-only');
 
 console.log('📊 Coverage Report Generator');
@@ -74,13 +76,13 @@ projects.forEach((project) => {
     'apps',
     project,
     config.coverageDir,
-    'coverage-final.json'
+    'coverage-final.json',
   );
 
   if (fs.existsSync(coverageFile)) {
     try {
       const coverageData = JSON.parse(fs.readFileSync(coverageFile, 'utf8'));
-      
+
       // Extract metrics from coverage data
       const metrics = {
         branches: 0,
@@ -136,10 +138,15 @@ projects.forEach((project) => {
       console.log(`   Lines: ${metrics.lines}`);
       console.log(`   Branches: ${metrics.branches}\n`);
     } catch (error) {
-      console.warn(`⚠️  Could not parse coverage for ${project}:`, error.message);
+      console.warn(
+        `⚠️  Could not parse coverage for ${project}:`,
+        error.message,
+      );
     }
   } else {
-    console.log(`⚠️  No coverage data found for ${project} at ${coverageFile}\n`);
+    console.log(
+      `⚠️  No coverage data found for ${project} at ${coverageFile}\n`,
+    );
   }
 });
 
@@ -152,7 +159,7 @@ const thresholdReport = [];
 config.thresholds.global.forEach((threshold) => {
   const target = Object.entries(threshold)[0][0];
   const required = Object.entries(threshold)[0][1];
-  
+
   // Simple check (in real scenario, would compare actual coverage)
   const passed = true; // Placeholder
   thresholdReport.push({
@@ -161,7 +168,7 @@ config.thresholds.global.forEach((threshold) => {
     passed,
     status: passed ? '✅' : '❌',
   });
-  
+
   if (!passed) thresholdsPassed = false;
 });
 
@@ -194,9 +201,9 @@ projects.forEach((project) => {
     'apps',
     project,
     config.coverageDir,
-    'index.html'
+    'index.html',
   );
-  
+
   if (fs.existsSync(htmlReportPath)) {
     console.log(`📄 ${project}: ${htmlReportPath}`);
     console.log(`   Open with: open ${htmlReportPath}\n`);

@@ -62,11 +62,17 @@ export class ComplianceAuditorService {
     return stored;
   }
 
-  async attemptModifyEvent(_eventId: string, _modified: unknown): Promise<{ allowed: boolean; reason: string }> {
+  async attemptModifyEvent(
+    _eventId: string,
+    _modified: unknown,
+  ): Promise<{ allowed: boolean; reason: string }> {
     return { allowed: false, reason: 'Audit events are immutable' };
   }
 
-  async initializeAuditTrail(jobId: string, userId: string): Promise<AuditTrail> {
+  async initializeAuditTrail(
+    jobId: string,
+    userId: string,
+  ): Promise<AuditTrail> {
     const trail: AuditTrail = {
       jobId,
       createdBy: userId,
@@ -91,7 +97,11 @@ export class ComplianceAuditorService {
     );
   }
 
-  async queryAuditEventsByDateRange(_jobId: string, _startDate: Date, _endDate: Date): Promise<AuditRecord[]> {
+  async queryAuditEventsByDateRange(
+    _jobId: string,
+    _startDate: Date,
+    _endDate: Date,
+  ): Promise<AuditRecord[]> {
     return [];
   }
 
@@ -128,9 +138,11 @@ export class ComplianceAuditorService {
       }
 
       const record = raw as AuditRecord;
-      const actualHash = typeof record['hash'] === 'string' ? record['hash'] : null;
+      const actualHash =
+        typeof record['hash'] === 'string' ? record['hash'] : null;
       const actualPreviousHash =
-        typeof record['previousHash'] === 'string' || record['previousHash'] === null
+        typeof record['previousHash'] === 'string' ||
+        record['previousHash'] === null
           ? (record['previousHash'] as string | null)
           : null;
 
@@ -163,7 +175,9 @@ export class ComplianceAuditorService {
     timestamp: string;
   }> {
     const trail = this.auditTrails.get(jobId);
-    const eventHash = trail ? this.computeHash(JSON.stringify(trail)) : this.computeHash('');
+    const eventHash = trail
+      ? this.computeHash(JSON.stringify(trail))
+      : this.computeHash('');
 
     return {
       jobId,
@@ -192,7 +206,11 @@ export class ComplianceAuditorService {
     };
   }
 
-  async recordComplianceSignOff(jobId: string, auditorId: string, status: string): Promise<{
+  async recordComplianceSignOff(
+    jobId: string,
+    auditorId: string,
+    status: string,
+  ): Promise<{
     jobId: string;
     auditorId: string;
     status: string;
@@ -210,14 +228,18 @@ export class ComplianceAuditorService {
     return [];
   }
 
-  async generateUserActivityReport(userId: string): Promise<{ userId: string; totalActions: number }> {
+  async generateUserActivityReport(
+    userId: string,
+  ): Promise<{ userId: string; totalActions: number }> {
     return {
       userId,
       totalActions: 0,
     };
   }
 
-  async applyRetentionPolicy(_maxAgeYears: number): Promise<{ retained: boolean; policyApplied: boolean }> {
+  async applyRetentionPolicy(
+    _maxAgeYears: number,
+  ): Promise<{ retained: boolean; policyApplied: boolean }> {
     return { retained: true, policyApplied: true };
   }
 
@@ -256,19 +278,23 @@ export class ComplianceAuditorService {
   }
 
   private appendToTrail(storedEvent: StoredAuditRecord): void {
-    const jobId = typeof storedEvent.jobId === 'string' ? storedEvent.jobId : undefined;
+    const jobId =
+      typeof storedEvent.jobId === 'string' ? storedEvent.jobId : undefined;
     if (!jobId) {
       return;
     }
 
-    const userId = typeof storedEvent.userId === 'string' ? storedEvent.userId : 'system';
-    const existing = this.auditTrails.get(jobId) || {
-      jobId,
-      createdBy: userId,
-      createdAt: new Date(),
-      eventCount: 0,
-      events: [],
-    } as AuditTrail;
+    const userId =
+      typeof storedEvent.userId === 'string' ? storedEvent.userId : 'system';
+    const existing =
+      this.auditTrails.get(jobId) ||
+      ({
+        jobId,
+        createdBy: userId,
+        createdAt: new Date(),
+        eventCount: 0,
+        events: [],
+      } as AuditTrail);
 
     existing.events.push(storedEvent);
     existing.eventCount = existing.events.length;

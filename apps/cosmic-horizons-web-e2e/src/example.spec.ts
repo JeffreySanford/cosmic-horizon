@@ -471,6 +471,16 @@ test('creates a notebook post from pillar 3 flow', async ({ page }) => {
     });
   });
 
+  // Stub comments for the example post `post-1` so the test never hits the real DB
+  await page.route('**/api/comments/post/post-1', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'access-control-allow-origin': '*' },
+      body: JSON.stringify([]),
+    });
+  });
+
   await page.route('**/api/auth/me', async (route) => {
     await route.fulfill({
       status: 200,

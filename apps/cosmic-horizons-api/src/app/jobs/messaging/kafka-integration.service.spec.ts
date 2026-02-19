@@ -2,11 +2,11 @@ import { ConfigService } from '@nestjs/config';
 
 /**
  * Priority 5.2: Kafka Integration Tests
- * 
+ *
  * Tests cover Kafka broker cluster management, topic operations, consumer groups,
  * offset tracking, and high-throughput streaming capabilities. Validates 1000+ events/sec throughput
  * with sub-100ms latency requirements.
- * 
+ *
  * Test Coverage: 40 tests
  * - Broker Connection (8 tests)
  * - Topic Management (8 tests)
@@ -21,14 +21,16 @@ class KafkaService {
   private producer: any;
   private consumer: any;
   private brokers: string[];
-  
+
   constructor(private configService: ConfigService) {
     this.brokers = [];
   }
 
   async connect(): Promise<void> {
     if (!this.brokers.length) {
-      this.brokers = this.configService.get<string>('KAFKA_BROKERS', 'localhost:9092').split(',');
+      this.brokers = this.configService
+        .get<string>('KAFKA_BROKERS', 'localhost:9092')
+        .split(',');
     }
     this.admin = { connected: true };
   }
@@ -47,20 +49,32 @@ class KafkaService {
     return Promise.resolve();
   }
 
-  async listTopics(): Promise<string[]> { return []; }
+  async listTopics(): Promise<string[]> {
+    return [];
+  }
 
-  async getTopic(name: string): Promise<any> { return {}; }
+  async getTopic(name: string): Promise<any> {
+    return {};
+  }
 
   async createConsumerGroup(groupId: string): Promise<void> {
     // Mock implementation - no-op for testing
     return Promise.resolve();
   }
 
-  async listConsumerGroups(): Promise<string[]> { return []; }
+  async listConsumerGroups(): Promise<string[]> {
+    return [];
+  }
 
-  async getConsumerGroupMetadata(groupId: string): Promise<any> { return {}; }
+  async getConsumerGroupMetadata(groupId: string): Promise<any> {
+    return {};
+  }
 
-  async resetConsumerGroupOffset(groupId: string, partition: number, offset: number): Promise<void> {
+  async resetConsumerGroupOffset(
+    groupId: string,
+    partition: number,
+    offset: number,
+  ): Promise<void> {
     // Mock implementation - no-op for testing
     return Promise.resolve();
   }
@@ -70,13 +84,20 @@ class KafkaService {
     return Promise.resolve();
   }
 
-  async consume(groupId: string, callback: (message: any) => void): Promise<void> {
+  async consume(
+    groupId: string,
+    callback: (message: any) => void,
+  ): Promise<void> {
     // Mock implementation - no-op for testing
     return Promise.resolve();
   }
 
-  isConnected(): boolean { return !!this.admin; }
-  getMetrics(): any { return {}; }
+  isConnected(): boolean {
+    return !!this.admin;
+  }
+  getMetrics(): any {
+    return {};
+  }
 }
 
 describe('Priority 5.2: Kafka Integration Tests', () => {
@@ -252,7 +273,9 @@ describe('Priority 5.2: Kafka Integration Tests', () => {
 
     it('should retrieve consumer group metadata and status', async () => {
       await kafkaService.createConsumerGroup('cosmic-horizons-jobs-consumer');
-      const metadata = await kafkaService.getConsumerGroupMetadata('cosmic-horizons-jobs-consumer');
+      const metadata = await kafkaService.getConsumerGroupMetadata(
+        'cosmic-horizons-jobs-consumer',
+      );
       expect(metadata).toBeDefined();
     });
 
@@ -264,7 +287,9 @@ describe('Priority 5.2: Kafka Integration Tests', () => {
 
     it('should handle consumer group lag reporting', async () => {
       await kafkaService.createConsumerGroup('cosmic-horizons-jobs-consumer');
-      const metadata = await kafkaService.getConsumerGroupMetadata('cosmic-horizons-jobs-consumer');
+      const metadata = await kafkaService.getConsumerGroupMetadata(
+        'cosmic-horizons-jobs-consumer',
+      );
       expect(metadata.lag).toBeUndefined();
     });
 

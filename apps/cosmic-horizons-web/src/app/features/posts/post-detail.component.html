@@ -16,11 +16,22 @@
           <mat-card-title>{{ post.title }}</mat-card-title>
           <mat-card-subtitle>
             @if (post.user?.username) {
-              <a [routerLink]="['/profile', post.user?.username]" class="author-link">
-                {{ post.user?.display_name || post.user?.username || 'Unknown author' }}
+              <a
+                [routerLink]="['/profile', post.user?.username]"
+                class="author-link"
+              >
+                {{
+                  post.user?.display_name ||
+                    post.user?.username ||
+                    'Unknown author'
+                }}
               </a>
             } @else {
-              <span class="author-link">{{ post.user?.display_name || post.user?.username || 'Unknown author' }}</span>
+              <span class="author-link">{{
+                post.user?.display_name ||
+                  post.user?.username ||
+                  'Unknown author'
+              }}</span>
             }
             | {{ post.status }}
             @if (post.hidden_at) {
@@ -34,14 +45,26 @@
         <mat-card-content>
           <section class="share-panel">
             <span class="share-url">{{ post.id }}</span>
-            <button mat-stroked-button type="button" (click)="copyShareLink()">Copy Share Link</button>
+            <button mat-stroked-button type="button" (click)="copyShareLink()">
+              Copy Share Link
+            </button>
           </section>
 
           <section class="view-toggle">
-            <button mat-stroked-button type="button" [disabled]="viewMode === 'formatted'" (click)="viewMode = 'formatted'">
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="viewMode === 'formatted'"
+              (click)="viewMode = 'formatted'"
+            >
               Formatted View
             </button>
-            <button mat-stroked-button type="button" [disabled]="viewMode === 'raw'" (click)="viewMode = 'raw'">
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="viewMode === 'raw'"
+              (click)="viewMode = 'raw'"
+            >
               Raw Markdown
             </button>
           </section>
@@ -54,7 +77,12 @@
         </mat-card-content>
         <mat-card-actions>
           @if (post.status === 'draft') {
-            <button mat-stroked-button type="button" [disabled]="publishing" (click)="publish()">
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="publishing"
+              (click)="publish()"
+            >
               @if (publishing) {
                 Publishing...
               } @else {
@@ -63,10 +91,20 @@
             </button>
           }
           @if (canModerate) {
-            <button mat-stroked-button type="button" [disabled]="moderating" (click)="toggleHidden()">
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="moderating"
+              (click)="toggleHidden()"
+            >
               {{ post.hidden_at ? 'Unhide' : 'Hide' }}
             </button>
-            <button mat-stroked-button type="button" [disabled]="moderating" (click)="toggleLocked()">
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="moderating"
+              (click)="toggleLocked()"
+            >
               {{ post.locked_at ? 'Unlock' : 'Lock' }}
             </button>
           }
@@ -82,10 +120,20 @@
             <div class="add-comment">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Add a comment...</mat-label>
-                <textarea matInput rows="3" [(ngModel)]="newCommentContent" [disabled]="submittingComment"></textarea>
+                <textarea
+                  matInput
+                  rows="3"
+                  [(ngModel)]="newCommentContent"
+                  [disabled]="submittingComment"
+                ></textarea>
               </mat-form-field>
               <div class="form-actions">
-                <button mat-raised-button color="primary" [disabled]="!newCommentContent.trim() || submittingComment" (click)="submitComment()">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  [disabled]="!newCommentContent.trim() || submittingComment"
+                  (click)="submitComment()"
+                >
                   {{ submittingComment ? 'Posting...' : 'Post Comment' }}
                 </button>
               </div>
@@ -97,7 +145,8 @@
           }
         } @else {
           <div class="locked-message">
-            <mat-icon>lock</mat-icon> This post is locked. No new comments are allowed.
+            <mat-icon>lock</mat-icon> This post is locked. No new comments are
+            allowed.
           </div>
         }
 

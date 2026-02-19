@@ -47,14 +47,25 @@ export class SkyPreviewService {
 
     return this.requestBrowserCoordinates().pipe(
       map((coordinates) => {
-        const geohash = this.toGeohash(coordinates.latitude, coordinates.longitude);
+        const geohash = this.toGeohash(
+          coordinates.latitude,
+          coordinates.longitude,
+        );
         this.setRegionCookie(geohash);
-        return this.buildPreview(geohash, 'browser', coordinates.latitude, coordinates.longitude);
+        return this.buildPreview(
+          geohash,
+          'browser',
+          coordinates.latitude,
+          coordinates.longitude,
+        );
       }),
     );
   }
 
-  personalizeFromCoordinates(latitude: number, longitude: number): Observable<SkyPreview> {
+  personalizeFromCoordinates(
+    latitude: number,
+    longitude: number,
+  ): Observable<SkyPreview> {
     // First attempt to get SSR-generated preview from backend for faster rendering
     if (isPlatformBrowser(this.platformId)) {
       return this.generateSsrPreviewFromBackend(latitude, longitude).pipe(
@@ -73,7 +84,7 @@ export class SkyPreviewService {
     longitude: number,
   ): Observable<SkyPreview> {
     return this.http
-      .post<{ imageUrl: string }> ('/api/preview/generate', {
+      .post<{ imageUrl: string }>('/api/preview/generate', {
         latitude,
         longitude,
       })
@@ -102,7 +113,11 @@ export class SkyPreviewService {
     return of(this.buildPreview(geohash, 'browser', latitude, longitude));
   }
 
-  toGeohash(latitude: number, longitude: number, precision = GEOHASH_PRECISION): string {
+  toGeohash(
+    latitude: number,
+    longitude: number,
+    precision = GEOHASH_PRECISION,
+  ): string {
     let latMin = -90;
     let latMax = 90;
     let lonMin = -180;
@@ -180,7 +195,8 @@ export class SkyPreviewService {
       return language.startsWith('en-us') ? 'dr5r' : 'u09t';
     }
 
-    const acceptLanguage = this.request?.headers.get('accept-language')?.toLowerCase() || '';
+    const acceptLanguage =
+      this.request?.headers.get('accept-language')?.toLowerCase() || '';
     return acceptLanguage.startsWith('en-us') ? 'dr5r' : 'u09t';
   }
 
@@ -198,7 +214,9 @@ export class SkyPreviewService {
       return null;
     }
 
-    return /^[0-9bcdefghjkmnpqrstuvwxyz]{4}$/i.test(raw) ? raw.toLowerCase() : null;
+    return /^[0-9bcdefghjkmnpqrstuvwxyz]{4}$/i.test(raw)
+      ? raw.toLowerCase()
+      : null;
   }
 
   private readCookie(cookieHeader: string, name: string): string | null {

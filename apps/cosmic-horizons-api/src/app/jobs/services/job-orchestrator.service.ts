@@ -1,10 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TaccIntegrationService, TaccJobSubmission } from '../tacc-integration.service';
+import {
+  TaccIntegrationService,
+  TaccJobSubmission,
+} from '../tacc-integration.service';
 import { JobRepository } from '../repositories/job.repository';
 import { Job } from '../entities/job.entity';
 import { EventsService } from '../../modules/events/events.service';
 import { KafkaService } from '../../modules/events/kafka.service';
-import { createEventBase, generateCorrelationId } from '@cosmic-horizons/event-models';
+import {
+  createEventBase,
+  generateCorrelationId,
+} from '@cosmic-horizons/event-models';
 
 export interface BatchJobRequest {
   jobs: TaccJobSubmission[];
@@ -99,16 +105,15 @@ export class JobOrchestratorService {
 
   /**
    * Submit a single job for processing
-   * 
+   *
    * Publishes job.submitted event to RabbitMQ and Kafka
    * Uses correlation ID for tracing job → status → notification chain
    */
-  async submitJob(
-    userId: string,
-    submission: TaccJobSubmission,
-  ): Promise<Job> {
+  async submitJob(userId: string, submission: TaccJobSubmission): Promise<Job> {
     const correlationId = generateCorrelationId();
-    this.logger.log(`User ${userId} submitting job for agent: ${submission.agent} (trace: ${correlationId})`);
+    this.logger.log(
+      `User ${userId} submitting job for agent: ${submission.agent} (trace: ${correlationId})`,
+    );
 
     // Create job record
     const job = await this.jobRepository.create({
@@ -131,44 +136,44 @@ export class JobOrchestratorService {
           user_id: userId,
           job_name: job.agent,
           tacc_system: 'stampede3', // TODO: Make configurable
-          estimated_runtime_minutes: submission.params.max_runtime_minutes || 60,
+          estimated_runtime_minutes:
+            submission.params.max_runtime_minutes || 60,
           num_nodes: submission.params.num_nodes || 1,
           created_at: new Date().toISOString(),
         },
-        { event_id: job.id + '-submitted' } // Use job ID for idempotency
+        { event_id: job.id + '-submitted' }, // Use job ID for idempotency
       );
 
       await this.eventsService.publishJobEvent(jobSubmittedEvent);
       this.logger.debug(`Published job.submitted event (${job.id})`);
 
       // Publish to Kafka for durability and external system integration (Sprint 5.3)
-      await this.publishJobEventToKafka(
-        'job.submitted',
-        job.id,
-        {
-          user_id: userId,
-          project_id: submission.dataset_id,
-          agent: submission.agent,
-          gpu_count: submission.params.gpu_count,
-          num_nodes: submission.params.num_nodes || 1,
-          created_at: new Date().toISOString(),
-          correlation_id: correlationId,
-        },
-      );
+      await this.publishJobEventToKafka('job.submitted', job.id, {
+        user_id: userId,
+        project_id: submission.dataset_id,
+        agent: submission.agent,
+        gpu_count: submission.params.gpu_count,
+        num_nodes: submission.params.num_nodes || 1,
+        created_at: new Date().toISOString(),
+        correlation_id: correlationId,
+      });
     } catch (eventError) {
-      this.logger.warn(`Failed to publish job.submitted event: ${eventError}`, eventError);
+      this.logger.warn(
+        `Failed to publish job.submitted event: ${eventError}`,
+        eventError,
+      );
       // Continue despite event publishing failure - events are non-blocking
     }
 
     try {
       // Submit to TACC
       const result = await this.taccService.submitJob(submission);
-      
+
       // Update with TACC job ID and status
       const previousStatus = job.status;
       await this.jobRepository.updateStatus(job.id, 'QUEUING');
       const updatedJob = await this.jobRepository.findById(job.id);
-      
+
       if (updatedJob) {
         updatedJob.tacc_job_id = result.jobId;
         await this.jobRepository.updateResult(job.id, {});
@@ -186,27 +191,26 @@ export class JobOrchestratorService {
             new_status: 'QUEUING',
             timestamp: new Date().toISOString(),
             reason: 'Job submitted to TACC',
-          }
+          },
         );
 
         await this.eventsService.publishJobEvent(statusChangedEvent);
         this.logger.debug(`Published job.status.changed event (${job.id})`);
 
         // Publish to Kafka for state tracking (Sprint 5.3)
-        await this.publishJobEventToKafka(
-          'job.status.changed',
-          job.id,
-          {
-            previous_status: previousStatus,
-            new_status: 'QUEUING',
-            reason: 'Job submitted to TACC',
-            timestamp: new Date().toISOString(),
-          },
-        );
+        await this.publishJobEventToKafka('job.status.changed', job.id, {
+          previous_status: previousStatus,
+          new_status: 'QUEUING',
+          reason: 'Job submitted to TACC',
+          timestamp: new Date().toISOString(),
+        });
       } catch (eventError) {
-        this.logger.warn(`Failed to publish job.status.changed event: ${eventError}`, eventError);
+        this.logger.warn(
+          `Failed to publish job.status.changed event: ${eventError}`,
+          eventError,
+        );
       }
-      
+
       return updatedJob || job;
     } catch (error) {
       this.logger.error(`Failed to submit job ${job.id}: ${error}`);
@@ -222,27 +226,28 @@ export class JobOrchestratorService {
             job_id: job.id,
             failed_at: new Date().toISOString(),
             error_code: 500,
-            error_message: error instanceof Error ? error.message : 'Unknown error',
+            error_message:
+              error instanceof Error ? error.message : 'Unknown error',
             logs_path: `/jobs/${job.id}/logs`,
-          }
+          },
         );
 
         await this.eventsService.publishJobEvent(failedEvent);
         this.logger.debug(`Published job.failed event (${job.id})`);
 
         // Publish to Kafka for audit trail (Sprint 5.3)
-        await this.publishJobEventToKafka(
-          'job.failed',
-          job.id,
-          {
-            failed_at: new Date().toISOString(),
-            error_code: 500,
-            error_message: error instanceof Error ? error.message : 'Unknown error',
-            logs_path: `/jobs/${job.id}/logs`,
-          },
-        );
+        await this.publishJobEventToKafka('job.failed', job.id, {
+          failed_at: new Date().toISOString(),
+          error_code: 500,
+          error_message:
+            error instanceof Error ? error.message : 'Unknown error',
+          logs_path: `/jobs/${job.id}/logs`,
+        });
       } catch (eventError) {
-        this.logger.warn(`Failed to publish job.failed event: ${eventError}`, eventError);
+        this.logger.warn(
+          `Failed to publish job.failed event: ${eventError}`,
+          eventError,
+        );
       }
 
       throw error;
@@ -254,13 +259,15 @@ export class JobOrchestratorService {
    */
   async submitBatch(userId: string, batch: BatchJobRequest): Promise<Job[]> {
     const { jobs, parallelLimit = 3 } = batch;
-    this.logger.log(`Submitting batch of ${jobs.length} jobs for user ${userId}`);
+    this.logger.log(
+      `Submitting batch of ${jobs.length} jobs for user ${userId}`,
+    );
 
     const results: Job[] = [];
     for (let i = 0; i < jobs.length; i += parallelLimit) {
       const chunk = jobs.slice(i, i + parallelLimit);
       const chunkResults = await Promise.all(
-        chunk.map(job => this.submitJob(userId, job).catch(() => null)),
+        chunk.map((job) => this.submitJob(userId, job).catch(() => null)),
       );
       results.push(...chunkResults.filter((j): j is Job => j !== null));
     }
@@ -273,7 +280,7 @@ export class JobOrchestratorService {
    */
   async getJobStatus(jobId: string): Promise<Job | null> {
     const job = await this.jobRepository.findById(jobId);
-    
+
     if (!job) {
       return null;
     }
@@ -281,12 +288,16 @@ export class JobOrchestratorService {
     // If job has TACC ID, fetch latest status
     if (job.tacc_job_id && ['QUEUING', 'RUNNING'].includes(job.status)) {
       const taccStatus = await this.taccService.getJobStatus(job.tacc_job_id);
-      
+
       // Update local record
       await this.jobRepository.updateProgress(jobId, taccStatus.progress);
-      
+
       if (taccStatus.status === 'COMPLETED' || taccStatus.status === 'FAILED') {
-        await this.jobRepository.updateStatus(jobId, taccStatus.status, taccStatus.progress);
+        await this.jobRepository.updateStatus(
+          jobId,
+          taccStatus.status,
+          taccStatus.progress,
+        );
         await this.jobRepository.updateResult(jobId, {
           output_url: taccStatus.output_url,
         });
@@ -299,7 +310,9 @@ export class JobOrchestratorService {
   /**
    * Query optimization recommendations based on job configuration
    */
-  async getOptimizationTips(submission: TaccJobSubmission): Promise<OptimizationTip[]> {
+  async getOptimizationTips(
+    submission: TaccJobSubmission,
+  ): Promise<OptimizationTip[]> {
     const tips: OptimizationTip[] = [];
     const { params } = submission;
 
@@ -308,7 +321,8 @@ export class JobOrchestratorService {
       tips.push({
         category: 'gpu',
         severity: 'warning',
-        message: 'GPU count not specified. Recommend at least 1 GPU for image reconstruction.',
+        message:
+          'GPU count not specified. Recommend at least 1 GPU for image reconstruction.',
         suggestedValue: 2,
       });
     } else if (params.gpu_count > 4) {
@@ -324,17 +338,22 @@ export class JobOrchestratorService {
       tips.push({
         category: 'rfi_strategy',
         severity: 'warning',
-        message: 'RFI strategy not specified. Recommend "medium" for balanced accuracy and performance.',
+        message:
+          'RFI strategy not specified. Recommend "medium" for balanced accuracy and performance.',
         suggestedValue: 'medium',
       });
     }
 
     // Runtime estimation
-    if (params.rfi_strategy === 'high' || params.rfi_strategy === 'high_sensitivity') {
+    if (
+      params.rfi_strategy === 'high' ||
+      params.rfi_strategy === 'high_sensitivity'
+    ) {
       tips.push({
         category: 'runtime',
         severity: 'info',
-        message: 'High RFI strategy will increase runtime. Expected 2-3x longer processing time.',
+        message:
+          'High RFI strategy will increase runtime. Expected 2-3x longer processing time.',
       });
     }
 
@@ -343,7 +362,8 @@ export class JobOrchestratorService {
       tips.push({
         category: 'runtime',
         severity: 'info',
-        message: 'No max runtime specified. Recommend 24-48 hours for large datasets.',
+        message:
+          'No max runtime specified. Recommend 24-48 hours for large datasets.',
         suggestedValue: '48h',
       });
     }
@@ -362,14 +382,18 @@ export class JobOrchestratorService {
         job.status === 'COMPLETED' && job.completed_at instanceof Date,
     );
     const totalGpuCount = jobs.reduce((sum, j) => sum + (j.gpu_count || 0), 0);
-    
+
     const runtimesMs = completedJobs
       .map((job) => job.completed_at.getTime() - job.created_at.getTime())
-      .filter(rt => rt > 0);
-    const averageRuntime = runtimesMs.length > 0 ? runtimesMs.reduce((a, b) => a + b) / runtimesMs.length : 0;
+      .filter((rt) => rt > 0);
+    const averageRuntime =
+      runtimesMs.length > 0
+        ? runtimesMs.reduce((a, b) => a + b) / runtimesMs.length
+        : 0;
 
-    const successCount = jobs.filter(j => j.status === 'COMPLETED').length;
-    const successRate = jobs.length > 0 ? (successCount / jobs.length) * 100 : 0;
+    const successCount = jobs.filter((j) => j.status === 'COMPLETED').length;
+    const successRate =
+      jobs.length > 0 ? (successCount / jobs.length) * 100 : 0;
 
     // Rough cost estimation: $0.35 per GPU-hour
     const estimatedCost = totalGpuCount * (averageRuntime / 3600000) * 0.35;
@@ -385,12 +409,14 @@ export class JobOrchestratorService {
   /**
    * Query available GPU resource pools (stubbed for next phase)
    */
-  async getAvailableResourcePools(): Promise<Array<{
-    name: string;
-    totalGpus: number;
-    availableGpus: number;
-    queueWaitTime: number; // minutes
-  }>> {
+  async getAvailableResourcePools(): Promise<
+    Array<{
+      name: string;
+      totalGpus: number;
+      availableGpus: number;
+      queueWaitTime: number; // minutes
+    }>
+  > {
     // In phase 2, this will query TACC's resource availability API
     return [
       {
@@ -416,7 +442,11 @@ export class JobOrchestratorService {
     limit = 50,
     offset = 0,
   ): Promise<{ jobs: Job[]; total: number }> {
-    const [jobs, total] = await this.jobRepository.findByUser(userId, limit, offset);
+    const [jobs, total] = await this.jobRepository.findByUser(
+      userId,
+      limit,
+      offset,
+    );
     return { jobs, total };
   }
 
@@ -442,7 +472,7 @@ export class JobOrchestratorService {
    */
   async cancelJob(jobId: string): Promise<boolean> {
     const job = await this.jobRepository.findById(jobId);
-    
+
     if (!job) {
       return false;
     }
@@ -459,17 +489,15 @@ export class JobOrchestratorService {
 
     // Publish status change to Kafka for tracking (Sprint 5.3)
     try {
-      await this.publishJobEventToKafka(
-        'job.cancelled',
-        jobId,
-        {
-          previous_status: job.status,
-          new_status: 'CANCELLED',
-          cancelled_at: new Date().toISOString(),
-        },
-      );
+      await this.publishJobEventToKafka('job.cancelled', jobId, {
+        previous_status: job.status,
+        new_status: 'CANCELLED',
+        cancelled_at: new Date().toISOString(),
+      });
     } catch (error) {
-      this.logger.warn(`Failed to publish job.cancelled event to Kafka: ${error}`);
+      this.logger.warn(
+        `Failed to publish job.cancelled event to Kafka: ${error}`,
+      );
     }
 
     return true;

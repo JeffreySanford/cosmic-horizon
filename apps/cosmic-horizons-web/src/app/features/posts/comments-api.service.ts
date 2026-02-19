@@ -39,55 +39,97 @@ export class CommentsApiService {
   private readonly apiBaseUrl = 'http://localhost:3000';
 
   getCommentsByPost(postId: string): Observable<CommentModel[]> {
-    return this.http.get<CommentModel[]>(`${this.apiBaseUrl}/api/comments/post/${encodeURIComponent(postId)}`);
+    return this.http.get<CommentModel[]>(
+      `${this.apiBaseUrl}/api/comments/post/${encodeURIComponent(postId)}`,
+    );
   }
 
-  createComment(payload: { post_id: string; content: string; parent_id?: string }): Observable<CommentModel> {
-    return this.http.post<CommentModel>(`${this.apiBaseUrl}/api/comments`, payload, {
-      headers: this.authHeaders(),
-    });
+  createComment(payload: {
+    post_id: string;
+    content: string;
+    parent_id?: string;
+  }): Observable<CommentModel> {
+    return this.http.post<CommentModel>(
+      `${this.apiBaseUrl}/api/comments`,
+      payload,
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   updateComment(id: string, content: string): Observable<CommentModel> {
-    return this.http.put<CommentModel>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}`, { content }, {
-      headers: this.authHeaders(),
-    });
+    return this.http.put<CommentModel>(
+      `${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}`,
+      { content },
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   deleteComment(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}`, {
-      headers: this.authHeaders(),
-    });
+    return this.http.delete<void>(
+      `${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}`,
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
-  reportComment(id: string, payload: { reason: string; description?: string }): Observable<CommentReportModel> {
-    return this.http.post<CommentReportModel>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/report`, payload, {
-      headers: this.authHeaders(),
-    });
+  reportComment(
+    id: string,
+    payload: { reason: string; description?: string },
+  ): Observable<CommentReportModel> {
+    return this.http.post<CommentReportModel>(
+      `${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/report`,
+      payload,
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   hideComment(id: string): Observable<CommentModel> {
-    return this.http.patch<CommentModel>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/hide`, {}, {
-      headers: this.authHeaders(),
-    });
+    return this.http.patch<CommentModel>(
+      `${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/hide`,
+      {},
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   unhideComment(id: string): Observable<CommentModel> {
-    return this.http.patch<CommentModel>(`${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/unhide`, {}, {
-      headers: this.authHeaders(),
-    });
+    return this.http.patch<CommentModel>(
+      `${this.apiBaseUrl}/api/comments/${encodeURIComponent(id)}/unhide`,
+      {},
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   getAllReports(): Observable<CommentReportModel[]> {
-    return this.http.get<CommentReportModel[]>(`${this.apiBaseUrl}/api/comments/reports/all`, {
-      headers: this.authHeaders(),
-    });
+    return this.http.get<CommentReportModel[]>(
+      `${this.apiBaseUrl}/api/comments/reports/all`,
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
-  resolveReport(id: string, status: 'reviewed' | 'dismissed'): Observable<CommentReportModel> {
-    return this.http.patch<CommentReportModel>(`${this.apiBaseUrl}/api/comments/reports/${encodeURIComponent(id)}/resolve`, { status }, {
-      headers: this.authHeaders(),
-    });
+  resolveReport(
+    id: string,
+    status: 'reviewed' | 'dismissed',
+  ): Observable<CommentReportModel> {
+    return this.http.patch<CommentReportModel>(
+      `${this.apiBaseUrl}/api/comments/reports/${encodeURIComponent(id)}/resolve`,
+      { status },
+      {
+        headers: this.authHeaders(),
+      },
+    );
   }
 
   private authHeaders(): HttpHeaders {

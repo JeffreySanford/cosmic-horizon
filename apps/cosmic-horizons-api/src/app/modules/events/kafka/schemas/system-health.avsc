@@ -35,7 +35,13 @@
       "type": {
         "type": "enum",
         "name": "ComponentType",
-        "symbols": ["broker", "consumer_group", "topic", "producer", "api_server"]
+        "symbols": [
+          "broker",
+          "consumer_group",
+          "topic",
+          "producer",
+          "api_server"
+        ]
       },
       "doc": "Type of component"
     },

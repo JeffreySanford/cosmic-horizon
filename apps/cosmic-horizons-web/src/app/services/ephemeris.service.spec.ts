@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { EphemerisService, EphemerisResult } from './ephemeris.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -38,7 +41,9 @@ describe('EphemerisService (Web)', () => {
   it('should calculate position for Mars', async () => {
     const epoch = '2026-02-11T12:00:00Z';
 
-    const resultPromise = firstValueFrom(service.calculatePosition('Mars', epoch));
+    const resultPromise = firstValueFrom(
+      service.calculatePosition('Mars', epoch),
+    );
 
     const req = httpMock.expectOne('/api/ephemeris/calculate');
     expect(req.request.method).toBe('POST');
@@ -61,7 +66,9 @@ describe('EphemerisService (Web)', () => {
     req.flush(mockEphemerisResult);
     await first;
 
-    const second = await firstValueFrom(service.calculatePosition('Mars', epoch));
+    const second = await firstValueFrom(
+      service.calculatePosition('Mars', epoch),
+    );
     expect(second?.source).toBe('cache');
 
     // Second request should not generate HTTP call
@@ -94,7 +101,9 @@ describe('EphemerisService (Web)', () => {
   });
 
   it('should handle HTTP errors gracefully', async () => {
-    const p = firstValueFrom(service.calculatePosition('Mars', '2026-02-11T12:00:00Z'));
+    const p = firstValueFrom(
+      service.calculatePosition('Mars', '2026-02-11T12:00:00Z'),
+    );
 
     const req = httpMock.expectOne('/api/ephemeris/calculate');
     req.error(new ErrorEvent('Network error'));
@@ -107,7 +116,9 @@ describe('EphemerisService (Web)', () => {
     const epoch = '2026-02-11T12:00:00Z';
     const objects = ['Mars', 'Venus', 'Mercury'];
 
-    const p = firstValueFrom(service.calculateMultiplePositions(objects, epoch));
+    const p = firstValueFrom(
+      service.calculateMultiplePositions(objects, epoch),
+    );
 
     const req = httpMock.expectOne('/api/ephemeris/calculate-multiple');
     expect(req.request.body).toEqual({
@@ -132,7 +143,9 @@ describe('EphemerisService (Web)', () => {
     const epoch = '2026-02-11T12:00:00Z';
     const objects = ['Mars', 'Venus'];
 
-    const p = firstValueFrom(service.calculateMultiplePositions(objects, epoch));
+    const p = firstValueFrom(
+      service.calculateMultiplePositions(objects, epoch),
+    );
 
     const req = httpMock.expectOne('/api/ephemeris/calculate-multiple');
     req.error(new ErrorEvent('Error'));
@@ -142,7 +155,17 @@ describe('EphemerisService (Web)', () => {
   });
 
   it('should get supported objects list', async () => {
-    const objects = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+    const objects = [
+      'Sun',
+      'Moon',
+      'Mercury',
+      'Venus',
+      'Mars',
+      'Jupiter',
+      'Saturn',
+      'Uranus',
+      'Neptune',
+    ];
 
     const p = firstValueFrom(service.getSupportedObjects());
 
@@ -163,7 +186,9 @@ describe('EphemerisService (Web)', () => {
     req.flush(mockEphemerisResult);
     await p1;
 
-    const result = await firstValueFrom(service.calculatePosition('Mars', epoch2));
+    const result = await firstValueFrom(
+      service.calculatePosition('Mars', epoch2),
+    );
     // Same day, same cache key
     expect(result?.source).toBe('cache');
 
@@ -193,7 +218,9 @@ describe('EphemerisService (Web)', () => {
       states.push(isCalculating);
     });
 
-    const p = firstValueFrom(service.calculatePosition('Mars', '2026-02-11T12:00:00Z'));
+    const p = firstValueFrom(
+      service.calculatePosition('Mars', '2026-02-11T12:00:00Z'),
+    );
 
     const req = httpMock.expectOne('/api/ephemeris/calculate');
     req.flush(mockEphemerisResult);

@@ -1,7 +1,15 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { EachMessagePayload } from 'kafkajs';
 import { KafkaService } from '../../events/kafka.service';
-import { ComplianceAuditorService, AuditEvent } from '../services/compliance-auditor.service';
+import {
+  ComplianceAuditorService,
+  AuditEvent,
+} from '../services/compliance-auditor.service';
 
 /**
  * AuditTrailConsumer subscribes to audit trail events
@@ -22,7 +30,9 @@ export class AuditTrailConsumer implements OnModuleInit, OnModuleDestroy {
       ['audit-trail'],
       this.handleAuditEvent.bind(this),
     );
-    this.logger.log('AuditTrailConsumer initialized and subscribed to audit-trail');
+    this.logger.log(
+      'AuditTrailConsumer initialized and subscribed to audit-trail',
+    );
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -47,10 +57,13 @@ export class AuditTrailConsumer implements OnModuleInit, OnModuleDestroy {
       await this.complianceAuditorService.storeImmutableEvent(auditEvent);
 
       // Verify retention policy
-      const isCompliant = await this.complianceAuditorService.verifyRetentionPolicy();
+      const isCompliant =
+        await this.complianceAuditorService.verifyRetentionPolicy();
 
       if (!isCompliant) {
-        this.logger.warn('Audit trail is not in compliance with retention policy');
+        this.logger.warn(
+          'Audit trail is not in compliance with retention policy',
+        );
       }
     } catch (error) {
       this.logger.warn(

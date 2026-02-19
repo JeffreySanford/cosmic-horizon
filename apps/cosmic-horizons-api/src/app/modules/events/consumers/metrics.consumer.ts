@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { KafkaService } from '../kafka.service';
 import { MetricsService } from '../services/metrics.service';
 import { EachMessagePayload } from 'kafkajs';
@@ -39,7 +44,7 @@ export class MetricsConsumer implements OnModuleInit, OnModuleDestroy {
   private async waitForKafka(): Promise<void> {
     let attempts = 0;
     while (!this.kafkaService.isConnected() && attempts < this.maxRetries) {
-      await new Promise(resolve => setTimeout(resolve, this.retryInterval));
+      await new Promise((resolve) => setTimeout(resolve, this.retryInterval));
       attempts++;
     }
     if (!this.kafkaService.isConnected()) {
@@ -74,27 +79,28 @@ export class MetricsConsumer implements OnModuleInit, OnModuleDestroy {
   private async handleMetricEvent(payload: EachMessagePayload): Promise<void> {
     try {
       const event = JSON.parse(payload.message.value?.toString() || '{}');
-      
+
       this.logger.debug(`Received metric event for job ${event.job_id}`);
 
       // Aggregate metrics by job_id
-      await this.metricsService.aggregateJobMetrics(
-        event.job_id,
-        {
-          event_type: event.event_type,
-          cpu_usage_percent: event.cpu_usage_percent,
-          memory_usage_mb: event.memory_usage_mb,
-          execution_time_seconds: event.execution_time_seconds,
-          timestamp: event.timestamp,
-        },
-      );
+      await this.metricsService.aggregateJobMetrics(event.job_id, {
+        event_type: event.event_type,
+        cpu_usage_percent: event.cpu_usage_percent,
+        memory_usage_mb: event.memory_usage_mb,
+        execution_time_seconds: event.execution_time_seconds,
+        timestamp: event.timestamp,
+      });
 
       // Broadcast metrics update
       try {
-        const metrics = await this.metricsService.getJobMetricsSummary(event.job_id);
+        const metrics = await this.metricsService.getJobMetricsSummary(
+          event.job_id,
+        );
         await this.metricsService.broadcastMetricsUpdate(event.job_id, metrics);
       } catch (broadcastError) {
-        this.logger.warn(`Failed to broadcast metrics for ${event.job_id}: ${broadcastError}`);
+        this.logger.warn(
+          `Failed to broadcast metrics for ${event.job_id}: ${broadcastError}`,
+        );
       }
 
       this.logger.debug(`Processed metric event for job ${event.job_id}`);

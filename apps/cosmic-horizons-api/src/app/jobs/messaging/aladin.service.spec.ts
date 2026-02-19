@@ -133,7 +133,7 @@ describe('AladinService', () => {
       await service.addCatalog(
         instanceId,
         'https://example.com/catalog.json',
-        'My-Catalog_v2.1'
+        'My-Catalog_v2.1',
       );
 
       expect(service).toBeDefined();
@@ -147,7 +147,11 @@ describe('AladinService', () => {
       ];
 
       for (const source of sources) {
-        await service.addCatalog(instanceId, source, `CAT-${source.slice(0, 10)}`);
+        await service.addCatalog(
+          instanceId,
+          source,
+          `CAT-${source.slice(0, 10)}`,
+        );
       }
 
       expect(service).toBeDefined();
@@ -162,7 +166,7 @@ describe('AladinService', () => {
       await service.addCatalog(
         instanceId,
         'https://example.com/catalog.json',
-        'TEST_CAT'
+        'TEST_CAT',
       );
     });
 
@@ -174,7 +178,7 @@ describe('AladinService', () => {
 
     it('should handle removal of non-existent catalog', async () => {
       await expect(
-        service.removeCatalog(instanceId, 'NON_EXISTENT')
+        service.removeCatalog(instanceId, 'NON_EXISTENT'),
       ).resolves.not.toThrow();
     });
 
@@ -257,7 +261,7 @@ describe('AladinService', () => {
       await service.addCatalog(
         instanceId,
         'https://example.com/catalog.json',
-        'MY_CATALOG'
+        'MY_CATALOG',
       );
 
       const metrics = await service.getMetrics();
@@ -303,13 +307,13 @@ describe('AladinService', () => {
   describe('Error Handling', () => {
     it('should handle setView on non-existent instance gracefully', async () => {
       await expect(
-        service.setView('non-existent-id', 100, 50, 10)
+        service.setView('non-existent-id', 100, 50, 10),
       ).resolves.not.toThrow();
     });
 
     it('should handle addCatalog on non-existent instance gracefully', async () => {
       await expect(
-        service.addCatalog('non-existent-id', 'url', 'name')
+        service.addCatalog('non-existent-id', 'url', 'name'),
       ).resolves.not.toThrow();
     });
 
@@ -317,7 +321,7 @@ describe('AladinService', () => {
       const instanceId = await service.initializeAladin('error-test');
 
       await expect(
-        service.setView(instanceId, 1000, 1000, -10)
+        service.setView(instanceId, 1000, 1000, -10),
       ).resolves.not.toThrow();
     });
   });

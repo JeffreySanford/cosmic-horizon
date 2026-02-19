@@ -1,9 +1,9 @@
 /**
  * Global Jest/Vitest Setup File
- * 
+ *
  * This file runs before all tests to set up polyfills and global test configuration.
  * It ensures cross-platform compatibility for test environments.
- * 
+ *
  * CRITICAL: This must run before any imports of Angular modules or Forms
  */
 
@@ -18,8 +18,11 @@
   if (typeof globalThis !== 'undefined' && globalThis.navigator) {
     try {
       // Force delete and redefine to ensure it's truly set
-      const descriptor = Object.getOwnPropertyDescriptor(globalThis.navigator, 'platform');
-      
+      const descriptor = Object.getOwnPropertyDescriptor(
+        globalThis.navigator,
+        'platform',
+      );
+
       if (!descriptor || descriptor.configurable !== false) {
         // Try to delete and redefine
         try {
@@ -41,7 +44,10 @@
       try {
         (globalThis.navigator as any).platform = PLATFORM_VALUE;
       } catch (e) {
-        console.warn('[WARNING] Could not set globalThis.navigator.platform:', e);
+        console.warn(
+          '[WARNING] Could not set globalThis.navigator.platform:',
+          e,
+        );
       }
     }
   }
@@ -49,8 +55,11 @@
   // Setup window.navigator.platform for legacy support
   if (typeof window !== 'undefined' && window.navigator) {
     try {
-      const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'platform');
-      
+      const descriptor = Object.getOwnPropertyDescriptor(
+        window.navigator,
+        'platform',
+      );
+
       if (!descriptor || descriptor.configurable !== false) {
         try {
           delete (window.navigator as any).platform;

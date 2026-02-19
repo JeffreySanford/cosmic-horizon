@@ -28,7 +28,10 @@ export class UserRepository {
     return this.repo.findOneBy({ email, deleted_at: IsNull() });
   }
 
-  async findByEmailAndPassword(email: string, password: string): Promise<User | null> {
+  async findByEmailAndPassword(
+    email: string,
+    password: string,
+  ): Promise<User | null> {
     return this.repo
       .createQueryBuilder('user')
       .where('user.email = :email', { email })
@@ -63,14 +66,14 @@ export class UserRepository {
     email: string;
     password: string;
   }): Promise<User> {
-    const rows = await this.repo.query(
+    const rows = (await this.repo.query(
       `
         INSERT INTO users (username, display_name, email, password_hash)
         VALUES ($1, $2, $3, crypt($4, gen_salt('bf')))
         RETURNING id
       `,
       [params.username, params.display_name, params.email, params.password],
-    ) as Array<{ id: string }>;
+    )) as Array<{ id: string }>;
 
     const created = rows[0] ? await this.findById(rows[0].id) : null;
     if (!created) {
@@ -84,7 +87,10 @@ export class UserRepository {
     return this.repo.save(user);
   }
 
-  async update(id: string, user: Omit<Partial<User>, 'posts' | 'revisions' | 'comments' | 'auditLogs'>): Promise<User | null> {
+  async update(
+    id: string,
+    user: Omit<Partial<User>, 'posts' | 'revisions' | 'comments' | 'auditLogs'>,
+  ): Promise<User | null> {
     await this.repo.update({ id, deleted_at: IsNull() }, user);
     return this.findById(id);
   }
@@ -92,7 +98,7 @@ export class UserRepository {
   async softDelete(id: string): Promise<boolean> {
     const result = await this.repo.update(
       { id, deleted_at: IsNull() },
-      { deleted_at: new Date() }
+      { deleted_at: new Date() },
     );
     return (result.affected ?? 0) > 0;
   }

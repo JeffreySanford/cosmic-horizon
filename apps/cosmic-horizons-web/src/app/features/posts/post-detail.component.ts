@@ -58,7 +58,10 @@ export class PostDetailComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           this.loading = false;
-          this.statusMessage = typeof error.error?.message === 'string' ? error.error.message : 'Post was not found.';
+          this.statusMessage =
+            typeof error.error?.message === 'string'
+              ? error.error.message
+              : 'Post was not found.';
         },
       });
   }
@@ -81,7 +84,11 @@ export class PostDetailComponent implements OnInit {
   }
 
   submitComment(): void {
-    if (!this.post || !this.newCommentContent.trim() || this.submittingComment) {
+    if (
+      !this.post ||
+      !this.newCommentContent.trim() ||
+      this.submittingComment
+    ) {
       return;
     }
 
@@ -157,13 +164,19 @@ export class PostDetailComponent implements OnInit {
         error: (error: HttpErrorResponse) => {
           this.publishing = false;
           this.statusMessage =
-            typeof error.error?.message === 'string' ? error.error.message : 'Failed to publish post.';
+            typeof error.error?.message === 'string'
+              ? error.error.message
+              : 'Failed to publish post.';
         },
       });
   }
 
   copyShareLink(): void {
-    if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator.clipboard) {
+    if (
+      typeof window === 'undefined' ||
+      typeof navigator === 'undefined' ||
+      !navigator.clipboard
+    ) {
       return;
     }
 
@@ -184,7 +197,9 @@ export class PostDetailComponent implements OnInit {
     }
 
     this.moderating = true;
-    const action$ = this.post.hidden_at ? this.postsApi.unhidePost(this.post.id) : this.postsApi.hidePost(this.post.id);
+    const action$ = this.post.hidden_at
+      ? this.postsApi.unhidePost(this.post.id)
+      : this.postsApi.hidePost(this.post.id);
     action$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (post) => {
         this.post = post;
@@ -194,7 +209,9 @@ export class PostDetailComponent implements OnInit {
       error: (error: HttpErrorResponse) => {
         this.moderating = false;
         this.statusMessage =
-          typeof error.error?.message === 'string' ? error.error.message : 'Moderation action failed.';
+          typeof error.error?.message === 'string'
+            ? error.error.message
+            : 'Moderation action failed.';
       },
     });
   }
@@ -205,7 +222,9 @@ export class PostDetailComponent implements OnInit {
     }
 
     this.moderating = true;
-    const action$ = this.post.locked_at ? this.postsApi.unlockPost(this.post.id) : this.postsApi.lockPost(this.post.id);
+    const action$ = this.post.locked_at
+      ? this.postsApi.unlockPost(this.post.id)
+      : this.postsApi.lockPost(this.post.id);
     action$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (post) => {
         this.post = post;
@@ -215,7 +234,9 @@ export class PostDetailComponent implements OnInit {
       error: (error: HttpErrorResponse) => {
         this.moderating = false;
         this.statusMessage =
-          typeof error.error?.message === 'string' ? error.error.message : 'Moderation action failed.';
+          typeof error.error?.message === 'string'
+            ? error.error.message
+            : 'Moderation action failed.';
       },
     });
   }
@@ -223,17 +244,22 @@ export class PostDetailComponent implements OnInit {
   get formattedContent(): string {
     const content = String(this.post?.content || '');
     return renderSafeMarkdownHtml(content, (rawJson: string) => {
-        const encoded = this.tryEncodeViewerBlock(rawJson);
-        if (!encoded) {
-          return `<div class="preview-viewer-block invalid">Invalid viewer block</div>`;
-        }
-        return `<div class="preview-viewer-block"><a href="/view?state=${encoded}" target="_blank" rel="noopener noreferrer">Open embedded viewer block</a></div>`;
-      });
+      const encoded = this.tryEncodeViewerBlock(rawJson);
+      if (!encoded) {
+        return `<div class="preview-viewer-block invalid">Invalid viewer block</div>`;
+      }
+      return `<div class="preview-viewer-block"><a href="/view?state=${encoded}" target="_blank" rel="noopener noreferrer">Open embedded viewer block</a></div>`;
+    });
   }
 
   private tryEncodeViewerBlock(rawJson: string): string | null {
     try {
-      const parsed = JSON.parse(rawJson.trim()) as { ra?: unknown; dec?: unknown; fov?: unknown; survey?: unknown };
+      const parsed = JSON.parse(rawJson.trim()) as {
+        ra?: unknown;
+        dec?: unknown;
+        fov?: unknown;
+        survey?: unknown;
+      };
       return btoa(
         JSON.stringify({
           ra: Number(parsed.ra),

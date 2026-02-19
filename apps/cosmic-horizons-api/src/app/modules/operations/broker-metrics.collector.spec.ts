@@ -74,10 +74,16 @@ describe('BrokerMetricsCollector', () => {
       // Mock axios client used by collector
       const getMock = jest.fn().mockImplementation((path: string) => {
         if (path === '/api/overview') {
-          return Promise.resolve({ data: { queue_totals: { messages_ready: 50, messages_unacked: 50 } } });
+          return Promise.resolve({
+            data: {
+              queue_totals: { messages_ready: 50, messages_unacked: 50 },
+            },
+          });
         }
         if (path === '/api/nodes') {
-          return Promise.resolve({ data: [{ memory: { used: 1024 * 1024 * 200 }, uptime: 3600000 }] });
+          return Promise.resolve({
+            data: [{ memory: { used: 1024 * 1024 * 200 }, uptime: 3600000 }],
+          });
         }
         // default for other endpoints
         return Promise.resolve({ data: {} });
@@ -95,10 +101,16 @@ describe('BrokerMetricsCollector', () => {
       jest.setSystemTime(t0 + 2000); // +2s
       getMock.mockImplementation((path: string) => {
         if (path === '/api/overview') {
-          return Promise.resolve({ data: { queue_totals: { messages_ready: 300, messages_unacked: 0 } } });
+          return Promise.resolve({
+            data: {
+              queue_totals: { messages_ready: 300, messages_unacked: 0 },
+            },
+          });
         }
         if (path === '/api/nodes') {
-          return Promise.resolve({ data: [{ memory: { used: 1024 * 1024 * 210 }, uptime: 3602000 }] });
+          return Promise.resolve({
+            data: [{ memory: { used: 1024 * 1024 * 210 }, uptime: 3602000 }],
+          });
         }
         return Promise.resolve({ data: {} });
       });
@@ -114,10 +126,14 @@ describe('BrokerMetricsCollector', () => {
     it('should mark Kafka metrics as fallback when using placeholder stats', async () => {
       const getMock = jest.fn().mockImplementation((path: string) => {
         if (path === '/api/overview') {
-          return Promise.resolve({ data: { queue_totals: { messages_ready: 0, messages_unacked: 0 } } });
+          return Promise.resolve({
+            data: { queue_totals: { messages_ready: 0, messages_unacked: 0 } },
+          });
         }
         if (path === '/api/nodes') {
-          return Promise.resolve({ data: [{ memory: { used: 1024 * 1024 * 100 }, uptime: 3600000 }] });
+          return Promise.resolve({
+            data: [{ memory: { used: 1024 * 1024 * 100 }, uptime: 3600000 }],
+          });
         }
         if (path === '/brokers') {
           return Promise.resolve({ data: { brokers: [{ id: 1 }] } });
@@ -147,13 +163,19 @@ describe('BrokerMetricsCollector', () => {
         }
         if (path === '/metrics') {
           // Provide metrics with zeros and tiny memory so parser should treat as no measured signal
-          return Promise.resolve({ data: 'pulsar_publish_rate 0\nprocess_resident_memory_bytes 512\n' });
+          return Promise.resolve({
+            data: 'pulsar_publish_rate 0\nprocess_resident_memory_bytes 512\n',
+          });
         }
         if (path === '/api/overview') {
-          return Promise.resolve({ data: { queue_totals: { messages_ready: 0, messages_unacked: 0 } } });
+          return Promise.resolve({
+            data: { queue_totals: { messages_ready: 0, messages_unacked: 0 } },
+          });
         }
         if (path === '/api/nodes') {
-          return Promise.resolve({ data: [{ memory: { used: 1024 * 1024 * 100 }, uptime: 3600000 }] });
+          return Promise.resolve({
+            data: [{ memory: { used: 1024 * 1024 * 100 }, uptime: 3600000 }],
+          });
         }
         return Promise.resolve({ data: {} });
       });
@@ -168,7 +190,8 @@ describe('BrokerMetricsCollector', () => {
     });
 
     it('should parse Pulsar /metrics when Prometheus provides non-zero metrics', async () => {
-      const metricsText = 'pulsar_publish_rate 1234\nprocess_resident_memory_bytes 104857600\n';
+      const metricsText =
+        'pulsar_publish_rate 1234\nprocess_resident_memory_bytes 104857600\n';
       const getMock = jest.fn().mockImplementation((path: string) => {
         if (path === '/admin/v2/brokers') {
           return Promise.resolve({ data: ['localhost:8080'] });
@@ -180,10 +203,14 @@ describe('BrokerMetricsCollector', () => {
           return Promise.resolve({ data: metricsText });
         }
         if (path === '/api/overview') {
-          return Promise.resolve({ data: { queue_totals: { messages_ready: 0, messages_unacked: 0 } } });
+          return Promise.resolve({
+            data: { queue_totals: { messages_ready: 0, messages_unacked: 0 } },
+          });
         }
         if (path === '/api/nodes') {
-          return Promise.resolve({ data: [{ memory: { used: 1024 * 1024 * 100 }, uptime: 3600000 }] });
+          return Promise.resolve({
+            data: [{ memory: { used: 1024 * 1024 * 100 }, uptime: 3600000 }],
+          });
         }
         return Promise.resolve({ data: {} });
       });
@@ -203,11 +230,15 @@ describe('BrokerMetricsCollector', () => {
       jest.setSystemTime(t0);
 
       // Force REST proxy path to fail
-      mockedAxios.create.mockReturnValue({ get: jest.fn().mockRejectedValue(new Error('not found')) } as any);
+      mockedAxios.create.mockReturnValue({
+        get: jest.fn().mockRejectedValue(new Error('not found')),
+      } as any);
 
       // Stub out the admin topic/offset reads on the collector instance
       const testCollector = new BrokerMetricsCollector();
-      const topicsSpy = jest.spyOn(testCollector as any, 'fetchTopicsForNative').mockResolvedValue(['topicA']);
+      const topicsSpy = jest
+        .spyOn(testCollector as any, 'fetchTopicsForNative')
+        .mockResolvedValue(['topicA']);
       const offsetsSpy = jest
         .spyOn(testCollector as any, 'fetchTopicOffsetsForNative')
         .mockResolvedValueOnce([{ partition: 0, offset: '100' }])
@@ -231,7 +262,8 @@ describe('BrokerMetricsCollector', () => {
     it('should parse Kafka /metrics when Prometheus provides quantile p99', async () => {
       // Provide a KAFKA_METRICS_URL so collector uses axios.get() for Prometheus scrape
       process.env['KAFKA_METRICS_URL'] = 'http://localhost:9404/metrics';
-      const metricsText = 'kafka_request_latency_seconds{quantile="0.99"} 0.0123\n';
+      const metricsText =
+        'kafka_request_latency_seconds{quantile="0.99"} 0.0123\n';
 
       // axios.get should return the metrics text for the configured URL
       (mockedAxios.get as jest.Mock).mockImplementation((url: string) => {
@@ -242,12 +274,16 @@ describe('BrokerMetricsCollector', () => {
       });
 
       // Force REST proxy path to fail so native path is exercised and collectKafkaMetricsFromPrometheus() is invoked
-      mockedAxios.create.mockReturnValue({ get: jest.fn().mockRejectedValue(new Error('not found')) } as any);
+      mockedAxios.create.mockReturnValue({
+        get: jest.fn().mockRejectedValue(new Error('not found')),
+      } as any);
 
       const testCollector = new BrokerMetricsCollector();
 
       // Stub native admin topic/offset reads
-      const topicsSpy = jest.spyOn(testCollector as any, 'fetchTopicsForNative').mockResolvedValue(['topicA']);
+      const topicsSpy = jest
+        .spyOn(testCollector as any, 'fetchTopicsForNative')
+        .mockResolvedValue(['topicA']);
       const offsetsSpy = jest
         .spyOn(testCollector as any, 'fetchTopicOffsetsForNative')
         .mockResolvedValueOnce([{ partition: 0, offset: '100' }])

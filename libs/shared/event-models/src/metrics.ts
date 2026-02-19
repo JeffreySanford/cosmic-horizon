@@ -118,22 +118,26 @@ export type MetricsEvent =
 /**
  * Type guard helpers
  */
-export function isJobMetricsRecordedEvent(event: EventBase): event is JobMetricsRecordedEvent {
+export function isJobMetricsRecordedEvent(
+  event: EventBase,
+): event is JobMetricsRecordedEvent {
   return event.event_type === 'job.metrics.recorded';
 }
 
 export function isJobPerformanceSummaryEvent(
-  event: EventBase
+  event: EventBase,
 ): event is JobPerformanceSummaryEvent {
   return event.event_type === 'job.performance.summary';
 }
 
-export function isSystemHealthCheckEvent(event: EventBase): event is SystemHealthCheckEvent {
+export function isSystemHealthCheckEvent(
+  event: EventBase,
+): event is SystemHealthCheckEvent {
   return event.event_type === 'system.health.check';
 }
 
 export function isResourceAllocationChangedEvent(
-  event: EventBase
+  event: EventBase,
 ): event is ResourceAllocationChangedEvent {
   return event.event_type === 'resource.allocation.changed';
 }

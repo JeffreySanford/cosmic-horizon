@@ -21,14 +21,14 @@
 
 **What it does**: Real-time, low-latency event delivery
 
-| Characteristic | Value |
-|---|---|
-| **Retention** | In-memory (0 persistence by default) |
-| **Latency** | <10ms P99 |
-| **Use Cases** | Real-time notifications, WebSocket pushes, live dashboards |
-| **Routing** | Direct, fanout, topic-based exchanges |
-| **Replayability** | No (ephemeral) |
-| **Storage Model** | Memory-only |
+| Characteristic    | Value                                                      |
+| ----------------- | ---------------------------------------------------------- |
+| **Retention**     | In-memory (0 persistence by default)                       |
+| **Latency**       | <10ms P99                                                  |
+| **Use Cases**     | Real-time notifications, WebSocket pushes, live dashboards |
+| **Routing**       | Direct, fanout, topic-based exchanges                      |
+| **Replayability** | No (ephemeral)                                             |
+| **Storage Model** | Memory-only                                                |
 
 **Topics Published**:
 
@@ -42,24 +42,24 @@
 
 **What it does**: Long-term event log, compliance, audit trail, replay capability
 
-| Characteristic | Value |
-|---|---|
-| **Retention** | 30-90 days on disk |
-| **Latency** | 50-100ms P99 |
-| **Use Cases** | Compliance audit, event replay, analytics, disaster recovery |
-| **Routing** | Partition-based (immutable log) |
-| **Replayability** | Yes (offset-based consumer groups) |
-| **Storage Model** | Append-only log (SSD disk) |
+| Characteristic    | Value                                                        |
+| ----------------- | ------------------------------------------------------------ |
+| **Retention**     | 30-90 days on disk                                           |
+| **Latency**       | 50-100ms P99                                                 |
+| **Use Cases**     | Compliance audit, event replay, analytics, disaster recovery |
+| **Routing**       | Partition-based (immutable log)                              |
+| **Replayability** | Yes (offset-based consumer groups)                           |
+| **Storage Model** | Append-only log (SSD disk)                                   |
 
 **Topics Defined** (See [EVENT-STREAMING-TOPOLOGY.md](EVENT-STREAMING-TOPOLOGY.md)):
 
-| Topic | Partitions | Retention | Purpose |
-|-------|-----------|-----------|---------|
-| `job-lifecycle` | 10 | 30 days | Job state transitions (submitted, running, completed, failed) |
-| `job-metrics` | 20 | 30 days | Performance metrics (execution time, GPU usage, latency) |
-| `notifications` | 5 | 7 days | User notifications (sent, read, alerts) |
-| `audit-trail` | 5 | **90 days** | Compliance: policy changes, data access, user actions |
-| `system-health` | 3 | 7 days | Infrastructure metrics, broker health, resource usage |
+| Topic           | Partitions | Retention   | Purpose                                                       |
+| --------------- | ---------- | ----------- | ------------------------------------------------------------- |
+| `job-lifecycle` | 10         | 30 days     | Job state transitions (submitted, running, completed, failed) |
+| `job-metrics`   | 20         | 30 days     | Performance metrics (execution time, GPU usage, latency)      |
+| `notifications` | 5          | 7 days      | User notifications (sent, read, alerts)                       |
+| `audit-trail`   | 5          | **90 days** | Compliance: policy changes, data access, user actions         |
+| `system-health` | 3          | 7 days      | Infrastructure metrics, broker health, resource usage         |
 
 **Why Kafka is Critical**:
 
@@ -74,15 +74,15 @@
 
 Pulsar combines **both** RabbitMQ and Kafka capabilities in a single platform:
 
-| Capability | RabbitMQ | Kafka | Pulsar | Notes |
-|------------|----------|-------|--------|-------|
-| **Real-time Messaging** | ✅ | ❌ | ✅ | Ephemeral subscriptions |
-| **Durable Log** | ❌ | ✅ | ✅ | Persistent topics with retention |
-| **Geo-replication** | ❌ | ❌ | ✅ | Multi-region failover |
-| **Tiered Storage** | ❌ | ❌ | ✅ | SSD + S3 archival |
-| **Throughput** | ~1K msg/s | ~10K msg/s | **14K+ msg/s** | Peak performance under load |
-| **P99 Latency** | ~10ms | ~50ms | **~6ms** | End-to-end latency percentile |
-| **Operations** | 2 clusters | 1 cluster | 1 cluster | Operational simplicity gain |
+| Capability              | RabbitMQ   | Kafka      | Pulsar         | Notes                            |
+| ----------------------- | ---------- | ---------- | -------------- | -------------------------------- |
+| **Real-time Messaging** | ✅         | ❌         | ✅             | Ephemeral subscriptions          |
+| **Durable Log**         | ❌         | ✅         | ✅             | Persistent topics with retention |
+| **Geo-replication**     | ❌         | ❌         | ✅             | Multi-region failover            |
+| **Tiered Storage**      | ❌         | ❌         | ✅             | SSD + S3 archival                |
+| **Throughput**          | ~1K msg/s  | ~10K msg/s | **14K+ msg/s** | Peak performance under load      |
+| **P99 Latency**         | ~10ms      | ~50ms      | **~6ms**       | End-to-end latency percentile    |
+| **Operations**          | 2 clusters | 1 cluster  | 1 cluster      | Operational simplicity gain      |
 
 ### Architecture Shift (Phase 4)
 
@@ -239,13 +239,16 @@ interface BrokerComparison {
 
 ```json
 {
-  "timeRange": { "start": "2026-02-14T14:30:00Z", "end": "2026-02-15T14:30:00Z" },
+  "timeRange": {
+    "start": "2026-02-14T14:30:00Z",
+    "end": "2026-02-15T14:30:00Z"
+  },
   "samples": [
     {
       "timestamp": "2026-02-14T14:30:00Z",
       "rabbitmq": { "throughput": 1173, "latency": 8.5, "memory": 156.2 },
       "pulsar": { "throughput": 1604, "latency": 6.2, "memory": 128.9 }
-    },
+    }
     // ... more samples every 5 minutes
   ]
 }
@@ -466,14 +469,14 @@ Sprint 5.4: Benchmark Pulsar
 
 ### Evaluation Criteria
 
-| Metric | Target | Threshold | Phase 4 Decision |
-|--------|--------|-----------|-----------------|
-| Throughput | +30% | ≥25% faster | Go if met |
-| Latency | -25% | ≥15% faster | Go if met |
-| Memory | -20% | ≥10% lower | Nice to have |
-| Reliability | 99.99% | ≥99% | Go if met |
-| Setup Time | <30min | <1h | Go |
-| Operational Overhead | 50% reduction | ≥40% | Go |
+| Metric               | Target        | Threshold   | Phase 4 Decision |
+| -------------------- | ------------- | ----------- | ---------------- |
+| Throughput           | +30%          | ≥25% faster | Go if met        |
+| Latency              | -25%          | ≥15% faster | Go if met        |
+| Memory               | -20%          | ≥10% lower  | Nice to have     |
+| Reliability          | 99.99%        | ≥99%        | Go if met        |
+| Setup Time           | <30min        | <1h         | Go               |
+| Operational Overhead | 50% reduction | ≥40%        | Go               |
 
 ### Decision Gates
 

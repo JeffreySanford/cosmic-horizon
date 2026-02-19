@@ -1,4 +1,10 @@
-import { IsArray, IsOptional, IsString, ArrayMaxSize, IsNotEmpty } from 'class-validator';
+import {
+  IsArray,
+  IsOptional,
+  IsString,
+  ArrayMaxSize,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class CreateDiscoveryDto {
   @IsNotEmpty()

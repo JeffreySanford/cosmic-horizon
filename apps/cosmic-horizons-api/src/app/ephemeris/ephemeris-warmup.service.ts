@@ -15,14 +15,22 @@ export class EphemerisWarmupService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleDailyWarmup() {
     this.logger.log('Starting daily ephemeris cache pre-warming...');
-    
+
     const objects = [
-      'sun', 'moon', 'mercury', 'venus', 'mars', 
-      'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'
+      'sun',
+      'moon',
+      'mercury',
+      'venus',
+      'mars',
+      'jupiter',
+      'saturn',
+      'uranus',
+      'neptune',
+      'pluto',
     ];
 
     let warmedCount = 0;
-    
+
     // Warm today + next 7 days
     for (let i = 0; i <= 7; i++) {
       const date = new Date();
@@ -34,12 +42,17 @@ export class EphemerisWarmupService {
           await this.ephemerisService.calculatePosition(obj, isoDate);
           warmedCount++;
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'unknown error';
-          this.logger.error(`Failed to pre-warm ${obj} for ${isoDate}: ${message}`);
+          const message =
+            error instanceof Error ? error.message : 'unknown error';
+          this.logger.error(
+            `Failed to pre-warm ${obj} for ${isoDate}: ${message}`,
+          );
         }
       }
     }
 
-    this.logger.log(`Ephemeris cache pre-warming complete. Warmed ${warmedCount} entries.`);
+    this.logger.log(
+      `Ephemeris cache pre-warming complete. Warmed ${warmedCount} entries.`,
+    );
   }
 }

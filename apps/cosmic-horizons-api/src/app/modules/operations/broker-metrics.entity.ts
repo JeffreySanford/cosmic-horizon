@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  Index,
+} from 'typeorm';
 
 /**
  * BrokerMetrics Entity
@@ -99,10 +105,17 @@ export interface BrokerMetricsDTO {
   brokerCount?: number;
   topicStats?: Record<string, unknown>;
   dataSource?: 'measured' | 'fallback' | 'missing';
-  metricQuality?: Partial<Record<
-    'messagesPerSecond' | 'p99LatencyMs' | 'memoryUsageMb' | 'cpuPercentage' | 'connectionCount' | 'uptime',
-    'measured' | 'fallback' | 'missing'
-  >>;
+  metricQuality?: Partial<
+    Record<
+      | 'messagesPerSecond'
+      | 'p99LatencyMs'
+      | 'memoryUsageMb'
+      | 'cpuPercentage'
+      | 'connectionCount'
+      | 'uptime',
+      'measured' | 'fallback' | 'missing'
+    >
+  >;
 }
 
 /**

@@ -10,8 +10,15 @@
         spellcheck="false"
         [(ngModel)]="targetQuery"
         [ngModelOptions]="{ standalone: true }"
-        (keyup.enter)="searchTarget()" />
-      <button mat-icon-button matSuffix type="button" aria-label="Search" (click)="searchTarget()">
+        (keyup.enter)="searchTarget()"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        aria-label="Search"
+        (click)="searchTarget()"
+      >
         <mat-icon>search</mat-icon>
       </button>
     </mat-form-field>
@@ -21,12 +28,18 @@
   <div class="viewer-shell">
     <section class="viewer-canvas-panel">
       <div class="aladin-stage">
-        <div #aladinHost class="aladin-host" aria-label="Aladin sky viewer"></div>
+        <div
+          #aladinHost
+          class="aladin-host"
+          aria-label="Aladin sky viewer"
+        ></div>
         <div class="center-indicator" aria-hidden="true">
           <span class="crosshair"></span>
           @if (centerCatalogLabel) {
             <span class="center-label">
-              {{ centerCatalogLabel.name }} ({{ centerCatalogLabel.object_type }})
+              {{ centerCatalogLabel.name }} ({{
+                centerCatalogLabel.object_type
+              }})
             </span>
           }
         </div>
@@ -34,19 +47,22 @@
           <mat-slide-toggle
             [checked]="gridOverlayEnabled"
             (change)="toggleGridOverlay($any($event).checked)"
-            color="primary">
+            color="primary"
+          >
             Grid
           </mat-slide-toggle>
           <mat-slide-toggle
             [checked]="labelsOverlayEnabled"
             (change)="toggleLabelsOverlay($any($event).checked)"
-            color="primary">
+            color="primary"
+          >
             Labels
           </mat-slide-toggle>
           <mat-slide-toggle
             [checked]="pdssColorEnabled"
             (change)="togglePdssColor($any($event).checked)"
-            color="accent">
+            color="accent"
+          >
             P/DSS2 Color
           </mat-slide-toggle>
         </div>
@@ -55,7 +71,9 @@
         <div class="resolution-hint">
           <span>{{ nativeResolutionHint }}</span>
           @if (suggestedSharperSurvey) {
-            <button mat-button type="button" (click)="applySuggestedSurvey()">Use {{ suggestedSharperSurvey }}</button>
+            <button mat-button type="button" (click)="applySuggestedSurvey()">
+              Use {{ suggestedSharperSurvey }}
+            </button>
           }
         </div>
       }
@@ -99,16 +117,39 @@
 
         <section class="panel-group">
           <div class="actions">
-            <button mat-stroked-button type="button" (click)="applyStateToUrl()">Update URL State</button>
-            <button mat-stroked-button type="button" (click)="downloadScienceData()">Download FITS Cutout</button>
-            <button mat-stroked-button type="button" (click)="createPermalink()" [disabled]="loadingPermalink">
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="applyStateToUrl()"
+            >
+              Update URL State
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="downloadScienceData()"
+            >
+              Download FITS Cutout
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="createPermalink()"
+              [disabled]="loadingPermalink"
+            >
               @if (loadingPermalink) {
                 Creating permalink...
               } @else {
                 Create Permalink
               }
             </button>
-            <button mat-flat-button color="accent" type="button" (click)="saveSnapshot()" [disabled]="savingSnapshot">
+            <button
+              mat-flat-button
+              color="accent"
+              type="button"
+              (click)="saveSnapshot()"
+              [disabled]="savingSnapshot"
+            >
               @if (savingSnapshot) {
                 Saving snapshot...
               } @else {
@@ -122,9 +163,16 @@
           <div class="label-tools">
             <mat-form-field appearance="outline" class="label-name-field">
               <mat-label>Center Label</mat-label>
-              <input matInput type="text" [(ngModel)]="labelDraft" [ngModelOptions]="{ standalone: true }" />
+              <input
+                matInput
+                type="text"
+                [(ngModel)]="labelDraft"
+                [ngModelOptions]="{ standalone: true }"
+              />
             </mat-form-field>
-            <button mat-stroked-button type="button" (click)="addCenterLabel()">Label Center</button>
+            <button mat-stroked-button type="button" (click)="addCenterLabel()">
+              Label Center
+            </button>
           </div>
         </section>
 
@@ -134,14 +182,30 @@
             <div class="catalog-labels">
               <h3>Catalog Labels Near Center</h3>
               @if (centerCatalogLabel) {
-                <button mat-stroked-button type="button" (click)="addCenterCatalogLabelAsAnnotation()">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="addCenterCatalogLabelAsAnnotation()"
+                >
                   Annotate Center Match
                 </button>
               }
-              @for (label of catalogLabels; track label.name + label.ra + label.dec) {
+              @for (
+                label of catalogLabels;
+                track label.name + label.ra + label.dec
+              ) {
                 <div class="catalog-row" (mouseenter)="logCatalogHover(label)">
-                  <span>{{ label.name }} ({{ label.object_type }}) - {{ label.angular_distance_deg.toFixed(3) }} deg</span>
-                  <button mat-button type="button" (click)="addCatalogLabelAsAnnotation(label)">Annotate</button>
+                  <span
+                    >{{ label.name }} ({{ label.object_type }}) -
+                    {{ label.angular_distance_deg.toFixed(3) }} deg</span
+                  >
+                  <button
+                    mat-button
+                    type="button"
+                    (click)="addCatalogLabelAsAnnotation(label)"
+                  >
+                    Annotate
+                  </button>
                 </div>
               }
             </div>
@@ -152,8 +216,13 @@
               <h3>Manual Annotations</h3>
               @for (label of labels; track label.created_at + label.name) {
                 <div class="label-row">
-                  <span>{{ label.name }} (RA {{ label.ra }}, Dec {{ label.dec }})</span>
-                  <button mat-button type="button" (click)="removeLabel(label)">Remove</button>
+                  <span
+                    >{{ label.name }} (RA {{ label.ra }}, Dec
+                    {{ label.dec }})</span
+                  >
+                  <button mat-button type="button" (click)="removeLabel(label)">
+                    Remove
+                  </button>
                 </div>
               }
             </div>
@@ -163,8 +232,14 @@
         <details class="details-panel">
           <summary>Cutout Detail & Diagnostics</summary>
           <div class="cutout-controls">
-            <label class="cutout-label" for="cutout-detail">Cutout Detail</label>
-            <select id="cutout-detail" [(ngModel)]="cutoutDetail" [ngModelOptions]="{ standalone: true }">
+            <label class="cutout-label" for="cutout-detail"
+              >Cutout Detail</label
+            >
+            <select
+              id="cutout-detail"
+              [(ngModel)]="cutoutDetail"
+              [ngModelOptions]="{ standalone: true }"
+            >
               <option value="standard">Standard (1024 px)</option>
               <option value="high">High (2048 px)</option>
               <option value="max">Max (3072 px)</option>
@@ -175,14 +250,23 @@
             <div class="telemetry-card">
               <h3>Cutout Telemetry</h3>
               <p>Success Rate: {{ cutoutSuccessRate }}</p>
-              <p>Requests: {{ cutoutTelemetry.requests_total }} | Failures: {{ cutoutTelemetry.failure_total }}</p>
               <p>
-                Fallbacks: res {{ cutoutTelemetry.resolution_fallback_total }} | survey
+                Requests: {{ cutoutTelemetry.requests_total }} | Failures:
+                {{ cutoutTelemetry.failure_total }}
+              </p>
+              <p>
+                Fallbacks: res {{ cutoutTelemetry.resolution_fallback_total }} |
+                survey
                 {{ cutoutTelemetry.survey_fallback_total }}
               </p>
-              <p>Cache Hits: {{ cutoutTelemetry.cache_hits_total }} | Attempts: {{ cutoutTelemetry.provider_attempts_total }}</p>
+              <p>
+                Cache Hits: {{ cutoutTelemetry.cache_hits_total }} | Attempts:
+                {{ cutoutTelemetry.provider_attempts_total }}
+              </p>
               @if (cutoutTelemetry.last_failure_reason) {
-                <p class="status">Last Failure: {{ cutoutTelemetry.last_failure_reason }}</p>
+                <p class="status">
+                  Last Failure: {{ cutoutTelemetry.last_failure_reason }}
+                </p>
               }
             </div>
           }

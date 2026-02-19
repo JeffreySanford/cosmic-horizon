@@ -53,14 +53,14 @@ export class AuthApiService {
   login(request: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
       `${this.apiBaseUrl}/api/auth/login`,
-      request
+      request,
     );
   }
 
   register(request: RegisterRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
       `${this.apiBaseUrl}/api/auth/register`,
-      request
+      request,
     );
   }
 
@@ -69,12 +69,18 @@ export class AuthApiService {
   }
 
   logout(refreshToken?: string): Observable<LogoutResponse> {
-    return this.http.post<LogoutResponse>(`${this.apiBaseUrl}/api/auth/logout`, {
-      refresh_token: refreshToken,
-    });
+    return this.http.post<LogoutResponse>(
+      `${this.apiBaseUrl}/api/auth/logout`,
+      {
+        refresh_token: refreshToken,
+      },
+    );
   }
 
   refresh(request: RefreshRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiBaseUrl}/api/auth/refresh`, request);
+    return this.http.post<LoginResponse>(
+      `${this.apiBaseUrl}/api/auth/refresh`,
+      request,
+    );
   }
 }

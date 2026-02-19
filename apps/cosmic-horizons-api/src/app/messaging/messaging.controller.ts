@@ -1,6 +1,10 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { MessagingService } from './messaging.service';
-import type { ArraySite, ArrayElementStatus, MessagingLiveStats } from './messaging.types';
+import type {
+  ArraySite,
+  ArrayElementStatus,
+  MessagingLiveStats,
+} from './messaging.types';
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import { MessagingMonitorService } from './messaging-monitor.service';
 import { MessagingStatsService } from './messaging-stats.service';
@@ -34,4 +38,3 @@ export class MessagingController {
     return this.statsService.getSnapshot(this.monitorService.getSnapshot());
   }
 }
-

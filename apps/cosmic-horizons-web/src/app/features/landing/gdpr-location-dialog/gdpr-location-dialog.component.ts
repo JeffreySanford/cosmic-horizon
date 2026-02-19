@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 
-
 @Component({
   selector: 'app-gdpr-location-dialog',
   standalone: false,
@@ -9,7 +8,9 @@ import { MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./gdpr-location-dialog.component.scss'],
 })
 export class GdprLocationDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<GdprLocationDialogComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<GdprLocationDialogComponent>,
+  );
 
   userConsent = false;
   locationData = {
@@ -46,7 +47,10 @@ export class GdprLocationDialogComponent {
   }
 
   confirmLocation(): void {
-    if (this.locationData.latitude !== null && this.locationData.longitude !== null) {
+    if (
+      this.locationData.latitude !== null &&
+      this.locationData.longitude !== null
+    ) {
       this.dialogRef.close(this.locationData);
     }
   }

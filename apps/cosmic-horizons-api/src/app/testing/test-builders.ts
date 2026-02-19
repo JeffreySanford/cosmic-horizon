@@ -59,7 +59,7 @@ export class CommentBuilder {
   }
 
   withDeleted(deleted: boolean, deletedAt?: Date) {
-    this.comment.deleted_at = deleted ? (deletedAt || new Date()) : null;
+    this.comment.deleted_at = deleted ? deletedAt || new Date() : null;
     return this;
   }
 
@@ -160,17 +160,17 @@ export class PostBuilder {
   }
 
   withLocked(locked: boolean, lockedAt?: Date) {
-    this.post.locked_at = locked ? (lockedAt || new Date()) : null;
+    this.post.locked_at = locked ? lockedAt || new Date() : null;
     return this;
   }
 
   withHidden(hidden: boolean, hiddenAt?: Date) {
-    this.post.hidden_at = hidden ? (hiddenAt || new Date()) : null;
+    this.post.hidden_at = hidden ? hiddenAt || new Date() : null;
     return this;
   }
 
   withDeleted(deleted: boolean, deletedAt?: Date) {
-    this.post.deleted_at = deleted ? (deletedAt || new Date()) : null;
+    this.post.deleted_at = deleted ? deletedAt || new Date() : null;
     return this;
   }
 

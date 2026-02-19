@@ -147,7 +147,10 @@ describe('CommentItemComponent', () => {
     it('should return false when comment is deleted', () => {
       authService.isAuthenticated.mockReturnValue(true);
       component.isPostLocked = false;
-      component.comment = { ...mockComment, deleted_at: '2026-02-12T00:00:00Z' };
+      component.comment = {
+        ...mockComment,
+        deleted_at: '2026-02-12T00:00:00Z',
+      };
 
       expect(component.canReply).toBe(false);
     });
@@ -172,7 +175,10 @@ describe('CommentItemComponent', () => {
 
     it('should return false when comment is deleted', () => {
       authService.isAuthenticated.mockReturnValue(true);
-      component.comment = { ...mockComment, deleted_at: '2026-02-12T00:00:00Z' };
+      component.comment = {
+        ...mockComment,
+        deleted_at: '2026-02-12T00:00:00Z',
+      };
 
       expect(component.canReport).toBe(false);
     });
@@ -283,7 +289,9 @@ describe('CommentItemComponent', () => {
 
     it('should handle error response', async () => {
       const errorResponse = { error: { message: 'Server error' } };
-      commentsApiService.createComment.mockReturnValue(throwError(() => errorResponse));
+      commentsApiService.createComment.mockReturnValue(
+        throwError(() => errorResponse),
+      );
 
       component.submitReply();
       await Promise.resolve();
@@ -316,7 +324,9 @@ describe('CommentItemComponent', () => {
       component.deleteComment();
       await Promise.resolve();
 
-      expect(commentsApiService.deleteComment).toHaveBeenCalledWith('comment-1');
+      expect(commentsApiService.deleteComment).toHaveBeenCalledWith(
+        'comment-1',
+      );
     });
 
     it('should not delete when user cancels confirmation', () => {
@@ -350,7 +360,9 @@ describe('CommentItemComponent', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
       const errorResponse = { error: { message: 'Cannot delete' } };
-      commentsApiService.deleteComment.mockReturnValue(throwError(() => errorResponse));
+      commentsApiService.deleteComment.mockReturnValue(
+        throwError(() => errorResponse),
+      );
 
       component.deleteComment();
       await Promise.resolve();
@@ -385,9 +397,12 @@ describe('CommentItemComponent', () => {
       component.reportComment();
       await Promise.resolve();
 
-      expect(commentsApiService.reportComment).toHaveBeenCalledWith('comment-1', {
-        reason: 'Inappropriate content',
-      });
+      expect(commentsApiService.reportComment).toHaveBeenCalledWith(
+        'comment-1',
+        {
+          reason: 'Inappropriate content',
+        },
+      );
       expect(window.alert).toHaveBeenCalledWith('Comment reported. Thank you.');
     });
 
@@ -401,7 +416,9 @@ describe('CommentItemComponent', () => {
 
     it('should show alert on report error', async () => {
       const errorResponse = { error: { message: 'Already reported' } };
-      commentsApiService.reportComment.mockReturnValue(throwError(() => errorResponse));
+      commentsApiService.reportComment.mockReturnValue(
+        throwError(() => errorResponse),
+      );
 
       component.reportComment();
       await Promise.resolve();
@@ -449,7 +466,9 @@ describe('CommentItemComponent', () => {
     it('should show alert on hide error', async () => {
       component.canDeleteAny = true;
       const errorResponse = { error: { message: 'Comment not found' } };
-      commentsApiService.hideComment.mockReturnValue(throwError(() => errorResponse));
+      commentsApiService.hideComment.mockReturnValue(
+        throwError(() => errorResponse),
+      );
 
       component.hideComment();
       await Promise.resolve();
@@ -531,7 +550,9 @@ describe('CommentItemComponent', () => {
       component.replyContent = 'Test reply';
       component.error = '';
       const errorResponse = { error: { message: 'Server error' } };
-      commentsApiService.createComment.mockReturnValue(throwError(() => errorResponse));
+      commentsApiService.createComment.mockReturnValue(
+        throwError(() => errorResponse),
+      );
 
       component.submitReply();
       await Promise.resolve();
@@ -623,9 +644,12 @@ describe('CommentItemComponent', () => {
       component.reportComment();
       await Promise.resolve();
 
-      expect(commentsApiService.reportComment).toHaveBeenCalledWith('comment-1', {
-        reason: 'Inappropriate content',
-      });
+      expect(commentsApiService.reportComment).toHaveBeenCalledWith(
+        'comment-1',
+        {
+          reason: 'Inappropriate content',
+        },
+      );
     });
 
     it('should show success alert after reporting', async () => {
@@ -685,7 +709,9 @@ describe('CommentItemComponent', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
       const errorResponse = { error: { message: 'Comment already hidden' } };
-      commentsApiService.hideComment.mockReturnValue(throwError(() => errorResponse));
+      commentsApiService.hideComment.mockReturnValue(
+        throwError(() => errorResponse),
+      );
 
       component.hideComment();
       await Promise.resolve();
@@ -775,7 +801,9 @@ describe('CommentItemComponent', () => {
     it('should handle error state persistence across operations', async () => {
       component.replyContent = 'Test';
       const errorResponse = { error: { message: 'Network error' } };
-      commentsApiService.createComment.mockReturnValue(throwError(() => errorResponse));
+      commentsApiService.createComment.mockReturnValue(
+        throwError(() => errorResponse),
+      );
 
       component.submitReply();
       await Promise.resolve();

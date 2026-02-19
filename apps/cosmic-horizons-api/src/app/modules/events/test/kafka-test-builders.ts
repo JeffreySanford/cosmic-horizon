@@ -121,7 +121,9 @@ export class KafkaEventBuilder {
   /**
    * Start with a job status changed event
    */
-  static jobStatusChangedEvent(overrides?: Partial<EventBase>): KafkaEventBuilder {
+  static jobStatusChangedEvent(
+    overrides?: Partial<EventBase>,
+  ): KafkaEventBuilder {
     const event: EventBase = {
       event_id: generateEventId(),
       event_type: 'job.status.changed',
@@ -271,7 +273,9 @@ export class KafkaEventBuilder {
   /**
    * Merge payload fields (shallow merge)
    */
-  mergePayload<T extends Record<string, unknown>>(payload: Partial<T>): KafkaEventBuilder {
+  mergePayload<T extends Record<string, unknown>>(
+    payload: Partial<T>,
+  ): KafkaEventBuilder {
     this.event.payload = { ...this.event.payload, ...payload };
     return this;
   }
@@ -287,7 +291,7 @@ export class KafkaEventBuilder {
       headers: {
         'content-type': 'application/json',
         'correlation-id': this.event.correlation_id,
-        'timestamp': this.event.timestamp,
+        timestamp: this.event.timestamp,
         ...this.kafkaHeaders,
       },
     };
@@ -298,7 +302,7 @@ export class KafkaEventBuilder {
    */
   static buildBatch(
     count: number,
-    template: (index: number) => KafkaEventBuilder
+    template: (index: number) => KafkaEventBuilder,
   ): KafkaMessage<EventBase>[] {
     const messages: KafkaMessage<EventBase>[] = [];
     for (let i = 0; i < count; i++) {
@@ -329,7 +333,7 @@ export class MockKafkaPublisher {
   async publish(message: KafkaMessage<EventBase>): Promise<void> {
     if (this.failureMode) {
       throw new Error(
-        `Publish failed: ${this.failureReason || 'Unknown error'}`
+        `Publish failed: ${this.failureReason || 'Unknown error'}`,
       );
     }
 
@@ -337,7 +341,9 @@ export class MockKafkaPublisher {
 
     // Simulate latency
     if (this.latencySimulation > 0) {
-      await new Promise((resolve) => setTimeout(resolve, this.latencySimulation));
+      await new Promise((resolve) =>
+        setTimeout(resolve, this.latencySimulation),
+      );
     }
 
     const elapsed = Date.now() - startTime;
@@ -361,7 +367,7 @@ export class MockKafkaPublisher {
     }
 
     this.logger.debug(
-      `Published to ${message.topic} (latency: ${elapsed}ms, total: ${this.publishCount})`
+      `Published to ${message.topic} (latency: ${elapsed}ms, total: ${this.publishCount})`,
     );
   }
 
@@ -392,15 +398,19 @@ export class MockKafkaPublisher {
    * Get messages by event type
    */
   getMessagesByEventType(eventType: string): CapturedMessage<EventBase>[] {
-    return this.messages.filter((m) => m.message.value.event_type === eventType);
+    return this.messages.filter(
+      (m) => m.message.value.event_type === eventType,
+    );
   }
 
   /**
    * Get messages by correlation ID
    */
-  getMessagesByCorrelationId(correlationId: string): CapturedMessage<EventBase>[] {
+  getMessagesByCorrelationId(
+    correlationId: string,
+  ): CapturedMessage<EventBase>[] {
     return this.messages.filter(
-      (m) => m.message.value.correlation_id === correlationId
+      (m) => m.message.value.correlation_id === correlationId,
     );
   }
 
@@ -423,7 +433,7 @@ export class MockKafkaPublisher {
    */
   getLatencyStats(): LatencyStats {
     return this.calculateLatencyStats(
-      Array.from(this.publishLatencies.values()).flat()
+      Array.from(this.publishLatencies.values()).flat(),
     );
   }
 
@@ -540,14 +550,15 @@ export class MockKafkaPublisher {
    */
   assertMessagePublished(
     topic: string,
-    eventType: string
+    eventType: string,
   ): CapturedMessage<EventBase> {
     const message = this.messages.find(
-      (m) => m.message.topic === topic && m.message.value.event_type === eventType
+      (m) =>
+        m.message.topic === topic && m.message.value.event_type === eventType,
     );
     if (!message) {
       throw new Error(
-        `Expected message to topic ${topic} with type ${eventType} but not found`
+        `Expected message to topic ${topic} with type ${eventType} but not found`,
       );
     }
     return message;
@@ -559,7 +570,7 @@ export class MockKafkaPublisher {
   assertMessageCount(expectedCount: number): void {
     if (this.messages.length !== expectedCount) {
       throw new Error(
-        `Expected ${expectedCount} messages but got ${this.messages.length}`
+        `Expected ${expectedCount} messages but got ${this.messages.length}`,
       );
     }
   }
@@ -567,10 +578,7 @@ export class MockKafkaPublisher {
   /**
    * Assert latency is within bounds
    */
-  assertLatencyWithinBounds(
-    maxP99Ms: number,
-    topic?: string
-  ): void {
+  assertLatencyWithinBounds(maxP99Ms: number, topic?: string): void {
     const stats = topic
       ? this.getLatencyStatsByTopic(topic)
       : this.getLatencyStats();
@@ -581,7 +589,7 @@ export class MockKafkaPublisher {
 
     if (stats.p99 > maxP99Ms) {
       throw new Error(
-        `P99 latency ${stats.p99}ms exceeds maximum ${maxP99Ms}ms`
+        `P99 latency ${stats.p99}ms exceeds maximum ${maxP99Ms}ms`,
       );
     }
   }
@@ -601,14 +609,15 @@ export class MockKafkaPublisher {
 
     if (duration < windowSeconds) {
       this.logger.warn(
-        `Throughput window (${duration}s) is less than expected (${windowSeconds}s)`
+        `Throughput window (${duration}s) is less than expected (${windowSeconds}s)`,
       );
     }
 
-    const actualThroughput = this.messages.length / Math.max(duration, windowSeconds);
+    const actualThroughput =
+      this.messages.length / Math.max(duration, windowSeconds);
     if (actualThroughput < messagesPerSecond) {
       throw new Error(
-        `Throughput ${actualThroughput.toFixed(0)} msg/sec below target ${messagesPerSecond}`
+        `Throughput ${actualThroughput.toFixed(0)} msg/sec below target ${messagesPerSecond}`,
       );
     }
   }
@@ -646,10 +655,7 @@ export class LatencyMeasurer {
   /**
    * Measure an async operation
    */
-  async measure<T>(
-    name: string,
-    fn: () => Promise<T>
-  ): Promise<T> {
+  async measure<T>(name: string, fn: () => Promise<T>): Promise<T> {
     const stop = this.start(name);
     try {
       return await fn();
@@ -772,9 +778,11 @@ export class ConsumerMessageCapture {
   /**
    * Get messages by correlation ID
    */
-  getMessagesByCorrelationId(correlationId: string): CapturedMessage<EventBase>[] {
+  getMessagesByCorrelationId(
+    correlationId: string,
+  ): CapturedMessage<EventBase>[] {
     return this.messages.filter(
-      (m) => m.message.value.correlation_id === correlationId
+      (m) => m.message.value.correlation_id === correlationId,
     );
   }
 
@@ -782,7 +790,9 @@ export class ConsumerMessageCapture {
    * Get messages by event type
    */
   getMessagesByEventType(eventType: string): CapturedMessage<EventBase>[] {
-    return this.messages.filter((m) => m.message.value.event_type === eventType);
+    return this.messages.filter(
+      (m) => m.message.value.event_type === eventType,
+    );
   }
 
   /**
@@ -797,7 +807,7 @@ export class ConsumerMessageCapture {
    */
   assertMessageConsumed(eventType: string): CapturedMessage<EventBase> {
     const message = this.messages.find(
-      (m) => m.message.value.event_type === eventType
+      (m) => m.message.value.event_type === eventType,
     );
     if (!message) {
       throw new Error(`Expected message of type ${eventType} but not found`);
@@ -811,7 +821,7 @@ export class ConsumerMessageCapture {
   assertCount(expectedCount: number): void {
     if (this.messages.length !== expectedCount) {
       throw new Error(
-        `Expected ${expectedCount} messages but got ${this.messages.length}`
+        `Expected ${expectedCount} messages but got ${this.messages.length}`,
       );
     }
   }

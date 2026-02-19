@@ -3,11 +3,11 @@ import { Logger } from '@nestjs/common';
 
 /**
  * Priority 6.1: WebSocket Infrastructure Tests
- * 
+ *
  * Tests real-time bidirectional communication for job monitoring, status updates,
  * and live dashboards. Validates 500+ concurrent connections, automatic reconnection,
  * message ordering, and 60 FPS dashboard performance.
- * 
+ *
  * Test Coverage: 55 tests
  * - Server Connection Management (10 tests)
  * - Client Connections (10 tests)
@@ -28,8 +28,14 @@ class WebSocketService {
   async initialize(): Promise<void> {
     this.server = {
       port: this.configService.get<number>('WEBSOCKET_PORT', 3001),
-      maxConnections: this.configService.get<number>('WEBSOCKET_MAX_CONNECTIONS', 500),
-      heartbeatInterval: this.configService.get<number>('WEBSOCKET_HEARTBEAT_MS', 30000),
+      maxConnections: this.configService.get<number>(
+        'WEBSOCKET_MAX_CONNECTIONS',
+        500,
+      ),
+      heartbeatInterval: this.configService.get<number>(
+        'WEBSOCKET_HEARTBEAT_MS',
+        30000,
+      ),
     };
   }
 
@@ -50,7 +56,10 @@ class WebSocketService {
     }
   }
 
-  async broadcastMessage(message: any, excludeClientIds?: string[]): Promise<number> {
+  async broadcastMessage(
+    message: any,
+    excludeClientIds?: string[],
+  ): Promise<number> {
     let count = 0;
     for (const [clientId, client] of this.clients.entries()) {
       if (!excludeClientIds?.includes(clientId)) {
@@ -70,7 +79,11 @@ class WebSocketService {
     return false;
   }
 
-  async sendToRoom(roomId: string, message: any, excludeClientIds?: string[]): Promise<number> {
+  async sendToRoom(
+    roomId: string,
+    message: any,
+    excludeClientIds?: string[],
+  ): Promise<number> {
     const members = this.rooms.get(roomId);
     if (!members) return 0;
 
@@ -134,7 +147,10 @@ class WebSocketService {
     return {
       activeConnections: this.clients.size,
       rooms: this.rooms.size,
-      totalMessages: Array.from(this.clients.values()).reduce((sum, c) => sum + c.messageCount, 0),
+      totalMessages: Array.from(this.clients.values()).reduce(
+        (sum, c) => sum + c.messageCount,
+        0,
+      ),
     };
   }
 }
@@ -257,7 +273,9 @@ describe('Priority 6.1: WebSocket Infrastructure Tests', () => {
       expect(maxConnections).toBe(500);
 
       // Simulate reaching limit
-      expect(wsService.getActiveClientCount()).toBeLessThanOrEqual(maxConnections);
+      expect(wsService.getActiveClientCount()).toBeLessThanOrEqual(
+        maxConnections,
+      );
     });
 
     it('should disconnect client on explicit disconnect', async () => {
@@ -312,25 +330,33 @@ describe('Priority 6.1: WebSocket Infrastructure Tests', () => {
     });
 
     it('should send message to specific client', async () => {
-      const sent = await wsService.sendMessage('client-1', { type: 'STATUS_UPDATE', status: 'RUNNING' });
+      const sent = await wsService.sendMessage('client-1', {
+        type: 'STATUS_UPDATE',
+        status: 'RUNNING',
+      });
       expect(sent).toBe(true);
     });
 
     it('should send message to non-existent client gracefully', async () => {
-      const sent = await wsService.sendMessage('client-999', { type: 'STATUS_UPDATE' });
+      const sent = await wsService.sendMessage('client-999', {
+        type: 'STATUS_UPDATE',
+      });
       expect(sent).toBe(false);
     });
 
     it('should broadcast message to all connected clients', async () => {
-      const count = await wsService.broadcastMessage({ type: 'ANNOUNCEMENT', data: 'System update' });
+      const count = await wsService.broadcastMessage({
+        type: 'ANNOUNCEMENT',
+        data: 'System update',
+      });
       expect(count).toBe(5);
     });
 
     it('should broadcast message excluding specific clients', async () => {
-      const count = await wsService.broadcastMessage(
-        { type: 'ANNOUNCEMENT' },
-        ['client-1', 'client-2']
-      );
+      const count = await wsService.broadcastMessage({ type: 'ANNOUNCEMENT' }, [
+        'client-1',
+        'client-2',
+      ]);
       expect(count).toBe(3);
     });
 
@@ -424,7 +450,9 @@ describe('Priority 6.1: WebSocket Infrastructure Tests', () => {
       await wsService.joinRoom('client-1', 'job-123-room');
       await wsService.joinRoom('client-2', 'job-123-room');
 
-      const count = await wsService.sendToRoom('job-123-room', { type: 'ROOM_MSG' });
+      const count = await wsService.sendToRoom('job-123-room', {
+        type: 'ROOM_MSG',
+      });
       expect(count).toBe(2);
     });
 
@@ -459,7 +487,7 @@ describe('Priority 6.1: WebSocket Infrastructure Tests', () => {
       const count = await wsService.sendToRoom(
         'job-123-room',
         { type: 'ROOM_MSG' },
-        ['client-1']
+        ['client-1'],
       );
       expect(count).toBe(2);
     });
@@ -486,13 +514,19 @@ describe('Priority 6.1: WebSocket Infrastructure Tests', () => {
     });
 
     it('should implement automatic client reconnection', async () => {
-      const reconnectDelay = mockConfigService.get('WEBSOCKET_RECONNECT_DELAY_MS');
+      const reconnectDelay = mockConfigService.get(
+        'WEBSOCKET_RECONNECT_DELAY_MS',
+      );
       expect(reconnectDelay).toBe(1000);
     });
 
     it('should implement exponential backoff for reconnection', async () => {
-      const maxDelay = mockConfigService.get('WEBSOCKET_MAX_RECONNECT_DELAY_MS');
-      const initialDelay = mockConfigService.get('WEBSOCKET_RECONNECT_DELAY_MS');
+      const maxDelay = mockConfigService.get(
+        'WEBSOCKET_MAX_RECONNECT_DELAY_MS',
+      );
+      const initialDelay = mockConfigService.get(
+        'WEBSOCKET_RECONNECT_DELAY_MS',
+      );
 
       expect(initialDelay).toBe(1000);
       expect(maxDelay).toBe(30000);

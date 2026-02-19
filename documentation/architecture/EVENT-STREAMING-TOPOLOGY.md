@@ -18,8 +18,8 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
-      - "5672:5672"     # AMQP port
-      - "15672:15672"   # Management UI
+      - '5672:5672' # AMQP port
+      - '15672:15672' # Management UI
     volumes:
       - rabbitmq-1-data:/var/lib/rabbitmq
     healthcheck:
@@ -32,7 +32,7 @@ services:
     # Same as rabbitmq-1, different hostname
     environment:
       RABBITMQ_NODENAME: rabbit@rabbitmq-2
-  
+
   rabbitmq-3:
     # Same as rabbitmq-1, different hostname
     environment:
@@ -46,7 +46,7 @@ services:
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_INIT_LIMIT: 5
     ports:
-      - "2181:2181"
+      - '2181:2181'
     volumes:
       - zookeeper-data:/var/lib/zookeeper/data
 
@@ -58,10 +58,10 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:29092,PLAINTEXT_HOST://kafka-1:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_LOG_RETENTION_DAYS: 30
     ports:
-      - "9092:9092"
+      - '9092:9092'
     depends_on:
       - zookeeper
     volumes:
@@ -74,7 +74,7 @@ services:
 
   kafka-2:
     # Same as kafka-1, KAFKA_BROKER_ID: 2, port 9093
-  
+
   kafka-3:
     # Same as kafka-1, KAFKA_BROKER_ID: 3, port 9094
 
@@ -85,9 +85,9 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-1:29092,kafka-2:29092,kafka-3:29092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-      SCHEMA_REGISTRY_DEBUG: "false"
+      SCHEMA_REGISTRY_DEBUG: 'false'
     ports:
-      - "8081:8081"
+      - '8081:8081'
     depends_on:
       - kafka-1
       - kafka-2
@@ -112,21 +112,21 @@ volumes:
 
 ### Exchanges
 
-| Name | Type | Durable | Purpose |
-|------|------|---------|---------|
-| `job.events` | topic | yes | Route job lifecycle events |
-| `notifications` | topic | yes | Route notifications to WebSocket |
-| `metrics` | topic | yes | Route metrics to listeners |
-| `dlx` (Dead Letter) | direct | yes | Handle failed messages |
+| Name                | Type   | Durable | Purpose                          |
+| ------------------- | ------ | ------- | -------------------------------- |
+| `job.events`        | topic  | yes     | Route job lifecycle events       |
+| `notifications`     | topic  | yes     | Route notifications to WebSocket |
+| `metrics`           | topic  | yes     | Route metrics to listeners       |
+| `dlx` (Dead Letter) | direct | yes     | Handle failed messages           |
 
 ### Queues
 
-| Name | Durable | Max-Length | TTL | Binding Key |
-|------|---------|------------|-----|------------|
-| `job-events-api` | yes | 100k | 30s | `job.#` |
-| `job-events-audit` | yes | 100k | 5m | `job.#` |
-| `websocket-broadcast` | yes | 50k | 30s | `notifications.*` |
-| `job-dlq` | yes | unlimited | 24h | - |
+| Name                  | Durable | Max-Length | TTL | Binding Key       |
+| --------------------- | ------- | ---------- | --- | ----------------- |
+| `job-events-api`      | yes     | 100k       | 30s | `job.#`           |
+| `job-events-audit`    | yes     | 100k       | 5m  | `job.#`           |
+| `websocket-broadcast` | yes     | 50k        | 30s | `notifications.*` |
+| `job-dlq`             | yes     | unlimited  | 24h | -                 |
 
 ### Routing Strategy
 
@@ -163,12 +163,12 @@ Error/Retry
 
 ### Topics
 
-| Name | Partitions | Replication | Retention | Key |
-|------|-----------|-------------|-----------|-----|
-| `job-lifecycle` | 10 | 3 | 30 days | `job_id` |
-| `job-metrics` | 20 | 3 | 30 days | `job_id` |
-| `audit-trail` | 5 | 3 | 90 days | `audit_id` |
-| `notifications` | 5 | 3 | 7 days | `user_id` |
+| Name            | Partitions | Replication | Retention | Key        |
+| --------------- | ---------- | ----------- | --------- | ---------- |
+| `job-lifecycle` | 10         | 3           | 30 days   | `job_id`   |
+| `job-metrics`   | 20         | 3           | 30 days   | `job_id`   |
+| `audit-trail`   | 5          | 3           | 90 days   | `audit_id` |
+| `notifications` | 5          | 3           | 7 days    | `user_id`  |
 
 ### Partitioning Strategy
 
@@ -211,7 +211,7 @@ All topics use Confluent Schema Registry with Avro format:
 
 ### Module Structure
 
-``` text
+```text
 src/
 ├── modules/
 │   ├── events/
@@ -244,32 +244,32 @@ src/
 
 ### RabbitMQ
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Message publish latency | <50ms P99 | End-to-end with ack |
-| Queue depth | <1000 msgs | Under normal load |
-| Broker memory | <500MB per node | 3-node cluster |
-| Throughput | 5000 msgs/sec | Per broker |
-| Availability | >99.9% | Quorum queues |
+| Metric                  | Target          | Measurement         |
+| ----------------------- | --------------- | ------------------- |
+| Message publish latency | <50ms P99       | End-to-end with ack |
+| Queue depth             | <1000 msgs      | Under normal load   |
+| Broker memory           | <500MB per node | 3-node cluster      |
+| Throughput              | 5000 msgs/sec   | Per broker          |
+| Availability            | >99.9%          | Quorum queues       |
 
 ### Kafka
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Message publish latency | <100ms P99 | Replica ack required |
-| Throughput | 1000+ events/sec | All 3 topics combined |
-| Consumer lag | <5 seconds | Real-time dashboard |
-| Broker disk | <50GB per broker | 30-day retention |
-| Replication factor | 3 | High availability |
+| Metric                  | Target           | Measurement           |
+| ----------------------- | ---------------- | --------------------- |
+| Message publish latency | <100ms P99       | Replica ack required  |
+| Throughput              | 1000+ events/sec | All 3 topics combined |
+| Consumer lag            | <5 seconds       | Real-time dashboard   |
+| Broker disk             | <50GB per broker | 30-day retention      |
+| Replication factor      | 3                | High availability     |
 
 ### Combined System
 
-| Metric | Target | Notes |
-|--------|--------|-------|
-| Job submission to dashboard | <500ms | RabbitMQ path |
-| Job completion notification | <2s | Kafka audit + webhook |
-| Metrics dashboard update | <1s | Real-time via WebSocket |
-| Event replay from Kafka | <30s | Historical query (year retention) |
+| Metric                      | Target | Notes                             |
+| --------------------------- | ------ | --------------------------------- |
+| Job submission to dashboard | <500ms | RabbitMQ path                     |
+| Job completion notification | <2s    | Kafka audit + webhook             |
+| Metrics dashboard update    | <1s    | Real-time via WebSocket           |
+| Event replay from Kafka     | <30s   | Historical query (year retention) |
 
 ## Monitoring & Observability
 

@@ -19,11 +19,21 @@ interface RequestWindow {
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   private readonly windows = new Map<string, RequestWindow>();
-  private readonly windowMs = Number(process.env['RATE_LIMIT_WINDOW_MS'] || 60_000);
-  private readonly maxRequests = Number(process.env['RATE_LIMIT_MAX_WRITES'] || 30);
-  private readonly maxSnapshotRequests = Number(process.env['RATE_LIMIT_MAX_SNAPSHOTS'] || 20);
-  private readonly maxCutoutRequests = Number(process.env['RATE_LIMIT_MAX_CUTOUTS'] || 12);
-  private readonly maxNearbyLabelRequests = Number(process.env['RATE_LIMIT_MAX_NEARBY_LABELS'] || 24);
+  private readonly windowMs = Number(
+    process.env['RATE_LIMIT_WINDOW_MS'] || 60_000,
+  );
+  private readonly maxRequests = Number(
+    process.env['RATE_LIMIT_MAX_WRITES'] || 30,
+  );
+  private readonly maxSnapshotRequests = Number(
+    process.env['RATE_LIMIT_MAX_SNAPSHOTS'] || 20,
+  );
+  private readonly maxCutoutRequests = Number(
+    process.env['RATE_LIMIT_MAX_CUTOUTS'] || 12,
+  );
+  private readonly maxNearbyLabelRequests = Number(
+    process.env['RATE_LIMIT_MAX_NEARBY_LABELS'] || 24,
+  );
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<HttpRequestLike>();
@@ -32,7 +42,9 @@ export class RateLimitGuard implements CanActivate {
     const cutoff = now - this.windowMs;
 
     const current = this.windows.get(key) ?? { timestamps: [] };
-    current.timestamps = current.timestamps.filter((timestamp) => timestamp > cutoff);
+    current.timestamps = current.timestamps.filter(
+      (timestamp) => timestamp > cutoff,
+    );
 
     const maxRequestsForPath = this.limitForPath(request.path);
     if (current.timestamps.length >= maxRequestsForPath) {

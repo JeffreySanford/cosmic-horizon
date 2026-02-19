@@ -104,10 +104,10 @@ export class InferenceComponent {
   }
 
   getRunningAgentsCount(): number {
-    return this.agents.filter(agent => agent.status === 'running').length;
+    return this.agents.filter((agent) => agent.status === 'running').length;
   }
 
   getPeakThroughput(): number {
-    return Math.max(...this.agents.map(agent => agent.throughput));
+    return Math.max(...this.agents.map((agent) => agent.throughput));
   }
 }

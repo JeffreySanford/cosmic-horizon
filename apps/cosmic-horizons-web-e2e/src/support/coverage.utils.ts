@@ -75,8 +75,8 @@ export function generateCoverageSummary(reports: CoverageReport[]): {
     };
   }
 
-  const successful = reports.filter(r => r.status === 'success');
-  const failed = reports.filter(r => r.status === 'error');
+  const successful = reports.filter((r) => r.status === 'success');
+  const failed = reports.filter((r) => r.status === 'error');
 
   // Calculate aggregated metrics
   const aggregated: CoverageMetrics = {
@@ -100,28 +100,44 @@ export function generateCoverageSummary(reports: CoverageReport[]): {
   // Calculate percentages
   aggregated.statements.percentage =
     aggregated.statements.total > 0
-      ? Math.round((aggregated.statements.covered / aggregated.statements.total) * 100 * 100) / 100
+      ? Math.round(
+          (aggregated.statements.covered / aggregated.statements.total) *
+            100 *
+            100,
+        ) / 100
       : 0;
   aggregated.functions.percentage =
     aggregated.functions.total > 0
-      ? Math.round((aggregated.functions.covered / aggregated.functions.total) * 100 * 100) / 100
+      ? Math.round(
+          (aggregated.functions.covered / aggregated.functions.total) *
+            100 *
+            100,
+        ) / 100
       : 0;
   aggregated.branches.percentage =
     aggregated.branches.total > 0
-      ? Math.round((aggregated.branches.covered / aggregated.branches.total) * 100 * 100) / 100
+      ? Math.round(
+          (aggregated.branches.covered / aggregated.branches.total) * 100 * 100,
+        ) / 100
       : 0;
   aggregated.lines.percentage =
     aggregated.lines.total > 0
-      ? Math.round((aggregated.lines.covered / aggregated.lines.total) * 100 * 100) / 100
+      ? Math.round(
+          (aggregated.lines.covered / aggregated.lines.total) * 100 * 100,
+        ) / 100
       : 0;
 
   // Find highest and lowest coverage
   const highest = successful.reduce((prev, current) =>
-    current.metrics.statements.percentage > prev.metrics.statements.percentage ? current : prev,
+    current.metrics.statements.percentage > prev.metrics.statements.percentage
+      ? current
+      : prev,
   );
 
   const lowest = successful.reduce((prev, current) =>
-    current.metrics.statements.percentage < prev.metrics.statements.percentage ? current : prev,
+    current.metrics.statements.percentage < prev.metrics.statements.percentage
+      ? current
+      : prev,
   );
 
   return {
@@ -167,13 +183,17 @@ export function formatCoverageTable(metrics: CoverageMetrics): string {
     ],
   ];
 
-  return rows.map(row => row.map(cell => cell.padEnd(15)).join(' ')).join('\n');
+  return rows
+    .map((row) => row.map((cell) => cell.padEnd(15)).join(' '))
+    .join('\n');
 }
 
 /**
  * Prints a detailed coverage report to console
  */
-export function printCoverageReport(summary: ReturnType<typeof generateCoverageSummary>): void {
+export function printCoverageReport(
+  summary: ReturnType<typeof generateCoverageSummary>,
+): void {
   console.log('\n');
   console.log('═'.repeat(80));
   console.log('                    E2E CODE COVERAGE REPORT');
@@ -198,10 +218,14 @@ export function printCoverageReport(summary: ReturnType<typeof generateCoverageS
   console.log('🎯 COVERAGE RANGE');
   console.log('─'.repeat(80));
   if (summary.highest) {
-    console.log(`   Highest: ${summary.highest.testName} (${summary.highest.metrics.statements.percentage}%)`);
+    console.log(
+      `   Highest: ${summary.highest.testName} (${summary.highest.metrics.statements.percentage}%)`,
+    );
   }
   if (summary.lowest) {
-    console.log(`   Lowest:  ${summary.lowest.testName} (${summary.lowest.metrics.statements.percentage}%)`);
+    console.log(
+      `   Lowest:  ${summary.lowest.testName} (${summary.lowest.metrics.statements.percentage}%)`,
+    );
   }
   console.log('');
 
@@ -234,7 +258,10 @@ export function printCoverageReport(summary: ReturnType<typeof generateCoverageS
 /**
  * Saves coverage reports to JSON file
  */
-export function saveCoverageReports(reports: CoverageReport[], outputDir: string): void {
+export function saveCoverageReports(
+  reports: CoverageReport[],
+  outputDir: string,
+): void {
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }

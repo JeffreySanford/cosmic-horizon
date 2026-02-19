@@ -39,7 +39,9 @@ body {
   padding: 0;
   background-color: var(--md3-color-background);
   color: var(--md3-color-on-background);
-  transition: background-color $md3-transition-duration-standard $md3-transition-easing-standard,
+  transition:
+    background-color $md3-transition-duration-standard
+      $md3-transition-easing-standard,
     color $md3-transition-duration-standard $md3-transition-easing-standard;
 }
 
@@ -89,7 +91,8 @@ p {
 a {
   color: var(--md3-color-primary);
   text-decoration: none;
-  transition: color $md3-transition-duration-short $md3-transition-easing-standard;
+  transition: color $md3-transition-duration-short
+    $md3-transition-easing-standard;
 
   &:hover {
     color: var(--md3-color-secondary);
@@ -140,8 +143,10 @@ select {
   @include md3-padding(3);
   background-color: var(--md3-color-surface);
   color: var(--md3-color-on-surface);
-  transition: border-color $md3-transition-duration-short $md3-transition-easing-standard,
-    background-color $md3-transition-duration-short $md3-transition-easing-standard;
+  transition:
+    border-color $md3-transition-duration-short $md3-transition-easing-standard,
+    background-color $md3-transition-duration-short
+      $md3-transition-easing-standard;
 
   &:focus {
     outline: none;

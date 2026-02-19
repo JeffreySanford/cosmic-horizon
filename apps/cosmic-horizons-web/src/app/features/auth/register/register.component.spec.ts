@@ -100,7 +100,10 @@ describe('RegisterComponent', () => {
 
   it('surfaces API conflict errors', () => {
     authApiService.register.mockReturnValue(
-      throwError(() => ({ status: 409, error: { message: 'Email is already in use.' } })),
+      throwError(() => ({
+        status: 409,
+        error: { message: 'Email is already in use.' },
+      })),
     );
 
     component.registerForm.setValue({

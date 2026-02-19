@@ -37,7 +37,7 @@ describe('JwtStrategy', () => {
         email: null,
         username: 'missing',
         role: 'user',
-      })
+      }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 });

@@ -17,14 +17,22 @@
     <section class="list-controls">
       <mat-form-field appearance="outline">
         <mat-label>Sort by</mat-label>
-        <select matNativeControl [(ngModel)]="sortBy" [ngModelOptions]="{ standalone: true }">
+        <select
+          matNativeControl
+          [(ngModel)]="sortBy"
+          [ngModelOptions]="{ standalone: true }"
+        >
           <option value="recent">Recent</option>
           <option value="author">Author</option>
           <option value="title">Title</option>
         </select>
       </mat-form-field>
       <label class="mine-filter">
-        <input type="checkbox" [(ngModel)]="onlyMine" [ngModelOptions]="{ standalone: true }" />
+        <input
+          type="checkbox"
+          [(ngModel)]="onlyMine"
+          [ngModelOptions]="{ standalone: true }"
+        />
         My posts only
       </label>
     </section>
@@ -36,8 +44,17 @@
     } @else if (visiblePosts.length === 0) {
       <div class="empty-state">
         <h3>Welcome to the Notebook</h3>
-        <p>No posts match this view yet. Start by drafting your first discovery.</p>
-        <button mat-flat-button color="accent" type="button" (click)="createDraft()">Create a Draft</button>
+        <p>
+          No posts match this view yet. Start by drafting your first discovery.
+        </p>
+        <button
+          mat-flat-button
+          color="accent"
+          type="button"
+          (click)="createDraft()"
+        >
+          Create a Draft
+        </button>
       </div>
     } @else {
       <div class="post-grid">
@@ -45,14 +62,22 @@
           <mat-card class="post-card">
             <mat-card-header>
               <mat-card-title>
-                <span class="status-badge" [class.draft]="post.status === 'draft'" [class.published]="post.status === 'published'">
+                <span
+                  class="status-badge"
+                  [class.draft]="post.status === 'draft'"
+                  [class.published]="post.status === 'published'"
+                >
                   {{ post.status }}
                 </span>
                 {{ post.title }}
               </mat-card-title>
               <mat-card-subtitle>
                 @if (post.user?.username) {
-                  <a [routerLink]="['/profile', post.user?.username]" (click)="$event.stopPropagation()" class="author-link">
+                  <a
+                    [routerLink]="['/profile', post.user?.username]"
+                    (click)="$event.stopPropagation()"
+                    class="author-link"
+                  >
                     {{ authorName(post) }}
                   </a>
                 } @else {
@@ -62,11 +87,20 @@
             </mat-card-header>
             <mat-card-content>
               <p>Updated: {{ post.updated_at | date: 'medium' }}</p>
-              <p>Published: {{ post.published_at ? (post.published_at | date: 'mediumDate') : 'n/a' }}</p>
+              <p>
+                Published:
+                {{
+                  post.published_at
+                    ? (post.published_at | date: 'mediumDate')
+                    : 'n/a'
+                }}
+              </p>
               <p class="excerpt">{{ excerpt(post) }}</p>
             </mat-card-content>
             <mat-card-actions>
-              <button mat-button type="button" (click)="openPost(post)">Open</button>
+              <button mat-button type="button" (click)="openPost(post)">
+                Open
+              </button>
             </mat-card-actions>
           </mat-card>
         }

@@ -60,12 +60,18 @@ export class User {
   @OneToMany(() => Post, (post: Post) => post.user, { cascade: ['remove'] })
   posts!: Relation<Post[]>;
 
-  @OneToMany(() => Revision, (revision: Revision) => revision.user, { cascade: ['remove'] })
+  @OneToMany(() => Revision, (revision: Revision) => revision.user, {
+    cascade: ['remove'],
+  })
   revisions!: Relation<Revision[]>;
 
-  @OneToMany(() => Comment, (comment: Comment) => comment.user, { cascade: ['remove'] })
+  @OneToMany(() => Comment, (comment: Comment) => comment.user, {
+    cascade: ['remove'],
+  })
   comments!: Relation<Comment[]>;
 
-  @OneToMany(() => AuditLog, (auditLog: AuditLog) => auditLog.user, { cascade: ['remove'] })
+  @OneToMany(() => AuditLog, (auditLog: AuditLog) => auditLog.user, {
+    cascade: ['remove'],
+  })
   auditLogs!: Relation<AuditLog[]>;
 }

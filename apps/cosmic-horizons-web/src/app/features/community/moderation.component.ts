@@ -5,7 +5,7 @@ import { CommunityApiService, DiscoveryModel } from './community-api.service';
   selector: 'app-community-moderation',
   templateUrl: './moderation.component.html',
   styleUrls: ['./moderation.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ModerationComponent implements OnInit {
   pending: DiscoveryModel[] = [];

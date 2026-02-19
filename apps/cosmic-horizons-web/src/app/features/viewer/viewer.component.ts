@@ -71,8 +71,16 @@ interface AladinView {
   showCooGrid?(enabled: boolean): void;
   getFov(): number | [number, number];
   getRaDec(): [number, number];
-  getViewDataURL(options?: { format?: 'image/png'; width?: number; height?: number; logo?: boolean }): Promise<string>;
-  on(event: AladinEvent, callback: (payload: AladinListenerPayload | number) => void): void;
+  getViewDataURL(options?: {
+    format?: 'image/png';
+    width?: number;
+    height?: number;
+    logo?: boolean;
+  }): Promise<string>;
+  on(
+    event: AladinEvent,
+    callback: (payload: AladinListenerPayload | number) => void,
+  ): void;
   pix2world?(x: number, y: number): [number, number] | null;
 }
 
@@ -162,9 +170,18 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor() {
     this.stateForm = this.fb.group({
-      ra: [187.25, [Validators.required, Validators.min(-360), Validators.max(360)]],
-      dec: [2.05, [Validators.required, Validators.min(-90), Validators.max(90)]],
-      fov: [1.5, [Validators.required, Validators.min(0.001), Validators.max(180)]],
+      ra: [
+        187.25,
+        [Validators.required, Validators.min(-360), Validators.max(360)],
+      ],
+      dec: [
+        2.05,
+        [Validators.required, Validators.min(-90), Validators.max(90)],
+      ],
+      fov: [
+        1.5,
+        [Validators.required, Validators.min(0.001), Validators.max(180)],
+      ],
       survey: ['VLASS', [Validators.required, Validators.minLength(2)]],
     });
   }
@@ -190,7 +207,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       return `Near native resolution for ${effectiveSurvey}. Further zoom mostly enlarges pixels.`;
     }
 
-    if (state.survey.toUpperCase() === 'VLASS' && effectiveSurvey !== 'P/VLASS/QL') {
+    if (
+      state.survey.toUpperCase() === 'VLASS' &&
+      effectiveSurvey !== 'P/VLASS/QL'
+    ) {
       return `Auto-switched to ${effectiveSurvey} for sharper deep-zoom detail.`;
     }
 
@@ -220,13 +240,22 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get centerCatalogLabel(): NearbyCatalogLabelModel | null {
-    if (!this.labelsOverlayEnabled || this.catalogLabels.length === 0 || !this.stateForm.valid) {
+    if (
+      !this.labelsOverlayEnabled ||
+      this.catalogLabels.length === 0 ||
+      !this.stateForm.valid
+    ) {
       return null;
     }
 
-    const nearest = [...this.catalogLabels].sort((a, b) => a.angular_distance_deg - b.angular_distance_deg)[0];
+    const nearest = [...this.catalogLabels].sort(
+      (a, b) => a.angular_distance_deg - b.angular_distance_deg,
+    )[0];
     const state = this.currentState();
-    const matchThresholdDeg = Math.max(0.0015, Math.min(0.03, state.fov * 0.06));
+    const matchThresholdDeg = Math.max(
+      0.0015,
+      Math.min(0.03, state.fov * 0.06),
+    );
 
     if (nearest.angular_distance_deg > matchThresholdDeg) {
       return null;
@@ -240,7 +269,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       return 'n/a';
     }
 
-    const rate = (this.cutoutTelemetry.success_total / this.cutoutTelemetry.requests_total) * 100;
+    const rate =
+      (this.cutoutTelemetry.success_total /
+        this.cutoutTelemetry.requests_total) *
+      100;
     return `${rate.toFixed(1)}%`;
   }
 
@@ -360,7 +392,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadingPermalink = false;
         this.shortId = response.short_id;
         this.permalink = `${this.originPrefix()}${response.permalink_path}`;
-        this.router.navigate(['/view', response.short_id], { replaceUrl: true });
+        this.router.navigate(['/view', response.short_id], {
+          replaceUrl: true,
+        });
         this.statusMessage = `Permalink created: ${response.short_id}`;
       },
       error: (error: HttpErrorResponse) => {
@@ -420,7 +454,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   addCenterLabel(): void {
     const name = this.labelDraft.trim();
     if (!name || !this.stateForm.valid) {
-      this.statusMessage = 'Enter a label name before tagging the centered item.';
+      this.statusMessage =
+        'Enter a label name before tagging the centered item.';
       return;
     }
 
@@ -447,7 +482,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     const existing = this.labels.find(
-      (entry) => entry.name === annotation.name && Math.abs(entry.ra - annotation.ra) < 1e-5 && Math.abs(entry.dec - annotation.dec) < 1e-5,
+      (entry) =>
+        entry.name === annotation.name &&
+        Math.abs(entry.ra - annotation.ra) < 1e-5 &&
+        Math.abs(entry.dec - annotation.dec) < 1e-5,
     );
     if (existing) {
       this.statusMessage = `Annotation "${annotation.name}" already exists.`;
@@ -493,7 +531,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           // Try scientific ephemeris backend (Phase 2)
           return this.viewerApi.resolveEphemeris(query).pipe(
             catchError(() => {
-              this.appLogger.info('viewer', 'ephemeris_failed_trying_legacy', { query });
+              this.appLogger.info('viewer', 'ephemeris_failed_trying_legacy', {
+                query,
+              });
               return this.resolveWithSkybot$(query);
             }),
           );
@@ -501,14 +541,22 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         tap((result) => {
           if (result === 'aladin') {
             this.statusMessage = `Centered on "${query}".`;
-            this.appLogger.info('viewer', 'target_search_resolved_aladin', { query });
+            this.appLogger.info('viewer', 'target_search_resolved_aladin', {
+              query,
+            });
           } else if (result && typeof result === 'object' && 'ra' in result) {
             this.stateForm.patchValue(
-              { ra: Number(result.ra.toFixed(4)), dec: Number(result.dec.toFixed(4)) },
+              {
+                ra: Number(result.ra.toFixed(4)),
+                dec: Number(result.dec.toFixed(4)),
+              },
               { emitEvent: true },
             );
             this.statusMessage = `Centered on "${query}" via Scientific Ephemeris.`;
-            this.appLogger.info('viewer', 'target_search_resolved_ephem', { query, ...result });
+            this.appLogger.info('viewer', 'target_search_resolved_ephem', {
+              query,
+              ...result,
+            });
           } else {
             this.statusMessage = `Could not resolve "${query}".`;
             this.appLogger.warn('viewer', 'target_search_failed', { query });
@@ -587,11 +635,15 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private tryBasicAstroAlgorithm(name: string) {
     // As a final fallback, try to resolve using basic algorithms for major planets
-    const planetCoordsFallback = this.getKnownPlanetCoordinates(name.toLowerCase().trim());
+    const planetCoordsFallback = this.getKnownPlanetCoordinates(
+      name.toLowerCase().trim(),
+    );
     return of(planetCoordsFallback);
   }
 
-  private parseSkyBotResponse(response: unknown): { ra: number; dec: number } | null {
+  private parseSkyBotResponse(
+    response: unknown,
+  ): { ra: number; dec: number } | null {
     if (!response || typeof response !== 'object') {
       return null;
     }
@@ -599,7 +651,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resp = response as any;
     const ra = Number(resp.result?.ra ?? resp.result?.RA ?? resp.ra ?? resp.RA);
-    const dec = Number(resp.result?.dec ?? resp.result?.DEC ?? resp.dec ?? resp.DEC);
+    const dec = Number(
+      resp.result?.dec ?? resp.result?.DEC ?? resp.dec ?? resp.DEC,
+    );
 
     if (Number.isFinite(ra) && Number.isFinite(dec)) {
       if (this.aladinView?.gotoRaDec) {
@@ -610,7 +664,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     return null;
   }
 
-  private parseVizierResponse(response: unknown): { ra: number; dec: number } | null {
+  private parseVizierResponse(
+    response: unknown,
+  ): { ra: number; dec: number } | null {
     // VizieR returns various formats, attempt to extract coordinates
     if (!response || typeof response !== 'object') {
       return null;
@@ -693,7 +749,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const state = this.currentState();
     const centerLabel = this.labels[0]?.name;
-    const cutoutUrl = this.viewerApi.scienceDataUrl(state, centerLabel, this.cutoutDetail);
+    const cutoutUrl = this.viewerApi.scienceDataUrl(
+      state,
+      centerLabel,
+      this.cutoutDetail,
+    );
     window.open(cutoutUrl, '_blank', 'noopener');
   }
 
@@ -710,7 +770,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleGridOverlay(enabled: boolean): void {
     const previous = this.gridOverlayEnabled;
     this.gridOverlayEnabled = enabled;
-    this.gridToggleStartedAt = isPlatformBrowser(this.platformId) ? performance.now() : null;
+    this.gridToggleStartedAt = isPlatformBrowser(this.platformId)
+      ? performance.now()
+      : null;
     this.logViewerEvent('grid_toggle_requested', {
       previous_enabled: previous,
       next_enabled: enabled,
@@ -720,10 +782,15 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         error: () => {
           this.statusMessage = 'Failed to reinitialize sky viewer.';
-          if (this.gridToggleStartedAt !== null && isPlatformBrowser(this.platformId)) {
+          if (
+            this.gridToggleStartedAt !== null &&
+            isPlatformBrowser(this.platformId)
+          ) {
             this.logViewerEvent('grid_toggle_failed', {
               enabled: this.gridOverlayEnabled,
-              reinit_duration_ms: Math.round(performance.now() - this.gridToggleStartedAt),
+              reinit_duration_ms: Math.round(
+                performance.now() - this.gridToggleStartedAt,
+              ),
             });
             this.gridToggleStartedAt = null;
           }
@@ -751,16 +818,19 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   togglePdssColor(enabled: boolean): void {
     const previous = this.pdssColorEnabled;
     this.pdssColorEnabled = enabled;
-    
+
     if (enabled) {
       // Save current survey before switching to DSS2
       this.previousSurvey = this.stateForm.value.survey || 'VLASS';
       this.stateForm.patchValue({ survey: 'DSS2' }, { emitEvent: true });
     } else {
       // Switch back to previous survey when disabling P/DSS
-      this.stateForm.patchValue({ survey: this.previousSurvey }, { emitEvent: true });
+      this.stateForm.patchValue(
+        { survey: this.previousSurvey },
+        { emitEvent: true },
+      );
     }
-    
+
     this.logViewerEvent('pdss_toggle_requested', {
       previous_enabled: previous,
       next_enabled: enabled,
@@ -777,7 +847,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCanvasMouseMove(event: MouseEvent): void {
-    if (!this.labelsOverlayEnabled || !this.aladinView || !this.stateForm.valid) {
+    if (
+      !this.labelsOverlayEnabled ||
+      !this.aladinView ||
+      !this.stateForm.valid
+    ) {
       return;
     }
 
@@ -790,8 +864,13 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    const pix2world = this.aladinView.pix2world
-      ?? (window as unknown as { A?: { pix2world?: (x: number, y: number) => [number, number] } }).A?.pix2world;
+    const pix2world =
+      this.aladinView.pix2world ??
+      (
+        window as unknown as {
+          A?: { pix2world?: (x: number, y: number) => [number, number] };
+        }
+      ).A?.pix2world;
 
     if (!pix2world) {
       return;
@@ -837,7 +916,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private scheduleNearbyLabelLookupAtCursor(state: ViewerStateModel): void {
-    if (!isPlatformBrowser(this.platformId) || !this.stateForm.valid || !this.labelsOverlayEnabled) {
+    if (
+      !isPlatformBrowser(this.platformId) ||
+      !this.stateForm.valid ||
+      !this.labelsOverlayEnabled
+    ) {
       return;
     }
 
@@ -848,19 +931,21 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.cursorLookupTimer = setTimeout(() => {
       const radius = this.lookupRadiusForState(state);
-      this.viewerApi.getNearbyLabels(state.ra, state.dec, radius, 16).subscribe({
-        next: (labels) => {
-          this.ngZone.run(() => {
-            this.catalogLabels = this.selectNearbyLabels(labels);
-          });
-        },
-        error: () => {
-          this.ngZone.run(() => {
-            // Silently ignore errors for cursor lookups
-            this.catalogLabels = [];
-          });
-        },
-      });
+      this.viewerApi
+        .getNearbyLabels(state.ra, state.dec, radius, 16)
+        .subscribe({
+          next: (labels) => {
+            this.ngZone.run(() => {
+              this.catalogLabels = this.selectNearbyLabels(labels);
+            });
+          },
+          error: () => {
+            this.ngZone.run(() => {
+              // Silently ignore errors for cursor lookups
+              this.catalogLabels = [];
+            });
+          },
+        });
     }, this.cursorLookupDebounceMs); // 1-second debounce for cursor label lookups
   }
 
@@ -955,7 +1040,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    window.localStorage.setItem(this.labelsStorageKey, JSON.stringify(this.labels.slice(0, 100)));
+    window.localStorage.setItem(
+      this.labelsStorageKey,
+      JSON.stringify(this.labels.slice(0, 100)),
+    );
   }
 
   private encodeState(state: ViewerStateModel): string {
@@ -973,7 +1061,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initializeAladin$(): Observable<void> {
-    const startedAt = isPlatformBrowser(this.platformId) ? performance.now() : 0;
+    const startedAt = isPlatformBrowser(this.platformId)
+      ? performance.now()
+      : 0;
     const host = this.aladinHost?.nativeElement;
     if (!host) {
       return of(void 0);
@@ -1007,7 +1097,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
             });
           } catch (err) {
             // Defensive: external Aladin API may throw synchronously in edge cases.
-            this.appLogger.error('viewer', 'aladin_instantiate_failed', { message: (err as Error)?.message ?? String(err) });
+            this.appLogger.error('viewer', 'aladin_instantiate_failed', {
+              message: (err as Error)?.message ?? String(err),
+            });
             this.ngZone.run(() => {
               this.statusMessage = 'Failed to initialize sky viewer.';
             });
@@ -1015,7 +1107,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         });
 
-        this.applySurveyToAladin(this.resolveEffectiveSurvey(this.currentState()));
+        this.applySurveyToAladin(
+          this.resolveEffectiveSurvey(this.currentState()),
+        );
         if (this.initialFovForLabels === null) {
           this.initialFovForLabels = Number(this.stateForm.value.fov);
         }
@@ -1037,7 +1131,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       return of(null);
     }
 
-    const getFactory = (): AladinFactory | undefined => (window as unknown as { A?: AladinFactory }).A;
+    const getFactory = (): AladinFactory | undefined =>
+      (window as unknown as { A?: AladinFactory }).A;
 
     const cachedFactory = getFactory();
     if (cachedFactory) {
@@ -1059,7 +1154,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           ? this.waitForScriptLoad$(existingScript)
           : defer(() => {
               const script = document.createElement('script');
-              script.src = 'https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js';
+              script.src =
+                'https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js';
               script.async = true;
               script.defer = true;
               script.dataset['cosmicAladin'] = 'true';
@@ -1083,13 +1179,20 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     return merge(
       fromEvent(script, 'load').pipe(map(() => void 0)),
       fromEvent(script, 'error').pipe(
-        switchMap(() => throwError(() => new Error('Unable to load Aladin Lite'))),
+        switchMap(() =>
+          throwError(() => new Error('Unable to load Aladin Lite')),
+        ),
       ),
     ).pipe(take(1));
   }
 
   private syncAladinFromForm(): void {
-    if (!isPlatformBrowser(this.platformId) || !this.aladinView || !this.stateForm.valid || this.syncingFromViewer) {
+    if (
+      !isPlatformBrowser(this.platformId) ||
+      !this.aladinView ||
+      !this.stateForm.valid ||
+      this.syncingFromViewer
+    ) {
       return;
     }
 
@@ -1135,7 +1238,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const nextState = { ...current, ...patchState };
     const radius = this.lookupRadiusForState(nextState);
     const lookupKey = `${nextState.ra.toFixed(4)}|${nextState.dec.toFixed(4)}|${radius.toFixed(4)}`;
-    const needsLookup = this.labelsOverlayEnabled && lookupKey !== this.lastNearbyLookupKey;
+    const needsLookup =
+      this.labelsOverlayEnabled && lookupKey !== this.lastNearbyLookupKey;
 
     if (!hasChanges && !needsLookup) {
       return;
@@ -1162,7 +1266,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }, this.viewerSyncDebounceMs);
   }
 
-  private scheduleNearbyLabelLookup(state: ViewerStateModel, options?: { force?: boolean }): void {
+  private scheduleNearbyLabelLookup(
+    state: ViewerStateModel,
+    options?: { force?: boolean },
+  ): void {
     if (!isPlatformBrowser(this.platformId) || !this.stateForm.valid) {
       return;
     }
@@ -1192,21 +1299,23 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.nearbyLookupTimer = setTimeout(() => {
-      this.viewerApi.getNearbyLabels(state.ra, state.dec, radius, 16).subscribe({
-        next: (labels) => {
-          this.ngZone.run(() => {
-            this.lastNearbyLookupKey = lookupKey;
-            this.catalogLabels = this.selectNearbyLabels(labels);
-          });
-        },
-        error: () => {
-          this.ngZone.run(() => {
-            // Keep retries available when provider/network is temporarily unavailable.
-            this.lastNearbyLookupKey = '';
-            this.catalogLabels = [];
-          });
-        },
-      });
+      this.viewerApi
+        .getNearbyLabels(state.ra, state.dec, radius, 16)
+        .subscribe({
+          next: (labels) => {
+            this.ngZone.run(() => {
+              this.lastNearbyLookupKey = lookupKey;
+              this.catalogLabels = this.selectNearbyLabels(labels);
+            });
+          },
+          error: () => {
+            this.ngZone.run(() => {
+              // Keep retries available when provider/network is temporarily unavailable.
+              this.lastNearbyLookupKey = '';
+              this.catalogLabels = [];
+            });
+          },
+        });
     }, this.nearbyLookupDebounceMs);
   }
 
@@ -1214,16 +1323,26 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     return Number(Math.max(0.02, Math.min(0.2, state.fov * 0.15)).toFixed(4));
   }
 
-  private selectNearbyLabels(labels: NearbyCatalogLabelModel[] | { data?: NearbyCatalogLabelModel[] } | null | undefined): NearbyCatalogLabelModel[] {
+  private selectNearbyLabels(
+    labels:
+      | NearbyCatalogLabelModel[]
+      | { data?: NearbyCatalogLabelModel[] }
+      | null
+      | undefined,
+  ): NearbyCatalogLabelModel[] {
     // Ensure labels is an array (API may return {data: [...]} or direct array)
     const labelsArray = Array.isArray(labels) ? labels : (labels?.data ?? []);
-    
+
     if (!Array.isArray(labelsArray)) {
       return [];
     }
 
     const highConfidence = labelsArray
-      .filter((label) => label.confidence >= 0.5 && Number.isFinite(label.angular_distance_deg))
+      .filter(
+        (label) =>
+          label.confidence >= 0.5 &&
+          Number.isFinite(label.angular_distance_deg),
+      )
       .sort((a, b) => a.angular_distance_deg - b.angular_distance_deg);
 
     if (highConfidence.length >= 3) {
@@ -1338,10 +1457,15 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       tap(() => {
         this.syncAladinFromForm();
         this.scheduleNearbyLabelLookup(this.currentState(), { force: true });
-        if (this.gridToggleStartedAt !== null && isPlatformBrowser(this.platformId)) {
+        if (
+          this.gridToggleStartedAt !== null &&
+          isPlatformBrowser(this.platformId)
+        ) {
           this.logViewerEvent('grid_toggle_applied', {
             enabled: this.gridOverlayEnabled,
-            reinit_duration_ms: Math.round(performance.now() - this.gridToggleStartedAt),
+            reinit_duration_ms: Math.round(
+              performance.now() - this.gridToggleStartedAt,
+            ),
           });
           this.gridToggleStartedAt = null;
         }
@@ -1350,7 +1474,12 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private isPromiseLike(value: unknown): value is PromiseLike<unknown> {
-    return typeof value === 'object' && value !== null && 'then' in value && typeof value.then === 'function';
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      'then' in value &&
+      typeof value.then === 'function'
+    );
   }
 
   private resetLabelLookupGate(): void {
@@ -1394,9 +1523,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         startWith(0),
         switchMap(() =>
-          this.viewerApi.getCutoutTelemetry().pipe(
-            catchError(() => of(null)),
-          ),
+          this.viewerApi.getCutoutTelemetry().pipe(catchError(() => of(null))),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -1414,22 +1541,31 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const windowWithIdle = window as Window & {
-      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+      requestIdleCallback?: (
+        callback: () => void,
+        options?: { timeout: number },
+      ) => number;
     };
     if (typeof windowWithIdle.requestIdleCallback === 'function') {
-      windowWithIdle.requestIdleCallback(() => this.tilePrefetch.activate(), { timeout: 1200 });
+      windowWithIdle.requestIdleCallback(() => this.tilePrefetch.activate(), {
+        timeout: 1200,
+      });
       return;
     }
 
     window.setTimeout(() => this.tilePrefetch.activate(), 350);
   }
 
-  private logViewerEvent(event: string, details: Record<string, boolean | number | string>): void {
+  private logViewerEvent(
+    event: string,
+    details: Record<string, boolean | number | string>,
+  ): void {
     if (!isPlatformBrowser(this.platformId) || !isDevMode()) {
       return;
     }
 
-    const userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent;
+    const userAgent =
+      typeof navigator === 'undefined' ? '' : navigator.userAgent;
     if (userAgent.toLowerCase().includes('jsdom')) {
       return;
     }

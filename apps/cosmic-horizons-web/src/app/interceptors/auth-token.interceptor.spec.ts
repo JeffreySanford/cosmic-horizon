@@ -1,5 +1,8 @@
 import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { of, firstValueFrom } from 'rxjs';
@@ -67,11 +70,24 @@ describe('AuthTokenInterceptor', () => {
   it('does not attach token to login/register endpoints', async () => {
     authSessionService.getToken.mockReturnValue('token-123');
 
-    const p1 = firstValueFrom(http.post('http://localhost:3000/api/auth/login', { email: 'a', password: 'b' }));
-    const p2 = firstValueFrom(http.post('http://localhost:3000/api/auth/register', { username: 'u', email: 'e', password: 'p' }));
+    const p1 = firstValueFrom(
+      http.post('http://localhost:3000/api/auth/login', {
+        email: 'a',
+        password: 'b',
+      }),
+    );
+    const p2 = firstValueFrom(
+      http.post('http://localhost:3000/api/auth/register', {
+        username: 'u',
+        email: 'e',
+        password: 'p',
+      }),
+    );
 
     const loginReq = httpMock.expectOne('http://localhost:3000/api/auth/login');
-    const registerReq = httpMock.expectOne('http://localhost:3000/api/auth/register');
+    const registerReq = httpMock.expectOne(
+      'http://localhost:3000/api/auth/register',
+    );
 
     expect(loginReq.request.headers.has('Authorization')).toBe(false);
     expect(registerReq.request.headers.has('Authorization')).toBe(false);
@@ -84,7 +100,11 @@ describe('AuthTokenInterceptor', () => {
   it('does not attach token to refresh endpoint', async () => {
     authSessionService.getToken.mockReturnValue('token-123');
 
-    const p = firstValueFrom(http.post('http://localhost:3000/api/auth/refresh', { refresh_token: 'abc' }));
+    const p = firstValueFrom(
+      http.post('http://localhost:3000/api/auth/refresh', {
+        refresh_token: 'abc',
+      }),
+    );
 
     const req = httpMock.expectOne('http://localhost:3000/api/auth/refresh');
     expect(req.request.headers.has('Authorization')).toBe(false);
@@ -96,7 +116,9 @@ describe('AuthTokenInterceptor', () => {
   it('does not attach token when not authenticated', async () => {
     authSessionService.getToken.mockReturnValue(null);
 
-    const p = firstValueFrom(http.get('http://localhost:3000/api/view/telemetry'));
+    const p = firstValueFrom(
+      http.get('http://localhost:3000/api/view/telemetry'),
+    );
 
     const req = httpMock.expectOne('http://localhost:3000/api/view/telemetry');
     expect(req.request.headers.has('Authorization')).toBe(false);
@@ -127,13 +149,19 @@ describe('AuthTokenInterceptor', () => {
     http.get('http://localhost:3000/api/posts').subscribe();
 
     const firstReq = httpMock.expectOne('http://localhost:3000/api/posts');
-    expect(firstReq.request.headers.get('Authorization')).toBe('Bearer expired-token');
+    expect(firstReq.request.headers.get('Authorization')).toBe(
+      'Bearer expired-token',
+    );
     firstReq.flush({}, { status: 401, statusText: 'Unauthorized' });
 
-    expect(authApiService.refresh).toHaveBeenCalledWith({ refresh_token: 'refresh-token' });
+    expect(authApiService.refresh).toHaveBeenCalledWith({
+      refresh_token: 'refresh-token',
+    });
 
     const retryReq = httpMock.expectOne('http://localhost:3000/api/posts');
-    expect(retryReq.request.headers.get('Authorization')).toBe('Bearer new-token');
+    expect(retryReq.request.headers.get('Authorization')).toBe(
+      'Bearer new-token',
+    );
     expect(retryReq.request.headers.get('X-Auth-Retry')).toBe('1');
     retryReq.flush([]);
 

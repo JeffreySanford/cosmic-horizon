@@ -40,7 +40,7 @@ This strategy establishes a multi-layered audit infrastructure that captures eve
 
 ### 1. **Multi-Layer Event Capture**
 
-```text
+````text
 ┌─────────────────────────────────────────────────────┐
 │  USER ACTIONS (UI)                                  │
 │  - Searches, filters, exports                       │
@@ -90,19 +90,19 @@ interface JobAuditEntry {
   tacc_job_id: string;              // Remote execution ID
   dataset_id: string;                // Input data reference
   user_id: string;                  // Submitting user
-  
+
   // Agent & Configuration
   agent: 'AlphaCal' | 'ImageReconstruction' | 'AnomalyDetection';
   rfi_strategy: 'low' | 'medium' | 'high' | 'high_sensitivity';
   params: Record<string, any>;       // Full parameter snapshot
-  
+
   // Lifecycle Events
   status_history: Array<{
     status: 'QUEUED' | 'QUEUING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
     timestamp: Date;
     context?: string;                // Error messages, retry info
   }>;
-  
+
   // Performance Metrics
   metrics: {
     execution_time_seconds: number;
@@ -111,12 +111,12 @@ interface JobAuditEntry {
     data_volume_processed_gb: number;
     gflops_achieved: number;
   };
-  
+
   // Timestamps
   created_at: Date;
   updated_at: Date;
   completed_at?: Date;
-  
+
   // Traceability
   retry_count: number;               // Retry attempts
   notes: string;                    // Error context, recovery actions
@@ -133,25 +133,25 @@ interface UserActionAudit {
   action_id: string;                // Unique action UUID
   timestamp: Date;
   user_id: string;
-  
+
   // Action details
-  action_type: 'SEARCH' | 'FILTER' | 'EXPORT' | 'SUBMIT_JOB' | 
+  action_type: 'SEARCH' | 'FILTER' | 'EXPORT' | 'SUBMIT_JOB' |
                'CANCEL_JOB' | 'VIEW_RESULTS' | 'CONFIG_CHANGE' |
                'ROLE_ASSIGNMENT' | 'ACCESS_GRANT' | 'ACCESS_REVOKE';
-  
+
   resource_id?: string;               // Job, dataset, user, etc.
   resource_type?: 'Job' | 'Dataset' | 'User' | 'Config';
-  
+
   // Event details
   http_method: string;               // GET, POST, DELETE, etc.
   endpoint: string;                  // /api/jobs, /api/search, etc.
   status_code: number;              // HTTP response code
-  
+
   // Parameters & Results
   query_params?: Record<string, any>;
   request_body_hash?: string;        // SHA256 of request payload
   response_summary?: Record<string, any>;
-  
+
   // Security context
   client_ip: string;
   user_agent: string;
@@ -167,17 +167,17 @@ interface SecurityEventAudit {
   // Event identification
   event_id: string;
   timestamp: Date;
-  
+
   // Authentication events
   auth_event?: {
-    event: 'LOGIN' | 'LOGOUT' | 'TOKEN_REFRESH' | 'LOGIN_FAILED' | 
+    event: 'LOGIN' | 'LOGOUT' | 'TOKEN_REFRESH' | 'LOGIN_FAILED' |
            'MFA_CHALLENGE' | 'SESSION_EXPIRED';
     user_id?: string;
     login_method: 'PASSWORD' | 'OAUTH' | 'GITHUB' | 'SAML';
     success: boolean;
     ip_address: string;
   };
-  
+
   // Authorization events
   authz_event?: {
     user_id: string;
@@ -187,13 +187,13 @@ interface SecurityEventAudit {
     resource_id: string;
     resource_type: string;
   };
-  
+
   // Anomaly detection
   anomaly_detected: boolean;
-  anomaly_type?: 'BRUTE_FORCE' | 'UNUSUAL_ACCESS_TIME' | 
+  anomaly_type?: 'BRUTE_FORCE' | 'UNUSUAL_ACCESS_TIME' |
                 'UNUSUAL_LOCATION' | 'ELEVATED_PRIVILEGES' |
                 'DATA_EXFILTRATION_ATTEMPT';
-  
+
   // Risk score
   risk_score: number;                // 0-100
   action_taken: 'LOG' | 'ALERT' | 'BLOCK' | 'MFA_CHALLENGE';
@@ -210,22 +210,22 @@ interface DataAccessAudit {
   access_id: string;
   timestamp: Date;
   user_id: string;
-  
+
   // Data accessed
   dataset_ids: string[];             // Which datasets accessed
   data_classification: 'PUBLIC' | 'INTERNAL' | 'RESTRICTED' | 'CONFIDENTIAL';
-  
+
   // Access type
   access_type: 'VIEW' | 'DOWNLOAD' | 'EXPORT' | 'QUERY' | 'API_ACCESS';
   export_format?: 'FITS' | 'CSV' | 'JSON' | 'HDF5' | 'PARQUET';
-  
+
   // Data volume
   total_rows_accessed?: number;
   total_bytes_accessed: number;
-  
+
   // Destination (for exports)
   export_destination?: 'LOCAL_EXPORT' | 'CLOUD_STORAGE' | 'EXTERNAL_API';
-  
+
   // Justification & approvals
   use_case: string;                  // "Research", "Collaboration", etc.
   approval_required: boolean;
@@ -495,21 +495,21 @@ Compliance Status:
 rules:
   - name: BruteForceDetection
     condition: |
-      SELECT COUNT(*) as attempts 
-      FROM security_events 
-      WHERE event = 'LOGIN_FAILED' 
+      SELECT COUNT(*) as attempts
+      FROM security_events
+      WHERE event = 'LOGIN_FAILED'
         AND created_at > NOW() - INTERVAL '15 minutes'
       GROUP BY user_id
       HAVING COUNT(*) > 5
     alert: CRITICAL
-    
+
   - name: UnusualDataAccess
     condition: |
       SELECT * FROM data_access_audit
       WHERE bytes_accessed > 100GB
         AND timestamp > NOW() - INTERVAL '1 hour'
     alert: HIGH
-    
+
   - name: AuditLogGaps
     condition: |
       SELECT COUNT(*) FROM audit_logs
@@ -561,21 +561,21 @@ Timeline established → Forensic analysis begins
 
 ```sql
 -- "Find all jobs submitted by user in last 7 days"
-SELECT * FROM job_audit_trail 
-WHERE user_id = ? 
+SELECT * FROM job_audit_trail
+WHERE user_id = ?
   AND created_at > NOW() - INTERVAL '7 days'
 ORDER BY created_at DESC;
 
 -- "Trace data export destination"
-SELECT * FROM data_access_audit 
-WHERE export_destination = 'EXTERNAL_API' 
+SELECT * FROM data_access_audit
+WHERE export_destination = 'EXTERNAL_API'
   AND created_at > NOW() - INTERVAL '30 days'
 ORDER BY created_at DESC;
 
 -- "Find failed authentication attempts by user"
-SELECT * FROM security_event_audit 
-WHERE auth_event->>'event' = 'LOGIN_FAILED' 
-  AND user_id = ? 
+SELECT * FROM security_event_audit
+WHERE auth_event->>'event' = 'LOGIN_FAILED'
+  AND user_id = ?
 ORDER BY timestamp DESC LIMIT 20;
 ```text
 
@@ -671,7 +671,7 @@ CREATE TABLE job_audit_trail (
     completed_at TIMESTAMPTZ,
     retry_count INTEGER DEFAULT 0,
     notes TEXT,
-    
+
     INDEX idx_user_created (user_id, created_at),
     INDEX idx_job_id (job_id),
     INDEX idx_created_at (created_at)
@@ -691,7 +691,7 @@ CREATE TABLE user_action_audit (
     client_ip INET,
     user_agent TEXT,
     timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    
+
     INDEX idx_user_timestamp (user_id, timestamp),
     INDEX idx_timestamp (timestamp)
 );
@@ -710,3 +710,4 @@ The Cosmic Horizons audit strategy provides comprehensive event capture across a
 - **Auditability**: Forensic capabilities
 
 This foundation enables the platform to scale confidently into production while maintaining the trust and transparency required for scientific computing.
+````

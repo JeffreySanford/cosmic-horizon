@@ -14,12 +14,16 @@ type NotificationEvent = Record<string, unknown> & {
 export class NotificationService {
   private readonly logger = new Logger('NotificationService');
 
-  async sendJobCompletionNotification(event: NotificationEvent): Promise<boolean> {
+  async sendJobCompletionNotification(
+    event: NotificationEvent,
+  ): Promise<boolean> {
     this.logger.debug(`Sending completion notification for job ${event.jobId}`);
     return true;
   }
 
-  async formatCompletionNotification(event: NotificationEvent): Promise<string> {
+  async formatCompletionNotification(
+    event: NotificationEvent,
+  ): Promise<string> {
     return `Job ${event.jobId} completed successfully`;
   }
 
@@ -36,25 +40,37 @@ export class NotificationService {
     this.logger.debug(`Marking notification ${notificationId} as read`);
   }
 
-  async getNotification(notificationId: string): Promise<{ id: string; read: boolean }> {
+  async getNotification(
+    notificationId: string,
+  ): Promise<{ id: string; read: boolean }> {
     return { id: notificationId, read: true };
   }
 
-  async broadcastStatusUpdate(event: NotificationEvent): Promise<{ broadcast: boolean }> {
+  async broadcastStatusUpdate(
+    event: NotificationEvent,
+  ): Promise<{ broadcast: boolean }> {
     this.logger.debug(`Broadcasting status update for job ${event.jobId}`);
     return { broadcast: true };
   }
 
-  async sendWebSocketNotification(userId: string, _event: NotificationEvent): Promise<boolean> {
+  async sendWebSocketNotification(
+    userId: string,
+    _event: NotificationEvent,
+  ): Promise<boolean> {
     this.logger.debug(`Sending WebSocket notification to user ${userId}`);
     return true;
   }
 
-  async storeInAppNotification(notification: NotificationEvent): Promise<NotificationEvent & { id: string; read: boolean }> {
+  async storeInAppNotification(
+    notification: NotificationEvent,
+  ): Promise<NotificationEvent & { id: string; read: boolean }> {
     return { id: `notif-${Date.now()}`, ...notification, read: false };
   }
 
-  async getUserNotifications(_userId: string, _limit: number): Promise<NotificationEvent[]> {
+  async getUserNotifications(
+    _userId: string,
+    _limit: number,
+  ): Promise<NotificationEvent[]> {
     return [];
   }
 
@@ -62,11 +78,17 @@ export class NotificationService {
     return 0;
   }
 
-  async aggregateNotifications(_userId: string, events: NotificationEvent[]): Promise<{ eventCount: number; aggregated: boolean }> {
+  async aggregateNotifications(
+    _userId: string,
+    events: NotificationEvent[],
+  ): Promise<{ eventCount: number; aggregated: boolean }> {
     return { eventCount: events.length, aggregated: true };
   }
 
-  async batchNotifications(_userId: string, _events: NotificationEvent[]): Promise<{ batches: unknown[]; batchCount: number }> {
+  async batchNotifications(
+    _userId: string,
+    _events: NotificationEvent[],
+  ): Promise<{ batches: unknown[]; batchCount: number }> {
     return { batches: [], batchCount: 0 };
   }
 
@@ -74,23 +96,34 @@ export class NotificationService {
     return false;
   }
 
-  async generateDailyDigest(_userId: string): Promise<{ period: string; jobsCompleted: number; jobsFailed: number }> {
+  async generateDailyDigest(
+    _userId: string,
+  ): Promise<{ period: string; jobsCompleted: number; jobsFailed: number }> {
     return { period: 'DAILY', jobsCompleted: 0, jobsFailed: 0 };
   }
 
-  async attemptNotificationWithFallback(_event: NotificationEvent): Promise<{ success: boolean }> {
+  async attemptNotificationWithFallback(
+    _event: NotificationEvent,
+  ): Promise<{ success: boolean }> {
     return { success: true };
   }
 
-  async broadcastWithRetry(_event: NotificationEvent, _retries: number): Promise<{ attempts: number; success: boolean }> {
+  async broadcastWithRetry(
+    _event: NotificationEvent,
+    _retries: number,
+  ): Promise<{ attempts: number; success: boolean }> {
     return { attempts: 1, success: true };
   }
 
-  async queueNotificationIfUnavailable(_event: NotificationEvent): Promise<{ queued: boolean }> {
+  async queueNotificationIfUnavailable(
+    _event: NotificationEvent,
+  ): Promise<{ queued: boolean }> {
     return { queued: true };
   }
 
-  async persistQueuedNotification(_event: NotificationEvent): Promise<{ queued: boolean; persisted: boolean }> {
+  async persistQueuedNotification(
+    _event: NotificationEvent,
+  ): Promise<{ queued: boolean; persisted: boolean }> {
     return { queued: true, persisted: true };
   }
 }

@@ -14,10 +14,16 @@ const comment = new CommentBuilder().withId('c1').withContent('text').build();
 const post = new PostBuilder().withId('p1').withTitle('Title').build();
 
 // Reports
-const report = new CommentReportBuilder().withId('r1').withReason('Spam').build();
+const report = new CommentReportBuilder()
+  .withId('r1')
+  .withReason('Spam')
+  .build();
 
 // Logs
-const log = new LogEntryBuilder().withType('ACTION').withSeverity('INFO').build();
+const log = new LogEntryBuilder()
+  .withType('ACTION')
+  .withSeverity('INFO')
+  .build();
 ```
 
 ### Mock Repositories
@@ -49,7 +55,7 @@ mockService.getComments.mockResolvedValue([comment]);
    ```typescript
    // ❌ Bad
    const mock: any = { id: 'c1' };
-   
+
    // ✅ Good
    const mock = new CommentBuilder().withId('c1').build();
    ```
@@ -120,8 +126,15 @@ grep -r "any" apps/cosmic-horizons-api/src --include="*.spec.ts" | head -20
 ```typescript
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommentsService } from './comments.service';
-import { CommentBuilder, PostBuilder, TestDataFactory } from '../testing/test-builders';
-import { createMockRepository, TypeSafeAssertions } from '../testing/mock-factory';
+import {
+  CommentBuilder,
+  PostBuilder,
+  TestDataFactory,
+} from '../testing/test-builders';
+import {
+  createMockRepository,
+  TypeSafeAssertions,
+} from '../testing/mock-factory';
 import { TestDataTypeChecker } from '../testing/type-safety-config';
 ```
 
@@ -238,7 +251,7 @@ const comment = { id: 'c1' } as Comment;
 
 ```typescript
 // Create helper fixtures
-const createTestComment = (overrides?: Partial<Comment>) => 
+const createTestComment = (overrides?: Partial<Comment>) =>
   new CommentBuilder().withId('c1').merge(overrides).build();
 
 // Usage in tests
@@ -276,7 +289,9 @@ expect(result).toEqual(expected);
 const complexScenario = () => ({
   comment: new CommentBuilder().withId('c1').build(),
   report: new CommentReportBuilder().withId('r1').build(),
-  replies: [/* ... */],
+  replies: [
+    /* ... */
+  ],
 });
 ```
 

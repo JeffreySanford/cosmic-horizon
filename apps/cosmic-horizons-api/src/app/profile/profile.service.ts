@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { PostRepository } from '../repositories/post.repository';
 import { PostStatus } from '../entities/post.entity';
@@ -21,7 +25,9 @@ export class ProfileService {
     const { password_hash, github_id, email, ...safeUser } = user;
 
     const posts = await this.postRepository.findByUser(user.id);
-    const publicPosts = posts.filter((p) => p.status === PostStatus.PUBLISHED && !p.hidden_at);
+    const publicPosts = posts.filter(
+      (p) => p.status === PostStatus.PUBLISHED && !p.hidden_at,
+    );
 
     return {
       user: safeUser,
@@ -29,7 +35,10 @@ export class ProfileService {
     };
   }
 
-  async updateProfile(userId: string, data: { display_name?: string; bio?: string; avatar_url?: string }) {
+  async updateProfile(
+    userId: string,
+    data: { display_name?: string; bio?: string; avatar_url?: string },
+  ) {
     const displayName = data.display_name?.trim();
     const bio = data.bio?.trim();
     const avatarUrl = data.avatar_url?.trim();

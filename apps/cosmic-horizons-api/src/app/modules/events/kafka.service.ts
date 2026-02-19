@@ -117,8 +117,8 @@ export class KafkaService implements OnModuleDestroy {
       }> = [
         {
           topic: KAFKA_TOPICS.JOB_LIFECYCLE,
-          numPartitions: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_LIFECYCLE]
-            .partitions,
+          numPartitions:
+            KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_LIFECYCLE].partitions,
           replicationFactor:
             KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_LIFECYCLE].replication_factor,
           configEntries: [
@@ -132,8 +132,8 @@ export class KafkaService implements OnModuleDestroy {
         },
         {
           topic: KAFKA_TOPICS.JOB_METRICS,
-          numPartitions: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_METRICS]
-            .partitions,
+          numPartitions:
+            KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_METRICS].partitions,
           replicationFactor:
             KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.JOB_METRICS].replication_factor,
           configEntries: [
@@ -147,8 +147,8 @@ export class KafkaService implements OnModuleDestroy {
         },
         {
           topic: KAFKA_TOPICS.NOTIFICATIONS,
-          numPartitions: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.NOTIFICATIONS]
-            .partitions,
+          numPartitions:
+            KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.NOTIFICATIONS].partitions,
           replicationFactor:
             KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.NOTIFICATIONS].replication_factor,
           configEntries: [
@@ -162,8 +162,8 @@ export class KafkaService implements OnModuleDestroy {
         },
         {
           topic: KAFKA_TOPICS.AUDIT_TRAIL,
-          numPartitions: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.AUDIT_TRAIL]
-            .partitions,
+          numPartitions:
+            KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.AUDIT_TRAIL].partitions,
           replicationFactor:
             KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.AUDIT_TRAIL].replication_factor,
           configEntries: [
@@ -177,8 +177,8 @@ export class KafkaService implements OnModuleDestroy {
         },
         {
           topic: KAFKA_TOPICS.SYSTEM_HEALTH,
-          numPartitions: KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.SYSTEM_HEALTH]
-            .partitions,
+          numPartitions:
+            KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.SYSTEM_HEALTH].partitions,
           replicationFactor:
             KAFKA_TOPIC_CONFIG[KAFKA_TOPICS.SYSTEM_HEALTH].replication_factor,
           configEntries: [
@@ -219,7 +219,7 @@ export class KafkaService implements OnModuleDestroy {
    */
   async publishJobLifecycleEvent(
     event: EventBase,
-    jobId: string
+    jobId: string,
   ): Promise<void> {
     if (!this.connected || !this.producer) {
       throw new Error('Kafka not connected');
@@ -244,7 +244,7 @@ export class KafkaService implements OnModuleDestroy {
       });
 
       this.logger.debug(
-        `Job lifecycle event published: ${event.event_type} (partition: ${result[0].partition}, offset: ${result[0].baseOffset})`
+        `Job lifecycle event published: ${event.event_type} (partition: ${result[0].partition}, offset: ${result[0].baseOffset})`,
       );
       this.eventReplayService?.recordPublishedEvent({
         topic: KAFKA_TOPICS.JOB_LIFECYCLE,
@@ -257,7 +257,7 @@ export class KafkaService implements OnModuleDestroy {
     } catch (error) {
       this.logger.error(
         `Failed to publish job lifecycle event: ${event.event_type}`,
-        error
+        error,
       );
       throw error;
     }
@@ -267,7 +267,10 @@ export class KafkaService implements OnModuleDestroy {
    * Publish performance metrics
    * Key: job_id for correlation
    */
-  async publishJobMetrics(metrics: Record<string, unknown>, jobId: string): Promise<void> {
+  async publishJobMetrics(
+    metrics: Record<string, unknown>,
+    jobId: string,
+  ): Promise<void> {
     if (!this.connected || !this.producer) {
       throw new Error('Kafka not connected');
     }
@@ -290,7 +293,7 @@ export class KafkaService implements OnModuleDestroy {
       });
 
       this.logger.debug(
-        `Metrics published for job: ${jobId} (offset: ${result[0].baseOffset})`
+        `Metrics published for job: ${jobId} (offset: ${result[0].baseOffset})`,
       );
       this.eventReplayService?.recordPublishedEvent({
         topic: KAFKA_TOPICS.JOB_METRICS,
@@ -331,7 +334,7 @@ export class KafkaService implements OnModuleDestroy {
       });
 
       this.logger.debug(
-        `Notification published: ${event.event_type} (offset: ${result[0].baseOffset})`
+        `Notification published: ${event.event_type} (offset: ${result[0].baseOffset})`,
       );
       this.eventReplayService?.recordPublishedEvent({
         topic: KAFKA_TOPICS.NOTIFICATIONS,
@@ -344,7 +347,7 @@ export class KafkaService implements OnModuleDestroy {
     } catch (error) {
       this.logger.error(
         `Failed to publish notification: ${event.event_type}`,
-        error
+        error,
       );
       throw error;
     }
@@ -354,10 +357,7 @@ export class KafkaService implements OnModuleDestroy {
    * Publish audit trail event (90-day retention)
    * Used for compliance and operational auditing
    */
-  async publishAuditEvent(
-    event: EventBase,
-    resourceId: string
-  ): Promise<void> {
+  async publishAuditEvent(event: EventBase, resourceId: string): Promise<void> {
     if (!this.connected || !this.producer) {
       throw new Error('Kafka not connected');
     }
@@ -381,7 +381,7 @@ export class KafkaService implements OnModuleDestroy {
       });
 
       this.logger.debug(
-        `Audit event published: ${event.event_type} (offset: ${result[0].baseOffset})`
+        `Audit event published: ${event.event_type} (offset: ${result[0].baseOffset})`,
       );
       this.eventReplayService?.recordPublishedEvent({
         topic: KAFKA_TOPICS.AUDIT_TRAIL,
@@ -394,7 +394,7 @@ export class KafkaService implements OnModuleDestroy {
     } catch (error) {
       this.logger.error(
         `Failed to publish audit event: ${event.event_type}`,
-        error
+        error,
       );
       throw error;
     }
@@ -405,7 +405,7 @@ export class KafkaService implements OnModuleDestroy {
    */
   async publishSystemHealthEvent(
     event: EventBase,
-    componentId: string
+    componentId: string,
   ): Promise<void> {
     if (!this.connected || !this.producer) {
       throw new Error('Kafka not connected');
@@ -439,7 +439,7 @@ export class KafkaService implements OnModuleDestroy {
     } catch (error) {
       this.logger.error(
         `Failed to publish system health event for ${componentId}`,
-        error
+        error,
       );
       throw error;
     }
@@ -466,7 +466,7 @@ export class KafkaService implements OnModuleDestroy {
   async subscribe(
     groupId: string,
     topics: string[],
-    handler: (message: EachMessagePayload) => Promise<void>
+    handler: (message: EachMessagePayload) => Promise<void>,
   ): Promise<void> {
     let consumer = this.consumers.get(groupId);
     if (!consumer) {
@@ -509,7 +509,7 @@ export class KafkaService implements OnModuleDestroy {
         });
         totalPartitions = topicMetadata.topics.reduce(
           (sum, topic) => sum + topic.partitions.length,
-          0
+          0,
         );
       } catch {
         // Fallback if metadata fetch fails

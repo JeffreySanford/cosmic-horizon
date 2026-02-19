@@ -64,7 +64,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'http',
@@ -101,7 +103,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -131,7 +135,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -160,7 +166,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -190,7 +198,9 @@ describe('RequestLoggerInterceptor', () => {
 
         callHandler.handle.mockReturnValue(of(mockResponse));
 
-        await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+        await firstValueFrom(
+          interceptor.intercept(executionContext, callHandler),
+        );
         expect(loggingService.add).toHaveBeenCalledWith(
           expect.objectContaining({
             data: expect.objectContaining({
@@ -220,7 +230,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -247,7 +259,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -277,7 +291,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -307,7 +323,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -335,7 +353,9 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(interceptor.intercept(executionContext, callHandler));
+      await firstValueFrom(
+        interceptor.intercept(executionContext, callHandler),
+      );
       expect(loggingService.add).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({

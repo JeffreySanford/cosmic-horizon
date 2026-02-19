@@ -2,11 +2,18 @@
   <div class="comment-card">
     <div class="comment-header">
       @if (comment.user?.username) {
-        <a [routerLink]="['/profile', comment.user?.username]" class="username-link">
-          <span class="username">{{ comment.user?.display_name || comment.user?.username || 'Anonymous' }}</span>
+        <a
+          [routerLink]="['/profile', comment.user?.username]"
+          class="username-link"
+        >
+          <span class="username">{{
+            comment.user?.display_name || comment.user?.username || 'Anonymous'
+          }}</span>
         </a>
       } @else {
-        <span class="username">{{ comment.user?.display_name || comment.user?.username || 'Anonymous' }}</span>
+        <span class="username">{{
+          comment.user?.display_name || comment.user?.username || 'Anonymous'
+        }}</span>
       }
       <span class="timestamp">{{ comment.created_at | date: 'short' }}</span>
     </div>
@@ -23,9 +30,7 @@
           </button>
         }
         @if (canReport) {
-          <button mat-button (click)="reportComment()">
-            Report
-          </button>
+          <button mat-button (click)="reportComment()">Report</button>
         }
         @if (canDelete) {
           <button mat-button color="warn" (click)="deleteComment()">
@@ -44,14 +49,30 @@
       <div class="reply-form">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Your reply</mat-label>
-          <textarea matInput rows="3" [(ngModel)]="replyContent" [disabled]="submittingReply"></textarea>
+          <textarea
+            matInput
+            rows="3"
+            [(ngModel)]="replyContent"
+            [disabled]="submittingReply"
+          ></textarea>
         </mat-form-field>
         @if (error) {
           <div class="error">{{ error }}</div>
         }
         <div class="form-actions">
-          <button mat-button (click)="toggleReply()" [disabled]="submittingReply">Cancel</button>
-          <button mat-raised-button color="primary" (click)="submitReply()" [disabled]="!replyContent.trim() || submittingReply">
+          <button
+            mat-button
+            (click)="toggleReply()"
+            [disabled]="submittingReply"
+          >
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="submitReply()"
+            [disabled]="!replyContent.trim() || submittingReply"
+          >
             Post Reply
           </button>
         </div>

@@ -5,7 +5,7 @@ describe('documentation paths validation', () => {
   /**
    * This test verifies that all documentation files referenced by
    * scripts/check-doc-consistency.mjs exist at their expected paths.
-   * 
+   *
    * This prevents CI failures caused by documentation reorganization.
    * If documentation is moved, update both this test AND the check script.
    */
@@ -27,7 +27,7 @@ describe('documentation paths validation', () => {
 
     for (const relativePath of requiredPaths) {
       const fullPath = join(workspaceRoot, relativePath);
-      
+
       if (!existsSync(fullPath)) {
         missingFiles.push(`Missing: ${relativePath} (looked in ${fullPath})`);
       }
@@ -35,20 +35,20 @@ describe('documentation paths validation', () => {
 
     if (missingFiles.length > 0) {
       throw new Error(
-        `Documentation path validation failed:\n${missingFiles.map(f => `  - ${f}`).join('\n')}\n\n` +
-        `If documentation was reorganized:\n` +
-        `  1. Update scripts/check-doc-consistency.mjs\n` +
-        `  2. Update this test (apps/cosmic-horizons-api-e2e/src/docs-paths.spec.ts)\n` +
-        `  3. Ensure both files reference the same paths`,
+        `Documentation path validation failed:\n${missingFiles.map((f) => `  - ${f}`).join('\n')}\n\n` +
+          `If documentation was reorganized:\n` +
+          `  1. Update scripts/check-doc-consistency.mjs\n` +
+          `  2. Update this test (apps/cosmic-horizons-api-e2e/src/docs-paths.spec.ts)\n` +
+          `  3. Ensure both files reference the same paths`,
       );
     }
   });
 
   it('documentation consistency check script exists and is valid', () => {
     const scriptPath = join(workspaceRoot, 'scripts/check-doc-consistency.mjs');
-    
+
     expect(existsSync(scriptPath)).toBe(true);
-    
+
     // Verify it contains expected file paths (smoke test)
     const scriptContent = readFileSync(scriptPath, 'utf8');
     const expectedPaths = [
@@ -71,8 +71,8 @@ describe('documentation paths validation', () => {
     if (missingReferences.length > 0) {
       throw new Error(
         `Documentation consistency check script is missing expected paths:\n` +
-        `${missingReferences.map(p => `  - ${p}`).join('\n')}\n\n` +
-        `Update scripts/check-doc-consistency.mjs to include these paths.`,
+          `${missingReferences.map((p) => `  - ${p}`).join('\n')}\n\n` +
+          `Update scripts/check-doc-consistency.mjs to include these paths.`,
       );
     }
   });

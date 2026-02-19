@@ -10,7 +10,7 @@ describe('WebSocketService', () => {
     mockConfigService = {
       get: jest.fn((key: string, defaultValue?: number) => {
         const config: Record<string, number> = {
-          'WEBSOCKET_PORT': 3001,
+          WEBSOCKET_PORT: 3001,
         };
         return config[key] ?? defaultValue;
       }),
@@ -42,7 +42,7 @@ describe('WebSocketService', () => {
 
       expect(mockConfigService.get).toHaveBeenCalledWith(
         'WEBSOCKET_PORT',
-        3001
+        3001,
       );
     });
 
@@ -53,7 +53,7 @@ describe('WebSocketService', () => {
 
       expect(mockConfigService.get).toHaveBeenCalledWith(
         'WEBSOCKET_PORT',
-        3001
+        3001,
       );
     });
   });
@@ -200,7 +200,7 @@ describe('WebSocketService', () => {
       };
 
       await expect(
-        service.broadcast('complex-event', complexData)
+        service.broadcast('complex-event', complexData),
       ).resolves.not.toThrow();
     });
   });
@@ -210,7 +210,9 @@ describe('WebSocketService', () => {
       await service.connect('client-1', 'session-1');
 
       const debugSpy = jest.spyOn(Logger.prototype, 'debug');
-      await service.sendToClient('client-1', 'notification', { message: 'test' });
+      await service.sendToClient('client-1', 'notification', {
+        message: 'test',
+      });
 
       expect(debugSpy).toHaveBeenCalled();
     });
@@ -239,7 +241,7 @@ describe('WebSocketService', () => {
       await service.connect('client-1', 'session-2');
 
       await expect(
-        service.sendToClient('client-1', 'event', {})
+        service.sendToClient('client-1', 'event', {}),
       ).resolves.not.toThrow();
     });
   });
@@ -371,7 +373,9 @@ describe('WebSocketService', () => {
       await service.joinRoom('client-1', 'notifications');
 
       await service.broadcast('system-online', { status: 'up' });
-      await service.sendToClient('client-1', 'welcome', { message: 'Connected' });
+      await service.sendToClient('client-1', 'welcome', {
+        message: 'Connected',
+      });
 
       await service.disconnect('client-1');
 

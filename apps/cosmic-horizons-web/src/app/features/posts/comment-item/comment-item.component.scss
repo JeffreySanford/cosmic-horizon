@@ -6,7 +6,7 @@
   padding: 12px;
   border-left: 3px solid #eee;
   background-color: #fcfcfc;
-  
+
   &:hover {
     border-left-color: #3f51b5;
   }
@@ -15,7 +15,7 @@
 .comment-header {
   margin-bottom: 8px;
   font-size: 0.85rem;
-  
+
   .username-link {
     text-decoration: none;
     &:hover {
@@ -30,7 +30,7 @@
     color: #333;
     margin-right: 8px;
   }
-  
+
   .timestamp {
     color: #888;
   }
@@ -46,7 +46,7 @@
   margin-top: 8px;
   display: flex;
   gap: 8px;
-  
+
   button {
     height: 32px;
     line-height: 32px;
@@ -77,4 +77,3 @@
   justify-content: flex-end;
   gap: 8px;
 }
-

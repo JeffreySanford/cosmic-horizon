@@ -27,7 +27,12 @@ describe('PostsListComponent', () => {
             published_at: '2026-02-07T00:00:00.000Z',
             created_at: '2026-02-07T00:00:00.000Z',
             updated_at: '2026-02-07T00:00:00.000Z',
-            user: { id: 'user-1', username: 'astro', display_name: 'Astro', email: null },
+            user: {
+              id: 'user-1',
+              username: 'astro',
+              display_name: 'Astro',
+              email: null,
+            },
           },
         ]),
       ),
@@ -60,7 +65,13 @@ describe('PostsListComponent', () => {
 
   it('sets error message when loading fails', () => {
     postsApi.getPublishedPosts.mockReturnValueOnce(
-      throwError(() => new HttpErrorResponse({ error: { message: 'Load failed.' }, status: 500 })),
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            error: { message: 'Load failed.' },
+            status: 500,
+          }),
+      ),
     );
 
     component.ngOnInit();

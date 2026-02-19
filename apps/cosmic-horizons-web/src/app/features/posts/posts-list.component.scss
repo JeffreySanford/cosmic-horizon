@@ -1,6 +1,11 @@
 .posts-page {
   min-height: 100vh;
-  background: radial-gradient(circle at 20% 10%, #111a33 0%, #0a0f20 50%, #060a14 100%);
+  background: radial-gradient(
+    circle at 20% 10%,
+    #111a33 0%,
+    #0a0f20 50%,
+    #060a14 100%
+  );
   color: #f7e8bb;
 }
 

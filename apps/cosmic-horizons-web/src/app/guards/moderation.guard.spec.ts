@@ -36,7 +36,10 @@ describe('ModerationGuard', () => {
     authApiService.getMe.mockReturnValue(of({ user: { role: 'admin' } }));
 
     const stream = guard.canActivate();
-    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream as any);
+    const result =
+      typeof stream === 'boolean'
+        ? stream
+        : await firstValueFrom(stream as any);
 
     expect(result).toBe(true);
   });
@@ -46,7 +49,10 @@ describe('ModerationGuard', () => {
     authApiService.getMe.mockReturnValue(of({ user: { role: 'moderator' } }));
 
     const stream = guard.canActivate();
-    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream as any);
+    const result =
+      typeof stream === 'boolean'
+        ? stream
+        : await firstValueFrom(stream as any);
 
     expect(result).toBe(true);
   });
@@ -56,9 +62,11 @@ describe('ModerationGuard', () => {
     authApiService.getMe.mockReturnValue(of({ user: { role: 'user' } }));
 
     const stream = guard.canActivate();
-    const result = typeof stream === 'boolean' ? stream : await firstValueFrom(stream as any);
+    const result =
+      typeof stream === 'boolean'
+        ? stream
+        : await firstValueFrom(stream as any);
 
     expect(result).toBe(false);
   });
 });
-

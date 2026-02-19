@@ -12,10 +12,18 @@ export class SystemHealthMonitorService {
   private consumerLags = new Map<string, number[]>();
   private processingLatencies = new Map<string, number[]>();
   private healthStatusHistory = new Map<string, string[]>();
-  private eventCounters = new Map<string, { successes: number; failures: number }>();
+  private eventCounters = new Map<
+    string,
+    { successes: number; failures: number }
+  >();
 
-  async processHealthEvent(event: { consumerId: string; status?: string }): Promise<{ consumerHealth: string; processed: boolean }> {
-    this.logger.debug(`Processing health event for consumer ${event.consumerId}`);
+  async processHealthEvent(event: {
+    consumerId: string;
+    status?: string;
+  }): Promise<{ consumerHealth: string; processed: boolean }> {
+    this.logger.debug(
+      `Processing health event for consumer ${event.consumerId}`,
+    );
     this.consumerMetrics.set(event.consumerId, event);
     return {
       consumerHealth: event.status || 'HEALTHY',
@@ -23,14 +31,21 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async calculateConsumerLag(metrics: { partitions: Array<{ lag: number }> }): Promise<{
+  async calculateConsumerLag(metrics: {
+    partitions: Array<{ lag: number }>;
+  }): Promise<{
     totalLag: number;
     maxLag: number;
     partitionCount: number;
     averageLag: number;
   }> {
-    const totalLag = metrics.partitions.reduce((sum: number, partition) => sum + partition.lag, 0);
-    const maxLag = Math.max(...metrics.partitions.map((partition) => partition.lag));
+    const totalLag = metrics.partitions.reduce(
+      (sum: number, partition) => sum + partition.lag,
+      0,
+    );
+    const maxLag = Math.max(
+      ...metrics.partitions.map((partition) => partition.lag),
+    );
 
     return {
       totalLag,
@@ -40,17 +55,24 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async trackOffsetProgress(event: { lag: number; currentOffset: number; lastOffset: number }): Promise<{
+  async trackOffsetProgress(event: {
+    lag: number;
+    currentOffset: number;
+    lastOffset: number;
+  }): Promise<{
     lag: number;
     commitPercentage: number;
   }> {
     return {
       lag: event.lag,
-      commitPercentage: ((event.currentOffset / event.lastOffset) * 100) || 0,
+      commitPercentage: (event.currentOffset / event.lastOffset) * 100 || 0,
     };
   }
 
-  async initializeConsumerMonitoring(consumerId: string, consumerGroup: string): Promise<{
+  async initializeConsumerMonitoring(
+    consumerId: string,
+    consumerGroup: string,
+  ): Promise<{
     consumerId: string;
     consumerGroup: string;
     status: string;
@@ -74,7 +96,9 @@ export class SystemHealthMonitorService {
     }
   }
 
-  async getConsumerLagStats(consumerId: string): Promise<{ avgLag: number; maxLag: number; sampleCount: number }> {
+  async getConsumerLagStats(
+    consumerId: string,
+  ): Promise<{ avgLag: number; maxLag: number; sampleCount: number }> {
     const lags = this.consumerLags.get(consumerId) || [];
     const avgLag = lags.reduce((a, b) => a + b, 0) / (lags.length || 1);
     const maxLag = Math.max(...lags, 0);
@@ -86,35 +110,60 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async recordEventOutcome(event: { success: boolean; consumerGroup?: string; jobId?: string; event?: string }): Promise<void> {
+  async recordEventOutcome(event: {
+    success: boolean;
+    consumerGroup?: string;
+    jobId?: string;
+    event?: string;
+  }): Promise<void> {
     // Determine the key for counting outcomes. Support consumerGroup, job events, or generic event types.
-    const key = event.consumerGroup ? `cg:${event.consumerGroup}` : event.jobId ? 'job' : event.event ? String(event.event) : 'global';
+    const key = event.consumerGroup
+      ? `cg:${event.consumerGroup}`
+      : event.jobId
+        ? 'job'
+        : event.event
+          ? String(event.event)
+          : 'global';
 
-    const counters = this.eventCounters.get(key) ?? { successes: 0, failures: 0 };
+    const counters = this.eventCounters.get(key) ?? {
+      successes: 0,
+      failures: 0,
+    };
     if (event.success) {
       counters.successes += 1;
     } else {
       counters.failures += 1;
     }
     this.eventCounters.set(key, counters);
-    this.logger.debug(`Recording event outcome for ${key}: success=${event.success}`);
+    this.logger.debug(
+      `Recording event outcome for ${key}: success=${event.success}`,
+    );
   }
 
   async getEventErrorRate(eventType: string): Promise<number> {
-    const counters = this.eventCounters.get(eventType) ?? { successes: 0, failures: 0 };
+    const counters = this.eventCounters.get(eventType) ?? {
+      successes: 0,
+      failures: 0,
+    };
     const total = (counters.successes ?? 0) + (counters.failures ?? 0);
-    return total > 0 ? (counters.failures / total) : 0;
+    return total > 0 ? counters.failures / total : 0;
   }
 
-  async checkErrorRateAlert(consumerGroup: string, threshold: number): Promise<{
+  async checkErrorRateAlert(
+    consumerGroup: string,
+    threshold: number,
+  ): Promise<{
     triggered: boolean;
     currentRate: number;
     threshold: number;
   }> {
     const key = `cg:${consumerGroup}`;
-    const counters = this.eventCounters.get(key) ?? { successes: 0, failures: 0 };
+    const counters = this.eventCounters.get(key) ?? {
+      successes: 0,
+      failures: 0,
+    };
     const total = (counters.successes ?? 0) + (counters.failures ?? 0);
-    const currentRate = total > 0 ? (counters.failures / total) : 0;
+    const currentRate = total > 0 ? counters.failures / total : 0;
 
     return {
       triggered: currentRate > threshold,
@@ -123,7 +172,9 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async detectPerformanceDegradation(_consumerId: string): Promise<{ degrading: boolean; severity: string }> {
+  async detectPerformanceDegradation(
+    _consumerId: string,
+  ): Promise<{ degrading: boolean; severity: string }> {
     const latencies = this.processingLatencies.get(_consumerId) || [];
     if (latencies.length < 4) {
       return {
@@ -185,8 +236,13 @@ export class SystemHealthMonitorService {
     return Math.min(1, scores.reduce((a, b) => a + b, 0) / scores.length);
   }
 
-  async recordProcessingLatency(consumerId: string, event: { eventProcessingTimeMs: number }): Promise<void> {
-    this.logger.debug(`Recording latency for ${consumerId}: ${event.eventProcessingTimeMs}ms`);
+  async recordProcessingLatency(
+    consumerId: string,
+    event: { eventProcessingTimeMs: number },
+  ): Promise<void> {
+    this.logger.debug(
+      `Recording latency for ${consumerId}: ${event.eventProcessingTimeMs}ms`,
+    );
     const series = this.processingLatencies.get(consumerId) || [];
     series.push(event.eventProcessingTimeMs);
     if (series.length > 120) {
@@ -195,7 +251,10 @@ export class SystemHealthMonitorService {
     this.processingLatencies.set(consumerId, series);
   }
 
-  async triggerPartitionRebalance(_consumerGroup: string, _lagThreshold: number): Promise<{
+  async triggerPartitionRebalance(
+    _consumerGroup: string,
+    _lagThreshold: number,
+  ): Promise<{
     triggered: boolean;
     reason: string;
   }> {
@@ -205,7 +264,10 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async attemptConsumerRestart(_consumerId: string, _stalledThreshold: number): Promise<{ restarted: boolean }> {
+  async attemptConsumerRestart(
+    _consumerId: string,
+    _stalledThreshold: number,
+  ): Promise<{ restarted: boolean }> {
     return {
       restarted: false,
     };
@@ -215,22 +277,34 @@ export class SystemHealthMonitorService {
     this.logger.warn(`Recording failure for service ${serviceName}`);
   }
 
-  async getCircuitBreakerState(_serviceName: string): Promise<{ state: string; failureCount: number }> {
+  async getCircuitBreakerState(
+    _serviceName: string,
+  ): Promise<{ state: string; failureCount: number }> {
     return {
       state: 'CLOSED',
       failureCount: 0,
     };
   }
 
-  async queueEventForRetry(_event: unknown, _maxRetries: number): Promise<boolean> {
+  async queueEventForRetry(
+    _event: unknown,
+    _maxRetries: number,
+  ): Promise<boolean> {
     return true;
   }
 
-  async calculateRetryDelay(event: { retryCount: number }, _attempt: number): Promise<number> {
+  async calculateRetryDelay(
+    event: { retryCount: number },
+    _attempt: number,
+  ): Promise<number> {
     return Math.pow(2, event.retryCount) * 1000; // Exponential backoff
   }
 
-  async getPerformanceTrend(_consumerId: string, metric: string, samples: number): Promise<{
+  async getPerformanceTrend(
+    _consumerId: string,
+    metric: string,
+    samples: number,
+  ): Promise<{
     metric: string;
     trend: string;
     samples: number;
@@ -242,7 +316,10 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async predictFutureMetrics(_consumerId: string, minutes: number): Promise<{
+  async predictFutureMetrics(
+    _consumerId: string,
+    minutes: number,
+  ): Promise<{
     predictedLag: number;
     confidenceScore: number;
     timeframe: string;
@@ -268,7 +345,10 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async analyzePeakLoadPeriods(_consumerId: string, _hours: number): Promise<{
+  async analyzePeakLoadPeriods(
+    _consumerId: string,
+    _hours: number,
+  ): Promise<{
     peakHours: unknown[];
     averageLoad: number;
   }> {
@@ -290,7 +370,10 @@ export class SystemHealthMonitorService {
     };
   }
 
-  async checkPredictiveAlert(_consumerId: string, _slaThreshold: number): Promise<{
+  async checkPredictiveAlert(
+    _consumerId: string,
+    _slaThreshold: number,
+  ): Promise<{
     shouldAlert: boolean;
     reason: string;
   }> {

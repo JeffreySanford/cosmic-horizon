@@ -1,4 +1,9 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { JobOrchestrationService } from './job-orchestration.service';
 import { Job, Agent } from './job.models';
 import { Observable } from 'rxjs';

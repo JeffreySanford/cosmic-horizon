@@ -54,7 +54,7 @@ export class RabbitMQService implements OnModuleDestroy {
 
     this.brokers = hostList.map(
       (host: string) =>
-        `amqp://${brokerUser}:${brokerPass}@${host.trim()}:${brokerPort}`
+        `amqp://${brokerUser}:${brokerPass}@${host.trim()}:${brokerPort}`,
     );
   }
 
@@ -63,7 +63,7 @@ export class RabbitMQService implements OnModuleDestroy {
    */
   async connect(): Promise<void> {
     this.logger.log(
-      `Connecting to RabbitMQ cluster: ${this.brokers.map((b) => b.split('@')[1]).join(', ')}`
+      `Connecting to RabbitMQ cluster: ${this.brokers.map((b) => b.split('@')[1]).join(', ')}`,
     );
 
     try {
@@ -137,7 +137,9 @@ export class RabbitMQService implements OnModuleDestroy {
         await this.channel.assertExchange(exchange.name, exchange.type, {
           durable: true,
         });
-        this.logger.debug(`Exchange declared: ${exchange.name} (${exchange.type})`);
+        this.logger.debug(
+          `Exchange declared: ${exchange.name} (${exchange.type})`,
+        );
       } catch (error) {
         this.logger.error(`Failed to declare exchange ${exchange.name}`, error);
         throw error;
@@ -201,7 +203,7 @@ export class RabbitMQService implements OnModuleDestroy {
 
         await this.channel.assertQueue(q.name, options);
         this.logger.debug(
-          `Queue declared: ${q.name} (TTL: ${q.ttl}ms, MaxRetry: ${q.maxRetry})`
+          `Queue declared: ${q.name} (TTL: ${q.ttl}ms, MaxRetry: ${q.maxRetry})`,
         );
 
         // Bind queue to exchange
@@ -225,10 +227,14 @@ export class RabbitMQService implements OnModuleDestroy {
     }
 
     try {
-      const jobId = typeof event.payload === 'object' && event.payload !== null && 'job_id' in event.payload
-        ? (event.payload as Record<string, unknown>)['job_id']
-        : 'unknown';
-      const jobIdStr = typeof jobId === 'string' ? jobId.substring(0, 8) : 'unknown';
+      const jobId =
+        typeof event.payload === 'object' &&
+        event.payload !== null &&
+        'job_id' in event.payload
+          ? (event.payload as Record<string, unknown>)['job_id']
+          : 'unknown';
+      const jobIdStr =
+        typeof jobId === 'string' ? jobId.substring(0, 8) : 'unknown';
       const routingKey = `job.${jobIdStr}.${event.event_type}`;
 
       const published = this.channel.publish(
@@ -239,16 +245,23 @@ export class RabbitMQService implements OnModuleDestroy {
           persistent: true,
           contentType: 'application/json',
           timestamp: Date.now(),
-        }
+        },
       );
 
       if (!published) {
-        this.logger.warn(`Failed to publish job event (buffer full): ${event.event_type}`);
+        this.logger.warn(
+          `Failed to publish job event (buffer full): ${event.event_type}`,
+        );
       } else {
-        this.logger.debug(`Job event published: ${event.event_type} (${event.event_id})`);
+        this.logger.debug(
+          `Job event published: ${event.event_type} (${event.event_id})`,
+        );
       }
     } catch (error) {
-      this.logger.error(`Failed to publish job event: ${event.event_type}`, error);
+      this.logger.error(
+        `Failed to publish job event: ${event.event_type}`,
+        error,
+      );
       throw error;
     }
   }
@@ -274,16 +287,23 @@ export class RabbitMQService implements OnModuleDestroy {
           persistent: false, // Notifications are ephemeral
           contentType: 'application/json',
           timestamp: Date.now(),
-        }
+        },
       );
 
       if (!published) {
-        this.logger.warn(`Failed to publish notification (buffer full): ${event.event_type}`);
+        this.logger.warn(
+          `Failed to publish notification (buffer full): ${event.event_type}`,
+        );
       } else {
-        this.logger.debug(`Notification published: ${event.event_type} (${event.event_id})`);
+        this.logger.debug(
+          `Notification published: ${event.event_type} (${event.event_id})`,
+        );
       }
     } catch (error) {
-      this.logger.error(`Failed to publish notification: ${event.event_type}`, error);
+      this.logger.error(
+        `Failed to publish notification: ${event.event_type}`,
+        error,
+      );
       throw error;
     }
   }
@@ -328,7 +348,9 @@ export class RabbitMQService implements OnModuleDestroy {
       }
 
       if (this.connection) {
-        await (this.connection as unknown as { close: () => Promise<void> }).close();
+        await (
+          this.connection as unknown as { close: () => Promise<void> }
+        ).close();
         this.logger.log('RabbitMQ connection closed');
       }
 
@@ -345,16 +367,17 @@ export class RabbitMQService implements OnModuleDestroy {
   private async attemptReconnect(): Promise<void> {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       this.logger.error(
-        `Max reconnection attempts (${this.maxReconnectAttempts}) exceeded`
+        `Max reconnection attempts (${this.maxReconnectAttempts}) exceeded`,
       );
       return;
     }
 
     this.reconnectAttempts++;
-    const delayMs = this.reconnectDelayMs * Math.pow(2, this.reconnectAttempts - 1);
+    const delayMs =
+      this.reconnectDelayMs * Math.pow(2, this.reconnectAttempts - 1);
 
     this.logger.warn(
-      `Attempting to reconnect to RabbitMQ (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delayMs}ms`
+      `Attempting to reconnect to RabbitMQ (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delayMs}ms`,
     );
 
     setTimeout(() => {

@@ -24,11 +24,12 @@ export class BrokerMetricsCollector {
   private kafkaClient: AxiosInstance;
 
   // Snapshot used to compute true messages-per-second for RabbitMQ
-  private lastRabbitQueueSnapshot: { messages: number; at: number } | null = null;
+  private lastRabbitQueueSnapshot: { messages: number; at: number } | null =
+    null;
 
   // Snapshot used to compute Kafka messages/sec from topic offsets
-  private lastKafkaOffsetSnapshot: { totalOffset: number; at: number } | null = null;
-
+  private lastKafkaOffsetSnapshot: { totalOffset: number; at: number } | null =
+    null;
 
   constructor() {
     const rabbitmqUrl = this.buildRabbitMQUrl();
@@ -70,10 +71,12 @@ export class BrokerMetricsCollector {
     ]);
 
     return {
-      rabbitmq: rabbitmq.status === 'fulfilled' ? rabbitmq.value : { connected: false },
+      rabbitmq:
+        rabbitmq.status === 'fulfilled' ? rabbitmq.value : { connected: false },
       kafka: kafka.status === 'fulfilled' ? kafka.value : { connected: false },
       pulsar:
-        pulsar.status === 'fulfilled' && (process.env['PULSAR_ENABLED'] ?? 'false') === 'true'
+        pulsar.status === 'fulfilled' &&
+        (process.env['PULSAR_ENABLED'] ?? 'false') === 'true'
           ? pulsar.value
           : undefined,
     };
@@ -88,7 +91,9 @@ export class BrokerMetricsCollector {
       const overview = await this.rabbitmqClient.get('/api/overview');
       const nodes = await this.rabbitmqClient.get('/api/nodes');
 
-      const nodeStats = (nodes.data as Array<{ memory?: { used?: number }; uptime?: number }>)[0];
+      const nodeStats = (
+        nodes.data as Array<{ memory?: { used?: number }; uptime?: number }>
+      )[0];
       const mem = nodeStats?.memory || {};
 
       // Try to scrape Prometheus-style metrics for RabbitMQ latency (if plugin available)
@@ -99,7 +104,8 @@ export class BrokerMetricsCollector {
         messagesPerSecond: throughput,
         p99LatencyMs: prom?.p99LatencyMs ?? undefined,
         memoryUsageMb: (mem.used || 0) / (1024 * 1024),
-        connectionCount: (overview.data?.object_totals?.connections || 0) as number,
+        connectionCount: (overview.data?.object_totals?.connections ||
+          0) as number,
         uptime: this.formatUptime(nodeStats?.uptime || 0),
         dataSource: throughput !== undefined ? 'measured' : 'missing',
         metricQuality: {
@@ -112,7 +118,9 @@ export class BrokerMetricsCollector {
         },
       };
     } catch (error) {
-      this.logger.warn(`Failed to collect RabbitMQ metrics: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Failed to collect RabbitMQ metrics: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return { connected: false };
     }
   }
@@ -154,7 +162,9 @@ export class BrokerMetricsCollector {
 
         return {
           connected: true,
-          messagesPerSecond: Math.floor(totalThroughput / Math.max(1, brokers.length)),
+          messagesPerSecond: Math.floor(
+            totalThroughput / Math.max(1, brokers.length),
+          ),
           p99LatencyMs: undefined, // Kafka REST API doesn't expose latencies - would need JMX
           memoryUsageMb: Math.floor(totalMemory / Math.max(1, brokers.length)),
           connectionCount: totalConnections,
@@ -178,7 +188,9 @@ export class BrokerMetricsCollector {
         };
       } catch (_restProxyError) {
         // REST proxy unavailable → attempt native Kafka admin offsets to compute messages/sec
-        this.logger.debug('Kafka REST proxy unavailable, attempting native admin offsets for throughput');
+        this.logger.debug(
+          'Kafka REST proxy unavailable, attempting native admin offsets for throughput',
+        );
         try {
           return await this.collectKafkaMetricsNative();
         } catch (nativeError) {
@@ -189,7 +201,9 @@ export class BrokerMetricsCollector {
         }
       }
     } catch (error) {
-      this.logger.warn(`Failed to collect Kafka metrics: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Failed to collect Kafka metrics: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return { connected: false };
     }
   }
@@ -214,7 +228,10 @@ export class BrokerMetricsCollector {
       let partitionCount = 0;
 
       for (const topic of userTopics) {
-        const offsets = await this.fetchTopicOffsetsForNative(topic as string, admin);
+        const offsets = await this.fetchTopicOffsetsForNative(
+          topic as string,
+          admin,
+        );
         offsets.forEach((p: any) => {
           // 'offset' is a string
           const high = Number(p.offset || p.high || 0);
@@ -225,9 +242,16 @@ export class BrokerMetricsCollector {
 
       const now = Date.now();
       let messagesPerSecond: number | undefined = undefined;
-      if (this.lastKafkaOffsetSnapshot && typeof this.lastKafkaOffsetSnapshot.totalOffset === 'number') {
-        const dtSeconds = Math.max(1e-3, (now - this.lastKafkaOffsetSnapshot.at) / 1000);
-        const delta = totalHighOffset - this.lastKafkaOffsetSnapshot.totalOffset;
+      if (
+        this.lastKafkaOffsetSnapshot &&
+        typeof this.lastKafkaOffsetSnapshot.totalOffset === 'number'
+      ) {
+        const dtSeconds = Math.max(
+          1e-3,
+          (now - this.lastKafkaOffsetSnapshot.at) / 1000,
+        );
+        const delta =
+          totalHighOffset - this.lastKafkaOffsetSnapshot.totalOffset;
         const rate = delta > 0 ? delta / dtSeconds : 0;
         messagesPerSecond = Math.round(rate);
       }
@@ -249,7 +273,8 @@ export class BrokerMetricsCollector {
         topicStats: { topicCount: userTopics.length },
         dataSource: messagesPerSecond !== undefined ? 'measured' : 'missing',
         metricQuality: {
-          messagesPerSecond: messagesPerSecond !== undefined ? 'measured' : 'missing',
+          messagesPerSecond:
+            messagesPerSecond !== undefined ? 'measured' : 'missing',
           p99LatencyMs: prom?.p99LatencyMs ? 'measured' : 'missing',
           memoryUsageMb: 'missing',
           cpuPercentage: 'missing',
@@ -267,7 +292,10 @@ export class BrokerMetricsCollector {
   }
 
   // Separable helpers so unit tests can stub topic reads when kafkajs isn't mocked
-  private async fetchTopicOffsetsForNative(topic: string, admin: any): Promise<Array<{ partition: number; offset: string }>> {
+  private async fetchTopicOffsetsForNative(
+    topic: string,
+    admin: any,
+  ): Promise<Array<{ partition: number; offset: string }>> {
     return admin.fetchTopicOffsets(topic);
   }
 
@@ -317,7 +345,9 @@ export class BrokerMetricsCollector {
       // Try to get real metrics from Pulsar broker stats
       const broker = brokerList[0]; // e.g., "localhost:8080"
       try {
-        const stats = await this.pulsarClient.get(`/admin/v2/brokers/standalone/${broker}/stats`);
+        const stats = await this.pulsarClient.get(
+          `/admin/v2/brokers/standalone/${broker}/stats`,
+        );
         const brokerStats = stats.data;
 
         // Extract relevant metrics from Pulsar broker stats
@@ -344,15 +374,19 @@ export class BrokerMetricsCollector {
           },
         };
       } catch (statsError) {
-        const message = statsError instanceof Error ? statsError.message : String(statsError);
+        const message =
+          statsError instanceof Error ? statsError.message : String(statsError);
         if (message.includes('status code 404')) {
-          this.logger.debug(`Pulsar broker stats endpoint unavailable (404), using fallback metrics.`);
+          this.logger.debug(
+            `Pulsar broker stats endpoint unavailable (404), using fallback metrics.`,
+          );
         } else {
           this.logger.warn(`Failed to get Pulsar broker stats: ${message}`);
         }
 
         // Secondary measured path: scrape Prometheus-style metrics endpoint.
-        const measuredFromPrometheus = await this.collectPulsarMetricsFromPrometheus();
+        const measuredFromPrometheus =
+          await this.collectPulsarMetricsFromPrometheus();
         if (measuredFromPrometheus) {
           return measuredFromPrometheus;
         }
@@ -383,7 +417,9 @@ export class BrokerMetricsCollector {
         };
       }
     } catch (error) {
-      this.logger.warn(`Failed to collect Pulsar metrics: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Failed to collect Pulsar metrics: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return { connected: false };
     }
   }
@@ -413,20 +449,35 @@ export class BrokerMetricsCollector {
 
       return {
         connected: true,
-        messagesPerSecond: Number.isFinite(throughput) && throughput > 0 ? Math.round(throughput) : undefined,
-        p99LatencyMs: Number.isFinite(latencyP99) && latencyP99 > 0 ? latencyP99 : undefined,
-        memoryUsageMb: Number.isFinite(memoryUsageMb) && memoryUsageMb > 1 ? memoryUsageMb : undefined,
+        messagesPerSecond:
+          Number.isFinite(throughput) && throughput > 0
+            ? Math.round(throughput)
+            : undefined,
+        p99LatencyMs:
+          Number.isFinite(latencyP99) && latencyP99 > 0
+            ? latencyP99
+            : undefined,
+        memoryUsageMb:
+          Number.isFinite(memoryUsageMb) && memoryUsageMb > 1
+            ? memoryUsageMb
+            : undefined,
         connectionCount: undefined,
         uptime: undefined,
         partitionCount: 0,
         dataSource: 'measured',
         metricQuality: {
           messagesPerSecond:
-            Number.isFinite(throughput) && throughput > 0 ? 'measured' : 'missing',
+            Number.isFinite(throughput) && throughput > 0
+              ? 'measured'
+              : 'missing',
           p99LatencyMs:
-            Number.isFinite(latencyP99) && latencyP99 > 0 ? 'measured' : 'missing',
+            Number.isFinite(latencyP99) && latencyP99 > 0
+              ? 'measured'
+              : 'missing',
           memoryUsageMb:
-            Number.isFinite(memoryUsageMb) && memoryUsageMb > 1 ? 'measured' : 'missing',
+            Number.isFinite(memoryUsageMb) && memoryUsageMb > 1
+              ? 'measured'
+              : 'missing',
           cpuPercentage: 'missing',
           connectionCount: 'missing',
           uptime: 'missing',
@@ -462,7 +513,14 @@ export class BrokerMetricsCollector {
   private calculateRabbitMQThroughput(data: unknown): number | undefined {
     const queueTotals =
       typeof data === 'object' && data !== null
-        ? (data as { queue_totals?: { messages_ready?: number; messages_unacked?: number } }).queue_totals
+        ? (
+            data as {
+              queue_totals?: {
+                messages_ready?: number;
+                messages_unacked?: number;
+              };
+            }
+          ).queue_totals
         : undefined;
     const messagesReady = queueTotals?.messages_ready || 0;
     const messagesUnacked = queueTotals?.messages_unacked || 0;
@@ -471,8 +529,14 @@ export class BrokerMetricsCollector {
     const now = Date.now();
 
     // If we have a previous snapshot, compute a per-second rate (delta / time)
-    if (this.lastRabbitQueueSnapshot && typeof this.lastRabbitQueueSnapshot.messages === 'number') {
-      const dtSeconds = Math.max(1e-3, (now - this.lastRabbitQueueSnapshot.at) / 1000);
+    if (
+      this.lastRabbitQueueSnapshot &&
+      typeof this.lastRabbitQueueSnapshot.messages === 'number'
+    ) {
+      const dtSeconds = Math.max(
+        1e-3,
+        (now - this.lastRabbitQueueSnapshot.at) / 1000,
+      );
       const delta = currentTotal - this.lastRabbitQueueSnapshot.messages;
       const rate = delta > 0 ? delta / dtSeconds : 0;
 
@@ -544,7 +608,8 @@ export class BrokerMetricsCollector {
   private async collectRabbitMQMetricsFromPrometheus(): Promise<Partial<BrokerMetricsDTO> | null> {
     try {
       const res = await this.rabbitmqClient.get('/metrics');
-      const metricsText = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
+      const metricsText =
+        typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
       const p99 = this.extractRabbitmqLatency(metricsText);
       if (!Number.isFinite(p99) || p99 <= 0) return null;
       return { connected: true, p99LatencyMs: p99 };
@@ -580,12 +645,16 @@ export class BrokerMetricsCollector {
       let metricsText = '';
       if (metricsUrl) {
         const resp = await axios.get(metricsUrl, { timeout: 3000 });
-        metricsText = typeof resp.data === 'string' ? resp.data : JSON.stringify(resp.data);
+        metricsText =
+          typeof resp.data === 'string' ? resp.data : JSON.stringify(resp.data);
       } else {
         // fall back to kafka-rest metrics endpoint if present
         try {
           const resp = await this.kafkaClient.get('/metrics');
-          metricsText = typeof resp.data === 'string' ? resp.data : JSON.stringify(resp.data);
+          metricsText =
+            typeof resp.data === 'string'
+              ? resp.data
+              : JSON.stringify(resp.data);
         } catch (_e) {
           return null;
         }

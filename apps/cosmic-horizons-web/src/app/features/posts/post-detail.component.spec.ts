@@ -91,7 +91,13 @@ describe('PostDetailComponent', () => {
 
   it('shows API error when loading a post fails', () => {
     postsApi.getPostById.mockReturnValueOnce(
-      throwError(() => new HttpErrorResponse({ error: { message: 'Missing post.' }, status: 404 })),
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            error: { message: 'Missing post.' },
+            status: 404,
+          }),
+      ),
     );
 
     component.ngOnInit();

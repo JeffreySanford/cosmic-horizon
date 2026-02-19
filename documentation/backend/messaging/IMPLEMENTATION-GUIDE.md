@@ -6,7 +6,7 @@
 
 Before extending, understand the core flow:
 
-``` text
+```text
 Telemetry Source (Element/NRAO)
         ↓
 MessagingService (Subject stream)
@@ -37,12 +37,12 @@ Add to `messaging.types.ts`:
 
 export interface RFIEventData {
   elementId: string;
-  frequency: number;           // MHz
-  bandwidth: number;           // MHz
-  peakAmplitude: number;       // dBm
-  duration: number;            // milliseconds
+  frequency: number; // MHz
+  bandwidth: number; // MHz
+  peakAmplitude: number; // dBm
+  duration: number; // milliseconds
   eventType: 'pulsed' | 'continuous' | 'broadband';
-  confidence: number;          // 0-1
+  confidence: number; // 0-1
 }
 ```
 
@@ -72,7 +72,8 @@ export class RfiDetectionService {
   ): Promise<RFIEventData | null> {
     // Simulate RFI detection
     const peak = Math.max(...Array.from(frequencyData));
-    if (peak > -70) {  // Threshold
+    if (peak > -70) {
+      // Threshold
       const event: RFIEventData = {
         elementId,
         frequency: 1400,
@@ -106,7 +107,7 @@ export class MessagingService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly loggingService: LoggingService,
     private readonly statsService: MessagingStatsService,
-    private readonly rfiService: RfiDetectionService,  // NEW
+    private readonly rfiService: RfiDetectionService, // NEW
   ) {
     this.initializeElements();
   }
@@ -115,28 +116,34 @@ export class MessagingService implements OnModuleInit, OnModuleDestroy {
     this.startSimulation();
 
     // Subscribe to RFI events and emit as telemetry
-    this.rfiSubscription = this.rfiService.getRfiEvents$().subscribe((rfiEvent) => {
-      const enriched: TelemetryPacket = {
-        sourceId: rfiEvent.elementId,
-        targetId: this.elements.find((e) => e.id === rfiEvent.elementId)?.siteId || 'unknown',
-        routeType: 'node_to_hub',
-        elementId: rfiEvent.elementId,
-        siteId: this.elements.find((e) => e.id === rfiEvent.elementId)?.siteId || 'unknown',
-        timestamp: new Date().toISOString(),
-        metrics: {
-          vibration: 0,  // RFI doesn't affect vibration
-          powerUsage: 0,
-          noiseFloor: rfiEvent.peakAmplitude,
-          rfiLevel: rfiEvent.peakAmplitude,  // RFI event!
-        },
-      };
-      this.telemetrySubject.next(enriched);
-    });
+    this.rfiSubscription = this.rfiService
+      .getRfiEvents$()
+      .subscribe((rfiEvent) => {
+        const enriched: TelemetryPacket = {
+          sourceId: rfiEvent.elementId,
+          targetId:
+            this.elements.find((e) => e.id === rfiEvent.elementId)?.siteId ||
+            'unknown',
+          routeType: 'node_to_hub',
+          elementId: rfiEvent.elementId,
+          siteId:
+            this.elements.find((e) => e.id === rfiEvent.elementId)?.siteId ||
+            'unknown',
+          timestamp: new Date().toISOString(),
+          metrics: {
+            vibration: 0, // RFI doesn't affect vibration
+            powerUsage: 0,
+            noiseFloor: rfiEvent.peakAmplitude,
+            rfiLevel: rfiEvent.peakAmplitude, // RFI event!
+          },
+        };
+        this.telemetrySubject.next(enriched);
+      });
   }
 
   onModuleDestroy() {
     this.simulationSubscription?.unsubscribe();
-    this.rfiSubscription?.unsubscribe();  // NEW
+    this.rfiSubscription?.unsubscribe(); // NEW
   }
 }
 ```
@@ -153,7 +160,7 @@ import { MessagingMonitorService } from './messaging-monitor.service';
 import { MessagingStatsService } from './messaging-stats.service';
 import { MessagingGateway } from './messaging.gateway';
 import { MessagingController } from './messaging.controller';
-import { RfiDetectionService } from './rfi-detection.service';  // NEW
+import { RfiDetectionService } from './rfi-detection.service'; // NEW
 import { LoggingModule } from '../logging/logging.module';
 
 @Module({
@@ -164,7 +171,7 @@ import { LoggingModule } from '../logging/logging.module';
     MessagingMonitorService,
     MessagingStatsService,
     MessagingGateway,
-    RfiDetectionService,  // NEW
+    RfiDetectionService, // NEW
   ],
   controllers: [MessagingController],
   exports: [MessagingService],
@@ -194,10 +201,10 @@ export interface TelemetryPacket {
     noiseFloor: number;
     rfiLevel: number;
     // NEW FIELDS:
-    polarizationQuality?: number;  // 0-1 (optional)
-    phaseError?: number;           // degrees (optional)
-    tuningFrequency?: number;      // MHz (optional)
-    windGust?: number;             // m/s (optional)
+    polarizationQuality?: number; // 0-1 (optional)
+    phaseError?: number; // degrees (optional)
+    tuningFrequency?: number; // MHz (optional)
+    windGust?: number; // m/s (optional)
   };
 }
 ```
@@ -242,7 +249,7 @@ export function ElementTelemetryPanel({ packet }: ElementTelemetryPanelProps) {
   return (
     <div className="telemetry-panel">
       <h4>Element Metrics: {packet.elementId}</h4>
-      
+
       <dl>
         <dt>Vibration:</dt>
         <dd>{packet.metrics.vibration?.toFixed(2)} m/s²</dd>
@@ -292,7 +299,12 @@ export function ElementTelemetryPanel({ packet }: ElementTelemetryPanelProps) {
 ```typescript
 // apps/cosmic-horizons-api/src/app/messaging/nrao-feed.service.ts
 
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Subject, Subscription, interval } from 'rxjs';
@@ -336,7 +348,9 @@ export class NraoFeedService implements OnModuleInit, OnModuleDestroy {
   private async fetchNraoData() {
     try {
       const apiUrl = this.config.get<string>('NRAO_API_URL');
-      const response = await this.http.get(`${apiUrl}/array/status`).toPromise();
+      const response = await this.http
+        .get(`${apiUrl}/array/status`)
+        .toPromise();
 
       // Transform NRAO response → TelemetryPacket
       const elements = response.data.elements || [];
@@ -378,9 +392,7 @@ import { NraoFeedService } from './nrao-feed.service';
 export class MessagingService implements OnModuleInit, OnModuleDestroy {
   private nraoSubscription?: Subscription;
 
-  constructor(
-    private readonly nraoFeedService: NraoFeedService,
-  ) {}
+  constructor(private readonly nraoFeedService: NraoFeedService) {}
 
   onModuleInit() {
     this.startSimulation();
@@ -388,9 +400,11 @@ export class MessagingService implements OnModuleInit, OnModuleDestroy {
     // Use NRAO feed if available
     const useNraoFeed = this.config.get<boolean>('USE_NRAO_FEED') || false;
     if (useNraoFeed) {
-      this.nraoSubscription = this.nraoFeedService.getTelemetry$().subscribe((packet) => {
-        this.telemetrySubject.next(packet);
-      });
+      this.nraoSubscription = this.nraoFeedService
+        .getTelemetry$()
+        .subscribe((packet) => {
+          this.telemetrySubject.next(packet);
+        });
     }
   }
 }
@@ -445,13 +459,19 @@ export class MessagingAnalyticsService {
     // Compute site-level metrics
     const results: SiteMetrics[] = [];
     grouped.forEach((sitePackets, siteId) => {
-      const avgPower = sitePackets.reduce((s, p) => s + p.metrics.powerUsage, 0) / sitePackets.length;
-      const avgNoise = sitePackets.reduce((s, p) => s + p.metrics.noiseFloor, 0) / sitePackets.length;
-      const rfiCount = sitePackets.filter((p) => p.metrics.rfiLevel > -100).length;
+      const avgPower =
+        sitePackets.reduce((s, p) => s + p.metrics.powerUsage, 0) /
+        sitePackets.length;
+      const avgNoise =
+        sitePackets.reduce((s, p) => s + p.metrics.noiseFloor, 0) /
+        sitePackets.length;
+      const rfiCount = sitePackets.filter(
+        (p) => p.metrics.rfiLevel > -100,
+      ).length;
 
       const healthScore = Math.max(
         0,
-        100 - (rfiCount * 5) - (avgPower > 3000 ? 10 : 0),
+        100 - rfiCount * 5 - (avgPower > 3000 ? 10 : 0),
       );
 
       results.push({
@@ -473,13 +493,19 @@ export class MessagingAnalyticsService {
 
     metrics.forEach((m) => {
       if (m.avgPowerUsage > 3500) {
-        alerts.push(`⚠️  ${m.siteId}: High power usage (${m.avgPowerUsage.toFixed(0)} W)`);
+        alerts.push(
+          `⚠️  ${m.siteId}: High power usage (${m.avgPowerUsage.toFixed(0)} W)`,
+        );
       }
       if (m.rfiDetections > 5) {
-        alerts.push(`🔴 ${m.siteId}: RFI events detected (${m.rfiDetections} events)`);
+        alerts.push(
+          `🔴 ${m.siteId}: RFI events detected (${m.rfiDetections} events)`,
+        );
       }
       if (m.healthScore < 50) {
-        alerts.push(`❌ ${m.siteId}: Health critical (${m.healthScore.toFixed(0)}%)`);
+        alerts.push(
+          `❌ ${m.siteId}: Health critical (${m.healthScore.toFixed(0)}%)`,
+        );
       }
     });
 
@@ -495,9 +521,7 @@ export class MessagingAnalyticsService {
 
 @Controller('messaging')
 export class MessagingController {
-  constructor(
-    private readonly analyticsService: MessagingAnalyticsService,
-  ) {}
+  constructor(private readonly analyticsService: MessagingAnalyticsService) {}
 
   @Get('sites/health')
   getSiteHealth() {
@@ -570,7 +594,7 @@ describe('MessagingAnalyticsService', () => {
       {
         elementId: 'el-1',
         siteId: 'site-1',
-        metrics: { powerUsage: 2000, noiseFloor: -100, rfiLevel: -80 },  // HIGH RFI!
+        metrics: { powerUsage: 2000, noiseFloor: -100, rfiLevel: -80 }, // HIGH RFI!
         // ...
       },
     ];
@@ -674,38 +698,38 @@ spec:
         app: cosmic-horizons-api
     spec:
       containers:
-      - name: api
-        image: cosmic-horizons-api:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: RABBITMQ_HOST
-          value: rabbitmq-service
-        - name: KAFKA_HOST
-          value: kafka-broker-0.kafka-service
-        - name: DB_HOST
-          value: postgres-service
-        - name: REDIS_HOST
-          value: redis-service
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /api/messaging/stats
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        resources:
-          requests:
-            cpu: 500m
-            memory: 512Mi
-          limits:
-            cpu: 2000m
-            memory: 2Gi
+        - name: api
+          image: cosmic-horizons-api:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: RABBITMQ_HOST
+              value: rabbitmq-service
+            - name: KAFKA_HOST
+              value: kafka-broker-0.kafka-service
+            - name: DB_HOST
+              value: postgres-service
+            - name: REDIS_HOST
+              value: redis-service
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/messaging/stats
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
 ```
 
 ## References

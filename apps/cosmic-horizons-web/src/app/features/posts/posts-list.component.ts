@@ -33,7 +33,9 @@ export class PostsListComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           this.errorMessage =
-            typeof error.error?.message === 'string' ? error.error.message : 'Failed to load published posts.';
+            typeof error.error?.message === 'string'
+              ? error.error.message
+              : 'Failed to load published posts.';
           this.loading = false;
         },
       });
@@ -49,11 +51,16 @@ export class PostsListComponent implements OnInit {
 
   get visiblePosts(): PostModel[] {
     const mineId = this.currentUserId();
-    const filtered = this.onlyMine && mineId ? this.posts.filter((post) => post.user_id === mineId) : this.posts;
+    const filtered =
+      this.onlyMine && mineId
+        ? this.posts.filter((post) => post.user_id === mineId)
+        : this.posts;
 
     const posts = [...filtered];
     if (this.sortBy === 'author') {
-      return posts.sort((a, b) => this.authorName(a).localeCompare(this.authorName(b)));
+      return posts.sort((a, b) =>
+        this.authorName(a).localeCompare(this.authorName(b)),
+      );
     }
     if (this.sortBy === 'title') {
       return posts.sort((a, b) => a.title.localeCompare(b.title));
@@ -72,7 +79,9 @@ export class PostsListComponent implements OnInit {
 
   excerpt(post: PostModel): string {
     const normalized = post.content.replace(/\s+/g, ' ').trim();
-    return normalized.length > 150 ? `${normalized.slice(0, 150)}...` : normalized;
+    return normalized.length > 150
+      ? `${normalized.slice(0, 150)}...`
+      : normalized;
   }
 
   private currentUserId(): string | null {

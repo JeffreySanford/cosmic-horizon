@@ -9,8 +9,16 @@
   gap: 1rem;
   padding: 1rem;
   background:
-    radial-gradient(circle at top right, rgba(24, 198, 214, 0.12), transparent 34%),
-    radial-gradient(circle at top left, rgba(47, 123, 255, 0.1), transparent 30%);
+    radial-gradient(
+      circle at top right,
+      rgba(24, 198, 214, 0.12),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at top left,
+      rgba(47, 123, 255, 0.1),
+      transparent 30%
+    );
 }
 
 .logs-toolbar {
@@ -85,7 +93,11 @@
 
 .level-tile.active {
   border-color: rgba(255, 255, 255, 0.35);
-  background: linear-gradient(140deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.06)
+  );
   animation: tilePulse 2.4s ease-in-out infinite;
 }
 
@@ -180,7 +192,11 @@
 }
 
 .mat-mdc-header-row {
-  background: linear-gradient(180deg, rgba(17, 95, 118, 0.18), rgba(17, 95, 118, 0.06));
+  background: linear-gradient(
+    180deg,
+    rgba(17, 95, 118, 0.18),
+    rgba(17, 95, 118, 0.06)
+  );
 }
 
 .mat-mdc-row .mat-mdc-cell {

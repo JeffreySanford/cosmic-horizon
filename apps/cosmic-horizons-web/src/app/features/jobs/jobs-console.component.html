@@ -11,94 +11,139 @@
       <mat-card-header>
         <mat-icon mat-card-avatar>hub</mat-icon>
         <mat-card-title>CosmicAI TACC Orchestration</mat-card-title>
-        <mat-card-subtitle>Enterprise-scale remote compute gateway</mat-card-subtitle>
+        <mat-card-subtitle
+          >Enterprise-scale remote compute gateway</mat-card-subtitle
+        >
       </mat-card-header>
-      
+
       <mat-card-content>
         <form class="job-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Autonomous Agent</mat-label>
-          <mat-select [(ngModel)]="selectedAgent" name="agent">
-            @for (agent of agents; track agent) {
-              <mat-option [value]="agent">
-                <mat-icon>smart_toy</mat-icon> {{agent}}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Dataset ID (VLASS Catalog Ref)</mat-label>
-          <input matInput [(ngModel)]="datasetId" name="datasetId" placeholder="e.g. VLASS2.1.eb123456">
-        </mat-form-field>
-
-        <div class="params-row">
-          <mat-form-field appearance="outline">
-            <mat-label>RFI Strategy</mat-label>
-            <mat-select [(ngModel)]="rfiStrategy" name="rfi">
-              <mat-option value="low">Low Impact</mat-option>
-              <mat-option value="medium">Medium Policy</mat-option>
-              <mat-option value="high">High Sensitivity</mat-option>
-              <mat-option value="high_sensitivity">Ultra High (ngVLA Ready)</mat-option>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Autonomous Agent</mat-label>
+            <mat-select [(ngModel)]="selectedAgent" name="agent">
+              @for (agent of agents; track agent) {
+                <mat-option [value]="agent">
+                  <mat-icon>smart_toy</mat-icon> {{ agent }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Worker GPUs</mat-label>
-            <input matInput type="number" [(ngModel)]="gpuCount" name="gpus" min="1" max="16">
-            <mat-hint>Max 16 for current quota</mat-hint>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dataset ID (VLASS Catalog Ref)</mat-label>
+            <input
+              matInput
+              [(ngModel)]="datasetId"
+              name="datasetId"
+              placeholder="e.g. VLASS2.1.eb123456"
+            />
           </mat-form-field>
-        </div>
-      </form>
-    </mat-card-content>
 
-    <mat-card-actions align="end">
-      <button mat-flat-button color="primary" class="submit-btn" (click)="submitJob()" [disabled]="isLoading || !datasetId">
-        <mat-icon>bolt</mat-icon>
-        INITIALIZE REMOTE COMPUTE
-      </button>
-    </mat-card-actions>
-  </mat-card>
+          <div class="params-row">
+            <mat-form-field appearance="outline">
+              <mat-label>RFI Strategy</mat-label>
+              <mat-select [(ngModel)]="rfiStrategy" name="rfi">
+                <mat-option value="low">Low Impact</mat-option>
+                <mat-option value="medium">Medium Policy</mat-option>
+                <mat-option value="high">High Sensitivity</mat-option>
+                <mat-option value="high_sensitivity"
+                  >Ultra High (ngVLA Ready)</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
 
-  @if (activeJobs.length > 0) {
-    <div class="active-jobs">
-      <h3>
-        <mat-icon>pending_actions</mat-icon>
-        Active Job Queue
-      </h3>
-      @for (job of activeJobs; track job.id) {
-        <mat-card class="job-item" [class.status-running]="job.status === 'RUNNING'" [class.status-completed]="job.status === 'COMPLETED'">
-          <div class="job-header">
-            <span class="job-id">{{job.id}}</span>
-            <mat-chip-listbox>
-              <mat-chip [color]="job.status === 'COMPLETED' ? 'accent' : (job.status === 'RUNNING' ? 'primary' : 'default')" selected>
-                @if (job.status === 'RUNNING') {
-                  <mat-icon matChipAvatar>sync</mat-icon>
-                }
-                {{job.status}}
-              </mat-chip>
-            </mat-chip-listbox>
+            <mat-form-field appearance="outline">
+              <mat-label>Worker GPUs</mat-label>
+              <input
+                matInput
+                type="number"
+                [(ngModel)]="gpuCount"
+                name="gpus"
+                min="1"
+                max="16"
+              />
+              <mat-hint>Max 16 for current quota</mat-hint>
+            </mat-form-field>
           </div>
-          
-          <div class="progress-container">
-            <div class="progress-label">
-              <span>Computation Progress</span>
-              <span>{{ (job.progress * 100) | number:'1.0-0' }}%</span>
+        </form>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button
+          mat-flat-button
+          color="primary"
+          class="submit-btn"
+          (click)="submitJob()"
+          [disabled]="isLoading || !datasetId"
+        >
+          <mat-icon>bolt</mat-icon>
+          INITIALIZE REMOTE COMPUTE
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    @if (activeJobs.length > 0) {
+      <div class="active-jobs">
+        <h3>
+          <mat-icon>pending_actions</mat-icon>
+          Active Job Queue
+        </h3>
+        @for (job of activeJobs; track job.id) {
+          <mat-card
+            class="job-item"
+            [class.status-running]="job.status === 'RUNNING'"
+            [class.status-completed]="job.status === 'COMPLETED'"
+          >
+            <div class="job-header">
+              <span class="job-id">{{ job.id }}</span>
+              <mat-chip-listbox>
+                <mat-chip
+                  [color]="
+                    job.status === 'COMPLETED'
+                      ? 'accent'
+                      : job.status === 'RUNNING'
+                        ? 'primary'
+                        : 'default'
+                  "
+                  selected
+                >
+                  @if (job.status === 'RUNNING') {
+                    <mat-icon matChipAvatar>sync</mat-icon>
+                  }
+                  {{ job.status }}
+                </mat-chip>
+              </mat-chip-listbox>
             </div>
-            <mat-progress-bar [mode]="job.status === 'RUNNING' ? 'indeterminate' : 'determinate'" [value]="job.progress * 100"></mat-progress-bar>
-          </div>
-          
-          @if (job.output_url) {
-            <div class="job-actions">
-              <a mat-stroked-button color="accent" [href]="job.output_url" target="_blank">
-                <mat-icon>cloud_download</mat-icon>
-                DOWNLOAD SRDP ASSETS
-              </a>
+
+            <div class="progress-container">
+              <div class="progress-label">
+                <span>Computation Progress</span>
+                <span>{{ job.progress * 100 | number: '1.0-0' }}%</span>
+              </div>
+              <mat-progress-bar
+                [mode]="
+                  job.status === 'RUNNING' ? 'indeterminate' : 'determinate'
+                "
+                [value]="job.progress * 100"
+              ></mat-progress-bar>
             </div>
-          }
-        </mat-card>
-      }
-    </div>
-  }
+
+            @if (job.output_url) {
+              <div class="job-actions">
+                <a
+                  mat-stroked-button
+                  color="accent"
+                  [href]="job.output_url"
+                  target="_blank"
+                >
+                  <mat-icon>cloud_download</mat-icon>
+                  DOWNLOAD SRDP ASSETS
+                </a>
+              </div>
+            }
+          </mat-card>
+        }
+      </div>
+    }
   </div>
 </div>

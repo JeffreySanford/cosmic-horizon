@@ -1,16 +1,31 @@
 <mat-toolbar color="primary">
   <span class="toolbar-title">🔍 Broker Performance Comparison</span>
   <span class="spacer"></span>
-  <button mat-icon-button matTooltip="Refresh metrics" (click)="refreshMetrics()" [disabled]="isLoading">
+  <button
+    mat-icon-button
+    matTooltip="Refresh metrics"
+    (click)="refreshMetrics()"
+    [disabled]="isLoading"
+  >
     <mat-icon>refresh</mat-icon>
   </button>
-  <button mat-raised-button color="accent" matTooltip="Run standard benchmark test (10K messages)" (click)="runBenchmark()"
-    [disabled]="isBenchmarkRunning">
+  <button
+    mat-raised-button
+    color="accent"
+    matTooltip="Run standard benchmark test (10K messages)"
+    (click)="runBenchmark()"
+    [disabled]="isBenchmarkRunning"
+  >
     <mat-icon>play_arrow</mat-icon>
     {{ isBenchmarkRunning ? 'Running...' : 'Benchmark (10K)' }}
   </button>
-  <button mat-raised-button color="warn" matTooltip="Run heavy stress test (5M messages)" (click)="runStressTest()"
-    [disabled]="isBenchmarkRunning">
+  <button
+    mat-raised-button
+    color="warn"
+    matTooltip="Run heavy stress test (5M messages)"
+    (click)="runStressTest()"
+    [disabled]="isBenchmarkRunning"
+  >
     <mat-icon>flash_on</mat-icon>
     {{ isBenchmarkRunning ? 'Running...' : 'Stress Test (5M)' }}
   </button>
@@ -19,25 +34,25 @@
 <div class="container">
   <!-- Error Alert -->
   @if (error) {
-  <div class="error-message">
-    <mat-icon>error</mat-icon>
-    {{ error }}
-  </div>
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      {{ error }}
+    </div>
   }
 
   @if (dataQualityBanner) {
-  <div class="error-message">
-    <mat-icon>info</mat-icon>
-    {{ dataQualityBanner }}
-  </div>
+    <div class="error-message">
+      <mat-icon>info</mat-icon>
+      {{ dataQualityBanner }}
+    </div>
   }
 
   <!-- Loading State -->
   @if (isLoading && !brokerMetrics) {
-  <div class="loading-state">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading broker metrics...</p>
-  </div>
+    <div class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading broker metrics...</p>
+    </div>
   }
 
   <!-- Main Content -->
@@ -54,28 +69,82 @@
 
     <!-- Broker Health Status -->
     <mat-card class="status-card">
-      <mat-card-title>🔌 Broker Status (Click Tile To Toggle Feed)</mat-card-title>
+      <mat-card-title
+        >🔌 Broker Status (Click Tile To Toggle Feed)</mat-card-title
+      >
       <mat-card-content>
         <div class="status-grid">
-          <button type="button" class="status-item" [ngClass]="[getStatusClass(brokerStatuses['rabbitmq']), isBrokerFeedEnabled('rabbitmq') ? 'feed-enabled' : 'feed-disabled']"
-            (click)="toggleBrokerFeed('rabbitmq')" [disabled]="brokerStatuses['rabbitmq'] === 'error'" [matTooltip]="brokerStatuses['rabbitmq'] === 'error' ? 'Broker unavailable — feed disabled' : 'Toggle feed'">
+          <button
+            type="button"
+            class="status-item"
+            [ngClass]="[
+              getStatusClass(brokerStatuses['rabbitmq']),
+              isBrokerFeedEnabled('rabbitmq')
+                ? 'feed-enabled'
+                : 'feed-disabled',
+            ]"
+            (click)="toggleBrokerFeed('rabbitmq')"
+            [disabled]="brokerStatuses['rabbitmq'] === 'error'"
+            [matTooltip]="
+              brokerStatuses['rabbitmq'] === 'error'
+                ? 'Broker unavailable — feed disabled'
+                : 'Toggle feed'
+            "
+          >
             <div class="status-indicator"></div>
             <div class="status-name">RabbitMQ</div>
-            <div class="status-value">Broker {{ getBrokerConnectivityLabel(brokerStatuses['rabbitmq']) }} • Feed {{ isBrokerFeedEnabled('rabbitmq') ? 'ON' : 'OFF' }}</div>
+            <div class="status-value">
+              Broker
+              {{ getBrokerConnectivityLabel(brokerStatuses['rabbitmq']) }} •
+              Feed {{ isBrokerFeedEnabled('rabbitmq') ? 'ON' : 'OFF' }}
+            </div>
           </button>
 
-          <button type="button" class="status-item" [ngClass]="[getStatusClass(brokerStatuses['kafka']), isBrokerFeedEnabled('kafka') ? 'feed-enabled' : 'feed-disabled']"
-            (click)="toggleBrokerFeed('kafka')" [disabled]="brokerStatuses['kafka'] === 'error'" [matTooltip]="brokerStatuses['kafka'] === 'error' ? 'Broker unavailable — feed disabled' : 'Toggle feed'">
+          <button
+            type="button"
+            class="status-item"
+            [ngClass]="[
+              getStatusClass(brokerStatuses['kafka']),
+              isBrokerFeedEnabled('kafka') ? 'feed-enabled' : 'feed-disabled',
+            ]"
+            (click)="toggleBrokerFeed('kafka')"
+            [disabled]="brokerStatuses['kafka'] === 'error'"
+            [matTooltip]="
+              brokerStatuses['kafka'] === 'error'
+                ? 'Broker unavailable — feed disabled'
+                : 'Toggle feed'
+            "
+          >
             <div class="status-indicator"></div>
             <div class="status-name">Kafka</div>
-            <div class="status-value">Broker {{ getBrokerConnectivityLabel(brokerStatuses['kafka']) }} • Feed {{ isBrokerFeedEnabled('kafka') ? 'ON' : 'OFF' }}</div>
+            <div class="status-value">
+              Broker {{ getBrokerConnectivityLabel(brokerStatuses['kafka']) }} •
+              Feed {{ isBrokerFeedEnabled('kafka') ? 'ON' : 'OFF' }}
+            </div>
           </button>
 
-          <button type="button" class="status-item" [ngClass]="[getStatusClass(brokerStatuses['pulsar']), isBrokerFeedEnabled('pulsar') ? 'feed-enabled' : 'feed-disabled']"
-            (click)="toggleBrokerFeed('pulsar')" [disabled]="brokerStatuses['pulsar'] === 'error'" [matTooltip]="brokerStatuses['pulsar'] === 'error' ? 'Broker unavailable — feed disabled' : 'Toggle feed'">
+          <button
+            type="button"
+            class="status-item"
+            [ngClass]="[
+              getStatusClass(brokerStatuses['pulsar']),
+              isBrokerFeedEnabled('pulsar') ? 'feed-enabled' : 'feed-disabled',
+            ]"
+            (click)="toggleBrokerFeed('pulsar')"
+            [disabled]="brokerStatuses['pulsar'] === 'error'"
+            [matTooltip]="
+              brokerStatuses['pulsar'] === 'error'
+                ? 'Broker unavailable — feed disabled'
+                : 'Toggle feed'
+            "
+          >
             <div class="status-indicator"></div>
             <div class="status-name">Pulsar</div>
-            <div class="status-value">Broker {{ getBrokerConnectivityLabel(brokerStatuses['pulsar']) }} • Feed {{ isBrokerFeedEnabled('pulsar') ? 'ON' : 'OFF' }}</div>
+            <div class="status-value">
+              Broker
+              {{ getBrokerConnectivityLabel(brokerStatuses['pulsar']) }} • Feed
+              {{ isBrokerFeedEnabled('pulsar') ? 'ON' : 'OFF' }}
+            </div>
           </button>
         </div>
       </mat-card-content>
@@ -87,7 +156,8 @@
       <mat-card-content>
         <app-system-metrics-chart
           [updateInterval]="systemMetricsPollingMs"
-          (samplingIntervalChange)="setSystemMetricsInterval($event)">
+          (samplingIntervalChange)="setSystemMetricsInterval($event)"
+        >
         </app-system-metrics-chart>
       </mat-card-content>
     </mat-card>
@@ -100,8 +170,20 @@
           <div class="broker-stat">
             <div class="broker-label">RabbitMQ</div>
             <div class="broker-value primary">
-              {{ isBrokerFeedEnabled('rabbitmq') ? formatThroughput(brokerMetrics.brokers.rabbitmq.messagesPerSecond) : 'Feed Off' }}
-              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('rabbitmq')">{{ getMetricQualityLabel('rabbitmq','messagesPerSecond') }}</span>
+              {{
+                isBrokerFeedEnabled('rabbitmq')
+                  ? formatThroughput(
+                      brokerMetrics.brokers.rabbitmq.messagesPerSecond
+                    )
+                  : 'Feed Off'
+              }}
+              <span
+                class="metric-badge"
+                *ngIf="isBrokerFeedEnabled('rabbitmq')"
+                >{{
+                  getMetricQualityLabel('rabbitmq', 'messagesPerSecond')
+                }}</span
+              >
             </div>
           </div>
 
@@ -110,17 +192,43 @@
           <div class="broker-stat">
             <div class="broker-label">Pulsar</div>
             <div class="broker-value accent">
-              {{ isBrokerFeedEnabled('pulsar') ? formatThroughput(brokerMetrics.brokers.pulsar?.messagesPerSecond) : 'Feed Off' }}
-              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('pulsar')">{{ getMetricQualityLabel('pulsar','messagesPerSecond') }}</span>
+              {{
+                isBrokerFeedEnabled('pulsar')
+                  ? formatThroughput(
+                      brokerMetrics.brokers.pulsar?.messagesPerSecond
+                    )
+                  : 'Feed Off'
+              }}
+              <span
+                class="metric-badge"
+                *ngIf="isBrokerFeedEnabled('pulsar')"
+                >{{
+                  getMetricQualityLabel('pulsar', 'messagesPerSecond')
+                }}</span
+              >
             </div>
           </div>
         </div>
-        @if (brokerMetrics.comparison.throughputImprovement && isBrokerFeedEnabled('rabbitmq') && isBrokerFeedEnabled('pulsar')) {
-        <div class="improvement-banner"
-          [ngClass]="getImprovementClass(brokerMetrics.comparison.throughputImprovement)">
-          <mat-icon>trending_up</mat-icon>
-          {{ getThroughputSummaryText(brokerMetrics.comparison.throughputImprovement) }}
-        </div>
+        @if (
+          brokerMetrics.comparison.throughputImprovement &&
+          isBrokerFeedEnabled('rabbitmq') &&
+          isBrokerFeedEnabled('pulsar')
+        ) {
+          <div
+            class="improvement-banner"
+            [ngClass]="
+              getImprovementClass(
+                brokerMetrics.comparison.throughputImprovement
+              )
+            "
+          >
+            <mat-icon>trending_up</mat-icon>
+            {{
+              getThroughputSummaryText(
+                brokerMetrics.comparison.throughputImprovement
+              )
+            }}
+          </div>
         }
       </mat-card-content>
     </mat-card>
@@ -133,8 +241,16 @@
           <div class="broker-stat">
             <div class="broker-label">RabbitMQ</div>
             <div class="broker-value primary">
-              {{ isBrokerFeedEnabled('rabbitmq') ? formatLatency(brokerMetrics.brokers.rabbitmq.p99LatencyMs) : 'Feed Off' }}
-              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('rabbitmq')">{{ getMetricQualityLabel('rabbitmq','p99LatencyMs') }}</span>
+              {{
+                isBrokerFeedEnabled('rabbitmq')
+                  ? formatLatency(brokerMetrics.brokers.rabbitmq.p99LatencyMs)
+                  : 'Feed Off'
+              }}
+              <span
+                class="metric-badge"
+                *ngIf="isBrokerFeedEnabled('rabbitmq')"
+                >{{ getMetricQualityLabel('rabbitmq', 'p99LatencyMs') }}</span
+              >
             </div>
           </div>
 
@@ -143,17 +259,35 @@
           <div class="broker-stat">
             <div class="broker-label">Pulsar</div>
             <div class="broker-value accent">
-              {{ isBrokerFeedEnabled('pulsar') ? formatLatency(brokerMetrics.brokers.pulsar?.p99LatencyMs) : 'Feed Off' }}
-              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('pulsar')">{{ getMetricQualityLabel('pulsar','p99LatencyMs') }}</span>
+              {{
+                isBrokerFeedEnabled('pulsar')
+                  ? formatLatency(brokerMetrics.brokers.pulsar?.p99LatencyMs)
+                  : 'Feed Off'
+              }}
+              <span
+                class="metric-badge"
+                *ngIf="isBrokerFeedEnabled('pulsar')"
+                >{{ getMetricQualityLabel('pulsar', 'p99LatencyMs') }}</span
+              >
             </div>
           </div>
         </div>
-        @if (brokerMetrics.comparison.latencyImprovement && isBrokerFeedEnabled('rabbitmq') && isBrokerFeedEnabled('pulsar')) {
-        <div class="improvement-banner"
-          [ngClass]="getImprovementClass(brokerMetrics.comparison.latencyImprovement)">
-          <mat-icon>speed</mat-icon>
-          {{ getLatencySummaryText(brokerMetrics.comparison.latencyImprovement) }}
-        </div>
+        @if (
+          brokerMetrics.comparison.latencyImprovement &&
+          isBrokerFeedEnabled('rabbitmq') &&
+          isBrokerFeedEnabled('pulsar')
+        ) {
+          <div
+            class="improvement-banner"
+            [ngClass]="
+              getImprovementClass(brokerMetrics.comparison.latencyImprovement)
+            "
+          >
+            <mat-icon>speed</mat-icon>
+            {{
+              getLatencySummaryText(brokerMetrics.comparison.latencyImprovement)
+            }}
+          </div>
         }
       </mat-card-content>
     </mat-card>
@@ -166,8 +300,16 @@
           <div class="broker-stat">
             <div class="broker-label">RabbitMQ</div>
             <div class="broker-value primary">
-              {{ isBrokerFeedEnabled('rabbitmq') ? formatMemory(brokerMetrics.brokers.rabbitmq.memoryUsageMb) : 'Feed Off' }}
-              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('rabbitmq')">{{ getMetricQualityLabel('rabbitmq','memoryUsageMb') }}</span>
+              {{
+                isBrokerFeedEnabled('rabbitmq')
+                  ? formatMemory(brokerMetrics.brokers.rabbitmq.memoryUsageMb)
+                  : 'Feed Off'
+              }}
+              <span
+                class="metric-badge"
+                *ngIf="isBrokerFeedEnabled('rabbitmq')"
+                >{{ getMetricQualityLabel('rabbitmq', 'memoryUsageMb') }}</span
+              >
             </div>
           </div>
 
@@ -176,17 +318,35 @@
           <div class="broker-stat">
             <div class="broker-label">Pulsar</div>
             <div class="broker-value accent">
-              {{ isBrokerFeedEnabled('pulsar') ? formatMemory(brokerMetrics.brokers.pulsar?.memoryUsageMb) : 'Feed Off' }}
-              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('pulsar')">{{ getMetricQualityLabel('pulsar','memoryUsageMb') }}</span>
+              {{
+                isBrokerFeedEnabled('pulsar')
+                  ? formatMemory(brokerMetrics.brokers.pulsar?.memoryUsageMb)
+                  : 'Feed Off'
+              }}
+              <span
+                class="metric-badge"
+                *ngIf="isBrokerFeedEnabled('pulsar')"
+                >{{ getMetricQualityLabel('pulsar', 'memoryUsageMb') }}</span
+              >
             </div>
           </div>
         </div>
-        @if (brokerMetrics.comparison.memoryEfficiency && isBrokerFeedEnabled('rabbitmq') && isBrokerFeedEnabled('pulsar')) {
-        <div class="improvement-banner"
-          [ngClass]="getImprovementClass(brokerMetrics.comparison.memoryEfficiency)">
-          <mat-icon>savings</mat-icon>
-          {{ getMemorySummaryText(brokerMetrics.comparison.memoryEfficiency) }}
-        </div>
+        @if (
+          brokerMetrics.comparison.memoryEfficiency &&
+          isBrokerFeedEnabled('rabbitmq') &&
+          isBrokerFeedEnabled('pulsar')
+        ) {
+          <div
+            class="improvement-banner"
+            [ngClass]="
+              getImprovementClass(brokerMetrics.comparison.memoryEfficiency)
+            "
+          >
+            <mat-icon>savings</mat-icon>
+            {{
+              getMemorySummaryText(brokerMetrics.comparison.memoryEfficiency)
+            }}
+          </div>
         }
       </mat-card-content>
     </mat-card>
@@ -196,7 +356,11 @@
       <mat-card-title>📋 Detailed Metrics</mat-card-title>
       <mat-card-content>
         <div class="table-container">
-          <table mat-table [dataSource]="detailedMetricsData" class="metrics-table">
+          <table
+            mat-table
+            [dataSource]="detailedMetricsData"
+            class="metrics-table"
+          >
             <!-- Metric Column -->
             <ng-container matColumnDef="metric">
               <th mat-header-cell *matHeaderCellDef>Metric</th>
@@ -206,31 +370,41 @@
             <!-- RabbitMQ Column -->
             <ng-container matColumnDef="rabbitmq">
               <th mat-header-cell *matHeaderCellDef>RabbitMQ</th>
-              <td mat-cell *matCellDef="let element">{{ element.rabbitmq || 'N/A' }}</td>
+              <td mat-cell *matCellDef="let element">
+                {{ element.rabbitmq || 'N/A' }}
+              </td>
             </ng-container>
 
             <!-- Pulsar Column -->
             <ng-container matColumnDef="pulsar">
               <th mat-header-cell *matHeaderCellDef>Pulsar</th>
-              <td mat-cell *matCellDef="let element">{{ element.pulsar || 'N/A' }}</td>
+              <td mat-cell *matCellDef="let element">
+                {{ element.pulsar || 'N/A' }}
+              </td>
             </ng-container>
 
             <!-- Kafka Column -->
             <ng-container matColumnDef="kafka">
               <th mat-header-cell *matHeaderCellDef>Kafka</th>
-              <td mat-cell *matCellDef="let element">{{ element.kafka || 'N/A' }}</td>
+              <td mat-cell *matCellDef="let element">
+                {{ element.kafka || 'N/A' }}
+              </td>
             </ng-container>
 
             <!-- Improvement Column -->
             <ng-container matColumnDef="improvement">
               <th mat-header-cell *matHeaderCellDef>Pulsar vs RabbitMQ</th>
-              <td mat-cell *matCellDef="let element" [ngClass]="getImprovementClass(element.improvement)">
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [ngClass]="getImprovementClass(element.improvement)"
+              >
                 {{ element.improvement || '—' }}
               </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
         </div>
       </mat-card-content>
@@ -242,15 +416,33 @@
         <div class="uptime-grid">
           <div class="uptime-item">
             <div class="uptime-label">RabbitMQ Uptime</div>
-            <div class="uptime-value">{{ isBrokerFeedEnabled('rabbitmq') ? (brokerMetrics.brokers.rabbitmq.uptime || 'N/A') : 'Feed Off' }}</div>
+            <div class="uptime-value">
+              {{
+                isBrokerFeedEnabled('rabbitmq')
+                  ? brokerMetrics.brokers.rabbitmq.uptime || 'N/A'
+                  : 'Feed Off'
+              }}
+            </div>
           </div>
           <div class="uptime-item">
             <div class="uptime-label">Kafka Uptime</div>
-            <div class="uptime-value">{{ isBrokerFeedEnabled('kafka') ? (brokerMetrics.brokers.kafka.uptime || 'N/A') : 'Feed Off' }}</div>
+            <div class="uptime-value">
+              {{
+                isBrokerFeedEnabled('kafka')
+                  ? brokerMetrics.brokers.kafka.uptime || 'N/A'
+                  : 'Feed Off'
+              }}
+            </div>
           </div>
           <div class="uptime-item">
             <div class="uptime-label">Pulsar Uptime</div>
-            <div class="uptime-value">{{ isBrokerFeedEnabled('pulsar') ? (brokerMetrics.brokers.pulsar?.uptime || 'N/A') : 'Feed Off' }}</div>
+            <div class="uptime-value">
+              {{
+                isBrokerFeedEnabled('pulsar')
+                  ? brokerMetrics.brokers.pulsar?.uptime || 'N/A'
+                  : 'Feed Off'
+              }}
+            </div>
           </div>
         </div>
       </mat-card-content>
@@ -261,8 +453,8 @@
       <mat-card-title>🧭 Current Findings</mat-card-title>
       <mat-card-content>
         <p>
-          This page is a live operations view for broker health, benchmark deltas, and resource trends across RabbitMQ,
-          Pulsar, and Kafka.
+          This page is a live operations view for broker health, benchmark
+          deltas, and resource trends across RabbitMQ, Pulsar, and Kafka.
         </p>
         <ul class="finding-list">
           @for (finding of currentFindings; track finding) {
@@ -270,7 +462,12 @@
           }
         </ul>
         <p class="doc-link">
-          Methodology and thresholds: <a href="/docs/architecture/BROKER-COMPARISON-STRATEGY" target="_blank">BROKER-COMPARISON-STRATEGY.md</a>
+          Methodology and thresholds:
+          <a
+            href="/docs/architecture/BROKER-COMPARISON-STRATEGY"
+            target="_blank"
+            >BROKER-COMPARISON-STRATEGY.md</a
+          >
         </p>
       </mat-card-content>
     </mat-card>

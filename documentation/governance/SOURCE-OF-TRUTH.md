@@ -27,15 +27,15 @@ All shared data models and types are defined in centralized locations to ensure 
 
 ### Configuration Authority
 
-| Configuration Type | Source of Truth | Location |
-|---|---|---|
-| **Build & Dependency** | `package.json` + `pnpm-lock.yaml` | Root directory |
-| **TypeScript Settings** | `tsconfig.base.json` + project-specific configs | Root and app directories |
-| **Linting Rules** | `eslint.config.mjs` | Root directory |
+| Configuration Type        | Source of Truth                                           | Location                     |
+| ------------------------- | --------------------------------------------------------- | ---------------------------- |
+| **Build & Dependency**    | `package.json` + `pnpm-lock.yaml`                         | Root directory               |
+| **TypeScript Settings**   | `tsconfig.base.json` + project-specific configs           | Root and app directories     |
+| **Linting Rules**         | `eslint.config.mjs`                                       | Root directory               |
 | **Testing Configuration** | `jest.config.ts`, `jest.preset.js`, `vitest.workspace.ts` | Root and project directories |
-| **CI/CD Workflows** | `.github/workflows/` | Git Actions workflows |
-| **Kubernetes/Docker** | `docker-compose.yml` | Root directory |
-| **API Contracts** | OpenAPI specifications in app configs | `apps/cosmic-horizons-api` |
+| **CI/CD Workflows**       | `.github/workflows/`                                      | Git Actions workflows        |
+| **Kubernetes/Docker**     | `docker-compose.yml`                                      | Root directory               |
+| **API Contracts**         | OpenAPI specifications in app configs                     | `apps/cosmic-horizons-api`   |
 
 ### Environment Configuration
 
@@ -101,11 +101,11 @@ See `AGENTS.md` for technical integration targets.
 
 ## Decision Log
 
-| Date | Decision | Owner | Status |
-|---|---|---|---|
-| 2024 | Environment configuration refactored | Team | ✅ Implemented |
+| Date | Decision                                   | Owner  | Status         |
+| ---- | ------------------------------------------ | ------ | -------------- |
+| 2024 | Environment configuration refactored       | Team   | ✅ Implemented |
 | 2024 | Docker-compose service naming standardized | DevOps | ✅ Implemented |
-| 2024 | ESLint warnings allowed in CI (max 99999) | DevOps | ✅ Implemented |
+| 2024 | ESLint warnings allowed in CI (max 99999)  | DevOps | ✅ Implemented |
 
 ## Contact & Questions
 

@@ -10,7 +10,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [CommunityFeedComponent, ModerationComponent],
-  imports: [CommonModule, CommunityRoutingModule, MatCardModule, MatListModule, MatButtonModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    CommunityRoutingModule,
+    MatCardModule,
+    MatListModule,
+    MatButtonModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
   exports: [CommunityFeedComponent, ModerationComponent],
 })
 export class CommunityModule {}

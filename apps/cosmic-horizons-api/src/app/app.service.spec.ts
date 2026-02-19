@@ -1,8 +1,17 @@
 import { AppService } from './app.service';
-import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { User, Post, PostStatus } from './entities';
-import { UserRepository, PostRepository, AuditLogRepository, RevisionRepository } from './repositories';
+import {
+  UserRepository,
+  PostRepository,
+  AuditLogRepository,
+  RevisionRepository,
+} from './repositories';
 import { CreateUserDto, CreatePostDto, UpdateUserDto } from './dto';
 
 describe('AppService', () => {
@@ -79,7 +88,9 @@ describe('AppService', () => {
       findByUser: jest.fn().mockResolvedValue([mockPost]),
       create: jest.fn().mockResolvedValue(mockPost),
       update: jest.fn().mockResolvedValue(mockPost),
-      publish: jest.fn().mockResolvedValue({ ...mockPost, status: PostStatus.PUBLISHED }),
+      publish: jest
+        .fn()
+        .mockResolvedValue({ ...mockPost, status: PostStatus.PUBLISHED }),
       unpublish: jest.fn().mockResolvedValue(mockPost),
       hide: jest.fn().mockResolvedValue({ ...mockPost, hidden_at: new Date() }),
       unhide: jest.fn().mockResolvedValue(mockPost),
@@ -152,13 +163,18 @@ describe('AppService', () => {
 
       it('should throw NotFoundException when user not found', async () => {
         mockUserRepository.findById.mockResolvedValue(null);
-        await expect(service.getUserById('999')).rejects.toThrow(NotFoundException);
+        await expect(service.getUserById('999')).rejects.toThrow(
+          NotFoundException,
+        );
       });
     });
 
     describe('createUser', () => {
       it('should create a new user', async () => {
-        const createUserDto = { username: 'testuser', email: 'test@example.com' };
+        const createUserDto = {
+          username: 'testuser',
+          email: 'test@example.com',
+        };
         const result = await service.createUser(createUserDto as CreateUserDto);
         expect(result).toEqual(mockUser);
         expect(mockAuditLogRepository.createAuditLog).toHaveBeenCalled();
@@ -166,26 +182,32 @@ describe('AppService', () => {
 
       it('should throw BadRequestException when username exists', async () => {
         mockUserRepository.findByUsername.mockResolvedValue(mockUser);
-        const createUserDto = { username: 'testuser', email: 'test@example.com' };
-        await expect(service.createUser(createUserDto as CreateUserDto)).rejects.toThrow(
-          BadRequestException,
-        );
+        const createUserDto = {
+          username: 'testuser',
+          email: 'test@example.com',
+        };
+        await expect(
+          service.createUser(createUserDto as CreateUserDto),
+        ).rejects.toThrow(BadRequestException);
       });
     });
 
     describe('updateUser', () => {
       it('should update a user', async () => {
         const updateUserDto = { full_name: 'Updated User' };
-        const result = await service.updateUser('1', updateUserDto as UpdateUserDto);
+        const result = await service.updateUser(
+          '1',
+          updateUserDto as UpdateUserDto,
+        );
         expect(result).toEqual(mockUser);
       });
 
       it('should throw NotFoundException when user not found', async () => {
         mockUserRepository.findById.mockResolvedValue(null);
         const updateUserDto = { full_name: 'Updated User' };
-        await expect(service.updateUser('999', updateUserDto as UpdateUserDto)).rejects.toThrow(
-          NotFoundException,
-        );
+        await expect(
+          service.updateUser('999', updateUserDto as UpdateUserDto),
+        ).rejects.toThrow(NotFoundException);
       });
     });
 
@@ -198,7 +220,9 @@ describe('AppService', () => {
 
       it('should throw NotFoundException when user not found', async () => {
         mockUserRepository.findById.mockResolvedValue(null);
-        await expect(service.deleteUser('999')).rejects.toThrow(NotFoundException);
+        await expect(service.deleteUser('999')).rejects.toThrow(
+          NotFoundException,
+        );
       });
     });
   });
@@ -226,13 +250,19 @@ describe('AppService', () => {
 
       it('should throw NotFoundException when post not found', async () => {
         mockPostRepository.findById.mockResolvedValue(null);
-        await expect(service.getPostById('999')).rejects.toThrow(NotFoundException);
+        await expect(service.getPostById('999')).rejects.toThrow(
+          NotFoundException,
+        );
       });
     });
 
     describe('createPost', () => {
       it('should create a new post', async () => {
-        const createPostDto = { title: 'Test', content: 'Test content', user_id: '1' };
+        const createPostDto = {
+          title: 'Test',
+          content: 'Test content',
+          user_id: '1',
+        };
         const result = await service.createPost(createPostDto as CreatePostDto);
         expect(result).toEqual(mockPost);
         expect(mockAuditLogRepository.createAuditLog).toHaveBeenCalled();
@@ -248,11 +278,15 @@ describe('AppService', () => {
 
       it('should throw NotFoundException when update target no longer exists', async () => {
         mockPostRepository.update.mockResolvedValue(null);
-        await expect(service.updatePost('1', '1', { title: 'Updated' })).rejects.toThrow(NotFoundException);
+        await expect(
+          service.updatePost('1', '1', { title: 'Updated' }),
+        ).rejects.toThrow(NotFoundException);
       });
 
       it('should throw ForbiddenException when actor is not post owner', async () => {
-        await expect(service.updatePost('1', 'other-user', { title: 'Denied' })).rejects.toThrow(ForbiddenException);
+        await expect(
+          service.updatePost('1', 'other-user', { title: 'Denied' }),
+        ).rejects.toThrow(ForbiddenException);
       });
     });
 
@@ -266,11 +300,15 @@ describe('AppService', () => {
 
       it('should throw NotFoundException when post not found', async () => {
         mockPostRepository.findById.mockResolvedValue(null);
-        await expect(service.publishPost('999', '1')).rejects.toThrow(NotFoundException);
+        await expect(service.publishPost('999', '1')).rejects.toThrow(
+          NotFoundException,
+        );
       });
 
       it('should throw ForbiddenException when actor is not post owner', async () => {
-        await expect(service.publishPost('1', 'other-user')).rejects.toThrow(ForbiddenException);
+        await expect(service.publishPost('1', 'other-user')).rejects.toThrow(
+          ForbiddenException,
+        );
       });
     });
 
@@ -283,11 +321,15 @@ describe('AppService', () => {
 
       it('should throw NotFoundException when post not found', async () => {
         mockPostRepository.findById.mockResolvedValue(null);
-        await expect(service.deletePost('999', '1')).rejects.toThrow(NotFoundException);
+        await expect(service.deletePost('999', '1')).rejects.toThrow(
+          NotFoundException,
+        );
       });
 
       it('should throw ForbiddenException when actor is not post owner', async () => {
-        await expect(service.deletePost('1', 'other-user')).rejects.toThrow(ForbiddenException);
+        await expect(service.deletePost('1', 'other-user')).rejects.toThrow(
+          ForbiddenException,
+        );
       });
     });
 
@@ -300,11 +342,15 @@ describe('AppService', () => {
 
       it('should throw NotFoundException when post not found', async () => {
         mockPostRepository.findById.mockResolvedValue(null);
-        await expect(service.unpublishPost('999', '1')).rejects.toThrow(NotFoundException);
+        await expect(service.unpublishPost('999', '1')).rejects.toThrow(
+          NotFoundException,
+        );
       });
 
       it('should throw ForbiddenException when actor is not post owner', async () => {
-        await expect(service.unpublishPost('1', 'other-user')).rejects.toThrow(ForbiddenException);
+        await expect(service.unpublishPost('1', 'other-user')).rejects.toThrow(
+          ForbiddenException,
+        );
       });
     });
 

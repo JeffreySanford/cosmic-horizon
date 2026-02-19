@@ -89,7 +89,11 @@
           }
 
           &.highlight {
-            background: linear-gradient(135deg, rgba(63, 185, 80, 0.1) 0%, rgba(63, 185, 80, 0.05) 100%);
+            background: linear-gradient(
+              135deg,
+              rgba(63, 185, 80, 0.1) 0%,
+              rgba(63, 185, 80, 0.05) 100%
+            );
             border-color: #3fb95077;
 
             .stat-value {
@@ -177,16 +181,28 @@
             align-items: center;
             margin-bottom: 4px;
 
-            .site-name { font-weight: bold; font-size: 0.9rem; }
+            .site-name {
+              font-weight: bold;
+              font-size: 0.9rem;
+            }
             .cluster-badge {
               font-size: 0.7rem;
               padding: 2px 6px;
               border-radius: 10px;
               background-color: #30363d;
-              
-              &.Alpha { color: #ff7b72; border: 1px solid #ff7b7233; }
-              &.Bravo { color: #d2a8ff; border: 1px solid #d2a8ff33; }
-              &.Charlie { color: #ffa657; border: 1px solid #ffa65733; }
+
+              &.Alpha {
+                color: #ff7b72;
+                border: 1px solid #ff7b7233;
+              }
+              &.Bravo {
+                color: #d2a8ff;
+                border: 1px solid #d2a8ff33;
+              }
+              &.Charlie {
+                color: #ffa657;
+                border: 1px solid #ffa65733;
+              }
             }
           }
 
@@ -202,17 +218,31 @@
               align-items: center;
               gap: 8px;
 
-              span:first-child { color: #8b949e; }
+              span:first-child {
+                color: #8b949e;
+              }
             }
 
-            .rate { color: #58a6ff; font-weight: 600; }
-            .status-text { color: #3fb950; font-weight: 600; }
-            .status-offline { color: #f85149; font-weight: 600; }
+            .rate {
+              color: #58a6ff;
+              font-weight: 600;
+            }
+            .status-text {
+              color: #3fb950;
+              font-weight: 600;
+            }
+            .status-offline {
+              color: #f85149;
+              font-weight: 600;
+            }
             .status-indicator {
               width: 8px;
               height: 8px;
               border-radius: 50%;
-              &.online { background-color: #3fb950; box-shadow: 0 0 5px #3fb95099; }
+              &.online {
+                background-color: #3fb950;
+                box-shadow: 0 0 5px #3fb95099;
+              }
             }
           }
         }

@@ -65,7 +65,9 @@ async function monitorRabbit() {
   const started = Date.now();
   const path = encodeURIComponent('/').replace('%2F', '%2F');
   const url = `http://${config.rabbit.host}:${config.rabbit.port}/api/queues/${path}/${config.rabbit.queue}`;
-  const auth = Buffer.from(`${config.rabbit.user}:${config.rabbit.pass}`).toString('base64');
+  const auth = Buffer.from(
+    `${config.rabbit.user}:${config.rabbit.pass}`,
+  ).toString('base64');
 
   try {
     const response = await fetch(url, {
@@ -97,7 +99,10 @@ async function monitorKafka() {
   try {
     await kafkaAdmin.connect();
     const offsets = await kafkaAdmin.fetchTopicOffsets(config.kafka.topic);
-    const latestOffset = offsets.reduce((total, item) => total + Number(item.offset), 0);
+    const latestOffset = offsets.reduce(
+      (total, item) => total + Number(item.offset),
+      0,
+    );
     return {
       connected: true,
       latencyMs: Date.now() - started,
@@ -159,12 +164,13 @@ async function monitorRedis() {
 }
 
 async function runOnce() {
-  const [rabbitmq, kafkaResult, postgresResult, redisResult] = await Promise.all([
-    monitorRabbit(),
-    monitorKafka(),
-    monitorPostgres(),
-    monitorRedis(),
-  ]);
+  const [rabbitmq, kafkaResult, postgresResult, redisResult] =
+    await Promise.all([
+      monitorRabbit(),
+      monitorKafka(),
+      monitorPostgres(),
+      monitorRedis(),
+    ]);
 
   const snapshot = {
     at: nowIso(),

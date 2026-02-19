@@ -1,13 +1,13 @@
 /**
  * RabbitMQ Service Integration Tests
- * 
+ *
  * 45+ tests covering:
  * - Connection management and failover
  * - Exchange and queue declarations
  * - Event publishing with latency validation
  * - Dead Letter Queue handling
  * - Error scenarios and recovery
- * 
+ *
  * Sprint 5.1 Success Criteria:
  * - All tests passing
  * - P99 latency < 100ms
@@ -16,7 +16,12 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { EventBase, TaccSystem, JobStatus, NotificationChannel } from '@cosmic-horizons/event-models';
+import {
+  EventBase,
+  TaccSystem,
+  JobStatus,
+  NotificationChannel,
+} from '@cosmic-horizons/event-models';
 import { RabbitMQService } from './rabbitmq.service';
 import {
   EventFactory,
@@ -285,16 +290,14 @@ describe('RabbitMQService Integration Tests (Sprint 5.1)', () => {
       const event = EventFactory.jobSubmitted().build();
 
       await expect(mockPublisher.publishJobEvent(event)).rejects.toThrow(
-        'Mock publish failed'
+        'Mock publish failed',
       );
     });
 
     it('should validate latency within bounds', async () => {
       // Simulate fast publishes
       for (let i = 0; i < 100; i++) {
-        const event = EventFactory.jobSubmitted()
-          .withJobId(`job-${i}`)
-          .build();
+        const event = EventFactory.jobSubmitted().withJobId(`job-${i}`).build();
         await mockPublisher.publishJobEvent(event);
       }
 
@@ -547,7 +550,7 @@ describe('RabbitMQService Integration Tests (Sprint 5.1)', () => {
           },
           estimated_cost_usd: 50.0,
           priority: 'high' as const,
-        }
+        },
       };
 
       const event = TypeSafeEventBuilder.createJobSubmittedEvent(override);
@@ -575,8 +578,8 @@ describe('RabbitMQService Integration Tests (Sprint 5.1)', () => {
           job_id: 'job-xyz',
           previous_status: JobStatus.QUEUED,
           new_status: JobStatus.RUNNING,
-          reason: 'Resource allocation complete'
-        }
+          reason: 'Resource allocation complete',
+        },
       });
 
       expect(event.payload.job_id).toBe('job-xyz');
@@ -608,7 +611,7 @@ describe('RabbitMQService Integration Tests (Sprint 5.1)', () => {
           related_job_id: 'job-related-123',
           read_status: 'read',
           created_at: new Date().toISOString(),
-        }
+        },
       });
 
       expect(event.payload.notification_id).toBe('notif-custom');
@@ -676,23 +679,22 @@ describe('RabbitMQService Integration Tests (Sprint 5.1)', () => {
     it('should publish TypeSafeEventBuilder events through MockRabbitMQPublisher', async () => {
       const mockPublisher = new MockRabbitMQPublisher();
 
-      const jobSubmittedEvent =
-        TypeSafeEventBuilder.createJobSubmittedEvent({
-          payload: {
-            job_id: 'ts-job-123',
-            job_name: 'TypeSafeTest',
-            tacc_system: TaccSystem.STAMPEDE3,
-            resource_request: {
-              num_nodes: 16,
-              cores_per_node: 64,
-              gpu_count_total: 2,
-              memory_gb: 512,
-              wall_time_minutes: 180,
-            },
-            estimated_cost_usd: 45.0,
-            priority: 'normal',
-          }
-        });
+      const jobSubmittedEvent = TypeSafeEventBuilder.createJobSubmittedEvent({
+        payload: {
+          job_id: 'ts-job-123',
+          job_name: 'TypeSafeTest',
+          tacc_system: TaccSystem.STAMPEDE3,
+          resource_request: {
+            num_nodes: 16,
+            cores_per_node: 64,
+            gpu_count_total: 2,
+            memory_gb: 512,
+            wall_time_minutes: 180,
+          },
+          estimated_cost_usd: 45.0,
+          priority: 'normal',
+        },
+      });
 
       await mockPublisher.publishJobEvent(jobSubmittedEvent);
 
@@ -719,7 +721,7 @@ describe('RabbitMQService Integration Tests (Sprint 5.1)', () => {
             },
             estimated_cost_usd: 25.0,
             priority: 'normal',
-          }
+          },
         });
         await mockPublisher.publishJobEvent(event);
       }
@@ -736,7 +738,7 @@ describe('RabbitMQService Integration Tests (Sprint 5.1)', () => {
       const event = TypeSafeEventBuilder.createJobSubmittedEvent();
 
       await expect(mockPublisher.publishJobEvent(event)).rejects.toThrow(
-        'Mock publish failed'
+        'Mock publish failed',
       );
     });
 

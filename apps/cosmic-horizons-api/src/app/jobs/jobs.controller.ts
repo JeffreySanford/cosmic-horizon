@@ -12,9 +12,15 @@ import {
 } from '@nestjs/common';
 import { TaccIntegrationService } from './tacc-integration.service';
 import { JobOrchestratorService } from './services/job-orchestrator.service';
-import type { BatchJobRequest, OptimizationTip } from './services/job-orchestrator.service';
+import type {
+  BatchJobRequest,
+  OptimizationTip,
+} from './services/job-orchestrator.service';
 import { DatasetStagingService } from './services/dataset-staging.service';
-import type { StagingRequest, StagingStatus } from './services/dataset-staging.service';
+import type {
+  StagingRequest,
+  StagingStatus,
+} from './services/dataset-staging.service';
 import type { TaccJobSubmission } from './tacc-integration.service';
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import type { AuthenticatedRequest } from '../types/http.types';
@@ -84,7 +90,11 @@ export class JobsController {
     @Query('limit') limit = '50',
     @Query('offset') offset = '0',
   ): Promise<{ jobs: Job[]; total: number }> {
-    return this.orchestrator.getJobHistory(req.user.id, Number(limit), Number(offset));
+    return this.orchestrator.getJobHistory(
+      req.user.id,
+      Number(limit),
+      Number(offset),
+    );
   }
 
   /**
@@ -98,7 +108,12 @@ export class JobsController {
     @Query('limit') limit = '50',
     @Query('offset') offset = '0',
   ): Promise<{ jobs: Job[]; total: number }> {
-    return this.orchestrator.searchJobs(req.user.id, filters, Number(limit), Number(offset));
+    return this.orchestrator.searchJobs(
+      req.user.id,
+      filters,
+      Number(limit),
+      Number(offset),
+    );
   }
 
   /**
@@ -106,7 +121,9 @@ export class JobsController {
    */
   @Post('optimize')
   @UseGuards(AuthenticatedGuard)
-  async getOptimizationTips(@Body() submission: TaccJobSubmission): Promise<OptimizationTip[]> {
+  async getOptimizationTips(
+    @Body() submission: TaccJobSubmission,
+  ): Promise<OptimizationTip[]> {
     return this.orchestrator.getOptimizationTips(submission);
   }
 
@@ -143,7 +160,9 @@ export class JobsController {
    */
   @Get('dataset/:id/staging-status')
   @UseGuards(AuthenticatedGuard)
-  async getStagingStatus(@Param('id') datasetId: string): Promise<StagingStatus | null> {
+  async getStagingStatus(
+    @Param('id') datasetId: string,
+  ): Promise<StagingStatus | null> {
     return this.datasetStaging.getStagingStatus(datasetId);
   }
 
