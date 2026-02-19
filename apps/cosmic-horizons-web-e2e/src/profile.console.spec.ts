@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const PROFILE_API_PATH = '**/api/profiles/adminuser';
+const PROFILE_API_PATH = /\/api\/profiles\/adminuser/;
 
 test.describe('Profile — console & retry behavior', () => {
   test('emits debug console logs when profile loads', async ({ page }) => {
@@ -12,18 +12,17 @@ test.describe('Profile — console & retry behavior', () => {
 
     await page.goto('/profile/adminuser');
 
-    // wait until API response and UI render
-    await page.waitForResponse(PROFILE_API_PATH);
-    await page.locator('mat-card-title').waitFor({ state: 'visible' });
+    // wait for UI render (API may be served quickly)
+    await page.locator('mat-card-title').waitFor({ state: 'visible', timeout: 10000 });
 
     // Check debug logs we added in the component
     const foundStart = consoleMessages.some((m) => m.includes('[ProfileComponent] loadProfile.start'));
     const foundNext = consoleMessages.some((m) => m.includes('[ProfileComponent] getProfile.next'));
     const foundFinalize = consoleMessages.some((m) => m.includes('[ProfileComponent] loadProfile.finalize'));
 
-    expect(foundStart).toBeTruthy();
-    expect(foundNext).toBeTruthy();
-    expect(foundFinalize).toBeTruthy();
+    expect(foundStart, 'should log loadProfile.start').toBeTruthy();
+    expect(foundNext, 'should log getProfile.next').toBeTruthy();
+    expect(foundFinalize, 'should log loadProfile.finalize').toBeTruthy();
   });
 
   test('shows retry button when profile load stalls and retry succeeds', async ({ page }) => {
