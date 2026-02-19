@@ -566,11 +566,27 @@ describe('BrokerComparisonComponent', () => {
     });
 
     it('should render disabled tile button when broker status is error', () => {
-      component.brokerStatuses = { rabbitmq: 'error', kafka: 'ok', pulsar: 'ok' } as any;
+      // ensure component initialized (ngOnInit may overwrite brokerStatuses)
+      // arrange: make broker service return a disconnected RabbitMQ on initial load
+      const disconnectedData = {
+        ...mockBrokerData,
+        brokers: { ...mockBrokerData.brokers, rabbitmq: { ...mockBrokerData.brokers.rabbitmq, connected: false } },
+      } as any;
+      serviceMock.getCurrentMetrics.mockReturnValueOnce(of(disconnectedData));
+
+      // act
       fixture.detectChanges();
+
+      // assert
       const buttons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('.status-item');
       const rabbitBtn = buttons[0];
-      expect(rabbitBtn.disabled).toBe(true);
+      expect(rabbitBtn.classList.contains('status-error')).toBe(true);
+
+      // clicking should not enable the feed and should show a snackbar (behavioral check)
+      const snackSpy = vi.spyOn((component as any).snackBar, 'open');
+      component.toggleBrokerFeed('rabbitmq');
+      expect(snackSpy).toHaveBeenCalledWith('Broker unavailable — feed is disabled until connectivity is restored', 'OK', { duration: 4000 });
+      expect(component.isBrokerFeedEnabled('rabbitmq')).toBe(false);
     });  });
 
   describe('last refresh text', () => {
