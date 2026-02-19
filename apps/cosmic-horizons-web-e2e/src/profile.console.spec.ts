@@ -42,10 +42,25 @@ test.describe('Profile — console & retry behavior', () => {
       };
     });
 
+    const logs: string[] = [];
+    page.on('console', (msg) => logs.push(msg.text()));
+
     await page.goto('/profile/adminuser');
 
-    // After ~8s the retry button should become visible (component uses 8s timeout)
-    await page.waitForSelector('[data-test="profile-retry"]', { timeout: 12000 });
+    // Wait for our timeout log — indicates client-side timeout fired
+    const timedOutSeen = await (async () => {
+      const start = Date.now();
+      while (Date.now() - start < 12000) {
+        if (logs.some((l) => l.includes('loadProfile.timedOut'))) return true;
+        await new Promise((r) => setTimeout(r, 200));
+      }
+      return false;
+    })();
+
+    expect(timedOutSeen, 'expected component to log loadProfile.timedOut').toBeTruthy();
+
+    // After the timed-out log, the retry button should appear
+    await page.waitForSelector('[data-test="profile-retry"]', { timeout: 3000 });
     await expect(page.locator('[data-test="profile-retry"]')).toBeVisible();
 
     // release the held request so the client receives the API response
