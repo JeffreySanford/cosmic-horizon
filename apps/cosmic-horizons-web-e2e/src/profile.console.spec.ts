@@ -26,13 +26,17 @@ test.describe('Profile — console & retry behavior', () => {
   });
 
   test('shows retry button when profile load stalls and retry succeeds', async ({ page }) => {
-    // Intercept the profile API and delay first response so the component's loadTimedOut becomes true
+    // Intercept the profile API and *hold* the first response until we observe the timeout UI
     let first = true;
+    let releaseFirst: (() => void) | null = null;
+
     await page.route(PROFILE_API_PATH, async (route) => {
       if (first) {
         first = false;
-        // delay > 8s so client shows retry UI (component uses 8s timeout)
-        await new Promise((r) => setTimeout(r, 8500));
+        // hold the response until test calls releaseFirst()
+        await new Promise<void>((resolve) => {
+          releaseFirst = resolve;
+        });
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { username: 'adminuser', display_name: 'Admin User', created_at: new Date().toISOString() }, posts: [] }) });
       } else {
         // immediate response on retry
@@ -42,9 +46,12 @@ test.describe('Profile — console & retry behavior', () => {
 
     await page.goto('/profile/adminuser');
 
-    // After ~8s the retry button should become visible
+    // After ~8s the retry button should become visible (component uses 8s timeout)
     await page.waitForSelector('[data-test="profile-retry"]', { timeout: 12000 });
     await expect(page.locator('[data-test="profile-retry"]')).toBeVisible();
+
+    // Release the held response so the retry can succeed
+    if (releaseFirst) releaseFirst();
 
     // click retry and assert the profile eventually renders
     await page.click('[data-test="profile-retry"]');
