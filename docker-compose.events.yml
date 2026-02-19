@@ -97,8 +97,10 @@ services:
   # - Exposes /metrics on port 9404
   # ==========================================================================
   cosmic-horizons-kafka-jmx-exporter:
-    # Use a widely available jmx_prometheus_httpserver image (wrouesnel) instead of unavailable justwatch image
-    image: wrouesnel/jmx_prometheus_httpserver:0.16.0
+    # Build a local jmx_prometheus_httpserver image so CI/local runs do not depend on an external image
+    build:
+      context: ./docker/kafka-jmx-exporter
+      dockerfile: Dockerfile
     container_name: cosmic-horizons-kafka-jmx-exporter
     depends_on:
       cosmic-horizons-kafka:
