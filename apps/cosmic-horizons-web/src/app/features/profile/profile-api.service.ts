@@ -31,7 +31,7 @@ export class ProfileApiService {
 
   private authHeaders(): HttpHeaders {
     if (isPlatformBrowser(this.platformId)) {
-      const token = sessionStorage.getItem('token');
+      const token = sessionStorage.getItem('auth_token');
       if (token) {
         return new HttpHeaders().set('Authorization', `Bearer ${token}`);
       }

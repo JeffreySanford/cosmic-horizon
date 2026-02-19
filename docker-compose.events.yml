@@ -87,12 +87,6 @@ services:
     networks:
       - cosmic-horizons-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "sh", "-c", "curl -sf http://localhost:9308/metrics | grep -q 'kafka' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
   # ============================================================================
   # RABBITMQ (Ephemeral Real-time Messaging)
