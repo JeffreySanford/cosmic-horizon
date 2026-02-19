@@ -54,7 +54,9 @@ services:
     volumes:
       - cosmic-horizons-kafka-data:/var/lib/kafka/data
     networks:
-      - cosmic-horizons-network
+      cosmic-horizons-network:
+        aliases:
+          - kafka
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z localhost 9092"]
