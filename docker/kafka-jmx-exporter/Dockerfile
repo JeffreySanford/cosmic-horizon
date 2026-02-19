@@ -1,4 +1,4 @@
-FROM openjdk:17-slim
+FROM openjdk:17-jdk-slim
 
 ARG JMX_EXPORTER_VERSION=0.16.0
 WORKDIR /opt/jmx-exporter
