@@ -195,6 +195,37 @@ describe('BrokerMetricsCollector', () => {
       expect(result.pulsar?.messagesPerSecond).toBe(1234);
       expect(result.pulsar?.memoryUsageMb).toBeGreaterThan(0);
     });
+
+    it('should compute Kafka messagesPerSecond using native admin offsets when REST proxy is unavailable', async () => {
+      jest.useFakeTimers('modern');
+      const t0 = 1_700_000_000_000;
+      jest.setSystemTime(t0);
+
+      // Force REST proxy path to fail
+      mockedAxios.create.mockReturnValue({ get: jest.fn().mockRejectedValue(new Error('not found')) } as any);
+
+      // Stub out the admin topic/offset reads on the collector instance
+      const testCollector = new BrokerMetricsCollector();
+      const topicsSpy = jest.spyOn(testCollector as any, 'fetchTopicsForNative').mockResolvedValue(['topicA']);
+      const offsetsSpy = jest
+        .spyOn(testCollector as any, 'fetchTopicOffsetsForNative')
+        .mockResolvedValueOnce([{ partition: 0, offset: '100' }])
+        .mockResolvedValueOnce([{ partition: 0, offset: '300' }]);
+
+      // First call: snapshot stored, no rate yet
+      const first = await (testCollector as any).collectKafkaMetricsNative();
+      expect(first.messagesPerSecond).toBeUndefined();
+
+      // Advance time and second sample
+      jest.setSystemTime(t0 + 2000);
+      const second = await (testCollector as any).collectKafkaMetricsNative();
+      expect(second.messagesPerSecond).toBeGreaterThanOrEqual(99);
+      expect(second.messagesPerSecond).toBeLessThanOrEqual(101);
+
+      topicsSpy.mockRestore();
+      offsetsSpy.mockRestore();
+      jest.useRealTimers();
+    });
   });
 
   describe('constructor', () => {

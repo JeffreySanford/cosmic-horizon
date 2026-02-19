@@ -475,6 +475,7 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
    */
   formatThroughput(value: number | undefined | null): string {
     if (value === undefined || value === null) return 'N/A';
+    if (value === 0) return 'No traffic';
     return `${value.toLocaleString()} msg/s`;
   }
 

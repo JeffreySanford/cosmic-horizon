@@ -385,6 +385,10 @@ describe('BrokerComparisonComponent', () => {
       expect(formatted).toContain('msg/s');
     });
 
+    it('should show "No traffic" for zero throughput', () => {
+      expect(component.formatThroughput(0)).toBe('No traffic');
+    });
+
     it('should format latency correctly', () => {
       const formatted = component.formatLatency(9.5);
       expect(formatted).toBe('9.50 ms');
