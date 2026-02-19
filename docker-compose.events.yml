@@ -97,7 +97,8 @@ services:
   # - Exposes /metrics on port 9404
   # ==========================================================================
   cosmic-horizons-kafka-jmx-exporter:
-    image: justwatch/jmx-prometheus-exporter:0.16.0
+    # Use a widely available jmx_prometheus_httpserver image (wrouesnel) instead of unavailable justwatch image
+    image: wrouesnel/jmx_prometheus_httpserver:0.16.0
     container_name: cosmic-horizons-kafka-jmx-exporter
     depends_on:
       cosmic-horizons-kafka:
@@ -109,6 +110,7 @@ services:
     networks:
       - cosmic-horizons-network
     restart: unless-stopped
+    # port, config-file, and target-jmx-host:port
     command: ["9404", "/etc/jmx-exporter/config.yml", "cosmic-horizons-kafka:9999"]
 
   # ============================================================================
