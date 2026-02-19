@@ -39,6 +39,9 @@ export class ProfileComponent implements OnInit {
       const routeUsername = params.get('username')?.trim() ?? '';
       const sessionUsername = this.authSessionService.getUser()?.username?.trim() ?? '';
 
+      // DEBUG: trace route/session resolution
+      console.debug('[ProfileComponent] paramMap', { routeUsername, sessionUsername });
+
       if (!routeUsername && sessionUsername) {
         this.router.navigate(['/profile', sessionUsername], { replaceUrl: true });
         return;
@@ -57,6 +60,9 @@ export class ProfileComponent implements OnInit {
   }
 
   loadProfile(username: string): void {
+    // DEBUG: entry
+    console.debug('[ProfileComponent] loadProfile.start', { username });
+
     this.loading = true;
     this.error = null;
     this.saveMessage = null;
@@ -68,19 +74,27 @@ export class ProfileComponent implements OnInit {
         timeout(10000),
         finalize(() => {
           this.loading = false;
+          console.debug('[ProfileComponent] loadProfile.finalize', { username, loading: this.loading });
         }),
       )
       .subscribe({
         next: (profile) => {
+          console.debug('[ProfileComponent] getProfile.next', profile);
           this.profile = profile;
           this.editing = false;
-          this.editForm.reset({
-            display_name: profile.user.display_name || profile.user.username || '',
-            bio: profile.user.bio || '',
-            avatar_url: profile.user.avatar_url || '',
-          });
+          try {
+            this.editForm.reset({
+              display_name: profile.user.display_name || profile.user.username || '',
+              bio: profile.user.bio || '',
+              avatar_url: profile.user.avatar_url || '',
+            });
+          } catch (e) {
+            console.error('[ProfileComponent] editForm.reset failed', e, profile);
+            throw e;
+          }
         },
         error: (err) => {
+          console.error('[ProfileComponent] getProfile.error', err);
           this.error = err.error?.message || 'Failed to load profile.';
         },
       });
