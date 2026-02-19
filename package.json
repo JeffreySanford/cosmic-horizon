@@ -102,7 +102,7 @@
     "d3": "^7.9.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
-    "eslint-plugin-playwright": "^1.6.2",
+    "eslint-plugin-playwright": "^2.7.0",
     "jest": "^30.0.2",
     "jest-environment-node": "^30.0.2",
     "jest-util": "^30.0.2",
