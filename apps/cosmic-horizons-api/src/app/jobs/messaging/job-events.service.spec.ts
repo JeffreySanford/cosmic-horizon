@@ -140,7 +140,7 @@ describe('JobEventsService', () => {
       const statuses = ['QUEUED', 'RUNNING', 'COMPLETED', 'FAILED'];
 
       for (const status of statuses) {
-        (EventModels.generateEventId as jest.Mock).mockReturnValue(`uuid-for-${status}`);
+        (EventModels.generateEventId as jest.Mock).mockReturnValueOnce(`uuid-for-${status}`);
         await service.emitJobStatusChangedEvent('job-id', status);
       }
 
@@ -343,13 +343,13 @@ describe('JobEventsService', () => {
     it('should handle multiple event emissions in sequence', async () => {
       const job = { id: 'job-999', agent: 'Orchestrator' };
 
-      (EventModels.generateEventId as jest.Mock).mockReturnValue('evt-submitted');
+      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce('evt-submitted');
       await service.emitJobSubmittedEvent(job);
 
-      (EventModels.generateEventId as jest.Mock).mockReturnValue('evt-started');
+      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce('evt-started');
       await service.emitJobStatusChangedEvent('job-999', 'RUNNING');
 
-      (EventModels.generateEventId as jest.Mock).mockReturnValue('evt-completed');
+      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce('evt-completed');
       await service.emitJobCompletedEvent('job-999', { success: true });
 
       expect(mockEventPublisher.publish).toHaveBeenCalledTimes(3);
@@ -357,7 +357,7 @@ describe('JobEventsService', () => {
     });
 
     it('should handle error after job starts', async () => {
-      (EventModels.generateEventId as jest.Mock).mockReturnValue('evt-error');
+      (EventModels.generateEventId as jest.Mock).mockReturnValueOnce('evt-error');
       await service.emitJobErrorEvent('job-999', new Error('Execution failed'));
 
       expect(mockEventPublisher.publish).toHaveBeenCalledWith(
