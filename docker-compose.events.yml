@@ -75,8 +75,10 @@ services:
       cosmic-horizons-kafka:
         condition: service_healthy
     environment:
-      # Connect to the internal container listener used on the Docker network
+      # Common env names (some exporter builds expect different variables) — provide all.
       - KAFKA_BROKERS=cosmic-horizons-kafka:29092
+      - KAFKA_URI=cosmic-horizons-kafka:29092
+      - KAFKA_SERVER=cosmic-horizons-kafka:29092
       - LOG_LEVEL=info
     ports:
       - "127.0.0.1:9308:9308"
