@@ -22,6 +22,9 @@ export class BrokerMetricsCollector {
   private pulsarClient: AxiosInstance;
   private kafkaClient: AxiosInstance;
 
+  // Snapshot used to compute true messages-per-second for RabbitMQ
+  private lastRabbitQueueSnapshot: { messages: number; at: number } | null = null;
+
   constructor() {
     const rabbitmqUrl = this.buildRabbitMQUrl();
     const pulsarUrl = this.buildPulsarUrl();
@@ -83,16 +86,17 @@ export class BrokerMetricsCollector {
       const nodeStats = (nodes.data as Array<{ memory?: { used?: number }; uptime?: number }>)[0];
       const mem = nodeStats?.memory || {};
 
+      const throughput = this.calculateRabbitMQThroughput(overview.data);
       return {
         connected: true,
-        messagesPerSecond: this.calculateRabbitMQThroughput(overview.data),
+        messagesPerSecond: throughput,
         p99LatencyMs: undefined, // RabbitMQ doesn't expose percentiles via REST API
         memoryUsageMb: (mem.used || 0) / (1024 * 1024),
         connectionCount: (overview.data?.object_totals?.connections || 0) as number,
         uptime: this.formatUptime(nodeStats?.uptime || 0),
         dataSource: 'measured',
         metricQuality: {
-          messagesPerSecond: 'measured',
+          messagesPerSecond: throughput !== undefined ? 'measured' : 'missing',
           p99LatencyMs: 'missing',
           memoryUsageMb: 'measured',
           cpuPercentage: 'missing',
@@ -154,13 +158,15 @@ export class BrokerMetricsCollector {
             topicCount: topics.length,
             replicationFactor: 3, // Default for Kafka cluster in docker-compose
           },
-          dataSource: 'measured',
+          // NOTE: fetchKafkaBrokerStats currently returns placeholder/randomized values
+          // — mark Kafka metrics as fallback until a proper JMX/metrics implementation is available.
+          dataSource: 'fallback',
           metricQuality: {
-            messagesPerSecond: 'measured',
+            messagesPerSecond: 'fallback',
             p99LatencyMs: 'missing',
-            memoryUsageMb: 'measured',
+            memoryUsageMb: 'fallback',
             cpuPercentage: 'missing',
-            connectionCount: 'measured',
+            connectionCount: 'fallback',
             uptime: 'measured',
           },
         };
@@ -300,10 +306,12 @@ export class BrokerMetricsCollector {
       const latencyP99 = this.extractPulsarLatency(metricsText);
       const memoryUsageMb = this.extractPulsarMemory(metricsText);
 
+      // Require a positive signal to consider Prometheus-scraped metrics as "measured".
+      // Treat zero or tiny values as absent to avoid false-positive "measured" flags.
       const hasMeasuredSignal =
-        (Number.isFinite(throughput) && throughput >= 0) ||
+        (Number.isFinite(throughput) && throughput > 0) ||
         (Number.isFinite(latencyP99) && latencyP99 > 0) ||
-        (Number.isFinite(memoryUsageMb) && memoryUsageMb > 0);
+        (Number.isFinite(memoryUsageMb) && memoryUsageMb > 1);
 
       if (!hasMeasuredSignal) {
         return null;
@@ -311,20 +319,20 @@ export class BrokerMetricsCollector {
 
       return {
         connected: true,
-        messagesPerSecond: Number.isFinite(throughput) && throughput >= 0 ? Math.round(throughput) : undefined,
+        messagesPerSecond: Number.isFinite(throughput) && throughput > 0 ? Math.round(throughput) : undefined,
         p99LatencyMs: Number.isFinite(latencyP99) && latencyP99 > 0 ? latencyP99 : undefined,
-        memoryUsageMb: Number.isFinite(memoryUsageMb) && memoryUsageMb > 0 ? memoryUsageMb : undefined,
+        memoryUsageMb: Number.isFinite(memoryUsageMb) && memoryUsageMb > 1 ? memoryUsageMb : undefined,
         connectionCount: undefined,
         uptime: undefined,
         partitionCount: 0,
         dataSource: 'measured',
         metricQuality: {
           messagesPerSecond:
-            Number.isFinite(throughput) && throughput >= 0 ? 'measured' : 'missing',
+            Number.isFinite(throughput) && throughput > 0 ? 'measured' : 'missing',
           p99LatencyMs:
             Number.isFinite(latencyP99) && latencyP99 > 0 ? 'measured' : 'missing',
           memoryUsageMb:
-            Number.isFinite(memoryUsageMb) && memoryUsageMb > 0 ? 'measured' : 'missing',
+            Number.isFinite(memoryUsageMb) && memoryUsageMb > 1 ? 'measured' : 'missing',
           cpuPercentage: 'missing',
           connectionCount: 'missing',
           uptime: 'missing',
@@ -352,18 +360,36 @@ export class BrokerMetricsCollector {
 
   /**
    * Helper: Calculate RabbitMQ message rate
+   *
+   * Notes:
+   * - Returns undefined for the initial sample (we don't report raw queue-depth as msg/s).
+   * - Subsequent calls return delta/time (msg/s).
    */
-  private calculateRabbitMQThroughput(data: unknown): number {
+  private calculateRabbitMQThroughput(data: unknown): number | undefined {
     const queueTotals =
       typeof data === 'object' && data !== null
         ? (data as { queue_totals?: { messages_ready?: number; messages_unacked?: number } }).queue_totals
         : undefined;
-    // Extract from queue totals or exchange stats
     const messagesReady = queueTotals?.messages_ready || 0;
     const messagesUnacked = queueTotals?.messages_unacked || 0;
-    // Simplified: return based on current queue depth
-    // In production, would track deltas over time
-    return messagesReady + messagesUnacked;
+
+    const currentTotal = messagesReady + messagesUnacked;
+    const now = Date.now();
+
+    // If we have a previous snapshot, compute a per-second rate (delta / time)
+    if (this.lastRabbitQueueSnapshot && typeof this.lastRabbitQueueSnapshot.messages === 'number') {
+      const dtSeconds = Math.max(1e-3, (now - this.lastRabbitQueueSnapshot.at) / 1000);
+      const delta = currentTotal - this.lastRabbitQueueSnapshot.messages;
+      const rate = delta > 0 ? delta / dtSeconds : 0;
+
+      // update snapshot and return rounded rate
+      this.lastRabbitQueueSnapshot = { messages: currentTotal, at: now };
+      return Math.round(rate);
+    }
+
+    // No snapshot yet — store current value but DO NOT expose raw queue depth as a rate.
+    this.lastRabbitQueueSnapshot = { messages: currentTotal, at: now };
+    return undefined;
   }
 
   /**

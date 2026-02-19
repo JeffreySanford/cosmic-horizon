@@ -13,6 +13,21 @@ export default defineConfig({
       '@angular/animations',
       '@angular/material',
       '@angular/cdk',
+      // include CDK subpaths to be safe for deep imports
+      '@angular/cdk/overlay',
+      '@angular/cdk/scrolling',
+    ],
+  },
+  optimizeDeps: {
+    // Pre-bundle core Angular packages so dev server only loads a single runtime
+    include: [
+      '@angular/core',
+      '@angular/common',
+      '@angular/router',
+      '@angular/platform-browser',
+      '@angular/animations',
+      '@angular/material',
+      '@angular/cdk'
     ],
   },
   server: {

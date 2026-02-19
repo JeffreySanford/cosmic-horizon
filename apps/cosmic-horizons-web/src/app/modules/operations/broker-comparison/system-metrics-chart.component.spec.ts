@@ -20,6 +20,7 @@ describe('SystemMetricsChartComponent', () => {
   it('should default to 2 KB payload assumption', () => {
     expect(component.averageMessageBytes).toBe(2048);
     expect(component.messageSizePreset).toBe('2048');
+    expect(component.samplingInterval).toBe(component.updateInterval);
   });
 
   it('should initialize with system legend items', () => {

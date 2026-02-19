@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import * as d3 from 'd3';
 
 export interface SystemMetric {
@@ -89,6 +89,21 @@ type SeriesDefinition = {
               aria-label="Custom payload bytes per message"
             />
           }
+        </div>
+
+        <div class="view-selector">
+          <label for="sample-interval">Sample</label>
+          <select id="sample-interval" [value]="samplingInterval" (change)="onSamplingIntervalChange(+$any($event.target).value)">
+            <option value="20">20 ms</option>
+            <option value="100">100 ms</option>
+            <option value="300">300 ms</option>
+            <option value="500">500 ms</option>
+            <option value="1000">1 s</option>
+            <option value="2000">2 s</option>
+            <option value="5000">5 s</option>
+            <option value="10000">10 s</option>
+            <option value="15000">15 s</option>
+          </select>
         </div>
         <div class="legend">
           @for (item of legendItems; track item.label) {
@@ -226,11 +241,20 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   @Input() maxDataPoints = 50;
   @Input() updateInterval = 2000; // 2 seconds
   @Input() averageMessageBytes = 2048;
+
+  // Sampling interval (ms) for rendering the chart. Emits changes to parent if different.
+  samplingInterval = this.updateInterval;
+  // Expose sampling-interval changes so parent polling cadence can be adjusted.
+  @Output() samplingIntervalChange = new EventEmitter<number>();
+
   messageSizePreset: '512' | '2048' | '8192' | '65536' | 'custom' = '2048';
   customMessageBytes = 2048;
 
   selectedView: ChartView = 'system';
   legendItems: Array<{ label: string; color: string }> = [...SystemMetricsChartComponent.DEFAULT_SYSTEM_LEGEND];
+
+  // Internal throttling for chart updates
+  private lastRenderAt = 0;
 
   private data: SystemMetric[] = [];
   private brokerData: BrokerMetricPoint[] = [];
@@ -306,8 +330,12 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
       this.data.shift();
     }
 
-    // Update the chart
-    this.updateChart();
+    // Throttle chart render to samplingInterval
+    const now = Date.now();
+    if (now - this.lastRenderAt >= this.samplingInterval) {
+      this.lastRenderAt = now;
+      this.updateChart();
+    }
   }
 
   updateBrokerData(metrics: BrokerComparisonInput): void {
@@ -330,7 +358,12 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
       this.brokerData.shift();
     }
 
-    this.updateChart();
+    // Throttle chart render to samplingInterval
+    const now = Date.now();
+    if (now - this.lastRenderAt >= this.samplingInterval) {
+      this.lastRenderAt = now;
+      this.updateChart();
+    }
   }
 
   private initializeChart() {
@@ -802,6 +835,13 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     const normalized = Number.isFinite(value) && value > 0 ? Math.round(value) : 2048;
     this.averageMessageBytes = normalized;
     this.hideTooltip();
+  }
+
+  // Sampling interval handler for UI selector
+  onSamplingIntervalChange(ms: number): void {
+    if (!Number.isFinite(ms) || ms <= 0) return;
+    this.samplingInterval = Math.round(ms);
+    this.samplingIntervalChange.emit(this.samplingInterval);
   }
 
   private areLegendItemsEqual(

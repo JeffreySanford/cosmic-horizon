@@ -255,6 +255,37 @@ mat-card-content {
   }
 }
 
+.metric-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  vertical-align: middle;
+  color: #444;
+  border: 1px solid #e0e0e0;
+}
+
+.metric-badge.measured {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-color: #c8e6c9;
+}
+
+.metric-badge.fallback {
+  background: #fff3e0;
+  color: #e65100;
+  border-color: #ffe0b2;
+}
+
+.metric-badge.missing {
+  background: #f5f5f5;
+  color: #777;
+  border-color: #eee;
+}
+
 .vs-badge {
   padding: 12px 16px;
   background: white;

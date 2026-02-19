@@ -192,9 +192,10 @@ describe('BrokerComparisonComponent', () => {
     it('should start polling on initialize', async () => {
       vi.useFakeTimers();
       fixture.detectChanges();
-      vi.advanceTimersByTime(5000);
+      // default polling should trigger at least one system metrics fetch
+      vi.advanceTimersByTime(2500);
       await Promise.resolve();
-      expect(serviceMock.getCurrentMetrics).toHaveBeenCalled();
+      expect(serviceMock.getSystemMetrics).toHaveBeenCalled();
       vi.useRealTimers();
     });
 
@@ -398,6 +399,15 @@ describe('BrokerComparisonComponent', () => {
       expect(component.formatThroughput(undefined)).toBe('N/A');
       expect(component.formatLatency(undefined)).toBe('N/A');
       expect(component.formatMemory(undefined)).toBe('N/A');
+    });
+
+    it('should display dataSource badges on metric cards', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const badges = compiled.querySelectorAll('.metric-badge');
+      expect(badges.length).toBeGreaterThanOrEqual(3);
+      // mockBrokerData provides numeric values (treated as measured)
+      expect(badges[0].textContent?.trim()).toBe('measured');
     });
   });
 

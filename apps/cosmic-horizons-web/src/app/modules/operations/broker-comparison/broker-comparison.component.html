@@ -85,7 +85,10 @@
     <mat-card class="system-metrics-card">
       <mat-card-title>🖥️ System Resource Monitoring</mat-card-title>
       <mat-card-content>
-        <app-system-metrics-chart></app-system-metrics-chart>
+        <app-system-metrics-chart
+          [updateInterval]="systemMetricsPollingMs"
+          (samplingIntervalChange)="setSystemMetricsInterval($event)">
+        </app-system-metrics-chart>
       </mat-card-content>
     </mat-card>
 
@@ -96,16 +99,20 @@
         <div class="metric-row">
           <div class="broker-stat">
             <div class="broker-label">RabbitMQ</div>
-            <div class="broker-value primary">{{ isBrokerFeedEnabled('rabbitmq') ? formatThroughput(brokerMetrics.brokers.rabbitmq.messagesPerSecond) : 'Feed Off'
-              }}</div>
+            <div class="broker-value primary">
+              {{ isBrokerFeedEnabled('rabbitmq') ? formatThroughput(brokerMetrics.brokers.rabbitmq.messagesPerSecond) : 'Feed Off' }}
+              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('rabbitmq')">{{ getMetricQualityLabel('rabbitmq','messagesPerSecond') }}</span>
+            </div>
           </div>
 
           <div class="vs-badge">vs</div>
 
           <div class="broker-stat">
             <div class="broker-label">Pulsar</div>
-            <div class="broker-value accent">{{ isBrokerFeedEnabled('pulsar') ? formatThroughput(brokerMetrics.brokers.pulsar?.messagesPerSecond) : 'Feed Off'
-              }}</div>
+            <div class="broker-value accent">
+              {{ isBrokerFeedEnabled('pulsar') ? formatThroughput(brokerMetrics.brokers.pulsar?.messagesPerSecond) : 'Feed Off' }}
+              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('pulsar')">{{ getMetricQualityLabel('pulsar','messagesPerSecond') }}</span>
+            </div>
           </div>
         </div>
         @if (brokerMetrics.comparison.throughputImprovement && isBrokerFeedEnabled('rabbitmq') && isBrokerFeedEnabled('pulsar')) {
@@ -125,7 +132,9 @@
         <div class="metric-row">
           <div class="broker-stat">
             <div class="broker-label">RabbitMQ</div>
-            <div class="broker-value primary">{{ isBrokerFeedEnabled('rabbitmq') ? formatLatency(brokerMetrics.brokers.rabbitmq.p99LatencyMs) : 'Feed Off' }}
+            <div class="broker-value primary">
+              {{ isBrokerFeedEnabled('rabbitmq') ? formatLatency(brokerMetrics.brokers.rabbitmq.p99LatencyMs) : 'Feed Off' }}
+              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('rabbitmq')">{{ getMetricQualityLabel('rabbitmq','p99LatencyMs') }}</span>
             </div>
           </div>
 
@@ -133,7 +142,10 @@
 
           <div class="broker-stat">
             <div class="broker-label">Pulsar</div>
-            <div class="broker-value accent">{{ isBrokerFeedEnabled('pulsar') ? formatLatency(brokerMetrics.brokers.pulsar?.p99LatencyMs) : 'Feed Off' }}</div>
+            <div class="broker-value accent">
+              {{ isBrokerFeedEnabled('pulsar') ? formatLatency(brokerMetrics.brokers.pulsar?.p99LatencyMs) : 'Feed Off' }}
+              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('pulsar')">{{ getMetricQualityLabel('pulsar','p99LatencyMs') }}</span>
+            </div>
           </div>
         </div>
         @if (brokerMetrics.comparison.latencyImprovement && isBrokerFeedEnabled('rabbitmq') && isBrokerFeedEnabled('pulsar')) {
@@ -153,7 +165,9 @@
         <div class="metric-row">
           <div class="broker-stat">
             <div class="broker-label">RabbitMQ</div>
-            <div class="broker-value primary">{{ isBrokerFeedEnabled('rabbitmq') ? formatMemory(brokerMetrics.brokers.rabbitmq.memoryUsageMb) : 'Feed Off' }}
+            <div class="broker-value primary">
+              {{ isBrokerFeedEnabled('rabbitmq') ? formatMemory(brokerMetrics.brokers.rabbitmq.memoryUsageMb) : 'Feed Off' }}
+              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('rabbitmq')">{{ getMetricQualityLabel('rabbitmq','memoryUsageMb') }}</span>
             </div>
           </div>
 
@@ -161,7 +175,10 @@
 
           <div class="broker-stat">
             <div class="broker-label">Pulsar</div>
-            <div class="broker-value accent">{{ isBrokerFeedEnabled('pulsar') ? formatMemory(brokerMetrics.brokers.pulsar?.memoryUsageMb) : 'Feed Off' }}</div>
+            <div class="broker-value accent">
+              {{ isBrokerFeedEnabled('pulsar') ? formatMemory(brokerMetrics.brokers.pulsar?.memoryUsageMb) : 'Feed Off' }}
+              <span class="metric-badge" *ngIf="isBrokerFeedEnabled('pulsar')">{{ getMetricQualityLabel('pulsar','memoryUsageMb') }}</span>
+            </div>
           </div>
         </div>
         @if (brokerMetrics.comparison.memoryEfficiency && isBrokerFeedEnabled('rabbitmq') && isBrokerFeedEnabled('pulsar')) {
