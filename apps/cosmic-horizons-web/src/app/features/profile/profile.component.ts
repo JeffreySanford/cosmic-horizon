@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -26,6 +26,7 @@ export class ProfileComponent implements OnInit {
   private _loadTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private currentUsername: string | null = null;
   private retryCount = 0;
+  private readonly cdr = inject(ChangeDetectorRef);
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -99,6 +100,12 @@ export class ProfileComponent implements OnInit {
             this._loadTimeoutId = null;
           }
           this.loading = false;
+          // force change detection so template sees the updated `loading` flag immediately
+          try {
+            this.cdr.detectChanges();
+          } catch {
+            /* ignore */
+          }
           console.debug('[ProfileComponent] loadProfile.finalize', { username, loading: this.loading });
         }),
       )
@@ -118,6 +125,13 @@ export class ProfileComponent implements OnInit {
           } catch (e) {
             console.error('[ProfileComponent] editForm.reset failed', e, profile);
             throw e;
+          }
+
+          // ensure the view updates immediately (defensive for hydration/change-detection edge cases)
+          try {
+            this.cdr.detectChanges();
+          } catch {
+            /* ignore */
           }
         },
         error: (err) => {

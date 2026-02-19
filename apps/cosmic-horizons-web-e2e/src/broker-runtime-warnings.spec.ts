@@ -1,12 +1,70 @@
 import { test, expect } from '@playwright/test';
 
+function createFakeJwt(exp: number, claims: Record<string, string> = {}) {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ sub: 'admin-1', exp, ...claims })).toString('base64url');
+  const signature = 'test-signature';
+  return `${header}.${payload}.${signature}`;
+}
+
 // Reproduce and guard against NG0912 / NG0200 and Location/getBaseHref runtime errors
 // by toggling through the SystemMetricsChart view & sample selectors.
 test('broker view does not emit Angular runtime NG0912 or NG0200 when switching charts', async ({ page }) => {
+  // We'll set session/local storage after loading the SPA to ensure the client sees it.
+  const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
+
   const logs: string[] = [];
   page.on('console', (msg) => logs.push(msg.text()));
 
-  await page.goto('/operations/broker-comparison', { waitUntil: 'networkidle' });
+  // Respond to auth.me checks so the app bootstraps as an authenticated admin user
+  await page.route('**/api/auth/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'access-control-allow-origin': '*' },
+      body: JSON.stringify({ authenticated: true, user: { id: 'admin-1', username: 'adminuser', display_name: 'Admin User', role: 'admin', created_at: new Date().toISOString() } }),
+    });
+  });
+
+  // load SPA first, then inject storage values
+  // Inject session/local storage *before* page navigation to satisfy client AuthGuard/SSR behavior.
+  await page.addInitScript((jwt: string) => {
+    try { window.sessionStorage.setItem('auth_token', jwt); } catch (e) { /* ignore */ }
+    try {
+      window.sessionStorage.setItem('auth_user', JSON.stringify({ id: 'admin-1', username: 'adminuser', display_name: 'Admin User', role: 'admin', created_at: new Date().toISOString() }));
+    } catch (e) { /* ignore */ }
+
+    try {
+      const snapshot = {
+        cachedAt: Date.now(),
+        data: {
+          timestamp: new Date().toISOString(),
+          brokers: {
+            rabbitmq: { connected: true, messagesPerSecond: 12000, p99LatencyMs: 55, memoryUsageMb: 512 },
+            kafka: { connected: true, messagesPerSecond: 18000, p99LatencyMs: 42, memoryUsageMb: 768 },
+            pulsar: { connected: true, messagesPerSecond: 25000, p99LatencyMs: 28, memoryUsageMb: 640 },
+          },
+          comparison: { throughputImprovement: '+40%', latencyImprovement: '-50%', memoryEfficiency: '-20%' },
+        },
+      };
+      window.localStorage.setItem('broker-comparison:last-metrics', JSON.stringify(snapshot));
+    } catch (e) {
+      /* ignore */
+    }
+  }, token);
+
+  // Now load the SPA (client bundle) and navigate client-side to the operations page.
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  // perform client-side navigation so the component is instantiated within the running SPA
+  await page.evaluate(() => {
+    window.history.pushState({}, '', '/operations/broker-comparison');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
+
+  // give Angular a moment to render the routed component
+  await page.waitForTimeout(200);
   await page.waitForSelector('app-system-metrics-chart', { timeout: 10000 });
 
   // Ensure controls are available
