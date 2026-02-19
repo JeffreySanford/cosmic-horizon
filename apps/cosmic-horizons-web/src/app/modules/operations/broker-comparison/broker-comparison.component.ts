@@ -10,7 +10,7 @@ import {
   HostListener,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { interval, Subject, takeUntil } from 'rxjs';
+import { interval, Subject, takeUntil, BehaviorSubject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { BrokerDataService, BenchmarkBroker } from './services/broker-data.service';
 import { BenchmarkResult, BrokerComparisonDTO, BrokerMetricsDTO, SystemMetrics } from './models/broker-metrics.model';
@@ -68,7 +68,9 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private pollInterval$ = interval(5000); // Refresh every 5 seconds
-  private systemMetricsInterval$ = interval(2000); // System metrics every 2 seconds
+  // System-metrics polling cadence (ms) — can be adjusted by child chart control
+  systemMetricsPollingMs = 2000; // default 2s
+  private systemMetricsIntervalMs$ = new BehaviorSubject<number>(this.systemMetricsPollingMs);
 
   private readonly brokerDataService = inject(BrokerDataService);
   private readonly ngZone = inject(NgZone);
@@ -159,18 +161,28 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Called from child chart when user changes sampling interval
+  setSystemMetricsInterval(ms: number): void {
+    if (!Number.isFinite(ms) || ms <= 0) return;
+    this.systemMetricsPollingMs = Math.max(20, Math.round(ms));
+    this.systemMetricsIntervalMs$.next(this.systemMetricsPollingMs);
+  }
+
   private startSystemMetricsPolling(): void {
     // Keep chart-stream updates out of Angular's global CD loop to avoid NG0100
     // on unrelated template bindings (e.g., benchmark button disabled state).
     this.ngZone.runOutsideAngular(() => {
-      this.systemMetricsInterval$
+      this.systemMetricsIntervalMs$
         .pipe(
+          switchMap((ms) => interval(ms)),
           switchMap(() => this.brokerDataService.getSystemMetrics()),
           takeUntil(this.destroy$),
         )
         .subscribe({
           next: (data: SystemMetrics) => {
             if (this.systemMetricsChart) {
+              // BrokerComparison updates the child chart with raw metrics;
+              // the chart component itself throttles rendering by samplingInterval.
               this.systemMetricsChart.updateData(data);
             }
           },
@@ -441,7 +453,7 @@ export class BrokerComparisonComponent implements OnInit, OnDestroy {
     return `Pulsar ${value} memory usage versus RabbitMQ`;
   }
 
-  private getMetricQualityLabel(broker: BrokerKey, metric: MetricKey): 'measured' | 'fallback' | 'missing' {
+  public getMetricQualityLabel(broker: BrokerKey, metric: MetricKey): 'measured' | 'fallback' | 'missing' {
     const metrics = this.brokerMetrics?.brokers[broker];
     if (!metrics) return 'missing';
     const explicit = metrics.metricQuality?.[metric];
