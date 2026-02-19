@@ -57,8 +57,9 @@ The local docker compose overlay includes an optional Prometheus JMX exporter th
 - Start the exporter alongside the broker:
 
 ```bash
-# uses docker-compose.events.yml which includes the jmx exporter sidecar
-docker compose -f docker-compose.yml -f docker-compose.events.yml up -d cosmic-horizons-kafka-jmx-exporter
+# docker-compose 'profiles' makes the jmx-exporter opt-in; it won't be started by default
+# Start the exporter sidecar (opt-in profile):
+docker compose -f docker-compose.yml -f docker-compose.events.yml --profile jmx up -d cosmic-horizons-kafka-jmx-exporter
 ```
 
 - Prometheus/JMX metrics will be available at: `http://localhost:9404/metrics`

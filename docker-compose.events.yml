@@ -97,6 +97,7 @@ services:
   # - Exposes /metrics on port 9404
   # ==========================================================================
   cosmic-horizons-kafka-jmx-exporter:
+    profiles: ["jmx"]
     # Build a local jmx_prometheus_httpserver image so CI/local runs do not depend on an external image
     build:
       context: ./docker/kafka-jmx-exporter
