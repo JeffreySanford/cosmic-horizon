@@ -11,7 +11,7 @@ test('no Angular NG0912 duplicate component-definition warnings on app load', as
 
   await page.goto('/landing', { waitUntil: 'domcontentloaded' });
   // allow a short window for runtime warnings to appear
-  await page.waitForTimeout(400);
+  await new Promise((r) => setTimeout(r, 400));
 
   const joined = logs.join('\n');
   expect(joined).not.toContain('NG0912');
@@ -26,15 +26,15 @@ test('labeling center should not emit Aladin logger CORS/fetch or passive-event 
   await page.goto('/view', { waitUntil: 'domcontentloaded' });
 
   // Wait for the Aladin host to exist and allow Aladin to initialize
-  await page.waitForSelector('.aladin-host');
-  await page.waitForTimeout(600);
+  await expect(page.locator('.aladin-host')).toBeVisible();
+  await new Promise((r) => setTimeout(r, 600));
 
   // Enter a center label and annotate — should not produce noisy console errors
   await page.fill('.label-name-field input', 'Playwright Test Label');
   await page.click('button:has-text("Label Center")');
 
   // give time for any backend / Aladin interactions
-  await page.waitForTimeout(500);
+  await new Promise((r) => setTimeout(r, 500));
 
   const joined = logs.join('\n');
   expect(joined).not.toMatch(

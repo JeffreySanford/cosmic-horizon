@@ -121,18 +121,12 @@ test.describe('Profile — console & retry behavior', () => {
     expect(reqUrls.some((u) => PROFILE_API_PATH.test(u))).toBeTruthy();
 
     // Error card and Try again button should be visible when server returns 500
-    const hasErrorCard = await page
-      .locator('.error-card')
-      .isVisible()
-      .catch(() => false);
-    if (!hasErrorCard) {
-      // dump helpful debug context and fail with a descriptive message
+    try {
+      await expect(page.locator('.error-card')).toBeVisible({ timeout: 5000 });
+    } catch (e) {
       const bodyText = await page.locator('body').innerText();
-       
       console.log('[E2E DEBUG] bodyText snippet:', bodyText.slice(0, 1000));
-       
       console.log('[E2E DEBUG] requests seen:', reqUrls.slice(-20));
-       
       console.log('[E2E DEBUG] consoleMessages:', consoleMessages.slice(-50));
       throw new Error(
         'Expected error UI (.error-card) to be visible after simulated 500 — check debug output above.',

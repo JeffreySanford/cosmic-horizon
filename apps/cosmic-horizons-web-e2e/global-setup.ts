@@ -20,12 +20,13 @@ async function isUrlHealthy(url: string): Promise<boolean> {
         resolve(false);
       });
     });
-  } catch (_e) {
+  } catch {
     return false;
   }
 }
 
 export default async function globalSetup(_config: FullConfig) {
+  void _config; // parameter provided by Playwright but not used in our setup
   const apiBase = process.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000';
   const healthUrl = `${apiBase.replace(/\/$/, '')}/health`;
   const timeoutMs = Number(process.env['API_READY_TIMEOUT_MS'] ?? 30000);

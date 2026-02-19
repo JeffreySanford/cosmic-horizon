@@ -507,7 +507,7 @@ async function benchmarkKafka() {
         topics: [{ topic, numPartitions: 3, replicationFactor: 1 }],
         waitForLeaders: true,
       });
-    } catch (e) {
+    } catch {
       // ignore topic already exists or creation issues in dev environments
     }
 
@@ -631,17 +631,17 @@ async function benchmarkKafka() {
   } finally {
     try {
       if (producer) await producer.disconnect();
-    } catch (_err) {
+    } catch {
       // ignore cleanup errors
     }
     try {
       if (consumer) await consumer.disconnect();
-    } catch (_err) {
+    } catch {
       // ignore cleanup errors
     }
     try {
       if (kafkaAdmin) await kafkaAdmin.disconnect();
-    } catch (_err) {
+    } catch {
       // ignore cleanup errors
     }
   }
@@ -833,6 +833,7 @@ async function main() {
     const allTrialResults = [];
     let lastRabbitmqResults = null;
     let lastPulsarResults = null;
+    let lastKafkaResults = null;
 
     for (let trial = 1; trial <= CONFIG.trials; trial++) {
       console.log(`\n--- Trial ${trial}/${CONFIG.trials} ---`);
@@ -861,7 +862,7 @@ async function main() {
 
       lastRabbitmqResults = rabbitmqResults;
       lastPulsarResults = pulsarResults;
-      const lastKafkaResults = kafkaResults;
+      lastKafkaResults = kafkaResults;
 
       compareResults(rabbitmqResults, pulsarResults, kafkaResults);
     }

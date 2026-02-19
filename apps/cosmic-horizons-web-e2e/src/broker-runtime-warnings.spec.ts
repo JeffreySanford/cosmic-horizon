@@ -116,14 +116,14 @@ test('broker view does not emit Angular runtime NG0912 or NG0200 when switching 
   });
 
   // give Angular a moment to render the routed component
-  await page.waitForTimeout(200);
-  await page.waitForSelector('app-system-metrics-chart', { timeout: 10000 });
+  await new Promise((r) => setTimeout(r, 200));
+  await expect(page.locator('app-system-metrics-chart')).toBeVisible({ timeout: 10000 });
 
   // Ensure controls are available
   const viewSelector = '#chart-view';
   const sampleSelector = '#sample-interval';
-  await page.waitForSelector(viewSelector, { timeout: 5000 });
-  await page.waitForSelector(sampleSelector, { timeout: 5000 });
+  await expect(page.locator(viewSelector)).toBeVisible({ timeout: 5000 });
+  await expect(page.locator(sampleSelector)).toBeVisible({ timeout: 5000 });
 
   // Toggle chart view options several times and wait for chart to re-render
   const viewOptions = [
@@ -136,7 +136,8 @@ test('broker view does not emit Angular runtime NG0912 or NG0200 when switching 
     await page.selectOption(viewSelector, v);
     // wait for a visible svg update, but don't fail the test if not present quickly
     await Promise.race([
-      page.waitForSelector('.chart-container svg', { timeout: 1200 }),
+      // prefer locator.waitFor so linter doesn't require `expect` to be awaited here
+      page.locator('.chart-container svg').waitFor({ state: 'visible', timeout: 1200 }),
       new Promise((r) => setTimeout(r, 250)),
     ]);
   }
@@ -145,13 +146,11 @@ test('broker view does not emit Angular runtime NG0912 or NG0200 when switching 
   const sampleValues = ['20', '100', '300', '1000', '5000'];
   for (const s of sampleValues) {
     await page.selectOption(sampleSelector, s);
-    await page.waitForTimeout(180);
+    await new Promise((r) => setTimeout(r, 180));
   }
 
   // Allow runtime messages to appear (give slightly more time in CI)
-  await page.waitForTimeout(1000);
-
-  const joined = logs.join('\n');
+  await new Promise((r) => setTimeout(r, 1000));
   expect(joined).not.toContain('NG0912');
   expect(joined).not.toContain('NG0200');
   expect(joined).not.toMatch(

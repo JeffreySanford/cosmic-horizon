@@ -2,6 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import { Kafka } from 'kafkajs';
+import type { Admin } from 'kafkajs';
 import { BrokerMetricsDTO } from './broker-metrics.entity';
 
 /**
@@ -232,7 +233,7 @@ export class BrokerMetricsCollector {
           topic as string,
           admin,
         );
-        offsets.forEach((p: any) => {
+        offsets.forEach((p: { partition: number; offset?: string; high?: string }) => {
           // 'offset' is a string
           const high = Number(p.offset || p.high || 0);
           if (Number.isFinite(high)) totalHighOffset += high;
@@ -294,12 +295,12 @@ export class BrokerMetricsCollector {
   // Separable helpers so unit tests can stub topic reads when kafkajs isn't mocked
   private async fetchTopicOffsetsForNative(
     topic: string,
-    admin: any,
+    admin: Admin,
   ): Promise<Array<{ partition: number; offset: string }>> {
     return admin.fetchTopicOffsets(topic);
   }
 
-  private async fetchTopicsForNative(admin: any): Promise<string[]> {
+  private async fetchTopicsForNative(admin: Admin): Promise<string[]> {
     return admin.listTopics();
   }
 
