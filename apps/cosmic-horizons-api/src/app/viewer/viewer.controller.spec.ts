@@ -234,7 +234,7 @@ describe('ViewerController', () => {
     expect(createSnapshotGuards).toBeDefined();
     const names = (createStateGuards as any[]).map((g) => g.name);
     expect(names).toContain('AuthenticatedGuard');
-  });  });
+  });
 
   it('returns telemetry for admin users', () => {
     const response = controller.getCutoutTelemetry({

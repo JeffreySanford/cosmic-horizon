@@ -12,7 +12,8 @@ import {
   UseGuards,
   Res,
 } from '@nestjs/common';
-import { Response } from 'express';
+// avoid importing express types to keep eslint happy
+
 import { ViewerService } from './viewer.service';
 import { CreateViewerStateDto } from './dto/create-viewer-state.dto';
 import { CreateViewerSnapshotDto } from './dto/create-viewer-snapshot.dto';
@@ -45,7 +46,7 @@ export class ViewerController {
     @Query('survey') surveyRaw: string,
     @Query('label') labelRaw?: string,
     @Query('detail') detailRaw?: string,
-    @Res({ passthrough: true }) res?: Response,
+    @Res({ passthrough: true }) res?: { setHeader: (name: string, value: string) => void },
   ): Promise<StreamableFile> {
     if (res) {
       res.setHeader('Cache-Control', 'public, max-age=60');

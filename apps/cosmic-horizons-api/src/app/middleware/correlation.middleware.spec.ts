@@ -10,7 +10,7 @@ describe('CorrelationMiddleware', () => {
 
   beforeEach(() => {
     ctx = {
-      run: jest.fn((cb: Function) => cb()),
+      run: jest.fn((cb: () => any) => cb()),
       getCorrelationId: jest.fn().mockReturnValue('generated-id' as any),
     } as unknown as jest.Mocked<RequestContextService>;
 

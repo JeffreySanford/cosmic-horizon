@@ -69,7 +69,7 @@ export class RateLimitGuard implements CanActivate {
             HttpStatus.TOO_MANY_REQUESTS,
           );
         }
-      } catch (err) {
+      } catch {
         // on redis errors, fall back to in‑memory behaviour below
         this.redis = null;
       }

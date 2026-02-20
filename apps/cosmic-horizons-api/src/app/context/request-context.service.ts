@@ -25,7 +25,7 @@ export class RequestContextService {
     const store: RequestContext = {
       correlationId: context.correlationId ?? generateCorrelationId(),
     } as RequestContext;
-    return this.als.run(store, callback as any);
+    return this.als.run(store, callback);
   }
 
   /**

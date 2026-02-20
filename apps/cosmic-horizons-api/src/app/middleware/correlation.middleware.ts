@@ -1,6 +1,8 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
 import { RequestContextService } from '../context/request-context.service';
+
+// we avoid importing Express types here to satisfy eslint no-restricted-imports rule
+
 
 /**
  * Middleware that ensures every HTTP request has an attached
@@ -13,7 +15,11 @@ export class CorrelationMiddleware implements NestMiddleware {
 
   constructor(private readonly ctx: RequestContextService) {}
 
-  use(req: Request, res: Response, next: NextFunction): void {
+  use(
+    req: { headers: Record<string, string | string[] | undefined> },
+    res: { setHeader: (name: string, value: string) => void },
+    next: () => void,
+  ): void {
     const header = req.headers['x-correlation-id'];
     const corrFromHeader = Array.isArray(header) ? header[0] : header;
 
