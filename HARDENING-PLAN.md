@@ -16,6 +16,7 @@ Resolve high-credibility architecture, security, and operations gaps that are li
 - Environment variable schema consolidation
 - Database migration and governance maturity
 - External dependency resilience documentation
+- Client-side state sync (ngRx ↔ Redis)
 - DTO validation standardization
 
 ## Phase 0: Quick Credibility Fixes (same day)
@@ -106,7 +107,34 @@ Acceptance criteria:
 - Multi-instance deployments share sessions through Redis. ✅
 - No production path uses memory session store. ✅
 
-## Phase 4: Environment Schema Consolidation (1-2 days)
+## Phase 4: External Dependency Resilience Documentation (1-2 days)
+
+- Add focused runbook for viewer/ephemeris upstreams:
+  - Providers and fallback order
+  - Timeout values
+  - Retry/backoff behavior
+  - Cache TTL rationale (including ephemeris 24h policy and cutout/labels TTLs)
+
+Acceptance criteria:
+
+- Resilience behavior is documented and traceable to code/config.
+
+## Phase 4.1: Client-State Synchronization (2-3 days)
+
+- Define API/WS contract for sharing selected frontend state (e.g. viewer
+  session, collaborative data) via Redis-backed endpoints.
+- Implement NgRx effects/actions to persist and hydrate state through those
+  endpoints.
+- Document the data flow and ensure server uses Redis sessions or pub/sub as
+  appropriate.
+
+Acceptance criteria:
+
+- An example slice of client state is persisted in Redis and rehydrated by
+  other tabs or sessions.
+- Documentation describes how ngRx store changes map to server calls.
+
+## Phase 5: Environment Schema Consolidation (1-2 days)
 
 - Canonicalize Redis/env flags (`REDIS_CACHE_ENABLED`, `LOGS_REDIS_ENABLED`, session settings).
 - Remove or reject ambiguous aliases like `REDIS_ENABLED` for cache behavior.
@@ -156,6 +184,21 @@ Acceptance criteria:
 Acceptance criteria:
 
 - Resilience behavior is documented and traceable to code/config.
+
+## Phase 6.1: Client-State Synchronization (2-3 days)
+
+- Define API/WS contract for sharing selected frontend state (e.g. viewer
+  session, collaborative data) via Redis-backed endpoints.
+- Implement NgRx effects/actions to persist and hydrate state through those
+  endpoints.
+- Document the data flow and ensure server uses Redis sessions or pub/sub as
+  appropriate.
+
+Acceptance criteria:
+
+- An example slice of client state is persisted in Redis and rehydrated by
+  other tabs or sessions.
+- Documentation describes how ngRx store changes map to server calls.
 
 ## Phase 7: DTO Validation Standardization (2-3 days)
 

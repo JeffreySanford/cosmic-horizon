@@ -1,6 +1,10 @@
-import session, { SessionOptions } from 'express-session';
+// using require to obtain callable session factory without esModuleInterop
+const session: typeof import('express-session') = require('express-session');
+import { SessionOptions, Store as SessionStore } from 'express-session';
 import Redis from 'ioredis';
-import * as connectRedis from 'connect-redis';
+// `connect-redis` exports a factory function; using require avoids
+// incorrect TypeScript declaration which has no call signature.
+const connectRedis = require('connect-redis');
 import { Logger } from '@nestjs/common';
 import { getSessionSecret } from './security.config';
 
@@ -15,7 +19,7 @@ export function createSessionMiddleware(): ReturnType<typeof session> {
 
   const useRedis = redisEnabled || nodeEnv === 'production';
 
-  let store: session.Store | undefined;
+  let store: SessionStore | undefined;
 
   if (useRedis) {
     const host = process.env['REDIS_HOST'];
@@ -44,9 +48,8 @@ export function createSessionMiddleware(): ReturnType<typeof session> {
       }
     });
 
-    // connect-redis exports a function (callable) that returns a store class.
-    // the types are awkward so cast to unknown first.
-    const RedisStore = (connectRedis as unknown)(session) as new (opts: unknown) => session.Store;
+    // `connectRedis` is `any` via require, so we can call it directly.
+    const RedisStore = connectRedis(session) as new (opts: unknown) => SessionStore;
     store = new RedisStore({ client });
   }
 
