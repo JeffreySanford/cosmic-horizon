@@ -106,8 +106,9 @@ export class MessagingIntegrationService
   }
 
   private async initializeInfrastructure() {
-    await this.ensureRabbitTopologyWithRetry();
-    await this.connectRabbitWithRetry();
+    // Harden startup: allow more time for Dockerized brokers to become reachable in CI.
+    await this.ensureRabbitTopologyWithRetry(12);
+    await this.connectRabbitWithRetry(12);
     await this.ensureKafkaTopicsWithRetry();
     await this.connectKafkaWithRetry();
 
@@ -206,7 +207,17 @@ export class MessagingIntegrationService
       } catch (err) {
         this.statsService.recordError();
         if (attempt === maxAttempts) {
-          this.logger.error('Failed to connect to RabbitMQ after retries', err);
+          // Sanitize URL for logs (don't print credentials)
+          try {
+            const url = new URL(this.rabbitUrl);
+            const hostPort = `${url.hostname}:${url.port || '5672'}`;
+            this.logger.error(
+              `Failed to connect to RabbitMQ at ${hostPort} after ${maxAttempts} attempts`,
+              err,
+            );
+          } catch (parseErr) {
+            this.logger.error('Failed to connect to RabbitMQ after retries', err);
+          }
           return;
         }
         const waitMs = this.backoffMs(attempt);

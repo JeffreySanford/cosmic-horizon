@@ -59,6 +59,20 @@ jobs:
             fi
             sleep 2
           done
+
+          # Wait for RabbitMQ to be responsive (fixes intermittent CI race where RabbitMQ container reports healthy
+          # but the AMQP port is not yet accepting connections from the job runner).
+          for i in {1..30}; do
+            if docker compose exec -T cosmic-horizons-rabbitmq rabbitmq-diagnostics -q ping >/dev/null 2>&1; then
+              echo "RabbitMQ is ready"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "RabbitMQ did not become ready in time" >&2
+              exit 1
+            fi
+            sleep 2
+          done
       - name: Clear Angular cache
         run: pnpm run clean:angular-cache
       - name: Run e2e (verbose)
