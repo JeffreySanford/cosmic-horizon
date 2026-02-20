@@ -31,7 +31,7 @@ jobs:
           pnpm nx run-many --target=test --all --output-style=stream 2>&1 | tee unit-tests.log
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: unit-test-coverage
           path: |
@@ -40,7 +40,7 @@ jobs:
           if-no-files-found: ignore
       - name: Upload unit test logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: unit-test-logs
           path: unit-tests.log
