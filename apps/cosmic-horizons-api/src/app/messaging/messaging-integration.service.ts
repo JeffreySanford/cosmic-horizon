@@ -165,7 +165,7 @@ export class MessagingIntegrationService
     // implementation is sound.
     // use a generic with no keys – avoids unsafe Function type warnings
     await this.emitWithRetry(
-        this.rabbitClient as ClientProxy<Record<never, never>, any>,
+        this.rabbitClient as ClientProxy<Record<never, never>, string>,
         this.rabbitRoutingKey,
         packet,
         'RabbitMQ',
@@ -188,9 +188,8 @@ export class MessagingIntegrationService
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await this.emitWithRetry(
-        this.kafkaClient as ClientProxy<Record<never, never>, any>,
+            await this.emitWithRetry(
+        this.kafkaClient as ClientProxy<Record<never, never>, string>,
         'element.raw_data',
         packet,
         'Kafka',
@@ -385,7 +384,7 @@ export class MessagingIntegrationService
   }
 
   private async emitWithRetry(
-    client: ClientProxy<Record<never, never>, any>,
+    client: ClientProxy<Record<never, never>, string>,
     event: string,
     payload: unknown,
     brokerName: 'RabbitMQ' | 'Kafka',
