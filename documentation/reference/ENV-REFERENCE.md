@@ -40,6 +40,7 @@ Complete reference of all environment variables used by Cosmic Horizons.
 | `JWT_SECRET`     | string | (dev-default) | Yes      | JWT signing key (min 32 chars, SENSITIVE) |
 | `JWT_EXPIRES_IN` | string | `7d`          | No       | JWT token expiration                      |
 | `SESSION_SECRET` | string | (dev-default) | Yes      | Express session secret (SENSITIVE)        |
+| `SESSION_REDIS_ENABLED` | boolean | false | No (required in prod) | Enable Redis-backed session store (production). Implies `REDIS_HOST`/`REDIS_PORT`. |
 
 ## GitHub OAuth
 
@@ -141,6 +142,10 @@ export FRONTEND_URL=https://cosmichorizons.org
 
 1. **Never** commit .env files with real values
 2. **Never** log or print JWT_SECRET or SESSION_SECRET
+
+3. Session storage
+   - `SESSION_REDIS_ENABLED` = `true` forces use of Redis for sessions; in production it is required.
+   - `REDIS_HOST`/`REDIS_PORT` must be defined when using Redis for cache or sessions.
 3. **Always** use min 32-character secrets in production
 4. **Always** rotate secrets regularly
 5. **Always** use HTTPS in production

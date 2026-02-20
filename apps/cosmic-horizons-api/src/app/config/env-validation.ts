@@ -103,6 +103,16 @@ function collectValidationResult(
       }
     }
 
+    // session store must use Redis in prod
+    if ((env['SESSION_REDIS_ENABLED'] ?? 'false').toLowerCase() !== 'true') {
+      errors.push('SESSION_REDIS_ENABLED must be true in production.');
+    }
+    if (!env['REDIS_HOST'] || !env['REDIS_PORT']) {
+      errors.push(
+        'REDIS_HOST and REDIS_PORT are required when using Redis in production.',
+      );
+    }
+
     const jwtSecret = env['JWT_SECRET'];
     if (jwtSecret && jwtSecret.length < 32) {
       errors.push('JWT_SECRET must be at least 32 characters in production.');

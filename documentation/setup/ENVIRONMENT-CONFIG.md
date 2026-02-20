@@ -114,6 +114,8 @@ GitHub Actions and CI pipelines use **environment variables** set in GitHub Secr
    - `DB_PASSWORD` - Database password
    - `JWT_SECRET` - JWT signing key (min 32 chars)
    - `SESSION_SECRET` - Express session secret
+   - `SESSION_REDIS_ENABLED` - when `true`, sessions will be stored in Redis (required in production). Requires `REDIS_HOST` and `REDIS_PORT`. Enables multi-instance sharing.
+
    - `GITHUB_CLIENT_ID` - OAuth client ID
    - `GITHUB_CLIENT_SECRET` - OAuth client secret
    - `REDIS_PASSWORD` - Redis password (if configured)

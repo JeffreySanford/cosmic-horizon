@@ -97,14 +97,14 @@ Acceptance criteria:
 
 ## Phase 3: Session Store Productionization (1-2 days)
 
-- Replace default memory session store with Redis session store.
-- Keep memory store only for local/test with explicit environment gating.
-- Fail fast in production when required session backend is unavailable.
+- Replace default memory session store with Redis session store. ✅
+- Keep memory store only for local/test with explicit environment gating. ✅
+- Fail fast in production when required session backend is unavailable. ✅
 
 Acceptance criteria:
 
-- Multi-instance deployments share sessions through Redis.
-- No production path uses memory session store.
+- Multi-instance deployments share sessions through Redis. ✅
+- No production path uses memory session store. ✅
 
 ## Phase 4: Environment Schema Consolidation (1-2 days)
 

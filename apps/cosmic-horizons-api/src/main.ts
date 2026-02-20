@@ -9,10 +9,9 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
-import session from 'express-session';
+import { createSessionMiddleware } from './app/config/session.config';
 import * as passportImport from 'passport';
 import helmet from 'helmet';
-import { getSessionSecret } from './app/config/security.config';
 import { loadEnvFromFirstAvailable } from './app/config/env-loader';
 import { MessagingSocketIoAdapter } from './app/messaging/messaging-socket.adapter';
 
@@ -91,22 +90,8 @@ async function bootstrap() {
       allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
     });
 
-    // Setup session middleware with memory store
-    // In production, use connect-redis or similar
-    const sessionSecret = getSessionSecret();
-    app.use(
-      session({
-        secret: sessionSecret,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          secure: process.env['NODE_ENV'] === 'production', // Require HTTPS in production
-          httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000, // 24 hours
-          sameSite: 'lax',
-        },
-      }),
-    );
+    // Setup session middleware (may use Redis store depending on environment)
+    app.use(createSessionMiddleware());
 
     // Initialize Passport after session
     app.use(passport.initialize());
