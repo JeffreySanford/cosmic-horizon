@@ -71,24 +71,24 @@ Acceptance criteria:
 
 ## Phase 2: Viewer Endpoint Auth and Abuse Controls (completed)
 
-### 2.1 Explicit endpoint policy ✅
+### 2.1 Explicit endpoint policy
 
-- Published endpoint matrix covering state, snapshot, cutout and nearby-labels. ✅
+- Published endpoint matrix covering state, snapshot, cutout and nearby-labels.
 
 Decision taken:
 
-- **Option A chosen** – write endpoints are behind auth while key read endpoints remain public with tightened throttling. ✅
+- **Option A chosen** – write endpoints are behind auth while key read endpoints remain public with tightened throttling.
 
-### 2.2 Guard and limiter updates ✅
+### 2.2 Guard and limiter updates
 
-- Auth guards applied across the codebase. ✅
-- Rate limiter replaced with Redis token-bucket keyed by IP+origin+route. ✅
-- API key support added for elevated quota users. ✅
+- Auth guards applied across the codebase.
+- Rate limiter replaced with Redis token-bucket keyed by IP+origin+route.
+- API key support added for elevated quota users.
 
-### 2.3 Cache and response controls ✅
+### 2.3 Cache and response controls
 
-- Cache headers added to expensive read routes (`/view/cutout`, `/view/labels/nearby`). ✅
-- Abuse telemetry hooks and alert thresholds implemented. ✅
+- Cache headers added to expensive read routes (`/view/cutout`, `/view/labels/nearby`).
+- Abuse telemetry hooks and alert thresholds implemented.
 
 Acceptance criteria:
 

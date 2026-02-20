@@ -7,6 +7,7 @@ import { DatabaseModule } from './database.module';
 import { AuthModule } from './auth/auth.module';
 import { ViewerModule } from './viewer/viewer.module';
 import { EphemerisModule } from './ephemeris/ephemeris.module';
+import { ContextModule } from './context/context.module';
 import { CommentsModule } from './comments/comments.module';
 import { ProfileModule } from './profile/profile.module';
 import { CacheModule } from './cache/cache.module';
@@ -49,6 +50,7 @@ const envCandidates = getEnvCandidates();
     }),
     ScheduleModule.forRoot(),
     DatabaseModule,
+    ContextModule,
     AuthModule,
     ViewerModule,
     EphemerisModule,
