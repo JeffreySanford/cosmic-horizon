@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext, CallHandler } from '@nestjs/common';
 import { RequestLoggerInterceptor } from './request-logger.interceptor';
+import { RequestContextService } from '../context/request-context.service';
 import { LoggingService } from '../logging/logging.service';
 import { of, firstValueFrom } from 'rxjs';
 
@@ -13,6 +14,7 @@ let testingModule: TestingModule | undefined;
 describe('RequestLoggerInterceptor', () => {
   let interceptor: RequestLoggerInterceptor;
   let loggingService: jest.Mocked<LoggingService>;
+  let ctxService: jest.Mocked<RequestContextService>;
   let executionContext: jest.Mocked<ExecutionContext>;
   let callHandler: jest.Mocked<CallHandler>;
 
@@ -21,12 +23,20 @@ describe('RequestLoggerInterceptor', () => {
       add: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<LoggingService>;
 
+    ctxService = {
+      getCorrelationId: jest.fn().mockReturnValue('cid-123' as any),
+    } as unknown as jest.Mocked<RequestContextService>;
+
     testingModule = await Test.createTestingModule({
       providers: [
         RequestLoggerInterceptor,
         {
           provide: LoggingService,
           useValue: loggingService,
+        },
+        {
+          provide: RequestContextService,
+          useValue: ctxService,
         },
       ],
     }).compile();
@@ -79,6 +89,7 @@ describe('RequestLoggerInterceptor', () => {
             status_code: 200,
             user_id: 'user-1',
             user_role: 'user',
+            correlation_id: 'cid-123',
           }),
         }),
       );

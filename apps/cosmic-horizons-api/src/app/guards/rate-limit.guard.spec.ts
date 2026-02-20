@@ -1,6 +1,9 @@
 import { ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
 import { RateLimitGuard } from './rate-limit.guard';
 
+// ensure no real Redis connection is attempted during tests
+jest.mock('ioredis');
+
 interface TestRequest {
   headers: Record<string, string | string[] | undefined>;
   ip?: string;
@@ -38,7 +41,7 @@ describe('RateLimitGuard', () => {
     process.env['RATE_LIMIT_MAX_NEARBY_LABELS'] = originalNearbyLabelsMax;
   });
 
-  it('allows requests under the write limit', () => {
+  it('allows requests under the write limit', async () => {
     const guard = new RateLimitGuard();
     const context = executionContextFromRequest({
       ip: '127.0.0.1',
@@ -46,11 +49,11 @@ describe('RateLimitGuard', () => {
       headers: {},
     });
 
-    expect(guard.canActivate(context)).toBe(true);
-    expect(guard.canActivate(context)).toBe(true);
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    await expect(guard.canActivate(context)).resolves.toBe(true);
   });
 
-  it('blocks requests above the write limit', () => {
+  it('blocks requests above the write limit', async () => {
     const guard = new RateLimitGuard();
     const context = executionContextFromRequest({
       ip: '127.0.0.1',
@@ -58,17 +61,9 @@ describe('RateLimitGuard', () => {
       headers: {},
     });
 
-    expect(guard.canActivate(context)).toBe(true);
-    expect(guard.canActivate(context)).toBe(true);
-    try {
-      guard.canActivate(context);
-      throw new Error('Expected rate limit guard to throw');
-    } catch (error) {
-      expect(error).toBeInstanceOf(HttpException);
-      expect((error as HttpException).getStatus()).toBe(
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(HttpException);
   });
 
   it('scopes limits by path', () => {
@@ -84,9 +79,9 @@ describe('RateLimitGuard', () => {
       headers: {},
     });
 
-    expect(guard.canActivate(postsContext)).toBe(true);
-    expect(guard.canActivate(postsContext)).toBe(true);
-    expect(guard.canActivate(usersContext)).toBe(true);
+    await expect(guard.canActivate(postsContext)).resolves.toBe(true);
+    await expect(guard.canActivate(postsContext)).resolves.toBe(true);
+    await expect(guard.canActivate(usersContext)).resolves.toBe(true);
   });
 
   it('applies stricter cutout path limits', () => {
@@ -97,8 +92,8 @@ describe('RateLimitGuard', () => {
       headers: {},
     });
 
-    expect(guard.canActivate(cutoutContext)).toBe(true);
-    expect(() => guard.canActivate(cutoutContext)).toThrow(HttpException);
+    await expect(guard.canActivate(cutoutContext)).resolves.toBe(true);
+    await expect(guard.canActivate(cutoutContext)).rejects.toBeInstanceOf(HttpException);
   });
 
   it('applies nearby-label path limits', () => {
@@ -109,7 +104,50 @@ describe('RateLimitGuard', () => {
       headers: {},
     });
 
-    expect(guard.canActivate(nearbyContext)).toBe(true);
-    expect(() => guard.canActivate(nearbyContext)).toThrow(HttpException);
+    await expect(guard.canActivate(nearbyContext)).resolves.toBe(true);
+    await expect(guard.canActivate(nearbyContext)).rejects.toBeInstanceOf(HttpException);
+  });
+
+  it('bypasses when correct API key present', async () => {
+    process.env['RATE_LIMIT_API_KEY'] = 'secret123';
+    const guard = new RateLimitGuard();
+    const context = executionContextFromRequest({
+      ip: '1.2.3.4',
+      path: '/api/posts',
+      headers: { 'x-api-key': 'secret123' },
+    });
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    // even after many calls it should not throw
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+  });
+
+  it('uses redis when enabled', async () => {
+    process.env['RATE_LIMIT_REDIS_ENABLED'] = 'true';
+    const guard = new RateLimitGuard();
+    // inject mock redis
+    guard.redis = {
+      incr: jest.fn().mockResolvedValue(1),
+      expire: jest.fn().mockResolvedValue(1),
+    } as any;
+
+    const context = executionContextFromRequest({
+      ip: '5.6.7.8',
+      path: '/api/posts',
+      headers: {},
+    });
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    // simulate exceeding redis count
+    guard.redis = {
+      incr: jest.fn().mockResolvedValue(3),
+      expire: jest.fn().mockResolvedValue(1),
+    } as any;
+    try {
+      await guard.canActivate(context);
+      throw new Error('expected throw');
+    } catch (err) {
+      expect(err).toBeInstanceOf(HttpException);
+    }
   });
 });

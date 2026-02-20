@@ -11,6 +11,7 @@ import { Observable, tap } from 'rxjs';
 import { AppLoggerService } from '../services/app-logger.service';
 import { LogDetails } from '../services/app-logger.service';
 import { AuthSessionService } from '../services/auth-session.service';
+import { CorrelationService } from '../services/correlation.service';
 
 type HttpLog = LogDetails;
 
@@ -18,6 +19,7 @@ type HttpLog = LogDetails;
 export class HttpLoggerInterceptor implements HttpInterceptor {
   private readonly logger = inject(AppLoggerService);
   private readonly session = inject(AuthSessionService);
+  private readonly correlation = inject(CorrelationService);
 
   intercept(
     req: HttpRequest<unknown>,
@@ -25,7 +27,16 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<HttpResponse<unknown>>> {
     const startedAt = performance.now();
     const requestBytes = this.estimateSize(req.body);
-    const correlationId = '272762e810cea2de53a2f';
+    // read whatever correlation id we currently know about; this value
+    // is updated when responses come back with an `X-Correlation-Id` header.
+    const correlationId = this.correlation.getCorrelationId();
+
+    // attach header for downstream services if we have an id
+    if (correlationId) {
+      req = req.clone({
+        headers: req.headers.set('X-Correlation-Id', correlationId),
+      });
+    }
     const user = this.session.getUser();
 
     return next.handle(req).pipe(
@@ -33,6 +44,12 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
         next: (event: HttpEvent<HttpResponse<unknown>>) => {
           if (event instanceof HttpResponse) {
             const durationMs = Math.round(performance.now() - startedAt);
+            // if the server returned a correlation header, stash it
+            const serverCid = event.headers.get('x-correlation-id');
+            if (serverCid) {
+              this.correlation.setCorrelationId(serverCid);
+            }
+
             const payload: HttpLog = {
               method: req.method,
               url: req.url,

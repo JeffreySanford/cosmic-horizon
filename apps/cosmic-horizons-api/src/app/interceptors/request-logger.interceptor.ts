@@ -5,6 +5,7 @@ import {
   NestInterceptor,
   Logger,
 } from '@nestjs/common';
+import { RequestContextService } from '../context/request-context.service';
 import { Observable, tap } from 'rxjs';
 import { LoggingService } from '../logging/logging.service';
 
@@ -23,7 +24,10 @@ export type HttpResponse = {
 export class RequestLoggerInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
 
-  constructor(private readonly logging: LoggingService) {}
+  constructor(
+    private readonly logging: LoggingService,
+    private readonly ctx: RequestContextService,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const req = context.switchToHttp().getRequest<HttpRequest>();
@@ -32,7 +36,10 @@ export class RequestLoggerInterceptor implements NestInterceptor {
     const url = req.url;
     const userId = req.user?.id ?? 'anonymous';
     const userRole = req.user?.role ?? 'unknown';
-    const correlationId = '272762e810cea2de53a2f';
+    // correlation id is populated by the middleware and stored in async
+    // local storage. Fall back to a placeholder just in case something
+    // went wrong so we never log an undefined value.
+    const correlationId = this.ctx.getCorrelationId() ?? 'unknown';
 
     return next.handle().pipe(
       tap({

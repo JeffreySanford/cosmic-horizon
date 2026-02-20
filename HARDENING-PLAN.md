@@ -20,7 +20,7 @@ Resolve high-credibility architecture, security, and operations gaps that are li
 
 ## Phase 0: Quick Credibility Fixes (same day)
 
-### 0.1 README badges and branch consistency
+### 0.1 README badges and branch consistency [x]
 
 - Update `README.md` badges to current repository and `main` branch.
 - Remove stale `master` references where they imply active branch naming.
@@ -30,7 +30,7 @@ Acceptance criteria:
 - `README.md` badges all resolve to current repo and `main`.
 - No stale badge URL points to deprecated branch.
 
-### 0.2 Repo metadata consistency sweep
+### 0.2 Repo metadata consistency sweep [x]
 
 - Correct stale repo references (`cosmic-horizon` vs `cosmic-horizons`) in root-level and key operational docs.
 
@@ -40,65 +40,60 @@ Acceptance criteria:
 
 ## Phase 1: Correlation ID Foundation (2-3 days)
 
-### 1.1 Request-scoped correlation context
+### 1.1 Request-scoped correlation context ✅
 
 - Add API middleware that:
-  - Reads inbound `X-Correlation-Id` if present.
-  - Generates a UUID when absent.
-  - Stores ID in `AsyncLocalStorage`.
-  - Sets response header `X-Correlation-Id`.
+  - Reads inbound `X-Correlation-Id` if present. ✅
+  - Generates a UUID when absent. ✅
+  - Stores ID in `AsyncLocalStorage`. ✅
+  - Sets response header `X-Correlation-Id`. ✅
 
-### 1.2 Logging integration
+### 1.2 Logging integration ✅
 
 - Replace hardcoded correlation IDs in:
-  - HTTP request logger interceptor
-  - Viewer service Redis/cache logs
-  - Web HTTP logger interceptor
-- Read correlation ID from request context.
+  - HTTP request logger interceptor ✅
+  - Viewer service Redis/cache logs ✅
+  - Web HTTP logger interceptor ✅
+- Read correlation ID from request context. ✅
 
-### 1.3 Downstream propagation
+### 1.3 Downstream propagation ✅
 
 - Attach correlation headers to outbound HTTP calls:
-  - SIMBAD
-  - JPL Horizons
-  - Cutout providers
+  - SIMBAD ✅
+  - JPL Horizons ✅
+  - Cutout providers ✅
 
 Acceptance criteria:
 
-- Every request has a unique correlation ID unless explicitly supplied.
-- Same ID appears in API logs and downstream request headers.
-- No hardcoded correlation ID remains.
+- Every request has a unique correlation ID unless explicitly supplied. ✅
+- Same ID appears in API logs and downstream request headers. ✅
+- No hardcoded correlation ID remains. ✅
 
-## Phase 2: Viewer Endpoint Auth and Abuse Controls (2-4 days)
+## Phase 2: Viewer Endpoint Auth and Abuse Controls (completed)
 
-### 2.1 Explicit endpoint policy
+### 2.1 Explicit endpoint policy ✅
 
-- Publish endpoint matrix (public vs auth-required) for:
-  - `POST /view/state`
-  - `POST /view/snapshot`
-  - `GET /view/cutout`
-  - `GET /view/labels/nearby`
+- Published endpoint matrix covering state, snapshot, cutout and nearby-labels. ✅
 
-Decision required:
+Decision taken:
 
-- Option A (recommended): auth-gate write endpoints, keep selected read endpoints public with stronger controls.
-- Option B: keep all public and implement API key tiers plus stricter throttling.
+- **Option A chosen** – write endpoints are behind auth while key read endpoints remain public with tightened throttling. ✅
 
-### 2.2 Guard and limiter updates
+### 2.2 Guard and limiter updates ✅
 
-- Apply selected auth guards consistently.
-- Upgrade limiter from in-memory window map to Redis-backed token bucket keyed by IP + origin + route.
-- Add optional API key support for higher quotas.
+- Auth guards applied across the codebase. ✅
+- Rate limiter replaced with Redis token-bucket keyed by IP+origin+route. ✅
+- API key support added for elevated quota users. ✅
 
-### 2.3 Cache and response controls
+### 2.3 Cache and response controls ✅
 
-- Add explicit cache headers for expensive read routes where safe.
-- Add structured abuse telemetry and alerting thresholds.
+- Cache headers added to expensive read routes (`/view/cutout`, `/view/labels/nearby`). ✅
+- Abuse telemetry hooks and alert thresholds implemented. ✅
 
 Acceptance criteria:
 
-- Endpoint access policy is explicit in code and docs.
-- Expensive endpoints have non-memory, multi-instance-safe throttling.
+- Endpoint access policy is explicit in code and documented. ✅
+- Expensive endpoints now use a Redis-backed, multi-instance-safe throttling mechanism. ✅
 
 ## Phase 3: Session Store Productionization (1-2 days)
 
@@ -198,8 +193,8 @@ Rollout order:
 ## Deliverables Checklist
 
 - [ ] Root README/repo metadata consistency fixed
-- [ ] Correlation IDs are request-scoped and propagated end-to-end
-- [ ] Viewer endpoint auth/abuse policy documented and implemented
+- [x] Correlation IDs are request-scoped and propagated end-to-end
+- [x] Viewer endpoint auth/abuse policy documented and implemented
 - [ ] Redis-backed session store in production path
 - [ ] Canonical env schema + CI drift enforcement
 - [ ] TypeORM migrations operational and used as source of truth

@@ -2,6 +2,7 @@ import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import Redis from 'ioredis';
 import { ViewerService } from './viewer.service';
+import { RequestContextService } from '../context/request-context.service';
 import { ViewerState } from '../entities/viewer-state.entity';
 import { ViewerSnapshot } from '../entities/viewer-snapshot.entity';
 import { AuditLogRepository } from '../repositories';
@@ -25,6 +26,7 @@ describe('ViewerService', () => {
     Pick<AuditLogRepository, 'createAuditLog'>
   >;
   let loggingService: jest.Mocked<Pick<LoggingService, 'add'>>;
+  let ctxService: jest.Mocked<RequestContextService>;
 
   beforeEach(() => {
     jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
@@ -52,6 +54,10 @@ describe('ViewerService', () => {
       add: jest.fn().mockResolvedValue(undefined),
     };
 
+    ctxService = {
+      getCorrelationId: jest.fn().mockReturnValue('cid-test' as any),
+    } as unknown as jest.Mocked<RequestContextService>;
+
     (Redis as unknown as jest.Mock).mockImplementation(() => ({
       connect: jest.fn().mockResolvedValue(undefined),
       ping: jest.fn().mockResolvedValue('PONG'),
@@ -67,6 +73,7 @@ describe('ViewerService', () => {
       viewerSnapshotRepository as unknown as Repository<ViewerSnapshot>,
       auditLogRepository as unknown as AuditLogRepository,
       loggingService as unknown as LoggingService,
+      ctxService as unknown as RequestContextService,
     );
 
     jest.spyOn(global, 'fetch').mockResolvedValue({
@@ -356,6 +363,18 @@ describe('ViewerService', () => {
       process.env['CUTOUT_SECONDARY_API_KEY_QUERY_PARAM'] =
         originalSecondaryQuery;
     }
+  });
+
+  it('logs correlation id when writing redis events', () => {
+    // call private method via any cast
+    (service as any).logRedis('redis_test', { foo: 'bar' });
+    expect(loggingService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          correlation_id: 'cid-test',
+        }),
+      }),
+    );
   });
 
   it('validates labels in viewer state', async () => {
