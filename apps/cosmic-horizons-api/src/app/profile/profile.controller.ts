@@ -19,6 +19,7 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get(':username')
+  @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.OK)
   async getProfile(@Param('username') username: string) {
     return this.profileService.getProfile(username);

@@ -236,6 +236,20 @@ describe('ViewerController', () => {
     expect(names).toContain('AuthenticatedGuard');
   });
 
+  it('applies RateLimitGuard to public read endpoints only', () => {
+    const cutoutGuards = Reflect.getMetadata('guards', controller.downloadCutout);
+    const nearbyGuards = Reflect.getMetadata('guards', controller.getNearbyLabels);
+    expect(cutoutGuards).toBeDefined();
+    expect(nearbyGuards).toBeDefined();
+    const cutoutNames = (cutoutGuards as any[]).map((g) => g.name);
+    const nearbyNames = (nearbyGuards as any[]).map((g) => g.name);
+    expect(cutoutNames).toContain('RateLimitGuard');
+    expect(nearbyNames).toContain('RateLimitGuard');
+    // ensure auth is not applied to read endpoints
+    expect(cutoutNames).not.toContain('AuthenticatedGuard');
+    expect(nearbyNames).not.toContain('AuthenticatedGuard');
+  });
+
   it('returns telemetry for admin users', () => {
     const response = controller.getCutoutTelemetry({
       user: {

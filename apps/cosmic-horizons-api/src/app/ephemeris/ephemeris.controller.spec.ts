@@ -43,6 +43,14 @@ describe('EphemerisController', () => {
     expect(controller).toBeDefined();
   });
 
+  it('should have auth and rate limit guards on search endpoint', () => {
+    const guards = Reflect.getMetadata('guards', controller.search);
+    expect(guards).toBeDefined();
+    const names = (guards as any[]).map((g) => g.name);
+    expect(names).toContain('AuthenticatedGuard');
+    expect(names).toContain('RateLimitGuard');
+  });
+
   it('should return calculation results', async () => {
     const mockResult: EphemerisResult = {
       ra: 10,
