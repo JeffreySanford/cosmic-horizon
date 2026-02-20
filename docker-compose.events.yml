@@ -126,12 +126,14 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_NODENAME: rabbit@cosmic-horizons-rabbitmq
       RABBITMQ_DEFAULT_VHOST: /
     ports:
       - '127.0.0.1:5672:5672' # AMQP protocol
       - '127.0.0.1:15672:15672' # Management UI
     volumes:
       - cosmic-horizons-rabbitmq-data:/var/lib/rabbitmq
+      - ./docker/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     networks:
       - cosmic-horizons-network
     restart: unless-stopped

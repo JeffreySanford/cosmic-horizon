@@ -19,6 +19,9 @@ Enable the astronomy community to discover, annotate, and publish observations t
 - Playwright/CI improvements: `playwright.config.ts` updated to prefer `localhost` locally and bind `0.0.0.0` in CI; `BASE_URL` set in `.github/workflows/e2e.yml` for deterministic E2E runs.
 - TypeScript build fix: `apps/cosmic-horizons-web-e2e/tsconfig.json` `rootDir` updated so shared libs (e.g. `libs/shared/event-models`) compile correctly during E2E runs.
 
+- Fixed TypeScript diagnostic in `apps/cosmic-horizons-web-e2e/src/broker-runtime-warnings.spec.ts` (undefined `joined`) — canonical spec updated and compiles clean.
+- Confirmed local broker persistence volumes for Kafka, RabbitMQ, and Pulsar in `docker-compose.events.yml` (named volumes: `cosmic-horizons-kafka-data`, `cosmic-horizons-rabbitmq-data`, `pulsar-standalone-data`).
+
 ---
 
 ## Timeline Overview

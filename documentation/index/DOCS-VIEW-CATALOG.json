@@ -168,6 +168,12 @@
     "sourcePath": "documentation/operations/GITHUB-ACTIONS-MONITORING.md"
   },
   {
+    "id": "documentation--operations--local-broker-inspect",
+    "label": "Local Broker Inspect",
+    "section": "Operations",
+    "sourcePath": "documentation/operations/local-broker-inspect.md"
+  },
+  {
     "id": "documentation--operations--quick-start",
     "label": "QUICK START",
     "section": "Operations",

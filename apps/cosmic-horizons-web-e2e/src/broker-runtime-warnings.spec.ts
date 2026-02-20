@@ -151,6 +151,7 @@ test('broker view does not emit Angular runtime NG0912 or NG0200 when switching 
 
   // Allow runtime messages to appear (give slightly more time in CI)
   await new Promise((r) => setTimeout(r, 1000));
+  const joined = logs.join('\n');
   expect(joined).not.toContain('NG0912');
   expect(joined).not.toContain('NG0200');
   expect(joined).not.toMatch(

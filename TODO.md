@@ -23,6 +23,10 @@ Canonical scope:
 - [x] Fixed E2E TypeScript rootDir error for `cosmic-horizons-web-e2e` (`apps/cosmic-horizons-web-e2e/tsconfig.json` now points to workspace root).
 - [x] Playwright E2E config hardened: prefer `localhost` locally; CI binds frontend to `0.0.0.0` and `BASE_URL` set in workflow (`.github/workflows/e2e.yml`).
 - [x] Resolved intermittent 127.0.0.1 Playwright failures — full E2E suite verified green in CI and locally.
+
+- [x] Fixed TypeScript diagnostic in `apps/cosmic-horizons-web-e2e/src/broker-runtime-warnings.spec.ts` (undefined `joined`) — spec now compiles clean.
+- [x] Verified Playwright types present in `apps/cosmic-horizons-web-e2e/tsconfig.json`.
+- [x] Confirmed local broker persistence volumes in `docker-compose.events.yml` for Kafka/RabbitMQ/Pulsar.
 - [x] CI monitoring set to immediate-failure notifications only (watcher + helper script configured for `failures`).
 - [x] Converted remaining `subscribe()` usages in specs to deterministic `firstValueFrom()` / `take(1)` where appropriate and removed fragile `setTimeout` waits across web & API tests; committed fixes and verified CI green.
 
