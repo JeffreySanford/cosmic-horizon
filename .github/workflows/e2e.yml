@@ -74,6 +74,7 @@ jobs:
             sleep 2
           done
 
+<<<<<<< HEAD
           # Wait for RabbitMQ to be responsive (fixes intermittent CI race where RabbitMQ container reports healthy
           # but the AMQP port is not yet accepting connections from the job runner).
           for i in {1..30}; do
@@ -87,6 +88,8 @@ jobs:
             fi
             sleep 2
           done
+=======
+>>>>>>> 27346c7 (ci(e2e): remove Redis -a auth (CI) and add Kafka readiness wait)
       - name: Clear Angular cache
         run: pnpm run clean:angular-cache
       - name: Run e2e (verbose)
