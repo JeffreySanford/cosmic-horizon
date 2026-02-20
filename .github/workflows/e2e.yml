@@ -49,7 +49,8 @@ jobs:
             sleep 2
           done
           for i in {1..30}; do
-            if docker compose exec -T cosmic-horizons-redis redis-cli -a cosmic_horizons_redis_dev --raw ping | grep -q PONG; then
+            # CI/development runs Redis without AUTH by default; use `ping` (no -a) to avoid WRONGPASS.
+            if docker compose exec -T cosmic-horizons-redis redis-cli --raw ping | grep -q PONG; then
               echo "Redis is ready"
               break
             fi
@@ -59,6 +60,20 @@ jobs:
             fi
             sleep 2
           done
+
+          # Wait for Kafka readiness — group coordinator can take extra time after TCP port is open.
+          for i in {1..30}; do
+            if docker compose exec -T cosmic-horizons-kafka nc -z localhost 9092; then
+              echo "Kafka is ready"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "Kafka did not become ready in time" >&2
+              exit 1
+            fi
+            sleep 2
+          done
+
       - name: Clear Angular cache
         run: pnpm run clean:angular-cache
       - name: Run e2e (verbose)
