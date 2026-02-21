@@ -49,6 +49,7 @@ Execution note (2026-02-16):
 ## Recently Completed (2026-02-16)
 
 - Completed reliability and contract hardening sprint goals (security boundary, env unification, messaging reliability, docs consistency, CI formatting gate).
+- Finished full security/operations hardening plan (phases 0‑7) with documentation published in `documentation/hardening/HARDENING-PLAN.md`.
 - Hardened WebSocket `/messaging` gateway (JWT handshake auth + origin allowlist + gateway tests).
 - Unified API env loading with shared loader and removed duplicated parsing paths.
 - Standardized canonical backend env keys in `.env.example` (`DB_USER`, `DB_NAME`, `API_PORT`) with transitional aliases.

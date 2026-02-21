@@ -6,6 +6,7 @@ Status date: 2026-02-17 (Updated)
 
 **🔒 HARDENING**: The full security/operations hardening checklist and plan lives at `documentation/hardening/HARDENING-PLAN.md`.
 
+- Phases 0–7 completed; all items ticked in the hardening plan ✅
 - Complete sprint breakdown (5.1-7.4)
 - Success criteria and metrics
 - Resource allocation and timeline
