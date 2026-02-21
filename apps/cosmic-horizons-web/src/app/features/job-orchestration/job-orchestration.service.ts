@@ -31,10 +31,12 @@ export class JobOrchestrationService {
   // cleanup sweep.
 
   public jobs$: Observable<Job[]>;
-  public progressSeries$: Observable<{
-    name: string;
-    series: { name: number; value: number }[];
-  }[]>;
+  public progressSeries$: Observable<
+    {
+      name: string;
+      series: { name: number; value: number }[];
+    }[]
+  >;
 
   // Injectable references via `inject` to satisfy ESLint
   private http = inject(HttpClient);
@@ -46,7 +48,6 @@ export class JobOrchestrationService {
     this.progressSeries$ = this.store.select(selectProgressSeries);
     this.store.dispatch(JobsActions.jobsInitialize());
   }
-
 
   // ------------------------------------------------------------------
   // Public API
@@ -134,7 +135,9 @@ export class JobOrchestrationService {
    * Get job by ID
    */
   getJobById(jobId: string): Observable<Job | undefined> {
-    return this.store.select(selectJobsEntities).pipe(map((entities) => entities[jobId]));
+    return this.store
+      .select(selectJobsEntities)
+      .pipe(map((entities) => entities[jobId]));
   }
 
   /**

@@ -1,7 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, forkJoin, interval, map, of, startWith, switchMap } from 'rxjs';
+import {
+  catchError,
+  forkJoin,
+  interval,
+  map,
+  of,
+  startWith,
+  switchMap,
+} from 'rxjs';
 import * as TelemetryActions from './telemetry.actions';
 import * as JobsActions from '../jobs/jobs.actions';
 
@@ -44,7 +52,13 @@ export class TelemetryEffects {
           map(({ cpuMatrix, gpuMatrix }) =>
             TelemetryActions.telemetryLoadSucceeded({ cpuMatrix, gpuMatrix }),
           ),
-          catchError(() => of(TelemetryActions.telemetryLoadFailed({ error: 'Unable to load telemetry' }))),
+          catchError(() =>
+            of(
+              TelemetryActions.telemetryLoadFailed({
+                error: 'Unable to load telemetry',
+              }),
+            ),
+          ),
         ),
       ),
     ),

@@ -16,7 +16,9 @@ export class UiEffects {
         }
 
         const raw = window.sessionStorage.getItem('mock_mode_enabled');
-        return UiActions.mockModeHydrated({ enabled: raw === null ? true : raw !== 'false' });
+        return UiActions.mockModeHydrated({
+          enabled: raw === null ? true : raw !== 'false',
+        });
       }),
     ),
   );
@@ -33,5 +35,4 @@ export class UiEffects {
       ),
     { dispatch: false },
   );
-
 }

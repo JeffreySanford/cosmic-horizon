@@ -39,19 +39,22 @@ export const telemetryReducer = createReducer(
     loading: true,
     error: null,
   })),
-  on(TelemetryActions.telemetryLoadSucceeded, (state, { cpuMatrix, gpuMatrix }) => {
-    const cpuHistory = [...state.cpuHistory, cpuMatrix].slice(-20);
-    const gpuHistory = [...state.gpuHistory, gpuMatrix].slice(-20);
+  on(
+    TelemetryActions.telemetryLoadSucceeded,
+    (state, { cpuMatrix, gpuMatrix }) => {
+      const cpuHistory = [...state.cpuHistory, cpuMatrix].slice(-20);
+      const gpuHistory = [...state.gpuHistory, gpuMatrix].slice(-20);
 
-    return {
-      ...state,
-      cpuHistory,
-      gpuHistory,
-      selectedIndex: clampIndex(state.selectedIndex, cpuHistory.length),
-      loading: false,
-      error: null,
-    };
-  }),
+      return {
+        ...state,
+        cpuHistory,
+        gpuHistory,
+        selectedIndex: clampIndex(state.selectedIndex, cpuHistory.length),
+        loading: false,
+        error: null,
+      };
+    },
+  ),
   on(TelemetryActions.telemetryLoadFailed, (state, { error }) => ({
     ...state,
     loading: false,

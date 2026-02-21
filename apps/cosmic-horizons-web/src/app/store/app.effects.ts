@@ -1,5 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { Actions, ROOT_EFFECTS_INIT, createEffect, ofType } from '@ngrx/effects';
+import {
+  Actions,
+  ROOT_EFFECTS_INIT,
+  createEffect,
+  ofType,
+} from '@ngrx/effects';
 import { mergeMap, of } from 'rxjs';
 import * as AuthActions from './features/auth/auth.actions';
 import * as UiActions from './features/ui/ui.actions';
@@ -25,5 +30,4 @@ export class AppEffects {
       ),
     ),
   );
-
 }

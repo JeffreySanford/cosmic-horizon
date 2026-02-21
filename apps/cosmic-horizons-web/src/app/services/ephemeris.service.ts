@@ -48,11 +48,18 @@ export class EphemerisService {
     const cached = this.getFromCache(cacheKey);
     if (cached) {
       const result = { ...cached, source: 'cache' } as EphemerisResult;
-      this.store.dispatch(EphemerisActions.ephemerisCalculateSucceeded({ result }));
+      this.store.dispatch(
+        EphemerisActions.ephemerisCalculateSucceeded({ result }),
+      );
       return of(result);
     }
 
-    this.store.dispatch(EphemerisActions.ephemerisCalculateRequested({ objectName: normalizedName, epoch: epochToUse }));
+    this.store.dispatch(
+      EphemerisActions.ephemerisCalculateRequested({
+        objectName: normalizedName,
+        epoch: epochToUse,
+      }),
+    );
 
     return this.http
       .post<EphemerisResult>('/api/ephemeris/calculate', {
@@ -63,11 +70,17 @@ export class EphemerisService {
         tap((result) => {
           if (result) {
             this.setCache(cacheKey, result);
-            this.store.dispatch(EphemerisActions.ephemerisCalculateSucceeded({ result }));
+            this.store.dispatch(
+              EphemerisActions.ephemerisCalculateSucceeded({ result }),
+            );
           }
         }),
         catchError(() => {
-          this.store.dispatch(EphemerisActions.ephemerisCalculateFailed({ error: 'Unable to calculate ephemeris position' }));
+          this.store.dispatch(
+            EphemerisActions.ephemerisCalculateFailed({
+              error: 'Unable to calculate ephemeris position',
+            }),
+          );
           return of(null);
         }),
       );
@@ -106,16 +119,26 @@ export class EphemerisService {
    * Get supported celestial objects
    */
   getSupportedObjects(): Observable<string[]> {
-    this.store.dispatch(EphemerisActions.ephemerisSupportedObjectsLoadRequested());
+    this.store.dispatch(
+      EphemerisActions.ephemerisSupportedObjectsLoadRequested(),
+    );
     return this.http
       .get<{ objects: string[] }>('/api/ephemeris/supported-objects')
       .pipe(
         map((response) => {
-          this.store.dispatch(EphemerisActions.ephemerisSupportedObjectsLoadSucceeded({ objects: response.objects }));
+          this.store.dispatch(
+            EphemerisActions.ephemerisSupportedObjectsLoadSucceeded({
+              objects: response.objects,
+            }),
+          );
           return response.objects;
         }),
         catchError(() => {
-          this.store.dispatch(EphemerisActions.ephemerisSupportedObjectsLoadFailed({ error: 'Unable to load supported objects' }));
+          this.store.dispatch(
+            EphemerisActions.ephemerisSupportedObjectsLoadFailed({
+              error: 'Unable to load supported objects',
+            }),
+          );
           return of([]);
         }),
       );

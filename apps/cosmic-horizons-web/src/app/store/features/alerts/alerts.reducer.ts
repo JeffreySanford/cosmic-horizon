@@ -17,7 +17,11 @@ export const initialAlertsState: AlertsState = {
 
 export const alertsReducer = createReducer(
   initialAlertsState,
-  on(AlertsActions.alertsLoadRequested, (state) => ({ ...state, loading: true, error: null })),
+  on(AlertsActions.alertsLoadRequested, (state) => ({
+    ...state,
+    loading: true,
+    error: null,
+  })),
   on(AlertsActions.alertsLoadSucceeded, (state, { alerts }) => ({
     ...state,
     alerts,

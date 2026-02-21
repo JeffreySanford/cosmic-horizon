@@ -27,7 +27,9 @@ export class AlertsEffects {
       switchMap(() =>
         this.http.get<string[]>('/api/health/alerts').pipe(
           map((alerts) => AlertsActions.alertsLoadSucceeded({ alerts })),
-          catchError(() => of(AlertsActions.alertsLoadSucceeded({ alerts: [] }))),
+          catchError(() =>
+            of(AlertsActions.alertsLoadSucceeded({ alerts: [] })),
+          ),
         ),
       ),
     ),

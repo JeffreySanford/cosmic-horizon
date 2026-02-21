@@ -1,8 +1,20 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, interval, map, mergeMap, of, startWith, switchMap, tap } from 'rxjs';
-import { Job, JobSubmissionResponse } from '../../../features/job-orchestration/job.models';
+import {
+  catchError,
+  interval,
+  map,
+  mergeMap,
+  of,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
+import {
+  Job,
+  JobSubmissionResponse,
+} from '../../../features/job-orchestration/job.models';
 import { MessagingService } from '../../../services/messaging.service';
 import * as JobsActions from './jobs.actions';
 
@@ -37,7 +49,9 @@ export class JobsEffects {
       switchMap(() =>
         this.http.get<Job[]>('/api/jobs').pipe(
           map((jobs) => JobsActions.jobsLoadSucceeded({ jobs })),
-          catchError(() => of(JobsActions.jobsLoadFailed({ error: 'Unable to load jobs' }))),
+          catchError(() =>
+            of(JobsActions.jobsLoadFailed({ error: 'Unable to load jobs' })),
+          ),
         ),
       ),
     ),
@@ -54,7 +68,11 @@ export class JobsEffects {
               JobsActions.jobsLoadRequested(),
             ),
           ),
-          catchError(() => of(JobsActions.jobSubmittedFailed({ error: 'Unable to submit job' }))),
+          catchError(() =>
+            of(
+              JobsActions.jobSubmittedFailed({ error: 'Unable to submit job' }),
+            ),
+          ),
         ),
       ),
     ),
@@ -71,7 +89,11 @@ export class JobsEffects {
               JobsActions.jobsLoadRequested(),
             ),
           ),
-          catchError(() => of(JobsActions.jobCancelledFailed({ error: 'Unable to cancel job' }))),
+          catchError(() =>
+            of(
+              JobsActions.jobCancelledFailed({ error: 'Unable to cancel job' }),
+            ),
+          ),
         ),
       ),
     ),
@@ -83,10 +105,13 @@ export class JobsEffects {
       tap(() => this.messaging.ensureConnected()),
       switchMap(() =>
         this.messaging.jobUpdate$.pipe(
-          map((update) => JobsActions.jobUpdateReceived({ update: update as Partial<Job> & { id: string } })),
+          map((update) =>
+            JobsActions.jobUpdateReceived({
+              update: update as Partial<Job> & { id: string },
+            }),
+          ),
         ),
       ),
     ),
   );
-
 }

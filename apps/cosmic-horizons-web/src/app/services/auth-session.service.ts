@@ -1,7 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { selectAccessToken, selectAuthRole, selectAuthUser, selectRefreshToken } from '../store/features/auth/auth.selectors';
+import {
+  selectAccessToken,
+  selectAuthRole,
+  selectAuthUser,
+  selectRefreshToken,
+} from '../store/features/auth/auth.selectors';
 import * as AuthActions from '../store/features/auth/auth.actions';
 import { LoginResponse } from '../features/auth/auth-api.service';
 import { AppState } from '../store/app.state';
@@ -51,7 +56,9 @@ export class AuthSessionService {
   }
 
   setSession(loginResponse: LoginResponse): void {
-    this.store.dispatch(AuthActions.authSessionUpdated({ response: loginResponse }));
+    this.store.dispatch(
+      AuthActions.authSessionUpdated({ response: loginResponse }),
+    );
   }
 
   clearSession(): void {
@@ -71,7 +78,9 @@ export class AuthSessionService {
       return null;
     }
 
-    return this.refreshToken ?? sessionStorage.getItem(this.refreshTokenStorageKey);
+    return (
+      this.refreshToken ?? sessionStorage.getItem(this.refreshTokenStorageKey)
+    );
   }
 
   isAuthenticated(): boolean {

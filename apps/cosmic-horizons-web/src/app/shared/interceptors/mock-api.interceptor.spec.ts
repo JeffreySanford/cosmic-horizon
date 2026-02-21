@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { MockApiInterceptor } from './mock-api.interceptor';
 import { MockModeService } from '../../services/mock-mode.service';
@@ -16,7 +19,11 @@ describe('MockApiInterceptor', () => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: MockApiInterceptor, multi: true },
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: MockApiInterceptor,
+          multi: true,
+        },
         MockModeService,
         provideMockStore(),
       ],
@@ -48,7 +55,9 @@ describe('MockApiInterceptor', () => {
     store.overrideSelector(selectMockModeEnabled, true);
     store.refreshState();
     let response: any;
-    http.post('/api/jobs/submit', { name: 'x' }).subscribe((res) => (response = res));
+    http
+      .post('/api/jobs/submit', { name: 'x' })
+      .subscribe((res) => (response = res));
     // interceptor delays by 500ms
     await new Promise((r) => setTimeout(r, 520));
     expect(response?.jobId).toMatch(/JOB-\d+-\d+/);

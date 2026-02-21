@@ -25,7 +25,9 @@ export class MockModeService {
     this.store.dispatch(UiActions.mockModeSetRequested({ enabled: false }));
   }
   toggle(): void {
-    this.store.dispatch(UiActions.mockModeSetRequested({ enabled: !this.latestMock }));
+    this.store.dispatch(
+      UiActions.mockModeSetRequested({ enabled: !this.latestMock }),
+    );
   }
   get isMock(): boolean {
     return this.latestMock;

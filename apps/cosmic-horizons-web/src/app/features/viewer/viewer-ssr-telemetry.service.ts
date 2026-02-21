@@ -54,18 +54,23 @@ export class ViewerSsrTelemetryService {
 
   snapshot(): ViewerSsrTelemetrySnapshot {
     const store = this.readStore();
-    const transferSamples = store.transfer_state_hits + store.transfer_state_misses;
+    const transferSamples =
+      store.transfer_state_hits + store.transfer_state_misses;
     const bootstrapSamples = store.bootstrap_hits + store.bootstrap_misses;
 
     return {
       transferStateHits: store.transfer_state_hits,
       transferStateMisses: store.transfer_state_misses,
       transferStateHitRate:
-        transferSamples > 0 ? Number((store.transfer_state_hits / transferSamples).toFixed(4)) : 0,
+        transferSamples > 0
+          ? Number((store.transfer_state_hits / transferSamples).toFixed(4))
+          : 0,
       bootstrapHits: store.bootstrap_hits,
       bootstrapMisses: store.bootstrap_misses,
       bootstrapHitRate:
-        bootstrapSamples > 0 ? Number((store.bootstrap_hits / bootstrapSamples).toFixed(4)) : 0,
+        bootstrapSamples > 0
+          ? Number((store.bootstrap_hits / bootstrapSamples).toFixed(4))
+          : 0,
       updatedAt: store.updated_at,
     };
   }

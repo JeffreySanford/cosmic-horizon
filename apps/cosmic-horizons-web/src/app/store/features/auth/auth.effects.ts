@@ -19,7 +19,9 @@ export class AuthEffects {
   hydrate$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.authHydrateRequested),
-      map(() => AuthActions.authHydrated({ session: this.storage.readSession() })),
+      map(() =>
+        AuthActions.authHydrated({ session: this.storage.readSession() }),
+      ),
     ),
   );
 
@@ -30,7 +32,11 @@ export class AuthEffects {
         this.authApi.login(request).pipe(
           map((response) => AuthActions.authLoginSucceeded({ response })),
           catchError((error: { error?: { message?: string } }) =>
-            of(AuthActions.authLoginFailed({ error: error?.error?.message ?? 'Login failed' })),
+            of(
+              AuthActions.authLoginFailed({
+                error: error?.error?.message ?? 'Login failed',
+              }),
+            ),
           ),
         ),
       ),
@@ -44,7 +50,11 @@ export class AuthEffects {
         this.authApi.register(request).pipe(
           map((response) => AuthActions.authRegisterSucceeded({ response })),
           catchError((error: { error?: { message?: string } }) =>
-            of(AuthActions.authRegisterFailed({ error: error?.error?.message ?? 'Registration failed' })),
+            of(
+              AuthActions.authRegisterFailed({
+                error: error?.error?.message ?? 'Registration failed',
+              }),
+            ),
           ),
         ),
       ),
@@ -54,7 +64,11 @@ export class AuthEffects {
   persistSession$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(AuthActions.authLoginSucceeded, AuthActions.authRegisterSucceeded, AuthActions.authSessionUpdated),
+        ofType(
+          AuthActions.authLoginSucceeded,
+          AuthActions.authRegisterSucceeded,
+          AuthActions.authSessionUpdated,
+        ),
         tap(({ response }) => this.storage.writeSession(response)),
       ),
     { dispatch: false },
@@ -90,5 +104,4 @@ export class AuthEffects {
       ),
     { dispatch: false },
   );
-
 }

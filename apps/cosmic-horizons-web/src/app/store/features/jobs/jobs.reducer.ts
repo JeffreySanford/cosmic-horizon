@@ -23,11 +23,16 @@ export const initialJobsState: JobsState = jobsAdapter.getInitialState({
 
 export const jobsReducer = createReducer(
   initialJobsState,
-  on(JobsActions.jobsLoadRequested, JobsActions.jobSubmittedRequested, JobsActions.jobCancelledRequested, (state) => ({
-    ...state,
-    loading: true,
-    error: null,
-  })),
+  on(
+    JobsActions.jobsLoadRequested,
+    JobsActions.jobSubmittedRequested,
+    JobsActions.jobCancelledRequested,
+    (state) => ({
+      ...state,
+      loading: true,
+      error: null,
+    }),
+  ),
   on(JobsActions.jobsLoadSucceeded, (state, { jobs }) =>
     jobsAdapter.setAll(jobs, {
       ...state,
@@ -35,11 +40,16 @@ export const jobsReducer = createReducer(
       error: null,
     }),
   ),
-  on(JobsActions.jobsLoadFailed, JobsActions.jobSubmittedFailed, JobsActions.jobCancelledFailed, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error,
-  })),
+  on(
+    JobsActions.jobsLoadFailed,
+    JobsActions.jobSubmittedFailed,
+    JobsActions.jobCancelledFailed,
+    (state, { error }) => ({
+      ...state,
+      loading: false,
+      error,
+    }),
+  ),
   on(JobsActions.jobUpdateReceived, (state, { update }) => {
     if (state.entities[update.id]) {
       return jobsAdapter.updateOne(

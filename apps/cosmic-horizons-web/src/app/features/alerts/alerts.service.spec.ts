@@ -28,8 +28,6 @@ describe('AlertsService', () => {
   it('dispatches initialize action on creation', () => {
     const dispatchSpy = vi.spyOn(store, 'dispatch');
     TestBed.inject(AlertsService);
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      AlertsActions.alertsInitialize(),
-    );
+    expect(dispatchSpy).toHaveBeenCalledWith(AlertsActions.alertsInitialize());
   });
 });

@@ -288,9 +288,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       | Record<string, unknown>
       | undefined;
     this.bootstrapData =
-      (routeData?.[
-        'viewerBootstrap'
-      ] as ViewerBootstrapData | undefined) ?? null;
+      (routeData?.['viewerBootstrap'] as ViewerBootstrapData | undefined) ??
+      null;
 
     this.loadLocalLabels();
     this.gridOverlayEnabled = false;
@@ -979,8 +978,12 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resetLabelLookupGate();
       this.stateForm.patchValue(this.bootstrapData.state, { emitEvent: false });
       this.labels = this.bootstrapData.state.labels ?? [];
-      this.catalogLabels = this.selectNearbyLabels(this.bootstrapData.labels ?? []);
-      this.lastNearbyLookupKey = this.lookupKeyForState(this.bootstrapData.state);
+      this.catalogLabels = this.selectNearbyLabels(
+        this.bootstrapData.labels ?? [],
+      );
+      this.lastNearbyLookupKey = this.lookupKeyForState(
+        this.bootstrapData.state,
+      );
       this.saveLocalLabels();
 
       if (this.bootstrapData.shortId) {

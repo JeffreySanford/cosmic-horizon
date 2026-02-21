@@ -24,11 +24,14 @@ export const initialAuthState: AuthState = {
   error: null,
 };
 
-function mergeSession(state: AuthState, response: {
-  access_token: string;
-  refresh_token?: string;
-  user: SessionUser;
-}): AuthState {
+function mergeSession(
+  state: AuthState,
+  response: {
+    access_token: string;
+    refresh_token?: string;
+    user: SessionUser;
+  },
+): AuthState {
   return {
     ...state,
     user: response.user,
@@ -43,11 +46,17 @@ function mergeSession(state: AuthState, response: {
 
 export const authReducer = createReducer(
   initialAuthState,
-  on(AuthActions.authHydrateRequested, AuthActions.authLoginRequested, AuthActions.authRegisterRequested, AuthActions.authMeRequested, (state) => ({
-    ...state,
-    loading: true,
-    error: null,
-  })),
+  on(
+    AuthActions.authHydrateRequested,
+    AuthActions.authLoginRequested,
+    AuthActions.authRegisterRequested,
+    AuthActions.authMeRequested,
+    (state) => ({
+      ...state,
+      loading: true,
+      error: null,
+    }),
+  ),
   on(AuthActions.authHydrated, (state, { session }) => {
     if (!session) {
       return {
@@ -59,7 +68,12 @@ export const authReducer = createReducer(
 
     return mergeSession(state, session);
   }),
-  on(AuthActions.authLoginSucceeded, AuthActions.authRegisterSucceeded, AuthActions.authSessionUpdated, (state, { response }) => mergeSession(state, response)),
+  on(
+    AuthActions.authLoginSucceeded,
+    AuthActions.authRegisterSucceeded,
+    AuthActions.authSessionUpdated,
+    (state, { response }) => mergeSession(state, response),
+  ),
   on(AuthActions.authMeSucceeded, (state, { user }) => ({
     ...state,
     user,
@@ -68,12 +82,17 @@ export const authReducer = createReducer(
     loading: false,
     error: null,
   })),
-  on(AuthActions.authLoginFailed, AuthActions.authRegisterFailed, AuthActions.authMeFailed, (state, { error }) => ({
-    ...state,
-    loading: false,
-    hydrated: true,
-    error,
-  })),
+  on(
+    AuthActions.authLoginFailed,
+    AuthActions.authRegisterFailed,
+    AuthActions.authMeFailed,
+    (state, { error }) => ({
+      ...state,
+      loading: false,
+      hydrated: true,
+      error,
+    }),
+  ),
   on(AuthActions.authLogoutCompleted, AuthActions.authSessionCleared, () => ({
     ...initialAuthState,
     hydrated: true,

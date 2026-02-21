@@ -20,28 +20,39 @@ export const initialEphemerisState: EphemerisState = {
 
 export const ephemerisReducer = createReducer(
   initialEphemerisState,
-  on(EphemerisActions.ephemerisCalculateRequested, EphemerisActions.ephemerisSupportedObjectsLoadRequested, (state) => ({
-    ...state,
-    calculating: true,
-    error: null,
-  })),
+  on(
+    EphemerisActions.ephemerisCalculateRequested,
+    EphemerisActions.ephemerisSupportedObjectsLoadRequested,
+    (state) => ({
+      ...state,
+      calculating: true,
+      error: null,
+    }),
+  ),
   on(EphemerisActions.ephemerisCalculateSucceeded, (state, { result }) => ({
     ...state,
     calculating: false,
     lastResult: result,
     error: null,
   })),
-  on(EphemerisActions.ephemerisCalculateFailed, EphemerisActions.ephemerisSupportedObjectsLoadFailed, (state, { error }) => ({
-    ...state,
-    calculating: false,
-    error,
-  })),
-  on(EphemerisActions.ephemerisSupportedObjectsLoadSucceeded, (state, { objects }) => ({
-    ...state,
-    calculating: false,
-    supportedObjects: objects,
-    error: null,
-  })),
+  on(
+    EphemerisActions.ephemerisCalculateFailed,
+    EphemerisActions.ephemerisSupportedObjectsLoadFailed,
+    (state, { error }) => ({
+      ...state,
+      calculating: false,
+      error,
+    }),
+  ),
+  on(
+    EphemerisActions.ephemerisSupportedObjectsLoadSucceeded,
+    (state, { objects }) => ({
+      ...state,
+      calculating: false,
+      supportedObjects: objects,
+      error: null,
+    }),
+  ),
   on(EphemerisActions.ephemerisCacheCleared, (state) => ({
     ...state,
     lastResult: null,

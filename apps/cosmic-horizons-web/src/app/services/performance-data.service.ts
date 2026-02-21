@@ -46,12 +46,16 @@ export class PerformanceDataService {
   }
 
   /** derived progress series: average CPU value per window */
-  get progressSeries$(): Observable<{ name: string; series: { name: string; value: number }[] }[]> {
+  get progressSeries$(): Observable<
+    { name: string; series: { name: string; value: number }[] }[]
+  > {
     return this.store.select(selectProgressSeries);
   }
 
   /** derived GPU average per window (same shape as progressSeries$) */
-  get gpuProgressSeries$(): Observable<{ name: string; series: { name: string; value: number }[] }[]> {
+  get gpuProgressSeries$(): Observable<
+    { name: string; series: { name: string; value: number }[] }[]
+  > {
     return this.store.select(selectGpuProgressSeries);
   }
 }

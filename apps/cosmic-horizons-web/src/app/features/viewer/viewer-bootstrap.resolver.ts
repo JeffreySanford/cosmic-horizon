@@ -1,5 +1,10 @@
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
-import { inject, makeStateKey, PLATFORM_ID, TransferState } from '@angular/core';
+import {
+  inject,
+  makeStateKey,
+  PLATFORM_ID,
+  TransferState,
+} from '@angular/core';
 import { ResolveFn } from '@angular/router';
 import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 import {
@@ -23,9 +28,10 @@ function decodeState(encoded: string): ViewerStateModel | null {
     const padding = normalized.length % 4;
     const padded = normalized + (padding === 0 ? '' : '='.repeat(4 - padding));
 
-    const json = typeof atob === 'function'
-      ? atob(padded)
-      : Buffer.from(padded, 'base64').toString('utf-8');
+    const json =
+      typeof atob === 'function'
+        ? atob(padded)
+        : Buffer.from(padded, 'base64').toString('utf-8');
 
     return JSON.parse(json) as ViewerStateModel;
   } catch {
@@ -72,7 +78,9 @@ function cacheKeyForRoute(
   return 'default';
 }
 
-function cacheStateKey(cacheKey: string): ReturnType<typeof makeStateKey<ViewerBootstrapData>> {
+function cacheStateKey(
+  cacheKey: string,
+): ReturnType<typeof makeStateKey<ViewerBootstrapData>> {
   return makeStateKey<ViewerBootstrapData>(`viewer-bootstrap:${cacheKey}`);
 }
 
@@ -117,34 +125,32 @@ export const viewerBootstrapResolver: ResolveFn<ViewerBootstrapData> = (
 
   if (shortId) {
     const resolve$ = viewerApi.resolveState(shortId).pipe(
-      switchMap((response) =>
-        {
-          const plan = preloadPlanForState(response.state);
-          return viewerApi
-            .getNearbyLabels(
-              response.state.ra,
-              response.state.dec,
-              plan.radius,
-              plan.limit,
-            )
-            .pipe(
-              map((labels) => ({
+      switchMap((response) => {
+        const plan = preloadPlanForState(response.state);
+        return viewerApi
+          .getNearbyLabels(
+            response.state.ra,
+            response.state.dec,
+            plan.radius,
+            plan.limit,
+          )
+          .pipe(
+            map((labels) => ({
+              state: response.state,
+              shortId: response.short_id,
+              permalinkPath: response.permalink_path,
+              labels,
+            })),
+            catchError(() =>
+              of({
                 state: response.state,
                 shortId: response.short_id,
                 permalinkPath: response.permalink_path,
-                labels,
-              })),
-              catchError(() =>
-                of({
-                  state: response.state,
-                  shortId: response.short_id,
-                  permalinkPath: response.permalink_path,
-                  labels: [],
-                }),
-              ),
-            );
-        },
-      ),
+                labels: [],
+              }),
+            ),
+          );
+      }),
       catchError(() => of({ notFound: true })),
     );
 
@@ -162,12 +168,7 @@ export const viewerBootstrapResolver: ResolveFn<ViewerBootstrapData> = (
     if (decoded) {
       const plan = preloadPlanForState(decoded);
       const resolve$ = viewerApi
-        .getNearbyLabels(
-          decoded.ra,
-          decoded.dec,
-          plan.radius,
-          plan.limit,
-        )
+        .getNearbyLabels(decoded.ra, decoded.dec, plan.radius, plan.limit)
         .pipe(
           map((labels) => ({ state: decoded, labels })),
           catchError(() => of({ state: decoded, labels: [] })),
@@ -192,12 +193,7 @@ export const viewerBootstrapResolver: ResolveFn<ViewerBootstrapData> = (
 
   const plan = preloadPlanForState(defaultState);
   const resolve$ = viewerApi
-    .getNearbyLabels(
-      defaultState.ra,
-      defaultState.dec,
-      plan.radius,
-      plan.limit,
-    )
+    .getNearbyLabels(defaultState.ra, defaultState.dec, plan.radius, plan.limit)
     .pipe(
       map((labels) => ({ state: defaultState, labels })),
       catchError(() => of({ state: defaultState, labels: [] })),

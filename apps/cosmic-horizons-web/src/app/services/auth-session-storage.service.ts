@@ -16,11 +16,17 @@ export class AuthSessionStorageService {
 
     sessionStorage.setItem(this.tokenStorageKey, loginResponse.access_token);
     if (loginResponse.refresh_token) {
-      sessionStorage.setItem(this.refreshTokenStorageKey, loginResponse.refresh_token);
+      sessionStorage.setItem(
+        this.refreshTokenStorageKey,
+        loginResponse.refresh_token,
+      );
     } else {
       sessionStorage.removeItem(this.refreshTokenStorageKey);
     }
-    sessionStorage.setItem(this.userStorageKey, JSON.stringify(loginResponse.user));
+    sessionStorage.setItem(
+      this.userStorageKey,
+      JSON.stringify(loginResponse.user),
+    );
   }
 
   clearSession(): void {
@@ -47,7 +53,8 @@ export class AuthSessionStorageService {
     try {
       return {
         access_token: accessToken,
-        refresh_token: sessionStorage.getItem(this.refreshTokenStorageKey) ?? undefined,
+        refresh_token:
+          sessionStorage.getItem(this.refreshTokenStorageKey) ?? undefined,
         token_type: 'Bearer',
         user: JSON.parse(userRaw),
       };

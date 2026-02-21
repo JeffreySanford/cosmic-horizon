@@ -2,7 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { PerformanceDataService } from './performance-data.service';
 import { firstValueFrom } from 'rxjs';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
-import { selectCpuHeatmap, selectGpuHeatmap, selectGpuHistoryLength, selectGpuProgressSeries, selectHistoryLength, selectProgressSeries } from '../store/features/telemetry/telemetry.selectors';
+import {
+  selectCpuHeatmap,
+  selectGpuHeatmap,
+  selectGpuHistoryLength,
+  selectGpuProgressSeries,
+  selectHistoryLength,
+  selectProgressSeries,
+} from '../store/features/telemetry/telemetry.selectors';
 import * as TelemetryActions from '../store/features/telemetry/telemetry.actions';
 import { vi } from 'vitest';
 
@@ -12,10 +19,7 @@ describe('PerformanceDataService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        PerformanceDataService,
-        provideMockStore(),
-      ],
+      providers: [PerformanceDataService, provideMockStore()],
     });
     store = TestBed.inject(MockStore);
     store.overrideSelector(selectHistoryLength, 3);

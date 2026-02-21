@@ -14,7 +14,9 @@ export const ephemerisCalculateFailed = createAction(
   props<{ error: string }>(),
 );
 
-export const ephemerisSupportedObjectsLoadRequested = createAction('[Ephemeris] Supported Objects Load Requested');
+export const ephemerisSupportedObjectsLoadRequested = createAction(
+  '[Ephemeris] Supported Objects Load Requested',
+);
 export const ephemerisSupportedObjectsLoadSucceeded = createAction(
   '[Ephemeris] Supported Objects Load Succeeded',
   props<{ objects: string[] }>(),

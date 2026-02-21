@@ -13,8 +13,12 @@ export const initialUiState: UiState = {
 
 export const uiReducer = createReducer(
   initialUiState,
-  on(UiActions.mockModeHydrated, UiActions.mockModeSetRequested, (state, { enabled }) => ({
-    ...state,
-    mockModeEnabled: enabled,
-  })),
+  on(
+    UiActions.mockModeHydrated,
+    UiActions.mockModeSetRequested,
+    (state, { enabled }) => ({
+      ...state,
+      mockModeEnabled: enabled,
+    }),
+  ),
 );

@@ -28,11 +28,28 @@ describe('PostDetailComponent', () => {
       error: null,
     },
     ui: { mockModeEnabled: true },
-    jobs: { ids: [], entities: {}, selectedJobId: null, loading: false, error: null },
+    jobs: {
+      ids: [],
+      entities: {},
+      selectedJobId: null,
+      loading: false,
+      error: null,
+    },
     alerts: { alerts: [], loading: false, error: null },
     logs: { entries: [] },
-    telemetry: { cpuHistory: [], gpuHistory: [], selectedIndex: 0, loading: false, error: null },
-    ephemeris: { calculating: false, lastResult: null, supportedObjects: [], error: null },
+    telemetry: {
+      cpuHistory: [],
+      gpuHistory: [],
+      selectedIndex: 0,
+      loading: false,
+      error: null,
+    },
+    ephemeris: {
+      calculating: false,
+      lastResult: null,
+      supportedObjects: [],
+      error: null,
+    },
     router: null,
   } as const;
 
