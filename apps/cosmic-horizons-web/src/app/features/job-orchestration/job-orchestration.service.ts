@@ -149,11 +149,12 @@ export class JobOrchestrationService {
    * Start job polling for real-time updates
    */
   private startJobPolling(): void {
-    interval(5000)
-      .pipe(switchMap(() => this.jobs$))
-      .subscribe(() => {
-        this.simulateJobProgress();
-      });
+    // simply run simulation on a fixed timer; we don't need to react to
+    // the jobs$ observable itself, which would cause the recursive loop
+    // where simulateJobProgress emits and triggers the subscription again.
+    interval(5000).subscribe(() => {
+      this.simulateJobProgress();
+    });
   }
 
   /**

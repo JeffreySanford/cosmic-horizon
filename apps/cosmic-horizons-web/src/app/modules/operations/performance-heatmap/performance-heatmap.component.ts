@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { PerformanceDataService } from '../../../services/performance-data.service';
 import { Subscription } from 'rxjs';
 
@@ -22,9 +22,13 @@ export class PerformanceHeatmapComponent implements OnInit, OnDestroy {
   // make perf public so templates can call its methods
   public perf = inject(PerformanceDataService);
 
+  private cdr = inject(ChangeDetectorRef);
+
   ngOnInit(): void {
     this.sub = this.perf.cpuHeatmap$.subscribe((data: number[][]) => {
+      // heatmap updates can run during change detection; mark for check
       this.heatmap = this.convert(data);
+      this.cdr.markForCheck();
     });
     this.lenSub = this.perf.historyLength$.subscribe((len) => {
       // update asynchronously to avoid ExpressionChangedAfterItHasBeenCheckedError
@@ -34,6 +38,8 @@ export class PerformanceHeatmapComponent implements OnInit, OnDestroy {
           this.currentWindow = len - 1;
           this.perf.setWindow(this.currentWindow);
         }
+        // ensure change detection picks up latest values
+        this.cdr.detectChanges();
       });
     });
   }
@@ -43,16 +49,14 @@ export class PerformanceHeatmapComponent implements OnInit, OnDestroy {
     this.lenSub?.unsubscribe();
   }
 
-  // slider value is now driven by ngModel two‑way binding; we still
-  // notify the service when the model changes.
-  // the template handles calling `perf.setWindow` via ngModelChange.
-  // the older method was removed.
-  //
-  // onSliderChange(evt: Event) {
-  //   const val = (evt.target as HTMLInputElement).valueAsNumber;
-  //   this.currentWindow = val;
-  //   this.perf.setWindow(val);
-  // }
+  // slider value is updated via the input element; we forward to service
+  onSliderInput(evt: Event) {
+    const val = (evt.target as HTMLInputElement).valueAsNumber;
+    if (Number.isFinite(val)) {
+      this.currentWindow = val;
+      this.perf.setWindow(val);
+    }
+  }
 
 
   private convert(data: number[][]) {

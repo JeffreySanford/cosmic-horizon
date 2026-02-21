@@ -327,6 +327,11 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   }
 
   private updateChart() {
+    // ensure chart initialization has run
+    if (!this.xScale || !this.yScale || !this.lineLayer) {
+      return;
+    }
+
     const config = this.getDisplayConfiguration();
     this.displayData = config.data;
     this.activeSeries = config.series;
@@ -348,6 +353,10 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
       Date,
       Date,
     ];
+    if (!timeExtent || !timeExtent[0] || !timeExtent[1]) {
+      // nothing to render yet
+      return;
+    }
     this.xScale.domain(timeExtent);
 
     const values = this.displayData.flatMap((point) =>

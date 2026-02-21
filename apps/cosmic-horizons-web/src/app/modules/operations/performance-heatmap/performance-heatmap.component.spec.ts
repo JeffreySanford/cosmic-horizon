@@ -50,13 +50,11 @@ describe('PerformanceHeatmapComponent', () => {
     expect(component.windowCount).toBeGreaterThan(1);
   });
 
-  it('updates currentWindow and calls service when slider changes via ngModel', () => {
-    // rather than manipulating DOM, update component property directly
+  it('updates currentWindow and calls service when slider input is used', () => {
     component.windowCount = 3;
     component.currentWindow = 0;
-    // simulate model change
-    component.currentWindow = 2;
-    component.perf.setWindow(2);
+    const fakeEvent = { target: { valueAsNumber: 2 } } as any as Event;
+    component.onSliderInput(fakeEvent);
     expect(component.currentWindow).toBe(2);
     expect(perf.setWindow).toHaveBeenCalledWith(2);
   });
