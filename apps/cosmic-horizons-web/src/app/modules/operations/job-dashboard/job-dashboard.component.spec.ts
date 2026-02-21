@@ -1,16 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { JobDashboardComponent } from './job-dashboard.component';
-import { PerformanceHeatmapComponent } from '../performance-heatmap/performance-heatmap.component';
-import { ProgressGraphComponent } from '../progress-graph/progress-graph.component';
-import { MatTableModule } from '@angular/material/table';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
 import { MessagingService } from '../../../services/messaging.service';
 import { Subject, of } from 'rxjs';
+import { OperationsModule } from '../operations.module';
 
 describe('JobDashboardComponent', () => {
   let component: JobDashboardComponent;
@@ -38,18 +33,25 @@ describe('JobDashboardComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        MatTableModule,
-        MatProgressBarModule,
-        MatCardModule,
-        MatButtonModule,
         NoopAnimationsModule,
-        PerformanceHeatmapComponent,
-        ProgressGraphComponent,
-        JobDashboardComponent,
+        // feature module provides JobDashboard and dependencies
+        OperationsModule,
       ],
       providers: [
         JobOrchestrationService,
         { provide: MessagingService, useValue: msgService },
+        // override the performance service with a harmless stub to avoid
+        // background timer emissions that threw ExpressionChanged errors in
+        // child dashboards during tests
+        {
+          provide: (await import('../../../services/performance-data.service')).PerformanceDataService,
+          useValue: {
+            historyLength$: of(0),
+            cpuHeatmap$: of([]),
+            progressSeries$: of([]),
+            setWindow: vi.fn(),
+          },
+        },
       ],
     }).compileComponents();
 

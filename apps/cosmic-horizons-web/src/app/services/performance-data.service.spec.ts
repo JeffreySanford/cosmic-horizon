@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PerformanceDataService } from './performance-data.service';
 import { MessagingService } from './messaging.service';
-import { Subject, of, firstValueFrom } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 describe('PerformanceDataService', () => {
@@ -33,6 +33,8 @@ describe('PerformanceDataService', () => {
 
     // seed the http stream so timer subscription emits
     matrix$.next([[42]]);
+    // also manually push a matrix so history immediately updates
+    (service as any).pushMatrix([[1]]);
   });
 
   it('emits heatmap arrays when http endpoint returns and maintains history/progress', async () => {

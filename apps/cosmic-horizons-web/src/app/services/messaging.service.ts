@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import type { EventBase } from '@cosmic-horizons/event-models';
-import { io, Socket } from 'socket.io-client';
+import { io, Socket, ManagerOptions, SocketOptions } from 'socket.io-client';
 import { AppLoggerService } from './app-logger.service';
 import { AuthSessionService } from './auth-session.service';
 
@@ -226,7 +226,8 @@ export class MessagingService {
 
     // eslint-disable-next-line no-restricted-syntax -- emission API uses callback
     return new Promise<{ joined: boolean; room?: string; error?: string }>((resolve) => {
-      this.socket!.emit('join_job_channel', { jobId }, (resp: unknown) => {
+      const socket = this.socket!; // previous guard ensures it exists
+      socket.emit('join_job_channel', { jobId }, (resp: unknown) => {
         resolve(resp as { joined: boolean; room?: string; error?: string });
       });
     });
@@ -235,7 +236,10 @@ export class MessagingService {
   /**
    * Helper method exposed so tests can override or stub socket creation.
    */
-  protected createSocket(url: string, opts: any): Socket {
+  protected createSocket(
+    url: string,
+    opts?: Partial<ManagerOptions & SocketOptions>,
+  ): Socket {
     return io(url, opts);
   }
 

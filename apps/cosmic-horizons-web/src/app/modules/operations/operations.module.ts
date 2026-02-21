@@ -22,6 +22,7 @@ import { PerformanceHeatmapComponent } from './performance-heatmap/performance-h
 import { NodePerformanceComponent } from './node-performance/node-performance.component';
 import { ProgressGraphComponent } from './progress-graph/progress-graph.component';
 import { LoadTestResultsComponent } from './load-test-results/load-test-results.component';
+import { JobDashboardComponent } from './job-dashboard/job-dashboard.component';
 import { OperationsHomeComponent } from './operations-home/operations-home.component';
 
 /**
@@ -37,6 +38,7 @@ import { OperationsHomeComponent } from './operations-home/operations-home.compo
     NodePerformanceComponent,
     ProgressGraphComponent,
     LoadTestResultsComponent,
+    JobDashboardComponent,
     OperationsHomeComponent,
   ],
   exports: [
@@ -44,6 +46,7 @@ import { OperationsHomeComponent } from './operations-home/operations-home.compo
     NodePerformanceComponent,
     ProgressGraphComponent,
     LoadTestResultsComponent,
+    JobDashboardComponent,
     OperationsHomeComponent,
   ],
   imports: [

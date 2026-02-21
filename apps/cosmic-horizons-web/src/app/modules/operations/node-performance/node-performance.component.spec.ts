@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { OperationsModule } from '../operations.module';
 import { NodePerformanceComponent } from './node-performance.component';
-import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 describe('NodePerformanceComponent', () => {
   let component: NodePerformanceComponent;
@@ -10,12 +8,7 @@ describe('NodePerformanceComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        FormsModule,
-        MatCardModule,
-        MatSlideToggleModule,
-        NodePerformanceComponent,
-      ],
+      imports: [OperationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NodePerformanceComponent);

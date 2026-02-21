@@ -20,6 +20,7 @@ describe('OperationsHomeComponent', () => {
   });
 
   it('renders list of operation links', () => {
+    expect(component).toBeTruthy();
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Broker Comparison');
     expect(text).toContain('Job Dashboard');

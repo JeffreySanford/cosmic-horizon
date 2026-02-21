@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { OperationsModule } from '../operations.module';
 import { LoadTestResultsComponent } from './load-test-results.component';
 
 describe('LoadTestResultsComponent', () => {
@@ -12,7 +13,7 @@ describe('LoadTestResultsComponent', () => {
     }));
 
     await TestBed.configureTestingModule({
-      imports: [LoadTestResultsComponent],
+      imports: [OperationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoadTestResultsComponent);

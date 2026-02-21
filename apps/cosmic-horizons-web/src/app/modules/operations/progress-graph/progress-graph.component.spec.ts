@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { ProgressGraphComponent } from './progress-graph.component';
 import { PerformanceDataService } from '../../../services/performance-data.service';
 import { Subject } from 'rxjs';
+import { OperationsModule } from '../operations.module';
+import { ProgressGraphComponent } from './progress-graph.component';
 
 describe('ProgressGraphComponent', () => {
   let component: ProgressGraphComponent;
@@ -17,7 +18,7 @@ describe('ProgressGraphComponent', () => {
     } as any;
 
     await TestBed.configureTestingModule({
-      imports: [ProgressGraphComponent, NoopAnimationsModule],
+      imports: [NoopAnimationsModule, OperationsModule],
       providers: [{ provide: PerformanceDataService, useValue: perf }],
     }).compileComponents();
 
