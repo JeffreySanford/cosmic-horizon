@@ -13,8 +13,16 @@
   color: var(--ch-text-primary);
   background:
     linear-gradient(135deg, rgba(10, 16, 36, 0.82), rgba(24, 24, 62, 0.7)),
-    radial-gradient(circle at 14% 14%, rgba(14, 165, 233, 0.2), transparent 38%),
-    radial-gradient(circle at 84% 84%, rgba(192, 132, 252, 0.2), transparent 42%),
+    radial-gradient(
+      circle at 14% 14%,
+      rgba(14, 165, 233, 0.2),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 84% 84%,
+      rgba(192, 132, 252, 0.2),
+      transparent 42%
+    ),
     #050a16;
   overflow: hidden;
 }
@@ -62,7 +70,11 @@
   width: min(500px, 100%);
   border-radius: 1.1rem;
   border: 1px solid rgba(148, 163, 184, 0.38);
-  background: linear-gradient(155deg, rgba(21, 26, 66, 0.8), rgba(32, 33, 86, 0.62));
+  background: linear-gradient(
+    155deg,
+    rgba(21, 26, 66, 0.8),
+    rgba(32, 33, 86, 0.62)
+  );
   box-shadow: 0 24px 45px rgba(2, 6, 23, 0.38);
   backdrop-filter: blur(8px);
   animation: rise 520ms ease both;

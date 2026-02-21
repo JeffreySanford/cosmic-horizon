@@ -324,7 +324,10 @@ export class MockApiInterceptor implements HttpInterceptor {
       return this.jsonResponse({ success: true });
     }
 
-    if (req.method === 'POST' && /^\/api\/comments\/[^/]+\/report$/.test(path)) {
+    if (
+      req.method === 'POST' &&
+      /^\/api\/comments\/[^/]+\/report$/.test(path)
+    ) {
       const id = decodeURIComponent(path.split('/')[3] || '');
       const body = this.objectBody(req);
       const currentUser = this.getCurrentUser();
@@ -348,7 +351,10 @@ export class MockApiInterceptor implements HttpInterceptor {
       });
     }
 
-    if (req.method === 'PATCH' && /^\/api\/comments\/[^/]+\/unhide$/.test(path)) {
+    if (
+      req.method === 'PATCH' &&
+      /^\/api\/comments\/[^/]+\/unhide$/.test(path)
+    ) {
       const id = decodeURIComponent(path.split('/')[3] || '');
       return this.updateCommentState(id, (comment) => {
         comment.hidden_at = null;
@@ -356,7 +362,9 @@ export class MockApiInterceptor implements HttpInterceptor {
     }
 
     if (req.method === 'GET' && path === '/api/comments/reports/all') {
-      const rows = this.reports.map((report) => this.withReportRelations(report));
+      const rows = this.reports.map((report) =>
+        this.withReportRelations(report),
+      );
       return this.jsonResponse(rows);
     }
 
@@ -444,7 +452,10 @@ export class MockApiInterceptor implements HttpInterceptor {
       return this.jsonResponse({ success: true });
     }
 
-    if (req.method === 'PATCH' && /^\/api\/community\/posts\/[^/]+\/hide$/.test(path)) {
+    if (
+      req.method === 'PATCH' &&
+      /^\/api\/community\/posts\/[^/]+\/hide$/.test(path)
+    ) {
       const id = decodeURIComponent(path.split('/')[4] || '');
       const target = this.discoveries.find((d) => d.id === id);
       if (!target) {
@@ -663,7 +674,9 @@ export class MockApiInterceptor implements HttpInterceptor {
       },
     ];
     this.posts = seedPosts.map((post, index) => {
-      const timestamp = new Date(now - post.hoursAgo * 60 * 60 * 1000).toISOString();
+      const timestamp = new Date(
+        now - post.hoursAgo * 60 * 60 * 1000,
+      ).toISOString();
       return {
         id: `post-seed-${index + 1}`,
         user_id: postAuthors[index % postAuthors.length],
@@ -928,7 +941,9 @@ export class MockApiInterceptor implements HttpInterceptor {
     };
   }
 
-  private withCommentUser(comment: MockComment): MockComment & { user?: MockUser } {
+  private withCommentUser(
+    comment: MockComment,
+  ): MockComment & { user?: MockUser } {
     return {
       ...comment,
       user: this.users.find((u) => u.id === comment.user_id),

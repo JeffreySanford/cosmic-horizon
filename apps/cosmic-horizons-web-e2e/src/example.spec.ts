@@ -28,9 +28,7 @@ test('redirects unauthenticated users to login', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Mission Access', exact: true }),
   ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Login' }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
 });
 
 test('shows error for invalid credentials', async ({ page }) => {

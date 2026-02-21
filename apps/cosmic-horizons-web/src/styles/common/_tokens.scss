@@ -7,7 +7,7 @@
   --ch-font-size-body-lg: 1rem;
   --ch-font-size-title-sm: 1rem;
   --ch-font-size-title: 1.125rem;
-    --ch-font-size-2xs: 0.625rem;
+  --ch-font-size-2xs: 0.625rem;
   --ch-font-size-xs: 0.6875rem;
   --ch-font-size-sm: 0.8125rem;
   --ch-font-size-md: 0.9375rem;
@@ -15,13 +15,22 @@
   --ch-font-size-title-xl: 1.75rem;
   --ch-font-size-display-sm: 2rem;
   --ch-font-size-display-md: 3rem;
-  --ch-font-size-display-lg: 4rem;  --ch-line-height-tight: 1.3;
+  --ch-font-size-display-lg: 4rem;
+  --ch-line-height-tight: 1.3;
   --ch-line-height-normal: 1.5;
 
   /* App text/semantic tokens are mapped to MD3 roles for consistency. */
   --ch-text-primary: var(--md3-color-on-surface);
-  --ch-text-secondary: color-mix(in srgb, var(--md3-color-on-surface) 78%, #9ad8ff 22%);
-  --ch-text-muted: color-mix(in srgb, var(--md3-color-on-surface) 56%, #8db5d9 44%);
+  --ch-text-secondary: color-mix(
+    in srgb,
+    var(--md3-color-on-surface) 78%,
+    #9ad8ff 22%
+  );
+  --ch-text-muted: color-mix(
+    in srgb,
+    var(--md3-color-on-surface) 56%,
+    #8db5d9 44%
+  );
   --ch-semantic-success: var(--md3-color-success);
   --ch-semantic-warning: var(--md3-color-warning);
   --ch-semantic-error: var(--md3-color-error);
@@ -34,4 +43,3 @@
   --ch-surface-deep: #0b1426;
   --ch-surface-raised: #10203a;
 }
-

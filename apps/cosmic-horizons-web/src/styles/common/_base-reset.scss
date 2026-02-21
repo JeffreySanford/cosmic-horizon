@@ -27,6 +27,7 @@ body {
   background-color: var(--md3-color-background);
   color: var(--md3-color-on-background);
   transition:
-    background-color $md3-transition-duration-standard $md3-transition-easing-standard,
+    background-color $md3-transition-duration-standard
+      $md3-transition-easing-standard,
     color $md3-transition-duration-standard $md3-transition-easing-standard;
 }

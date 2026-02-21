@@ -28,7 +28,9 @@ export class OperationsHomeComponent {
 
   private messaging = inject(MessagingService);
   private perf = inject(PerformanceDataService);
-  private jobService: JobOrchestrationService = inject(JobOrchestrationService) as JobOrchestrationService;
+  private jobService: JobOrchestrationService = inject(
+    JobOrchestrationService,
+  ) as JobOrchestrationService;
 
   private formatRelativeTime(isoTimestamp: string): string {
     const date = new Date(isoTimestamp);
@@ -37,7 +39,10 @@ export class OperationsHomeComponent {
       return '';
     }
 
-    const deltaSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+    const deltaSeconds = Math.max(
+      0,
+      Math.floor((Date.now() - timestamp) / 1000),
+    );
     if (deltaSeconds < 60) {
       return 'just now';
     }
@@ -101,15 +106,10 @@ export class OperationsHomeComponent {
     );
 
     const nodeChips$ = combineLatest([cpuAvg$, gpuAvg$]).pipe(
-      map(([c, g]) => [
-        { text: `CPU ${c}` },
-        { text: `GPU ${g}` },
-      ]),
+      map(([c, g]) => [{ text: `CPU ${c}` }, { text: `GPU ${g}` }]),
     );
 
-    const brokerChips$ = packets$.pipe(
-      map((v) => [{ text: `${v} p/s` }]),
-    );
+    const brokerChips$ = packets$.pipe(map((v) => [{ text: `${v} p/s` }]));
 
     this.tiles = [
       {
@@ -129,7 +129,7 @@ export class OperationsHomeComponent {
         colorClass: 'tile-accent',
         icon: 'dashboard',
         badge$: this.jobService.getJobCount(),
-        subtitle$: msgsPerSec$.pipe(map(v => `${v} msg/s`)),
+        subtitle$: msgsPerSec$.pipe(map((v) => `${v} msg/s`)),
       },
       {
         title: 'Node Performance',

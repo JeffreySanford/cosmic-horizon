@@ -8,8 +8,16 @@
   padding: 0.9rem 1.2rem 1rem;
   color: #eff7ff;
   background:
-    radial-gradient(circle at 18% -30%, rgba(59, 130, 246, 0.4), transparent 52%),
-    radial-gradient(circle at 82% -40%, rgba(14, 165, 233, 0.4), transparent 60%),
+    radial-gradient(
+      circle at 18% -30%,
+      rgba(59, 130, 246, 0.4),
+      transparent 52%
+    ),
+    radial-gradient(
+      circle at 82% -40%,
+      rgba(14, 165, 233, 0.4),
+      transparent 60%
+    ),
     linear-gradient(140deg, #0b1220, #111d33 58%, #0d2037);
   border-bottom: 1px solid rgba(148, 163, 184, 0.22);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
@@ -20,7 +28,11 @@
   position: absolute;
   inset: -75% -40% auto;
   height: 250px;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.14), transparent 65%);
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.14),
+    transparent 65%
+  );
   animation: headerDrift 8s ease-in-out infinite alternate;
   pointer-events: none;
 }
@@ -146,7 +158,11 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(145deg, rgba(56, 189, 248, 0.18), rgba(37, 99, 235, 0.35));
+  background: linear-gradient(
+    145deg,
+    rgba(56, 189, 248, 0.18),
+    rgba(37, 99, 235, 0.35)
+  );
   border: 1px solid rgba(147, 197, 253, 0.38);
   box-shadow: 0 8px 16px rgba(2, 6, 23, 0.32);
 
@@ -158,22 +174,38 @@
 }
 
 .app-header__page-icon.tone-solar {
-  background: linear-gradient(145deg, rgba(251, 191, 36, 0.28), rgba(245, 158, 11, 0.38));
+  background: linear-gradient(
+    145deg,
+    rgba(251, 191, 36, 0.28),
+    rgba(245, 158, 11, 0.38)
+  );
   border-color: rgba(252, 211, 77, 0.42);
 }
 
 .app-header__page-icon.tone-teal {
-  background: linear-gradient(145deg, rgba(45, 212, 191, 0.26), rgba(6, 182, 212, 0.38));
+  background: linear-gradient(
+    145deg,
+    rgba(45, 212, 191, 0.26),
+    rgba(6, 182, 212, 0.38)
+  );
   border-color: rgba(94, 234, 212, 0.45);
 }
 
 .app-header__page-icon.tone-violet {
-  background: linear-gradient(145deg, rgba(129, 140, 248, 0.27), rgba(99, 102, 241, 0.37));
+  background: linear-gradient(
+    145deg,
+    rgba(129, 140, 248, 0.27),
+    rgba(99, 102, 241, 0.37)
+  );
   border-color: rgba(165, 180, 252, 0.45);
 }
 
 .app-header__page-icon.tone-slate {
-  background: linear-gradient(145deg, rgba(100, 116, 139, 0.3), rgba(71, 85, 105, 0.4));
+  background: linear-gradient(
+    145deg,
+    rgba(100, 116, 139, 0.3),
+    rgba(71, 85, 105, 0.4)
+  );
   border-color: rgba(148, 163, 184, 0.45);
 }
 
@@ -375,4 +407,3 @@
     opacity: 1;
   }
 }
-

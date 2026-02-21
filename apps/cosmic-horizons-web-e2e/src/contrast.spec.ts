@@ -6,9 +6,9 @@ function createFakeJwt(exp: number): string {
   const header = Buffer.from(
     JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
   ).toString('base64url');
-  const payload = Buffer.from(
-    JSON.stringify({ sub: 'user-1', exp }),
-  ).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ sub: 'user-1', exp })).toString(
+    'base64url',
+  );
   return `${header}.${payload}.test-signature`;
 }
 

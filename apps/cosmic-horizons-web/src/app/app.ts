@@ -1,8 +1,4 @@
-import {
-  ActivatedRouteSnapshot,
-  NavigationEnd,
-  Router,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MessagingService } from './services/messaging.service';
@@ -74,7 +70,9 @@ export class App implements OnInit {
               author?: string;
             };
             const title = pd?.title ?? 'New discovery';
-            this.snackBar.open(`Community: ${title}`, 'View', { duration: 5000 });
+            this.snackBar.open(`Community: ${title}`, 'View', {
+              duration: 5000,
+            });
           }
         } catch {
           // swallow UI notification errors
@@ -114,17 +112,14 @@ export class App implements OnInit {
     const inheritedData = pathFromRoot.map(
       (snapshot) => snapshot.data as AppHeaderRouteData,
     );
-    const inheritedConfig = pathFromRoot.reduce(
-      (current, snapshot) => {
-        const data = snapshot.data as AppHeaderRouteData;
-        const routeHeader = data.header ?? {};
-        return {
-          ...current,
-          ...routeHeader,
-        };
-      },
-      {} as Partial<AppHeaderConfig>,
-    );
+    const inheritedConfig = pathFromRoot.reduce((current, snapshot) => {
+      const data = snapshot.data as AppHeaderRouteData;
+      const routeHeader = data.header ?? {};
+      return {
+        ...current,
+        ...routeHeader,
+      };
+    }, {} as Partial<AppHeaderConfig>);
     const inheritedHideHeader = inheritedData
       .map((data) => data.hideAppHeader)
       .filter((value): value is boolean => value !== undefined)
@@ -143,7 +138,8 @@ export class App implements OnInit {
       parentLink: inheritedConfig.parentLink ?? defaultParentLink,
       showUserMenu: inheritedConfig.showUserMenu ?? true,
       userMenuItems:
-        inheritedConfig.userMenuItems ?? DEFAULT_APP_HEADER_CONFIG.userMenuItems,
+        inheritedConfig.userMenuItems ??
+        DEFAULT_APP_HEADER_CONFIG.userMenuItems,
     };
   }
 

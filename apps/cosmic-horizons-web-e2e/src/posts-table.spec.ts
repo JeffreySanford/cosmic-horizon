@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 
-function createFakeJwt(exp: number, claims: Record<string, string> = {}): string {
+function createFakeJwt(
+  exp: number,
+  claims: Record<string, string> = {},
+): string {
   const header = Buffer.from(
     JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
   ).toString('base64url');
@@ -43,7 +46,8 @@ test('admin posts table shows all records with correct paginator and green-tinte
         id: n % 2 === 0 ? 'admin-1' : `user-${n}`,
         username: n % 2 === 0 ? 'adminuser' : `astronomer${n}`,
         display_name: n % 2 === 0 ? 'Admin User' : `Astronomer ${n}`,
-        email: n % 2 === 0 ? 'admin@cosmic.local' : `astronomer${n}@cosmic.local`,
+        email:
+          n % 2 === 0 ? 'admin@cosmic.local' : `astronomer${n}@cosmic.local`,
       },
     };
   });
@@ -91,8 +95,8 @@ test('admin posts table shows all records with correct paginator and green-tinte
   await nextPage.click();
   await expect(paginator).toContainText('11 - 20 of 20');
 
-  const shellTint = await page.locator('.table-shell').evaluate((el) =>
-    window.getComputedStyle(el).backgroundColor,
-  );
+  const shellTint = await page
+    .locator('.table-shell')
+    .evaluate((el) => window.getComputedStyle(el).backgroundColor);
   expect(shellTint.toLowerCase()).not.toContain('255, 255, 255');
 });

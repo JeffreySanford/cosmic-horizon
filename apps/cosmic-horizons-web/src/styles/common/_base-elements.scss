@@ -39,7 +39,8 @@ select {
   color: var(--md3-color-on-surface);
   transition:
     border-color $md3-transition-duration-short $md3-transition-easing-standard,
-    background-color $md3-transition-duration-short $md3-transition-easing-standard;
+    background-color $md3-transition-duration-short
+      $md3-transition-easing-standard;
 
   &:focus {
     outline: none;

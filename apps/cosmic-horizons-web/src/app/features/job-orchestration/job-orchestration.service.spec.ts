@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { JobOrchestrationService } from './job-orchestration.service';
 import { MockModeService } from '../../services/mock-mode.service';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { firstValueFrom } from 'rxjs';
-
 
 describe('JobOrchestrationService', () => {
   let service: JobOrchestrationService;
@@ -86,7 +88,9 @@ describe('JobOrchestrationService', () => {
   });
 
   it('applyJobUpdate merges into current job list', () => {
-    service['jobsSubject'].next([{ id: '1', name: 'x', status: 'queued' } as any]);
+    service['jobsSubject'].next([
+      { id: '1', name: 'x', status: 'queued' } as any,
+    ]);
     service.applyJobUpdate({ id: '1', status: 'running' });
     const jobs = service['jobsSubject'].getValue();
     expect(jobs[0].status).toBe('running');

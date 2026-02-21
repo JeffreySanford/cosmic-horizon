@@ -44,7 +44,8 @@ p {
 a {
   color: var(--md3-color-primary);
   text-decoration: none;
-  transition: color $md3-transition-duration-short $md3-transition-easing-standard;
+  transition: color $md3-transition-duration-short
+    $md3-transition-easing-standard;
 
   &:hover {
     color: var(--md3-color-secondary);

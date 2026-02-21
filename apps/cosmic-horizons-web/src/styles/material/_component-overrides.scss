@@ -13,7 +13,10 @@
   color: #67e8f9;
 }
 
-.cdk-overlay-pane .mat-mdc-menu-panel .mat-mdc-menu-item .mdc-list-item__primary-text {
+.cdk-overlay-pane
+  .mat-mdc-menu-panel
+  .mat-mdc-menu-item
+  .mdc-list-item__primary-text {
   color: #a5f3fc;
 }
 
@@ -23,13 +26,21 @@
 
 .cdk-overlay-pane .mat-mdc-dialog-surface {
   border: 1px solid rgba(56, 189, 248, 0.3);
-  background: linear-gradient(155deg, var(--ch-surface-deep), var(--ch-surface-raised));
+  background: linear-gradient(
+    155deg,
+    var(--ch-surface-deep),
+    var(--ch-surface-raised)
+  );
 }
 
 /* Material component harmonization */
 .mat-mdc-card {
   border: 1px solid rgba(56, 189, 248, 0.22);
-  background: linear-gradient(160deg, rgba(11, 20, 38, 0.78), rgba(16, 32, 58, 0.62));
+  background: linear-gradient(
+    160deg,
+    rgba(11, 20, 38, 0.78),
+    rgba(16, 32, 58, 0.62)
+  );
   box-shadow: 0 14px 28px rgba(2, 6, 23, 0.32);
   transition:
     transform 200ms ease,
@@ -76,7 +87,11 @@
 }
 
 .mat-mdc-header-row {
-  background: linear-gradient(115deg, rgba(14, 165, 233, 0.18), rgba(250, 204, 21, 0.16));
+  background: linear-gradient(
+    115deg,
+    rgba(14, 165, 233, 0.18),
+    rgba(250, 204, 21, 0.16)
+  );
 }
 
 .mat-mdc-row {

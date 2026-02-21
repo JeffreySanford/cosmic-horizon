@@ -1,10 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  Component,
-  inject,
-  OnInit,
-  PLATFORM_ID,
-} from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthSessionService } from '../../services/auth-session.service';
 import {
@@ -49,19 +44,22 @@ export class LandingComponent implements OnInit {
       icon: 'travel_explore',
       title: 'Viewer, Permalinks, and Snapshots',
       route: '/view',
-      summary: 'Explore sky imagery, save stateful links, and capture reproducible snapshots.',
+      summary:
+        'Explore sky imagery, save stateful links, and capture reproducible snapshots.',
     },
     {
       icon: 'auto_graph',
       title: 'Scientific Ephemeris & Target Search',
       route: '/ephem',
-      summary: 'Calculate object positions and visibility windows for observation planning.',
+      summary:
+        'Calculate object positions and visibility windows for observation planning.',
     },
     {
       icon: 'hub',
       title: 'Array Telemetry Network',
       route: '/array-telemetry',
-      summary: 'Monitor stream and node telemetry from the live messaging fabric.',
+      summary:
+        'Monitor stream and node telemetry from the live messaging fabric.',
     },
   ];
   routeLinks: LandingRouteLink[] = [
@@ -90,7 +88,8 @@ export class LandingComponent implements OnInit {
       icon: 'dns',
       title: 'Broker Metrics',
       route: '/operations/broker-comparison',
-      summary: 'Compare broker performance, throughput, and reliability metrics.',
+      summary:
+        'Compare broker performance, throughput, and reliability metrics.',
       group: 'mission',
       adminOnly: true,
     },
@@ -98,7 +97,8 @@ export class LandingComponent implements OnInit {
       icon: 'list_alt',
       title: 'System Logs',
       route: '/logs',
-      summary: 'Audit operational events and investigate platform activity trails.',
+      summary:
+        'Audit operational events and investigate platform activity trails.',
       group: 'info',
       adminOnly: true,
     },
@@ -107,7 +107,8 @@ export class LandingComponent implements OnInit {
       icon: 'settings',
       title: 'Operations',
       route: '/operations',
-      summary: 'Open operations dashboards for infrastructure health and diagnostics.',
+      summary:
+        'Open operations dashboards for infrastructure health and diagnostics.',
       group: 'mission',
     },
   ];
@@ -163,7 +164,9 @@ export class LandingComponent implements OnInit {
   }
 
   get visibleMissionLinks(): LandingRouteLink[] {
-    return this.visibleRouteLinks.filter((link) => (link.group ?? 'mission') === 'mission');
+    return this.visibleRouteLinks.filter(
+      (link) => (link.group ?? 'mission') === 'mission',
+    );
   }
 
   get visibleInfoLinks(): LandingRouteLink[] {
@@ -208,13 +211,15 @@ export class LandingComponent implements OnInit {
       this.skyPreviewService.personalizeFromBrowserLocation().subscribe({
         next: (preview) => {
           if (!preview) {
-            this.locationMessage = 'Failed to personalize preview. Using default.';
+            this.locationMessage =
+              'Failed to personalize preview. Using default.';
             return;
           }
 
           this.preview = preview;
           this.syncTelemetryFromPreview();
-          this.locationMessage = 'Sky map personalized to your overhead location.';
+          this.locationMessage =
+            'Sky map personalized to your overhead location.';
           this.updateBackgroundImage();
         },
         error: () => {

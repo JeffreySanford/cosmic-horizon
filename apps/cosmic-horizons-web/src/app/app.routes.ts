@@ -20,9 +20,7 @@ export const appRoutes: Route[] = [
         iconTone: 'slate',
         subtitle: 'Secure account access',
         showUserMenu: false,
-        breadcrumbs: [
-          { label: 'Auth', icon: 'lock' },
-        ],
+        breadcrumbs: [{ label: 'Auth', icon: 'lock' }],
       },
     },
   },
@@ -57,9 +55,7 @@ export const appRoutes: Route[] = [
             label: 'First paint target',
           },
         ],
-        breadcrumbs: [
-          { label: 'Home', route: '/landing', icon: 'home' },
-        ],
+        breadcrumbs: [{ label: 'Home', route: '/landing', icon: 'home' }],
       },
     },
   },

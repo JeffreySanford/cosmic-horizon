@@ -1,8 +1,16 @@
 .app-footer {
   position: relative;
   background:
-    radial-gradient(circle at 10% -120%, rgba(56, 189, 248, 0.26), transparent 54%),
-    radial-gradient(circle at 88% -95%, rgba(250, 204, 21, 0.2), transparent 52%),
+    radial-gradient(
+      circle at 10% -120%,
+      rgba(56, 189, 248, 0.26),
+      transparent 54%
+    ),
+    radial-gradient(
+      circle at 88% -95%,
+      rgba(250, 204, 21, 0.2),
+      transparent 52%
+    ),
     linear-gradient(145deg, #0a1528 0%, #122643 62%, #0e1f38 100%);
   border-top: 1px solid rgba(125, 211, 252, 0.32);
   padding: 0.95rem 1rem;
@@ -76,4 +84,3 @@
     justify-content: center;
   }
 }
-

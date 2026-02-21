@@ -22,7 +22,9 @@ class MockMessagingService {
 
 const perfStub = {
   progressSeries$: of([{ name: 'w0', series: [{ name: 'avg', value: 42 }] }]),
-  gpuProgressSeries$: of([{ name: 'w0', series: [{ name: 'avg', value: 42 }] }]),
+  gpuProgressSeries$: of([
+    { name: 'w0', series: [{ name: 'avg', value: 42 }] },
+  ]),
 };
 
 const jobServiceStub = {
@@ -36,7 +38,12 @@ describe('OperationsHomeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [OperationsHomeComponent],
-      imports: [RouterTestingModule, MatCardModule, MatBadgeModule, MatIconModule],
+      imports: [
+        RouterTestingModule,
+        MatCardModule,
+        MatBadgeModule,
+        MatIconModule,
+      ],
       providers: [
         { provide: MessagingService, useClass: MockMessagingService },
         { provide: PerformanceDataService, useValue: perfStub },
@@ -60,7 +67,9 @@ describe('OperationsHomeComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const titles = fixture.nativeElement.querySelectorAll('.tile-title');
-    const titleTexts = Array.from(titles).map((el: any) => el.textContent.trim());
+    const titleTexts = Array.from(titles).map((el: any) =>
+      el.textContent.trim(),
+    );
     expect(titleTexts).toContain('Broker Comparison');
     expect(titleTexts).toContain('Job Dashboard');
     expect(titleTexts).toContain('Node Performance');
@@ -84,11 +93,14 @@ describe('OperationsHomeComponent', () => {
     const subtitle = fixture.nativeElement.querySelector('.tile-subtitle');
     expect(subtitle.textContent).toContain('Refreshed');
 
-    const badgeContent: HTMLElement | null = fixture.nativeElement.querySelector('.mat-badge-content');
+    const badgeContent: HTMLElement | null =
+      fixture.nativeElement.querySelector('.mat-badge-content');
     expect(badgeContent).toBeTruthy();
     expect(badgeContent?.textContent?.trim()).toBe('1');
 
-    const chips = fixture.nativeElement.querySelectorAll('.tile-chips .tile-pill');
+    const chips = fixture.nativeElement.querySelectorAll(
+      '.tile-chips .tile-pill',
+    );
     expect(chips.length).toBeGreaterThanOrEqual(2);
     const texts = Array.from(chips).map((c: any) => c.textContent.trim());
     expect(texts.some((t) => t.includes('CPU'))).toBe(true);

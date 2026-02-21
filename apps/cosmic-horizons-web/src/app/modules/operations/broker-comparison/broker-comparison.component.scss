@@ -24,7 +24,11 @@ mat-toolbar {
   margin-bottom: 1rem;
   border-radius: 0.85rem;
   border: 1px solid var(--bc-border);
-  background: linear-gradient(145deg, rgba(8, 19, 35, 0.88), rgba(14, 33, 58, 0.8));
+  background: linear-gradient(
+    145deg,
+    rgba(8, 19, 35, 0.88),
+    rgba(14, 33, 58, 0.8)
+  );
   color: var(--bc-text);
 
   .toolbar-title {
@@ -51,7 +55,11 @@ mat-card {
 
   &.info-card {
     border-color: rgba(250, 204, 21, 0.35);
-    background: linear-gradient(130deg, rgba(14, 37, 63, 0.9), rgba(31, 61, 95, 0.8));
+    background: linear-gradient(
+      130deg,
+      rgba(14, 37, 63, 0.9),
+      rgba(31, 61, 95, 0.8)
+    );
 
     mat-card-title {
       color: #fef08a;
@@ -67,7 +75,11 @@ mat-card {
   &.metric-card,
   &.details-card,
   &.system-metrics-card {
-    background: linear-gradient(165deg, var(--bc-surface), var(--bc-surface-alt));
+    background: linear-gradient(
+      165deg,
+      var(--bc-surface),
+      var(--bc-surface-alt)
+    );
   }
 
   &.metric-card {
@@ -76,13 +88,21 @@ mat-card {
 
   &.info-footer {
     border-top: 3px solid var(--bc-primary);
-    background: linear-gradient(160deg, rgba(10, 22, 40, 0.78), rgba(13, 29, 50, 0.7));
+    background: linear-gradient(
+      160deg,
+      rgba(10, 22, 40, 0.78),
+      rgba(13, 29, 50, 0.7)
+    );
   }
 
   &.info-panel {
     border-left: 4px solid var(--bc-primary);
     border-top: 1px solid rgba(125, 211, 252, 0.42);
-    background: linear-gradient(180deg, rgba(12, 27, 48, 0.82), rgba(11, 24, 43, 0.74));
+    background: linear-gradient(
+      180deg,
+      rgba(12, 27, 48, 0.82),
+      rgba(11, 24, 43, 0.74)
+    );
 
     a {
       color: #7dd3fc;
@@ -133,7 +153,11 @@ mat-card-content {
   align-items: center;
   gap: 0.75rem;
   padding: 0.9rem 1rem;
-  background: linear-gradient(145deg, rgba(127, 29, 29, 0.76), rgba(153, 27, 27, 0.74));
+  background: linear-gradient(
+    145deg,
+    rgba(127, 29, 29, 0.76),
+    rgba(153, 27, 27, 0.74)
+  );
   border-left: 4px solid var(--bc-error);
   border-radius: 0.5rem;
   color: #fee2e2;
