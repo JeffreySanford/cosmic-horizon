@@ -5,7 +5,11 @@ import { Kafka } from 'kafkajs';
 
 afterEach(async () => {
   // restore any Kafka.prototype.admin spy used in tests
-  try { (Kafka.prototype as any).admin.mockRestore(); } catch (e) { /* ignore */ }
+  try {
+    (Kafka.prototype as any).admin.mockRestore();
+  } catch (e) {
+    /* ignore */
+  }
   await testingModule?.close();
 });
 
@@ -28,7 +32,9 @@ describe('BrokerMetricsCollector', () => {
       connect: jest.fn().mockResolvedValue(undefined),
       disconnect: jest.fn().mockResolvedValue(undefined),
     } as any;
-    jest.spyOn(Kafka.prototype as any, 'admin').mockImplementation(() => adminMock);
+    jest
+      .spyOn(Kafka.prototype as any, 'admin')
+      .mockImplementation(() => adminMock);
 
     testingModule = await Test.createTestingModule({
       providers: [BrokerMetricsCollector],
@@ -52,7 +58,7 @@ describe('BrokerMetricsCollector', () => {
     });
 
     it('should mark brokers as disconnected when collection fails', async () => {
-        mockedAxios.create.mockReturnValue({
+      mockedAxios.create.mockReturnValue({
         get: jest.fn().mockRejectedValue(new Error('Connection refused')),
       } as any);
 
@@ -258,7 +264,9 @@ describe('BrokerMetricsCollector', () => {
         connect: jest.fn().mockResolvedValue(undefined),
         disconnect: jest.fn().mockResolvedValue(undefined),
       } as any;
-      jest.spyOn(Kafka.prototype as any, 'admin').mockImplementation(() => adminMock);
+      jest
+        .spyOn(Kafka.prototype as any, 'admin')
+        .mockImplementation(() => adminMock);
 
       const topicsSpy = jest
         .spyOn(testCollector as any, 'fetchTopicsForNative')

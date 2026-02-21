@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
 import { AxiosHeaders, AxiosResponse } from 'axios';
 import { EphemerisService } from './ephemeris.service';
+import { RequestContextService } from '../context/request-context.service';
 import { CacheService } from '../cache/cache.service';
 
 afterEach(async () => {
@@ -15,6 +16,7 @@ describe('EphemerisService', () => {
   let service: EphemerisService;
   let cacheService: jest.Mocked<CacheService>;
   let httpService: jest.Mocked<HttpService>;
+  let ctxService: jest.Mocked<RequestContextService>;
 
   beforeEach(async () => {
     const mockCacheService = {
@@ -25,6 +27,9 @@ describe('EphemerisService', () => {
     const mockHttpService = {
       get: jest.fn(),
     };
+    const mockCtxService = {
+      getCorrelationId: jest.fn().mockReturnValue('cid-ephem' as any),
+    } as unknown as jest.Mocked<RequestContextService>;
 
     testingModule = await Test.createTestingModule({
       providers: [
@@ -37,12 +42,17 @@ describe('EphemerisService', () => {
           provide: HttpService,
           useValue: mockHttpService,
         },
+        {
+          provide: RequestContextService,
+          useValue: mockCtxService,
+        },
       ],
     }).compile();
 
     service = testingModule.get<EphemerisService>(EphemerisService);
     cacheService = testingModule.get(CacheService);
     httpService = testingModule.get(HttpService);
+    ctxService = testingModule.get(RequestContextService);
   });
 
   it('should be defined', () => {
@@ -120,17 +130,31 @@ $$EOE
     } as AxiosResponse<{ result: string }>;
     httpService.get.mockReturnValue(of(response));
 
-    const result = await service.calculatePosition(
+    const asteroidResult = await service.calculatePosition('asteroid-123');
+    expect(asteroidResult).not.toBeNull();
+
+    // outgoing HTTP should carry correlation header
+    expect(httpService.get).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        params: expect.any(Object),
+        headers: expect.objectContaining({
+          'X-Correlation-Id': 'cid-ephem',
+        }),
+      }),
+    );
+
+    const erosResult = await service.calculatePosition(
       'eros',
       '2026-02-11T12:00:00Z',
     );
 
-    expect(result).toBeDefined();
-    expect(result?.source).toBe('jpl-horizons');
-    expect(result?.object_type).toBe('asteroid');
+    expect(erosResult).toBeDefined();
+    expect(erosResult?.source).toBe('jpl-horizons');
+    expect(erosResult?.object_type).toBe('asteroid');
     // 14h 28m 32.12s -> 14.47558... hours -> 217.133... degrees
-    expect(result?.ra).toBeCloseTo(217.1338, 4);
-    expect(result?.dec).toBeCloseTo(-15.47836, 4);
+    expect(erosResult?.ra).toBeCloseTo(217.1338, 4);
+    expect(erosResult?.dec).toBeCloseTo(-15.47836, 4);
   });
 
   // ========== ADDITIONAL COVERAGE TESTS ==========

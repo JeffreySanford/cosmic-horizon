@@ -1,0 +1,79 @@
+
+> @cosmic-horizons/source@1.0.0 quality:ci C:\repos\cosmic-horizons
+> pnpm nx run docs-policy:check && pnpm format:check:changed && pnpm openapi:check && pnpm standalone:check && pnpm run env:check && pnpm nx run-many --target=test --all && pnpm nx run mvp-gates:e2e
+
+
+> nx run docs-policy:check
+
+> pnpm docs:view:build && pnpm docs:check
+
+
+> @cosmic-horizons/source@1.0.0 docs:view:build C:\repos\cosmic-horizons
+> node scripts/build-docs-view-catalog.mjs
+
+Docs catalog built: 55 entries -> documentation/index/DOCS-VIEW-CATALOG.json
+
+> @cosmic-horizons/source@1.0.0 docs:check C:\repos\cosmic-horizons
+> node scripts/check-doc-consistency.mjs
+
+Documentation consistency check passed.
+
+
+
+ NX   Successfully ran target check for project docs-policy
+
+
+
+> @cosmic-horizons/source@1.0.0 format:check:changed C:\repos\cosmic-horizons
+> node scripts/check-format-changed.mjs
+
+warning: in the working copy of '.github/workflows/e2e.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'HARDENING-PLAN.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api-e2e/src/cosmic-horizons-api/cosmic-horizons-api.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/auth/dto/login.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/auth/dto/refresh-token.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/auth/dto/register.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/config/env-validation.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/config/env-validation.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/config/session.config.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/config/session.config.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/context/request-context.service.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/context/request-context.service.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/create-comment.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/create-post.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/create-user.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/update-post.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/update-user.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/ephemeris/ephemeris.service.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/guards/rate-limit.guard.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/guards/rate-limit.guard.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/jobs/jobs.module.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/messaging/messaging-integration.service.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/middleware/correlation.middleware.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/middleware/correlation.middleware.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/modules/community/community.service.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/modules/operations/broker-metrics.collector.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/modules/operations/broker-metrics.collector.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/profile/profile.controller.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/viewer/dto/create-viewer-snapshot.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/viewer/viewer.controller.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/viewer/viewer.controller.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/main.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-web-e2e/src/broker-runtime-warnings.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-web-e2e/src/profile.console.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-web/src/app/interceptors/http-logger.interceptor.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'documentation/index/DOCS-VIEW-CATALOG.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'documentation/index/OVERVIEW-V2.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'documentation/reference/ENV-REFERENCE.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'documentation/reference/api/openapi.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'pnpm-lock.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/benchmark-pulsar-vs-rabbitmq.mjs', LF will be replaced by CRLF the next time Git touches it
+Checking formatting for 43 changed files...
+Checking formatting...
+[[33mwarn[39m] documentation/reference/api/openapi.json
+[[33mwarn[39m] Code style issues found in the above file. Run Prettier with --write to fix.
+ ELIFECYCLE  Command failed with exit code 1.
+ ELIFECYCLE  Command failed with exit code 1.

@@ -103,6 +103,13 @@
         "options": {
           "passWithNoTests": true
         }
+      },
+      "add-db-migrations": {
+        "executor": "nx:run-commands",
+        "outputs": [],
+        "options": {
+          "command": "pnpm run db:migrate"
+        }
       }
     }
   },

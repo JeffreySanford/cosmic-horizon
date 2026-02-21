@@ -22,24 +22,27 @@ Complete reference of all environment variables used by Cosmic Horizons.
 | `REDIS_PASSWORD`     | string  | (empty)     | No       | Redis password (SENSITIVE)                         |
 | `REDIS_AUTH_ENABLED` | boolean | `false`     | No       | Enable Redis password auth in local/prod-like runs |
 | `REDIS_DB`           | number  | `0`         | No       | Redis database number                              |
+| `REDIS_CACHE_TTL`    | number  | `86400`     | No       | Default time‑to‑live (seconds) for cache entries   |
 
 ## Server
 
-| Variable        | Type   | Default                 | Required | Usage                    |
-| --------------- | ------ | ----------------------- | -------- | ------------------------ |
-| `NODE_ENV`      | string | `development`           | No       | Application environment  |
-| `API_PORT`      | number | `3000`                  | No       | API server port          |
-| `SERVER_HOST`   | string | `0.0.0.0`               | No       | API server bind address  |
-| `FRONTEND_PORT` | number | `4200`                  | No       | Frontend dev server port |
-| `FRONTEND_URL`  | string | `http://localhost:4200` | Yes      | Frontend public URL      |
+| Variable        | Type   | Default                 | Required | Usage                                                             |
+| --------------- | ------ | ----------------------- | -------- | ----------------------------------------------------------------- |
+| `NODE_ENV`      | string | `development`           | No       | Application environment                                           |
+| `API_PORT`      | number | `3000`                  | No       | API server port                                                   |
+| `API_PREFIX`    | string | `api`                   | No       | Path prefix for API routes (used by frontend proxy configuration) |
+| `SERVER_HOST`   | string | `0.0.0.0`               | No       | API server bind address                                           |
+| `FRONTEND_PORT` | number | `4200`                  | No       | Frontend dev server port                                          |
+| `FRONTEND_URL`  | string | `http://localhost:4200` | Yes      | Frontend public URL                                               |
 
 ## Authentication
 
-| Variable         | Type   | Default       | Required | Usage                                     |
-| ---------------- | ------ | ------------- | -------- | ----------------------------------------- |
-| `JWT_SECRET`     | string | (dev-default) | Yes      | JWT signing key (min 32 chars, SENSITIVE) |
-| `JWT_EXPIRES_IN` | string | `7d`          | No       | JWT token expiration                      |
-| `SESSION_SECRET` | string | (dev-default) | Yes      | Express session secret (SENSITIVE)        |
+| Variable                | Type    | Default       | Required              | Usage                                                                              |
+| ----------------------- | ------- | ------------- | --------------------- | ---------------------------------------------------------------------------------- |
+| `JWT_SECRET`            | string  | (dev-default) | Yes                   | JWT signing key (min 32 chars, SENSITIVE)                                          |
+| `JWT_EXPIRES_IN`        | string  | `7d`          | No                    | JWT token expiration                                                               |
+| `SESSION_SECRET`        | string  | (dev-default) | Yes                   | Express session secret (SENSITIVE)                                                 |
+| `SESSION_REDIS_ENABLED` | boolean | false         | No (required in prod) | Enable Redis-backed session store (production). Implies `REDIS_HOST`/`REDIS_PORT`. |
 
 ## GitHub OAuth
 
@@ -56,6 +59,42 @@ Complete reference of all environment variables used by Cosmic Horizons.
 | `LOG_LEVEL`            | string  | `info`  | No       | Logging level (debug/info/warn/error) |
 | `LOGS_REDIS_ENABLED`   | boolean | `false` | No       | Enable Redis-based audit logging      |
 | `AUDIT_RETENTION_DAYS` | number  | `90`    | No       | Retention period for audit logs       |
+
+## Features
+
+## Event Streaming / Messaging
+
+### RabbitMQ
+
+| Variable             | Type   | Default     | Required | Usage                                   |
+| -------------------- | ------ | ----------- | -------- | --------------------------------------- |
+| `RABBITMQ_HOST`      | string | `localhost` | No       | RabbitMQ hostname for the event broker  |
+| `RABBITMQ_PORT`      | number | `5672`      | No       | AMQP port                               |
+| `RABBITMQ_MGMT_PORT` | number | `15672`     | No       | Management UI port                      |
+| `RABBITMQ_USER`      | string | (none)      | No       | RabbitMQ username for local development |
+| `RABBITMQ_PASS`      | string | (none)      | No       | RabbitMQ password for local development |
+
+### Kafka
+
+| Variable                         | Type   | Default          | Required | Usage                                          |
+| -------------------------------- | ------ | ---------------- | -------- | ---------------------------------------------- |
+| `KAFKA_BROKERS`                  | string | `localhost:9092` | No       | Comma-separated list of Kafka broker addresses |
+| `KAFKA_HOST`                     | string | `localhost`      | No       | Host used by local Docker compose              |
+| `KAFKA_PORT`                     | number | `9092`           | No       | Kafka listener port                            |
+| `KAFKAJS_NO_PARTITIONER_WARNING` | number | `1`              | No       | Suppress KafkaJS partitioner warnings          |
+| `KAFKA_METRICS_URL`              | string | (none)           | No       | Prometheus endpoint for Kafka metrics          |
+| `KAFKA_JMX_PORT`                 | number | `9999`           | No       | JMX port for Kafka in Docker                   |
+
+### Pulsar
+
+| Variable             | Type    | Default                 | Required | Usage                                                |
+| -------------------- | ------- | ----------------------- | -------- | ---------------------------------------------------- |
+| `PULSAR_ENABLED`     | boolean | `false`                 | No       | Enable Pulsar broker in local demos/benchmarks       |
+| `PULSAR_BROKERS`     | string  | `localhost:6650`        | No       | Pulsar broker connection string                      |
+| `PULSAR_ADMIN_URL`   | string  | `http://localhost:8080` | No       | Pulsar admin REST API URL                            |
+| `PULSAR_MANAGER_URL` | string  | `http://localhost:9527` | No       | Pulsar manager UI URL                                |
+| `PULSAR_NAMESPACES`  | string  | (none)                  | No       | Comma-separated list of Pulsar namespaces used       |
+| `PULSAR_TOPICS`      | string  | (none)                  | No       | Comma-separated list of Pulsar topics for evaluation |
 
 ## Features
 
@@ -141,11 +180,15 @@ export FRONTEND_URL=https://cosmichorizons.org
 
 1. **Never** commit .env files with real values
 2. **Never** log or print JWT_SECRET or SESSION_SECRET
-3. **Always** use min 32-character secrets in production
-4. **Always** rotate secrets regularly
-5. **Always** use HTTPS in production
-6. **Always** validate secret values on startup (production)
-7. **Always** use a secrets manager in production (AWS Secrets Manager, Vault, etc.)
+
+3. Session storage
+   - `SESSION_REDIS_ENABLED` = `true` forces use of Redis for sessions; in production it is required.
+   - `REDIS_HOST`/`REDIS_PORT` must be defined when using Redis for cache or sessions.
+4. **Always** use min 32-character secrets in production
+5. **Always** rotate secrets regularly
+6. **Always** use HTTPS in production
+7. **Always** validate secret values on startup (production)
+8. **Always** use a secrets manager in production (AWS Secrets Manager, Vault, etc.)
 
 ## Troubleshooting
 

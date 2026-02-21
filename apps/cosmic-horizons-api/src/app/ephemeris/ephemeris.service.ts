@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CacheService } from '../cache/cache.service';
+import { RequestContextService } from '../context/request-context.service';
 import * as Astronomy from 'astronomy-engine';
 
 export interface EphemerisResult {
@@ -23,6 +24,7 @@ export class EphemerisService {
   constructor(
     private readonly cache: CacheService,
     private readonly httpService: HttpService,
+    private readonly ctx: RequestContextService,
   ) {}
 
   async calculatePosition(
@@ -143,8 +145,14 @@ export class EphemerisService {
       this.logger.log(
         `Fetching JPL Horizons data for ${name} at ${dateStr}...`,
       );
+      const headers: Record<string, string> = {};
+      const cid = this.ctx.getCorrelationId();
+      if (cid) {
+        headers['X-Correlation-Id'] = cid;
+      }
+
       const response = await firstValueFrom(
-        this.httpService.get(url, { params }),
+        this.httpService.get(url, { params, headers }),
       );
       const resultString = response.data?.result;
 

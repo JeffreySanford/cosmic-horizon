@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
+import { RequestContextService } from '../context/request-context.service';
 import { Logger } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import { EphemerisService, EphemerisResult } from './ephemeris.service';
@@ -30,6 +31,7 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
   let service: EphemerisService;
   let cacheService: jest.Mocked<CacheService>;
   let httpService: jest.Mocked<HttpService>;
+  let ctxService: jest.Mocked<RequestContextService>;
 
   beforeEach(async () => {
     testingModule = await Test.createTestingModule({
@@ -49,12 +51,19 @@ describe('EphemerisService - Error Paths & Branch Coverage', () => {
             get: jest.fn(),
           },
         },
+        {
+          provide: RequestContextService,
+          useValue: {
+            getCorrelationId: jest.fn().mockReturnValue('cid-err' as any),
+          },
+        },
       ],
     }).compile();
 
     service = testingModule.get<EphemerisService>(EphemerisService);
     cacheService = testingModule.get(CacheService) as jest.Mocked<CacheService>;
     httpService = testingModule.get(HttpService) as jest.Mocked<HttpService>;
+    ctxService = testingModule.get(RequestContextService);
 
     jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);

@@ -25,6 +25,18 @@
         "tags": ["App"]
       }
     },
+    "/api/internal-docs/catalog": {
+      "get": {
+        "operationId": "AppController_getDocumentationCatalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["App"]
+      }
+    },
     "/api/internal-docs/content/{docId}": {
       "get": {
         "operationId": "AppController_getDocumentationContent",
@@ -1278,6 +1290,409 @@
         },
         "tags": ["Jobs"]
       }
+    },
+    "/api/events/topics": {
+      "get": {
+        "operationId": "EventsController_getTopics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["Events"]
+      }
+    },
+    "/api/events/history": {
+      "get": {
+        "operationId": "EventsController_getEventHistory",
+        "parameters": [
+          {
+            "name": "topic",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sinceTimestamp",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromOffset",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["Events"]
+      }
+    },
+    "/api/events/offsets": {
+      "get": {
+        "operationId": "EventsController_getConsumerOffsets",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["Events"]
+      }
+    },
+    "/api/events/offsets/ack": {
+      "post": {
+        "operationId": "EventsController_ackConsumerOffset",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["Events"]
+      }
+    },
+    "/api/community/feed": {
+      "get": {
+        "operationId": "CommunityController_getFeed",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Feed returned"
+          }
+        },
+        "summary": "Get recent community discoveries (prototype)",
+        "tags": ["Community - Discoveries"]
+      }
+    },
+    "/api/community/posts/pending": {
+      "get": {
+        "operationId": "CommunityController_getPending",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Pending discoveries"
+          }
+        },
+        "summary": "Get pending (hidden) discoveries (admin/dev)",
+        "tags": ["Community - Discoveries"]
+      }
+    },
+    "/api/community/posts": {
+      "post": {
+        "operationId": "CommunityController_createPost",
+        "parameters": [
+          {
+            "name": "forceHidden",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "autoApprove",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDiscoveryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Discovery created"
+          }
+        },
+        "summary": "Create a discovery (prototype, supports dev-only moderation flags)",
+        "tags": ["Community - Discoveries"]
+      }
+    },
+    "/api/community/posts/{id}/approve": {
+      "patch": {
+        "operationId": "CommunityController_approvePost",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Discovery approved and published"
+          }
+        },
+        "summary": "Approve a discovery (dev/admin action)",
+        "tags": ["Community - Discoveries"]
+      }
+    },
+    "/api/community/posts/{id}/hide": {
+      "patch": {
+        "operationId": "CommunityController_hidePost",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Discovery hidden"
+          }
+        },
+        "summary": "Hide a discovery (dev/admin action)",
+        "tags": ["Community - Discoveries"]
+      }
+    },
+    "/api/internal/brokers/stats": {
+      "get": {
+        "description": "Returns real-time statistics for all configured brokers (RabbitMQ, Kafka, Pulsar)",
+        "operationId": "BrokerMetricsController_getStats",
+        "parameters": [
+          {
+            "name": "forceRefresh",
+            "required": false,
+            "in": "query",
+            "description": "Bypass 60s cache and fetch fresh metrics",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Broker metrics retrieved successfully"
+          },
+          "500": {
+            "description": "Failed to collect broker metrics"
+          }
+        },
+        "summary": "Get current broker metrics",
+        "tags": ["Operations - Broker Metrics"]
+      }
+    },
+    "/api/internal/brokers/history": {
+      "get": {
+        "description": "Returns time-series data for building performance trend charts",
+        "operationId": "BrokerMetricsController_getHistory",
+        "parameters": [
+          {
+            "name": "hours",
+            "required": false,
+            "in": "query",
+            "description": "Number of hours of history to retrieve",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historical metrics retrieved successfully"
+          }
+        },
+        "summary": "Get historical broker metrics",
+        "tags": ["Operations - Broker Metrics"]
+      }
+    },
+    "/api/internal/brokers/benchmark": {
+      "post": {
+        "description": "Runs message comparison test across all brokers. Supports standard and heavy stress profiles.",
+        "operationId": "BrokerMetricsController_startBenchmark",
+        "parameters": [
+          {
+            "name": "stressTest",
+            "required": false,
+            "in": "query",
+            "description": "Run high-load stress test with heavy defaults (5M messages, 64KB payload, high inflight)",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "messageCount",
+            "required": false,
+            "in": "query",
+            "description": "Custom number of messages to send (overrides defaults)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "brokers",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated broker list (rabbitmq,kafka,pulsar) for per-run execution",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "payloadKb",
+            "required": false,
+            "in": "query",
+            "description": "Synthetic payload size in kilobytes per event",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "inflight",
+            "required": false,
+            "in": "query",
+            "description": "Maximum in-flight publish operations (higher values increase memory pressure)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "trials",
+            "required": false,
+            "in": "query",
+            "description": "Number of repeated benchmark trials for median/p95 summary",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "in": "query",
+            "description": "Deterministic replay seed for payload/order generation",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "measuredOnly",
+            "required": false,
+            "in": "query",
+            "description": "When true (default), block benchmark runs that rely on fallback/simulated metrics",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Benchmark started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "status": "running",
+                    "jobId": "bm-20260215-143000",
+                    "estimatedDurationSeconds": 45,
+                    "testType": "standard"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another benchmark is already running"
+          }
+        },
+        "summary": "Trigger broker performance benchmark",
+        "tags": ["Operations - Broker Metrics"]
+      }
+    },
+    "/api/internal/brokers/system-metrics": {
+      "get": {
+        "description": "Returns current CPU, memory, and disk I/O usage percentages",
+        "operationId": "BrokerMetricsController_getSystemMetrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "System metrics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "cpu": 45.2,
+                    "memory": 67.8,
+                    "disk": 23.1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get system resource metrics",
+        "tags": ["Operations - Broker Metrics"]
+      }
+    },
+    "/api/internal/brokers/health": {
+      "get": {
+        "description": "Returns immediate health status of all configured brokers",
+        "operationId": "BrokerMetricsController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "rabbitmq": "ok",
+                    "kafka": "ok",
+                    "pulsar": "ok"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Quick broker health check",
+        "tags": ["Operations - Broker Metrics"]
+      }
     }
   },
   "info": {
@@ -1342,6 +1757,10 @@
         "properties": {}
       },
       "ReportCommentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateDiscoveryDto": {
         "type": "object",
         "properties": {}
       }

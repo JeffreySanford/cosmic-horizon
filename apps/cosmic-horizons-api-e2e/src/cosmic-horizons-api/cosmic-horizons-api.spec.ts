@@ -89,6 +89,23 @@ describe('cosmic-horizons-api e2e', () => {
         expect(axiosError.response?.status).toBe(401);
       }
     });
+
+    it('POST /api/auth/login returns 400 for malformed payload', async () => {
+      try {
+        await axios.post('/api/auth/login', {
+          email: 'not-an-email',
+          // missing password field
+        });
+        throw new Error('Expected login request to fail with 400');
+      } catch (error) {
+        const axiosError = error as AxiosError<any>;
+        expect(axiosError.response?.status).toBe(400);
+        expect(axiosError.response?.data).toMatchObject({
+          statusCode: 400,
+          message: expect.any(Array),
+        });
+      }
+    });
   });
 
   describe('rate limiting for write endpoints', () => {

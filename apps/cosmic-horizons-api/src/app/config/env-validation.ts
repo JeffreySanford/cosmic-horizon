@@ -2,6 +2,9 @@ const LEGACY_KEY_REPLACEMENTS: Record<string, string> = {
   DB_USERNAME: 'DB_USER',
   DB_DATABASE: 'DB_NAME',
   PORT: 'API_PORT',
+  // REDIS_ENABLED used to toggle the cache/session store; now replaced by
+  // REDIS_AUTH_ENABLED and SESSION_REDIS_ENABLED. Presence is a hard error.
+  REDIS_ENABLED: 'REDIS_AUTH_ENABLED or SESSION_REDIS_ENABLED',
 };
 
 const PRODUCTION_REQUIRED_KEYS = [
@@ -101,6 +104,16 @@ function collectValidationResult(
       if (!env[key]) {
         errors.push(`${key} is required in production.`);
       }
+    }
+
+    // session store must use Redis in prod
+    if ((env['SESSION_REDIS_ENABLED'] ?? 'false').toLowerCase() !== 'true') {
+      errors.push('SESSION_REDIS_ENABLED must be true in production.');
+    }
+    if (!env['REDIS_HOST'] || !env['REDIS_PORT']) {
+      errors.push(
+        'REDIS_HOST and REDIS_PORT are required when using Redis in production.',
+      );
     }
 
     const jwtSecret = env['JWT_SECRET'];

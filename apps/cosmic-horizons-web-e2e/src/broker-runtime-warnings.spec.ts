@@ -117,7 +117,9 @@ test('broker view does not emit Angular runtime NG0912 or NG0200 when switching 
 
   // give Angular a moment to render the routed component
   await new Promise((r) => setTimeout(r, 200));
-  await expect(page.locator('app-system-metrics-chart')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('app-system-metrics-chart')).toBeVisible({
+    timeout: 10000,
+  });
 
   // Ensure controls are available
   const viewSelector = '#chart-view';
@@ -137,7 +139,9 @@ test('broker view does not emit Angular runtime NG0912 or NG0200 when switching 
     // wait for a visible svg update, but don't fail the test if not present quickly
     await Promise.race([
       // prefer locator.waitFor so linter doesn't require `expect` to be awaited here
-      page.locator('.chart-container svg').waitFor({ state: 'visible', timeout: 1200 }),
+      page
+        .locator('.chart-container svg')
+        .waitFor({ state: 'visible', timeout: 1200 }),
       new Promise((r) => setTimeout(r, 250)),
     ]);
   }
@@ -151,6 +155,7 @@ test('broker view does not emit Angular runtime NG0912 or NG0200 when switching 
 
   // Allow runtime messages to appear (give slightly more time in CI)
   await new Promise((r) => setTimeout(r, 1000));
+  const joined = logs.join('\n');
   expect(joined).not.toContain('NG0912');
   expect(joined).not.toContain('NG0200');
   expect(joined).not.toMatch(

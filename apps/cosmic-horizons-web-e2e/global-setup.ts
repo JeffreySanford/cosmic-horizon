@@ -27,9 +27,14 @@ async function isUrlHealthy(url: string): Promise<boolean> {
 
 export default async function globalSetup(_config: FullConfig) {
   void _config; // parameter provided by Playwright but not used in our setup
+  // API_BASE_URL may include a port but typically not the `/api` prefix, so we
+  // append `/api/health` here. This mirrors the global prefix configured in the
+  // backend (see apps/cosmic-horizons-api/src/main.ts).
   const apiBase = process.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000';
-  const healthUrl = `${apiBase.replace(/\/$/, '')}/health`;
-  const timeoutMs = Number(process.env['API_READY_TIMEOUT_MS'] ?? 30000);
+  const healthUrl = `${apiBase.replace(/\/$/, '')}/api/health`;
+  // Increase the default timeout to give the Nx servers more time to start
+  // up when running through the Playwright webServer helper.
+  const timeoutMs = Number(process.env['API_READY_TIMEOUT_MS'] ?? 120000);
   const pollIntervalMs = 500;
   const start = Date.now();
 

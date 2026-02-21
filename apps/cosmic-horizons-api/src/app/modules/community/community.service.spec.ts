@@ -95,10 +95,9 @@ describe('CommunityService (DB-backed)', () => {
   });
 
   it('approves a hidden discovery and publishes notification', async () => {
-    await service.createDiscovery(
-      { title: 'to-approve', body: 'x' } as any,
-      { forceHidden: true },
-    );
+    await service.createDiscovery({ title: 'to-approve', body: 'x' } as any, {
+      forceHidden: true,
+    });
     // Simulate DB findOne returning an entity that is hidden
     (repoMock.findOne as jest.Mock).mockResolvedValueOnce({
       id: 'seed-1',

@@ -10,6 +10,8 @@ Enable the astronomy community to discover, annotate, and publish observations t
 
 **Canonical Reference**: [SCOPE-LOCK.md](SCOPE-LOCK.md) + [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md)
 
+**Hardening Checklist**: see [documentation/hardening/HARDENING-PLAN.md](documentation/hardening/HARDENING-PLAN.md) for the detailed security & operations hardening plan that underpins Phase 2.
+
 ## Recent Delta (2026-02-17)
 
 - Web test infrastructure was hardened to reduce CI/jsdom instability (`apps/cosmic-horizons-web/src/test-setup.ts`).
@@ -18,6 +20,9 @@ Enable the astronomy community to discover, annotate, and publish observations t
 - API unit test open-handle stall was resolved locally; `cosmic-horizons-api:test` now exits clean under `--detectOpenHandles`.
 - Playwright/CI improvements: `playwright.config.ts` updated to prefer `localhost` locally and bind `0.0.0.0` in CI; `BASE_URL` set in `.github/workflows/e2e.yml` for deterministic E2E runs.
 - TypeScript build fix: `apps/cosmic-horizons-web-e2e/tsconfig.json` `rootDir` updated so shared libs (e.g. `libs/shared/event-models`) compile correctly during E2E runs.
+
+- Fixed TypeScript diagnostic in `apps/cosmic-horizons-web-e2e/src/broker-runtime-warnings.spec.ts` (undefined `joined`) — canonical spec updated and compiles clean.
+- Confirmed local broker persistence volumes for Kafka, RabbitMQ, and Pulsar in `docker-compose.events.yml` (named volumes: `cosmic-horizons-kafka-data`, `cosmic-horizons-rabbitmq-data`, `pulsar-standalone-data`).
 
 ---
 

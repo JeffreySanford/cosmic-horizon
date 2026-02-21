@@ -6,9 +6,12 @@ import {
   Optional,
 } from '@nestjs/common';
 import {
-  ClientProxy,
   ClientProxyFactory,
   Transport,
+  ClientKafka,
+  ClientRMQ,
+  // ClientProxy used only for typing the retry helper
+  ClientProxy,
 } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { MessagingService } from './messaging.service';
@@ -16,15 +19,17 @@ import { LoggingService } from '../logging/logging.service';
 import { MessagingStatsService } from './messaging-stats.service';
 import { firstValueFrom, Subscription, timeout } from 'rxjs';
 import { Kafka, Partitioners } from 'kafkajs';
-import { Channel, Connection, connect } from 'amqplib';
+import { connect } from 'amqplib';
 
 @Injectable()
 export class MessagingIntegrationService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(MessagingIntegrationService.name);
-  private rabbitClient?: ClientProxy;
-  private kafkaClient?: ClientProxy;
+  // use the concrete proxy classes so TypeScript understands the
+  // implementation returned by ClientProxyFactory.create().
+  private rabbitClient?: ClientRMQ;
+  private kafkaClient?: ClientKafka;
   private subscription?: Subscription;
   private rabbitConnected = false;
   private kafkaConnected = false;
@@ -63,6 +68,10 @@ export class MessagingIntegrationService
       false,
     );
 
+    // ClientProxyFactory.create returns a platform-specific proxy
+    // (ClientRMQ when using Transport.RMQ).  We cast to that type so the
+    // property declarations match and we don't encounter type incompatibility
+    // errors later.
     this.rabbitClient = ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
@@ -72,7 +81,7 @@ export class MessagingIntegrationService
           durable: this.rabbitQueueDurable,
         },
       },
-    });
+    }) as ClientRMQ;
 
     this.kafkaClient = ClientProxyFactory.create({
       transport: Transport.KAFKA,
@@ -91,7 +100,7 @@ export class MessagingIntegrationService
           createPartitioner: Partitioners.LegacyPartitioner,
         },
       },
-    });
+    }) as ClientKafka;
   }
 
   onModuleInit() {
@@ -150,8 +159,13 @@ export class MessagingIntegrationService
     }
 
     try {
+      // Cast to a ClientProxy with an empty events map; this satisfies
+      // the library's generic constraint while keeping our call-site type
+      // errors quiet. eslint is disabled here because the underlying proxy
+      // implementation is sound.
+      // use a generic with no keys – avoids unsafe Function type warnings
       await this.emitWithRetry(
-        this.rabbitClient,
+        this.rabbitClient as ClientProxy<Record<never, never>, string>,
         this.rabbitRoutingKey,
         packet,
         'RabbitMQ',
@@ -175,7 +189,7 @@ export class MessagingIntegrationService
 
     try {
       await this.emitWithRetry(
-        this.kafkaClient,
+        this.kafkaClient as ClientProxy<Record<never, never>, string>,
         'element.raw_data',
         packet,
         'Kafka',
@@ -216,7 +230,13 @@ export class MessagingIntegrationService
               err,
             );
           } catch (parseErr) {
-            this.logger.error('Failed to connect to RabbitMQ after retries', err);
+            // Log parsing error instead of the original error to mark the
+            // variable as used and to surface the URL parsing failure if it
+            // happens.
+            this.logger.error(
+              'Failed to parse RabbitMQ URL after retries',
+              parseErr,
+            );
           }
           return;
         }
@@ -231,12 +251,21 @@ export class MessagingIntegrationService
 
   private async ensureRabbitTopologyWithRetry(maxAttempts = 5): Promise<void> {
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-      let connection: Connection | undefined;
-      let channel: Channel | undefined;
+      // amqplib's `connect` actually returns a `ChannelModel` which does not
+      // satisfy the `Connection` interface defined in the types; we use the
+      // concrete type here and then cast later when necessary.
+      let connection: import('amqplib').ChannelModel | undefined;
+      let channel: import('amqplib').Channel | undefined;
 
       try {
-        connection = await connect(this.rabbitUrl);
+        connection = (await connect(
+          this.rabbitUrl,
+        )) as import('amqplib').ChannelModel;
         channel = await connection.createChannel();
+        if (!channel) {
+          // should never happen; defensively bail out
+          throw new Error('Failed to create RabbitMQ channel');
+        }
         await channel.assertExchange(this.rabbitExchange, 'topic', {
           durable: this.rabbitQueueDurable,
         });
@@ -268,6 +297,7 @@ export class MessagingIntegrationService
         await this.sleep(waitMs);
       } finally {
         await channel?.close().catch(() => undefined);
+        // ChannelModel includes a close method
         await connection?.close().catch(() => undefined);
       }
     }
@@ -359,7 +389,7 @@ export class MessagingIntegrationService
   }
 
   private async emitWithRetry(
-    client: ClientProxy,
+    client: ClientProxy<Record<never, never>, string>,
     event: string,
     payload: unknown,
     brokerName: 'RabbitMQ' | 'Kafka',

@@ -10,7 +10,10 @@ import {
   Request,
   StreamableFile,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+// avoid importing express types to keep eslint happy
+
 import { ViewerService } from './viewer.service';
 import { CreateViewerStateDto } from './dto/create-viewer-state.dto';
 import { CreateViewerSnapshotDto } from './dto/create-viewer-snapshot.dto';
@@ -23,13 +26,13 @@ export class ViewerController {
   constructor(private readonly viewerService: ViewerService) {}
 
   @Post('state')
-  @UseGuards(RateLimitGuard)
+  @UseGuards(AuthenticatedGuard, RateLimitGuard)
   createState(@Body() body: CreateViewerStateDto) {
     return this.viewerService.createState(body.state);
   }
 
   @Post('snapshot')
-  @UseGuards(RateLimitGuard)
+  @UseGuards(AuthenticatedGuard, RateLimitGuard)
   createSnapshot(@Body() body: CreateViewerSnapshotDto) {
     return this.viewerService.createSnapshot(body);
   }
@@ -43,7 +46,12 @@ export class ViewerController {
     @Query('survey') surveyRaw: string,
     @Query('label') labelRaw?: string,
     @Query('detail') detailRaw?: string,
+    @Res({ passthrough: true })
+    res?: { setHeader: (name: string, value: string) => void },
   ): Promise<StreamableFile> {
+    if (res) {
+      res.setHeader('Cache-Control', 'public, max-age=60');
+    }
     const ra = Number(raRaw);
     const dec = Number(decRaw);
     const fov = Number(fovRaw);
@@ -83,7 +91,11 @@ export class ViewerController {
     @Query('dec') decRaw: string,
     @Query('radius') radiusRaw: string,
     @Query('limit') limitRaw?: string,
+    @Res({ passthrough: true }) res?: Response,
   ) {
+    if (res) {
+      res.setHeader('Cache-Control', 'public, max-age=30');
+    }
     const ra = Number(raRaw);
     const dec = Number(decRaw);
     const radius = Number(radiusRaw);

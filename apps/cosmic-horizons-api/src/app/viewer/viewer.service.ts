@@ -21,6 +21,7 @@ import { CreateViewerSnapshotDto } from './dto/create-viewer-snapshot.dto';
 import { ViewerStatePayload } from './dto/create-viewer-state.dto';
 import { ViewerCutoutRequest } from './dto/viewer-cutout.dto';
 import { LoggingService } from '../logging/logging.service';
+import { RequestContextService } from '../context/request-context.service';
 
 const BASE62_ALPHABET =
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -137,6 +138,7 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     private readonly viewerSnapshotRepository: Repository<ViewerSnapshot>,
     private readonly auditLogRepository: AuditLogRepository,
     private readonly loggingService: LoggingService,
+    private readonly ctx: RequestContextService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -1336,7 +1338,7 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
   ): void {
     const payload = {
       event,
-      correlation_id: '272762e810cea2de53a2f',
+      correlation_id: this.ctx.getCorrelationId() ?? 'unknown',
       ...details,
     };
     this.logger.log(JSON.stringify(payload));

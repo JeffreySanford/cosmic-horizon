@@ -233,12 +233,14 @@ export class BrokerMetricsCollector {
           topic as string,
           admin,
         );
-        offsets.forEach((p: { partition: number; offset?: string; high?: string }) => {
-          // 'offset' is a string
-          const high = Number(p.offset || p.high || 0);
-          if (Number.isFinite(high)) totalHighOffset += high;
-          partitionCount += 1;
-        });
+        offsets.forEach(
+          (p: { partition: number; offset?: string; high?: string }) => {
+            // 'offset' is a string
+            const high = Number(p.offset || p.high || 0);
+            if (Number.isFinite(high)) totalHighOffset += high;
+            partitionCount += 1;
+          },
+        );
       }
 
       const now = Date.now();

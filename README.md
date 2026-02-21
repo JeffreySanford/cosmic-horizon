@@ -3,11 +3,11 @@
 > Independent portal using public VLASS data; not affiliated with VLA/NRAO.
 > Built and operated as an independent project by Jeffrey Sanford.
 
-[![Build](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/build.yml)
-[![Unit Tests](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/unit-tests.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/unit-tests.yml)
-[![E2E](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/e2e.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/e2e.yml)
-[![Lint](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/lint.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/lint.yml)
-[![CodeQL](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/codeql.yml)
+[![Build](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/build.yml)
+[![Unit Tests](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/unit-tests.yml/badge.svg?branch=main)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/unit-tests.yml)
+[![E2E](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/e2e.yml)
+[![Lint](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/lint.yml)
+[![CodeQL](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/JeffreySanford/cosmic-horizons/actions/workflows/codeql.yml)
 
 Canonical MVP docs:
 
@@ -22,6 +22,10 @@ Strategic AI control-plane direction:
 - `AGENTS.md` (`CosmicAI Docking & AI Control Plane`)
 - `documentation/planning/roadmap/ROADMAP.md` (Phase planning consolidated)
 - `documentation/marketing/scope/COSMIC-HORIZONS-2026-SCOPE.md`
+
+Project hardening checklist:
+
+- `documentation/hardening/HARDENING-PLAN.md` (security & ops hardening plan)
 
 Strategic documents inform planning and integration direction, but do not override MVP scope locks.
 
@@ -113,4 +117,5 @@ pnpm nx run mvp-gates:e2e
 - `documentation/quality/TESTING-STRATEGY.md`
 - `documentation/planning/roadmap/ROADMAP.md`
 - `documentation/planning/INDUSTRY-CONTEXT-AND-FEASIBILITY-2026-02-11.md`
+- `documentation/hardening/HARDENING-PLAN.md`
 - `TODO.md`

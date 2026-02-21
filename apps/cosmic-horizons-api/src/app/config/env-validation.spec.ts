@@ -10,6 +10,14 @@ describe('env validation', () => {
         PORT: '3000',
       }),
     ).toThrow(/Legacy env key/);
+
+    // REDIS_ENABLED is also a hard failure now
+    expect(() =>
+      validateEnvironment({
+        NODE_ENV: 'development',
+        REDIS_ENABLED: 'true',
+      }),
+    ).toThrow(/REDIS_ENABLED/);
   });
 
   it('fails fast for missing production secrets', () => {
@@ -27,5 +35,39 @@ describe('env validation', () => {
         SESSION_SECRET: 'also-too-short',
       }),
     ).toThrow(/at least 32 characters/);
+  });
+
+  it('requires redis session config in production', () => {
+    expect(() =>
+      validateEnvironment({
+        NODE_ENV: 'production',
+        DB_HOST: 'localhost',
+        DB_PORT: '5432',
+        DB_USER: 'postgres',
+        DB_PASSWORD: 'postgres',
+        DB_NAME: 'cosmic_horizons',
+        API_PORT: '3000',
+        FRONTEND_URL: 'http://localhost:4200',
+        JWT_SECRET: 'a'.repeat(32),
+        SESSION_SECRET: 'b'.repeat(32),
+        SESSION_REDIS_ENABLED: 'false',
+      }),
+    ).toThrow(/SESSION_REDIS_ENABLED must be true in production/);
+
+    expect(() =>
+      validateEnvironment({
+        NODE_ENV: 'production',
+        DB_HOST: 'localhost',
+        DB_PORT: '5432',
+        DB_USER: 'postgres',
+        DB_PASSWORD: 'postgres',
+        DB_NAME: 'cosmic_horizons',
+        API_PORT: '3000',
+        FRONTEND_URL: 'http://localhost:4200',
+        JWT_SECRET: 'a'.repeat(32),
+        SESSION_SECRET: 'b'.repeat(32),
+        SESSION_REDIS_ENABLED: 'true',
+      }),
+    ).toThrow(/REDIS_HOST and REDIS_PORT are required/);
   });
 });
