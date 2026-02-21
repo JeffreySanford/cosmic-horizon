@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, Subscription, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { Store } from '@ngrx/store';
 import { MockModeService } from '../../services/mock-mode.service';
 import {
   Job,
@@ -9,6 +10,14 @@ import {
   JobSubmissionResponse,
   Agent,
 } from './job.models';
+import * as JobsActions from '../../store/features/jobs/jobs.actions';
+import {
+  selectAllJobs,
+  selectJobCount,
+  selectJobsEntities,
+  selectProgressSeries,
+} from '../../store/features/jobs/jobs.selectors';
+import { AppState } from '../../store/app.state';
 
 @Injectable({
   providedIn: 'root',
@@ -21,28 +30,21 @@ export class JobOrchestrationService {
   // stripped; this comment remains for historical context until the next
   // cleanup sweep.
 
-  private jobsSubject = new BehaviorSubject<Job[]>([]);
-  public jobs$ = this.jobsSubject.asObservable();
-
-  // series data for per-job progress chart
-  private progressSeriesSubject = new BehaviorSubject<{
+  public jobs$: Observable<Job[]>;
+  public progressSeries$: Observable<{
     name: string;
     series: { name: number; value: number }[];
-  }[]>([]);
-  public progressSeries$ = this.progressSeriesSubject.asObservable();
-
-  // in-memory staging removed; all operations hit the API
-  private pollingSub?: Subscription;
-  private eventSource?: EventSource;
+  }[]>;
 
   // Injectable references via `inject` to satisfy ESLint
   private http = inject(HttpClient);
   private mockMode = inject(MockModeService);
+  private store = inject<Store<AppState>>(Store);
 
   constructor() {
-    // always pull fresh data and subscribe to server stream
-    this.refreshFromServer();
-    this.connectLiveUpdates();
+    this.jobs$ = this.store.select(selectAllJobs);
+    this.progressSeries$ = this.store.select(selectProgressSeries);
+    this.store.dispatch(JobsActions.jobsInitialize());
   }
 
 
@@ -102,7 +104,7 @@ export class JobOrchestrationService {
    * Submit a new job
    */
   submitJob(request: JobSubmissionRequest): Observable<JobSubmissionResponse> {
-    // always send to real API
+    this.store.dispatch(JobsActions.jobSubmittedRequested({ request }));
     return this.http.post<JobSubmissionResponse>('/api/jobs/submit', request);
   }
 
@@ -117,7 +119,7 @@ export class JobOrchestrationService {
     if (this.mockMode.isMock) {
       return of([]);
     }
-    return this.http.get<Job[]>('/api/jobs');
+    return this.jobs$;
   }
 
   /**
@@ -125,24 +127,21 @@ export class JobOrchestrationService {
    * `/api/jobs/count` endpoint on the server.
    */
   getJobCount(): Observable<number> {
-    return this.http.get<{ count: number }>('/api/jobs/count').pipe(
-      map((r) => r.count),
-      // if API unavailable return zero instead of propagating error
-      catchError(() => of(0)),
-    );
+    return this.store.select(selectJobCount);
   }
 
   /**
    * Get job by ID
    */
   getJobById(jobId: string): Observable<Job | undefined> {
-    return this.http.get<Job>(`/api/jobs/${jobId}/status`);
+    return this.store.select(selectJobsEntities).pipe(map((entities) => entities[jobId]));
   }
 
   /**
    * Cancel a job
    */
   cancelJob(jobId: string): Observable<void> {
+    this.store.dispatch(JobsActions.jobCancelledRequested({ jobId }));
     return this.http.post<void>(`/api/jobs/${jobId}/cancel`, {});
   }
 
@@ -151,12 +150,7 @@ export class JobOrchestrationService {
    * Useful when dashboard receives events from server or mocks.
    */
   applyJobUpdate(update: Partial<Job> & { id: string }) {
-    // incoming server event, merge into current list
-    this.jobsSubject.next(
-      this.jobsSubject.getValue().map((j) =>
-        j.id === update.id ? { ...j, ...update } : j,
-      ),
-    );
+    this.store.dispatch(JobsActions.jobUpdateReceived({ update }));
   }
 
   /**
@@ -164,7 +158,7 @@ export class JobOrchestrationService {
    * the polling timer has been started.
    */
   isPolling(): boolean {
-    return !!this.pollingSub && !this.pollingSub.closed;
+    return false;
   }
 
   /**
@@ -174,50 +168,6 @@ export class JobOrchestrationService {
    * server.  When enabling mocks we reset the data and restart the simulator.
    */
   // demo control removed; all callers should hit live data now
-
-  // ------------------------------------------------------------------
-  // internal helpers
-  // ------------------------------------------------------------------
-
-  // polling and simulation removed; live events come via SSE
-
-  // mock data loader removed
-
-  private refreshFromServer(): void {
-    this.http.get<Job[]>('/api/jobs').pipe(
-      catchError(() => of<Job[]>([])),
-    ).subscribe((jobs) => {
-      this.jobsSubject.next(jobs as Job[]);
-      // also update progress series based on returned histories if provided
-      const series = jobs.map((j) => ({
-        name: j.name,
-        series: (j.progressHistory || []).map((h) => ({ name: h.time, value: h.progress })),
-      }));
-      this.progressSeriesSubject.next(series);
-    });
-  }
-
-  private connectLiveUpdates(): void {
-    // EventSource is not available in node test environments; bail early.
-    if (typeof EventSource === 'undefined') {
-      return;
-    }
-    if (this.eventSource) {
-      return;
-    }
-    this.eventSource = new EventSource('/api/jobs/stream');
-    this.eventSource.onmessage = (e) => {
-      try {
-        const update = JSON.parse(e.data) as Partial<Job> & { id: string };
-        this.applyJobUpdate(update);
-      } catch {
-        // ignore bad data
-      }
-    };
-    this.eventSource.onerror = () => {
-      // could add retry logic here
-    };
-  }
 
   /**
    * Get agent name from ID

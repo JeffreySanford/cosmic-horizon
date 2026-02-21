@@ -27,8 +27,7 @@
         "server": "apps/cosmic-horizons-web/src/main.server.ts",
         "ssr": {
           "entry": "apps/cosmic-horizons-web/src/server.ts"
-        },
-        "outputMode": "server"
+        }
       },
       "configurations": {
         "production": {

@@ -35,6 +35,7 @@ import {
 import {
   CutoutTelemetryModel,
   NearbyCatalogLabelModel,
+  ViewerStateResponse,
   ViewerApiService,
   ViewerLabelModel,
   ViewerStateModel,
@@ -42,6 +43,8 @@ import {
 import { HipsTilePrefetchService } from './hips-tile-prefetch.service';
 import { AppLoggerService } from '../../services/app-logger.service';
 import { AuthSessionService } from '../../services/auth-session.service';
+import { ViewerBootstrapData } from './viewer-bootstrap.resolver';
+import { ViewerSsrTelemetryService } from './viewer-ssr-telemetry.service';
 
 type AladinEvent = 'positionChanged' | 'zoomChanged';
 
@@ -166,7 +169,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly authSessionService = inject(AuthSessionService);
   private readonly http = inject(HttpClient);
   private readonly ngZone = inject(NgZone);
+  private readonly ssrTelemetry = inject(ViewerSsrTelemetryService);
   private readonly labelsStorageKey = 'vlass.viewer.labels.v1';
+  private bootstrapData: ViewerBootstrapData | null = null;
+  private bootstrapOutcomeRecorded = false;
 
   constructor() {
     this.stateForm = this.fb.group({
@@ -277,10 +283,20 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const routeSnapshot = this.route.snapshot;
+    const routeData = routeSnapshot?.data as
+      | Record<string, unknown>
+      | undefined;
+    this.bootstrapData =
+      (routeData?.[
+        'viewerBootstrap'
+      ] as ViewerBootstrapData | undefined) ?? null;
+
     this.loadLocalLabels();
     this.gridOverlayEnabled = false;
     this.resetLabelLookupGate();
     this.startCutoutTelemetryStream();
+    this.schedulePrefetchActivation();
 
     merge(this.route.paramMap, this.route.queryParamMap)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -950,14 +966,47 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private hydrateStateFromRoute(): void {
-    const shortId = this.route.snapshot.paramMap.get('shortId');
+    if (this.bootstrapData?.notFound) {
+      this.recordBootstrapOutcome(false);
+      this.statusMessage = 'Permalink was not found.';
+      this.router.navigate(['/view'], { replaceUrl: true });
+      this.bootstrapData = null;
+      return;
+    }
+
+    if (this.bootstrapData?.state) {
+      this.recordBootstrapOutcome(true);
+      this.resetLabelLookupGate();
+      this.stateForm.patchValue(this.bootstrapData.state, { emitEvent: false });
+      this.labels = this.bootstrapData.state.labels ?? [];
+      this.catalogLabels = this.selectNearbyLabels(this.bootstrapData.labels ?? []);
+      this.lastNearbyLookupKey = this.lookupKeyForState(this.bootstrapData.state);
+      this.saveLocalLabels();
+
+      if (this.bootstrapData.shortId) {
+        this.shortId = this.bootstrapData.shortId;
+        this.permalink = `${this.originPrefix()}${this.bootstrapData.permalinkPath ?? `/view/${this.shortId}`}`;
+        this.statusMessage = `Loaded permalink ${this.shortId}.`;
+      } else {
+        this.shortId = '';
+        this.permalink = '';
+      }
+
+      this.syncAladinFromForm();
+      this.bootstrapData = null;
+      return;
+    }
+
+    const shortId = this.route.snapshot?.paramMap?.get('shortId') ?? null;
     if (shortId) {
+      this.recordBootstrapOutcome(false);
       this.resolveFromShortId(shortId);
       return;
     }
 
-    const encoded = this.route.snapshot.queryParamMap.get('state');
+    const encoded = this.route.snapshot?.queryParamMap?.get('state') ?? null;
     if (!encoded) {
+      this.recordBootstrapOutcome(false);
       if (this.labels.length === 0) {
         this.loadLocalLabels();
       }
@@ -966,6 +1015,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     try {
+      this.recordBootstrapOutcome(false);
       const decoded = this.decodeState(encoded);
       this.stateForm.patchValue(decoded, { emitEvent: false });
       this.labels = decoded.labels ?? [];
@@ -983,14 +1033,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   private resolveFromShortId(shortId: string): void {
     this.viewerApi.resolveState(shortId).subscribe({
       next: (response) => {
-        this.stateForm.patchValue(response.state, { emitEvent: false });
-        this.labels = response.state.labels ?? [];
-        this.saveLocalLabels();
-        this.shortId = response.short_id;
-        this.permalink = `${this.originPrefix()}/view/${response.short_id}`;
-        this.statusMessage = `Loaded permalink ${response.short_id}.`;
-        this.resetLabelLookupGate();
-        this.syncAladinFromForm();
+        this.applyResolvedState(response);
       },
       error: () => {
         this.statusMessage = 'Permalink was not found.';
@@ -1237,7 +1280,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const hasChanges = Object.keys(patchState).length > 0;
     const nextState = { ...current, ...patchState };
     const radius = this.lookupRadiusForState(nextState);
-    const lookupKey = `${nextState.ra.toFixed(4)}|${nextState.dec.toFixed(4)}|${radius.toFixed(4)}`;
+    const lookupKey = this.lookupKeyForState(nextState, radius);
     const needsLookup =
       this.labelsOverlayEnabled && lookupKey !== this.lastNearbyLookupKey;
 
@@ -1281,7 +1324,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const radius = this.lookupRadiusForState(state);
-    const lookupKey = `${state.ra.toFixed(4)}|${state.dec.toFixed(4)}|${radius.toFixed(4)}`;
+    const lookupKey = this.lookupKeyForState(state, radius);
     if (!options?.force && lookupKey === this.lastNearbyLookupKey) {
       return;
     }
@@ -1321,6 +1364,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private lookupRadiusForState(state: ViewerStateModel): number {
     return Number(Math.max(0.02, Math.min(0.2, state.fov * 0.15)).toFixed(4));
+  }
+
+  private lookupKeyForState(state: ViewerStateModel, radius?: number): string {
+    const effectiveRadius = radius ?? this.lookupRadiusForState(state);
+    return `${state.ra.toFixed(4)}|${state.dec.toFixed(4)}|${effectiveRadius.toFixed(4)}`;
   }
 
   private selectNearbyLabels(
@@ -1556,6 +1604,17 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     window.setTimeout(() => this.tilePrefetch.activate(), 350);
   }
 
+  private applyResolvedState(response: ViewerStateResponse): void {
+    this.stateForm.patchValue(response.state, { emitEvent: false });
+    this.labels = response.state.labels ?? [];
+    this.saveLocalLabels();
+    this.shortId = response.short_id;
+    this.permalink = `${this.originPrefix()}/view/${response.short_id}`;
+    this.statusMessage = `Loaded permalink ${response.short_id}.`;
+    this.resetLabelLookupGate();
+    this.syncAladinFromForm();
+  }
+
   private logViewerEvent(
     event: string,
     details: Record<string, boolean | number | string>,
@@ -1571,5 +1630,19 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.appLogger.info('viewer', event, details);
+  }
+
+  private recordBootstrapOutcome(hit: boolean): void {
+    if (this.bootstrapOutcomeRecorded) {
+      return;
+    }
+
+    if (hit) {
+      this.ssrTelemetry.recordBootstrapHit();
+    } else {
+      this.ssrTelemetry.recordBootstrapMiss();
+    }
+    this.ssrTelemetry.logSnapshot('viewer_ssr_bootstrap_telemetry');
+    this.bootstrapOutcomeRecorded = true;
   }
 }

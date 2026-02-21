@@ -1,28 +1,35 @@
 import { TestBed } from '@angular/core/testing';
 import { AlertsService } from './alerts.service';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { firstValueFrom } from 'rxjs';
+import { selectAlerts } from '../../store/features/alerts/alerts.selectors';
+import * as AlertsActions from '../../store/features/alerts/alerts.actions';
+import { vi } from 'vitest';
 
 describe('AlertsService', () => {
-  let service: AlertsService;
+  let store: MockStore;
 
   beforeEach(() => {
-    // HttpClient isn't needed because we will manipulate the internal subject
     TestBed.configureTestingModule({
-      providers: [AlertsService],
+      providers: [AlertsService, provideMockStore()],
     });
 
-    service = TestBed.inject(AlertsService);
+    store = TestBed.inject(MockStore);
+    store.overrideSelector(selectAlerts, ['one', 'two']);
+    store.refreshState();
   });
 
-  it('exposes alerts$ and updates when http returns data', () => {
-    return new Promise<void>((resolve) => {
-      service.alerts$.subscribe((list) => {
-        if (list.length) {
-          expect(list).toEqual(['one', 'two']);
-          resolve();
-        }
-      });
-      // push directly into the private subject
-      (service as any).alertsSubject.next(['one', 'two']);
-    });
+  it('selects alerts from store', async () => {
+    const service = TestBed.inject(AlertsService);
+    const list = await firstValueFrom(service.alerts$);
+    expect(list).toEqual(['one', 'two']);
+  });
+
+  it('dispatches initialize action on creation', () => {
+    const dispatchSpy = vi.spyOn(store, 'dispatch');
+    TestBed.inject(AlertsService);
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      AlertsActions.alertsInitialize(),
+    );
   });
 });

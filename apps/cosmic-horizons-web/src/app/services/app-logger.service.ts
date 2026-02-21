@@ -1,5 +1,9 @@
-import { Injectable, isDevMode } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { inject, Injectable, isDevMode } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import * as LogsActions from '../store/features/logs/logs.actions';
+import { selectLogEntries } from '../store/features/logs/logs.selectors';
+import { AppState } from '../store/app.state';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 export type LogDetailValue = boolean | number | string | null;
@@ -17,11 +21,17 @@ export interface AppLogEntry {
   providedIn: 'root',
 })
 export class AppLoggerService {
-  private readonly maxEntries = 500;
-  private readonly entries: AppLogEntry[] = [];
-  private readonly entriesSubject = new BehaviorSubject<AppLogEntry[]>([]);
-  readonly entries$: Observable<AppLogEntry[]> =
-    this.entriesSubject.asObservable();
+  readonly entries$: Observable<AppLogEntry[]>;
+  private latestEntries: AppLogEntry[] = [];
+  private readonly store = inject<Store<AppState>>(Store);
+
+  constructor() {
+    this.entries$ = this.store.select(selectLogEntries);
+
+    this.entries$.subscribe((entries) => {
+      this.latestEntries = entries;
+    });
+  }
 
   info(area: string, event: string, details?: LogDetails): void {
     this.push({
@@ -68,14 +78,10 @@ export class AppLoggerService {
   }
 
   snapshot(): AppLogEntry[] {
-    return [...this.entries];
+    return [...this.latestEntries];
   }
 
   private push(entry: AppLogEntry): void {
-    this.entries.push(entry);
-    if (this.entries.length > this.maxEntries) {
-      this.entries.splice(0, this.entries.length - this.maxEntries);
-    }
-    this.entriesSubject.next([...this.entries]);
+    this.store.dispatch(LogsActions.logEntryAppended({ entry }));
   }
 }

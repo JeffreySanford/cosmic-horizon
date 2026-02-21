@@ -10,6 +10,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ViewerApiService, ViewerStateModel } from './viewer-api.service';
 import { ViewerComponent } from './viewer.component';
 import { AuthSessionService } from '../../services/auth-session.service';
+import { provideMockStore } from '@ngrx/store/testing';
 
 interface MockAladinView {
   gotoRaDec: ReturnType<typeof vi.fn>;
@@ -40,6 +41,24 @@ describe('ViewerComponent', () => {
     getRole: ReturnType<typeof vi.fn>;
   };
   let router: Router;
+  const initialStoreState = {
+    auth: {
+      accessToken: null,
+      refreshToken: null,
+      user: null,
+      role: 'guest',
+      hydrated: true,
+      loading: false,
+      error: null,
+    },
+    ui: { mockModeEnabled: true },
+    jobs: { ids: [], entities: {}, selectedJobId: null, loading: false, error: null },
+    alerts: { alerts: [], loading: false, error: null },
+    logs: { entries: [] },
+    telemetry: { cpuHistory: [], gpuHistory: [], selectedIndex: 0, loading: false, error: null },
+    ephemeris: { calculating: false, lastResult: null, supportedObjects: [], error: null },
+    router: null,
+  } as const;
 
   beforeEach(async () => {
     eventCallbacks = {};
@@ -122,6 +141,7 @@ describe('ViewerComponent', () => {
           provide: AuthSessionService,
           useValue: authSessionService,
         },
+        provideMockStore({ initialState: initialStoreState }),
       ],
     }).compileComponents();
 

@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PostsApiService } from './posts-api.service';
 import { PostDetailComponent } from './post-detail.component';
+import { provideMockStore } from '@ngrx/store/testing';
 
 describe('PostDetailComponent', () => {
   let fixture: ComponentFixture<PostDetailComponent>;
@@ -16,6 +17,24 @@ describe('PostDetailComponent', () => {
     publishPost: ReturnType<typeof vi.fn>;
   };
   let router: Router;
+  const initialStoreState = {
+    auth: {
+      accessToken: null,
+      refreshToken: null,
+      user: null,
+      role: 'guest',
+      hydrated: true,
+      loading: false,
+      error: null,
+    },
+    ui: { mockModeEnabled: true },
+    jobs: { ids: [], entities: {}, selectedJobId: null, loading: false, error: null },
+    alerts: { alerts: [], loading: false, error: null },
+    logs: { entries: [] },
+    telemetry: { cpuHistory: [], gpuHistory: [], selectedIndex: 0, loading: false, error: null },
+    ephemeris: { calculating: false, lastResult: null, supportedObjects: [], error: null },
+    router: null,
+  } as const;
 
   beforeEach(async () => {
     postsApi = {
@@ -62,6 +81,7 @@ describe('PostDetailComponent', () => {
             },
           },
         },
+        provideMockStore({ initialState: initialStoreState }),
       ],
     }).compileComponents();
 
@@ -127,6 +147,7 @@ describe('PostDetailComponent', () => {
             },
           },
         },
+        provideMockStore({ initialState: initialStoreState }),
       ],
     }).compileComponents();
 

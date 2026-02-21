@@ -9,6 +9,7 @@ import { FooterComponent } from './shared/layout/footer/footer.component';
 import { MessagingService } from './services/messaging.service';
 import { AuthApiService } from './features/auth/auth-api.service';
 import { AuthSessionService } from './services/auth-session.service';
+import { provideMockStore } from '@ngrx/store/testing';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -36,6 +37,7 @@ describe('App', () => {
             clearSession: () => void 0,
           },
         },
+        provideMockStore(),
       ],
     }).compileComponents();
   });

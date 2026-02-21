@@ -142,15 +142,30 @@ describe('cosmic-horizons-api e2e', () => {
   });
 
   describe('viewer permalink and snapshot', () => {
+    let authHeader: { Authorization: string };
+
+    beforeAll(async () => {
+      const nonce = Date.now();
+      const user = await registerUser(
+        `viewer_user_${nonce}`,
+        `viewer_user_${nonce}@cosmic.local`,
+      );
+      authHeader = { Authorization: `Bearer ${user.access_token}` };
+    });
+
     it('POST /api/view/state creates and GET /api/view/:shortId resolves state', async () => {
-      const createResponse = await axios.post('/api/view/state', {
-        state: {
-          ra: 187.25,
-          dec: 2.05,
-          fov: 1.5,
-          survey: 'VLASS',
+      const createResponse = await axios.post(
+        '/api/view/state',
+        {
+          state: {
+            ra: 187.25,
+            dec: 2.05,
+            fov: 1.5,
+            survey: 'VLASS',
+          },
         },
-      });
+        { headers: authHeader },
+      );
 
       expect(createResponse.status).toBe(201);
       expect(createResponse.data).toHaveProperty('short_id');
@@ -169,14 +184,18 @@ describe('cosmic-horizons-api e2e', () => {
     });
 
     it('round-trips a non-default survey in permalink state', async () => {
-      const createResponse = await axios.post('/api/view/state', {
-        state: {
-          ra: 12.3456,
-          dec: -45.6789,
-          fov: 0.75,
-          survey: 'P/DSS2/color',
+      const createResponse = await axios.post(
+        '/api/view/state',
+        {
+          state: {
+            ra: 12.3456,
+            dec: -45.6789,
+            fov: 0.75,
+            survey: 'P/DSS2/color',
+          },
         },
-      });
+        { headers: authHeader },
+      );
 
       expect(createResponse.status).toBe(201);
       const shortId = createResponse.data.short_id as string;
@@ -196,15 +215,19 @@ describe('cosmic-horizons-api e2e', () => {
       const onePixelPngBase64 =
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO1N7nQAAAAASUVORK5CYII=';
 
-      const response = await axios.post('/api/view/snapshot', {
-        image_data_url: `data:image/png;base64,${onePixelPngBase64}`,
-        state: {
-          ra: 200.1,
-          dec: -20.2,
-          fov: 2.5,
-          survey: 'VLASS',
+      const response = await axios.post(
+        '/api/view/snapshot',
+        {
+          image_data_url: `data:image/png;base64,${onePixelPngBase64}`,
+          state: {
+            ra: 200.1,
+            dec: -20.2,
+            fov: 2.5,
+            survey: 'VLASS',
+          },
         },
-      });
+        { headers: authHeader },
+      );
 
       expect(response.status).toBe(201);
       expect(response.data).toHaveProperty('id');

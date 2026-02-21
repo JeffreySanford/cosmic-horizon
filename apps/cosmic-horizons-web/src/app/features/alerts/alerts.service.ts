@@ -1,23 +1,17 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, timer, catchError, of, switchMap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import * as AlertsActions from '../../store/features/alerts/alerts.actions';
+import { selectAlerts } from '../../store/features/alerts/alerts.selectors';
+import { AppState } from '../../store/app.state';
 
 @Injectable({ providedIn: 'root' })
 export class AlertsService {
-  private readonly http = inject(HttpClient);
-  private readonly alertsSubject = new BehaviorSubject<string[]>([]);
-  readonly alerts$ = this.alertsSubject.asObservable();
+  readonly alerts$: Observable<string[]>;
+  private readonly store = inject<Store<AppState>>(Store);
 
   constructor() {
-    // poll the backend every couple seconds for new alerts
-    timer(0, 2000)
-      .pipe(
-        switchMap(() =>
-          this.http.get<string[]>('/api/health/alerts').pipe(
-            catchError(() => of([])),
-          ),
-        ),
-      )
-      .subscribe((list) => this.alertsSubject.next(list));
+    this.alerts$ = this.store.select(selectAlerts);
+    this.store.dispatch(AlertsActions.alertsInitialize());
   }
 }

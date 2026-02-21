@@ -1,8 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { Store } from '@ngrx/store';
+import * as EphemerisActions from '../store/features/ephemeris/ephemeris.actions';
+import { selectEphemerisCalculating } from '../store/features/ephemeris/ephemeris.selectors';
+import { AppState } from '../store/app.state';
 
 export interface EphemerisResult {
   ra: number;
@@ -24,10 +28,10 @@ export interface EphemerisCache {
 export class EphemerisService {
   private readonly CACHE_TTL_MS = 86400000; // 24 hours
   private cache = new Map<string, EphemerisCache>();
-  private calculatingSubject = new BehaviorSubject<boolean>(false);
   private http = inject(HttpClient);
+  private readonly store = inject<Store<AppState>>(Store);
 
-  public calculating$ = this.calculatingSubject.asObservable();
+  public calculating$ = this.store.select(selectEphemerisCalculating);
 
   /**
    * Calculate ephemeris position for a celestial object
@@ -43,10 +47,12 @@ export class EphemerisService {
     // Check local cache first
     const cached = this.getFromCache(cacheKey);
     if (cached) {
-      return of({ ...cached, source: 'cache' } as EphemerisResult);
+      const result = { ...cached, source: 'cache' } as EphemerisResult;
+      this.store.dispatch(EphemerisActions.ephemerisCalculateSucceeded({ result }));
+      return of(result);
     }
 
-    this.calculatingSubject.next(true);
+    this.store.dispatch(EphemerisActions.ephemerisCalculateRequested({ objectName: normalizedName, epoch: epochToUse }));
 
     return this.http
       .post<EphemerisResult>('/api/ephemeris/calculate', {
@@ -57,11 +63,11 @@ export class EphemerisService {
         tap((result) => {
           if (result) {
             this.setCache(cacheKey, result);
+            this.store.dispatch(EphemerisActions.ephemerisCalculateSucceeded({ result }));
           }
-          this.calculatingSubject.next(false);
         }),
         catchError(() => {
-          this.calculatingSubject.next(false);
+          this.store.dispatch(EphemerisActions.ephemerisCalculateFailed({ error: 'Unable to calculate ephemeris position' }));
           return of(null);
         }),
       );
@@ -100,9 +106,19 @@ export class EphemerisService {
    * Get supported celestial objects
    */
   getSupportedObjects(): Observable<string[]> {
+    this.store.dispatch(EphemerisActions.ephemerisSupportedObjectsLoadRequested());
     return this.http
       .get<{ objects: string[] }>('/api/ephemeris/supported-objects')
-      .pipe(map((response) => response.objects));
+      .pipe(
+        map((response) => {
+          this.store.dispatch(EphemerisActions.ephemerisSupportedObjectsLoadSucceeded({ objects: response.objects }));
+          return response.objects;
+        }),
+        catchError(() => {
+          this.store.dispatch(EphemerisActions.ephemerisSupportedObjectsLoadFailed({ error: 'Unable to load supported objects' }));
+          return of([]);
+        }),
+      );
   }
 
   /**
@@ -110,6 +126,7 @@ export class EphemerisService {
    */
   clearCache(): void {
     this.cache.clear();
+    this.store.dispatch(EphemerisActions.ephemerisCacheCleared());
   }
 
   /**

@@ -1,6 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { selectAccessToken, selectAuthRole, selectAuthUser, selectRefreshToken } from '../store/features/auth/auth.selectors';
+import * as AuthActions from '../store/features/auth/auth.actions';
 import { LoginResponse } from '../features/auth/auth-api.service';
+import { AppState } from '../store/app.state';
 
 export type UserRole = 'guest' | 'user' | 'admin' | 'moderator';
 
@@ -22,38 +26,36 @@ interface JwtPayload {
 })
 export class AuthSessionService {
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly store = inject<Store<AppState>>(Store);
+  private accessToken: string | null = null;
+  private refreshToken: string | null = null;
+  private user: SessionUser | null = null;
+  private role: UserRole = 'guest';
   private readonly tokenStorageKey = 'auth_token';
   private readonly refreshTokenStorageKey = 'auth_refresh_token';
   private readonly userStorageKey = 'auth_user';
 
-  setSession(loginResponse: LoginResponse): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
+  constructor() {
+    this.store.select(selectAccessToken).subscribe((token) => {
+      this.accessToken = token;
+    });
+    this.store.select(selectRefreshToken).subscribe((token) => {
+      this.refreshToken = token;
+    });
+    this.store.select(selectAuthUser).subscribe((user) => {
+      this.user = user;
+    });
+    this.store.select(selectAuthRole).subscribe((role) => {
+      this.role = role;
+    });
+  }
 
-    sessionStorage.setItem(this.tokenStorageKey, loginResponse.access_token);
-    if (loginResponse.refresh_token) {
-      sessionStorage.setItem(
-        this.refreshTokenStorageKey,
-        loginResponse.refresh_token,
-      );
-    } else {
-      sessionStorage.removeItem(this.refreshTokenStorageKey);
-    }
-    sessionStorage.setItem(
-      this.userStorageKey,
-      JSON.stringify(loginResponse.user),
-    );
+  setSession(loginResponse: LoginResponse): void {
+    this.store.dispatch(AuthActions.authSessionUpdated({ response: loginResponse }));
   }
 
   clearSession(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    sessionStorage.removeItem(this.tokenStorageKey);
-    sessionStorage.removeItem(this.refreshTokenStorageKey);
-    sessionStorage.removeItem(this.userStorageKey);
+    this.store.dispatch(AuthActions.authSessionCleared());
   }
 
   getToken(): string | null {
@@ -61,7 +63,7 @@ export class AuthSessionService {
       return null;
     }
 
-    return sessionStorage.getItem(this.tokenStorageKey);
+    return this.accessToken ?? sessionStorage.getItem(this.tokenStorageKey);
   }
 
   getRefreshToken(): string | null {
@@ -69,7 +71,7 @@ export class AuthSessionService {
       return null;
     }
 
-    return sessionStorage.getItem(this.refreshTokenStorageKey);
+    return this.refreshToken ?? sessionStorage.getItem(this.refreshTokenStorageKey);
   }
 
   isAuthenticated(): boolean {
@@ -95,6 +97,9 @@ export class AuthSessionService {
     if (!isPlatformBrowser(this.platformId)) {
       return null;
     }
+    if (this.user) {
+      return this.user;
+    }
 
     const raw = sessionStorage.getItem(this.userStorageKey);
     if (!raw) {
@@ -109,11 +114,7 @@ export class AuthSessionService {
   }
 
   getRole(): UserRole {
-    if (!this.isAuthenticated()) {
-      return 'guest';
-    }
-
-    return this.getUser()?.role ?? 'guest';
+    return this.isAuthenticated() ? this.role : 'guest';
   }
 
   private parseJwtPayload(token: string): JwtPayload | null {

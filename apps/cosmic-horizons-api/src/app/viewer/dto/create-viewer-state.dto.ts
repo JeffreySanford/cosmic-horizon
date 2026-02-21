@@ -1,3 +1,5 @@
+import { IsObject } from 'class-validator';
+
 export interface ViewerLabelPayload {
   name: string;
   ra: number;
@@ -14,5 +16,6 @@ export interface ViewerStatePayload {
 }
 
 export class CreateViewerStateDto {
+  @IsObject()
   state!: ViewerStatePayload;
 }

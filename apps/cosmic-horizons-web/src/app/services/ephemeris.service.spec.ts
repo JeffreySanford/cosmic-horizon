@@ -5,10 +5,15 @@ import {
 } from '@angular/common/http/testing';
 import { EphemerisService, EphemerisResult } from './ephemeris.service';
 import { firstValueFrom } from 'rxjs';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { selectEphemerisCalculating } from '../store/features/ephemeris/ephemeris.selectors';
+import * as EphemerisActions from '../store/features/ephemeris/ephemeris.actions';
+import { vi } from 'vitest';
 
 describe('EphemerisService (Web)', () => {
   let service: EphemerisService;
   let httpMock: HttpTestingController;
+  let store: MockStore;
 
   const mockEphemerisResult: EphemerisResult = {
     ra: 100.25,
@@ -22,9 +27,12 @@ describe('EphemerisService (Web)', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [EphemerisService],
+      providers: [EphemerisService, provideMockStore()],
     });
 
+    store = TestBed.inject(MockStore);
+    store.overrideSelector(selectEphemerisCalculating, false);
+    store.refreshState();
     service = TestBed.inject(EphemerisService);
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -211,22 +219,34 @@ describe('EphemerisService (Web)', () => {
     await Promise.all([p1, p2]);
   });
 
-  it('should provide calculating state', async () => {
-    const states: boolean[] = [];
+  it('should expose calculating selector value', async () => {
+    store.overrideSelector(selectEphemerisCalculating, true);
+    store.refreshState();
+    const current = await firstValueFrom(service.calculating$);
+    expect(current).toBe(true);
+  });
 
-    service.calculating$.subscribe((isCalculating) => {
-      states.push(isCalculating);
-    });
+  it('dispatches calculate actions around request lifecycle', async () => {
+    const dispatchSpy = vi.spyOn(store, 'dispatch');
 
     const p = firstValueFrom(
       service.calculatePosition('Mars', '2026-02-11T12:00:00Z'),
     );
-
     const req = httpMock.expectOne('/api/ephemeris/calculate');
     req.flush(mockEphemerisResult);
-
     await p;
-    expect(states).toContain(true);
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      EphemerisActions.ephemerisCalculateRequested({
+        objectName: 'mars',
+        epoch: '2026-02-11T12:00:00Z',
+      }),
+    );
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      EphemerisActions.ephemerisCalculateSucceeded({
+        result: mockEphemerisResult,
+      }),
+    );
   });
 
   it('should clear cache', async () => {

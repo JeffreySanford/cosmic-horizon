@@ -3,6 +3,8 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MessagingService } from './services/messaging.service';
 import type { EventBase } from '@cosmic-horizons/event-models';
+import { Store } from '@ngrx/store';
+import { AppState } from './store/app.state';
 import {
   AppHeaderConfig,
   AppHeaderLink,
@@ -10,9 +12,8 @@ import {
 } from './shared/layout/app-header/app-header.types';
 import { filter, startWith } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthApiService } from './features/auth/auth-api.service';
-import { AuthSessionService } from './services/auth-session.service';
 import { AppHeaderControlService } from './shared/layout/app-header/app-header-control.service';
+import * as AuthActions from './store/features/auth/auth.actions';
 
 interface AppHeaderRouteData extends Partial<AppHeaderConfig> {
   header?: Partial<AppHeaderConfig>;
@@ -34,8 +35,7 @@ export class App implements OnInit {
   private readonly messaging = inject(MessagingService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
-  private readonly authApi = inject(AuthApiService);
-  private readonly authSession = inject(AuthSessionService);
+  private readonly store = inject<Store<AppState>>(Store);
   private readonly headerControl = inject(AppHeaderControlService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -84,26 +84,11 @@ export class App implements OnInit {
     if (action !== 'logout') {
       return;
     }
-
-    const refreshToken = this.authSession.getRefreshToken() ?? undefined;
-    if (!refreshToken) {
-      this.completeLogout();
-      return;
-    }
-
-    this.authApi.logout(refreshToken).subscribe({
-      next: () => this.completeLogout(),
-      error: () => this.completeLogout(),
-    });
+    this.store.dispatch(AuthActions.authLogoutRequested());
   }
 
   protected onHeaderExpandedChange(expanded: boolean): void {
     this.headerExpanded = expanded;
-  }
-
-  private completeLogout(): void {
-    this.authSession.clearSession();
-    void this.router.navigateByUrl('/auth/login');
   }
 
   private updateHeaderConfigFromRoute(): void {

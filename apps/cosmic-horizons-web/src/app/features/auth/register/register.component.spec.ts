@@ -9,6 +9,7 @@ import { AuthApiService } from '../auth-api.service';
 import { AuthSessionService } from '../../../services/auth-session.service';
 import { SkyPreviewService } from '../../../services/sky-preview.service';
 import { RegisterComponent } from './register.component';
+import { provideMockStore } from '@ngrx/store/testing';
 
 describe('RegisterComponent', () => {
   let fixture: ComponentFixture<RegisterComponent>;
@@ -16,6 +17,24 @@ describe('RegisterComponent', () => {
   let authApiService: { register: ReturnType<typeof vi.fn> };
   let authSessionService: { setSession: ReturnType<typeof vi.fn> };
   let router: Router;
+  const initialStoreState = {
+    auth: {
+      accessToken: null,
+      refreshToken: null,
+      user: null,
+      role: 'guest',
+      hydrated: true,
+      loading: false,
+      error: null,
+    },
+    ui: { mockModeEnabled: true },
+    jobs: { ids: [], entities: {}, selectedJobId: null, loading: false, error: null },
+    alerts: { alerts: [], loading: false, error: null },
+    logs: { entries: [] },
+    telemetry: { cpuHistory: [], gpuHistory: [], selectedIndex: 0, loading: false, error: null },
+    ephemeris: { calculating: false, lastResult: null, supportedObjects: [], error: null },
+    router: null,
+  } as const;
 
   beforeEach(async () => {
     authApiService = {
@@ -53,6 +72,7 @@ describe('RegisterComponent', () => {
             personalizeFromBrowserLocation: () => of(null),
           },
         },
+        provideMockStore({ initialState: initialStoreState }),
       ],
     }).compileComponents();
 

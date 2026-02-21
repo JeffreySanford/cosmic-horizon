@@ -4,11 +4,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { MaterialModule } from '../../shared/material/material.module';
 import { ViewerComponent } from './viewer.component';
+import { viewerBootstrapResolver } from './viewer-bootstrap.resolver';
 
 const viewerRoutes: Routes = [
   {
     path: '',
     component: ViewerComponent,
+    resolve: { viewerBootstrap: viewerBootstrapResolver },
     data: {
       header: {
         title: 'Sky Viewer',
@@ -24,6 +26,7 @@ const viewerRoutes: Routes = [
   {
     path: ':shortId',
     component: ViewerComponent,
+    resolve: { viewerBootstrap: viewerBootstrapResolver },
     data: {
       header: {
         title: 'Sky Snapshot',

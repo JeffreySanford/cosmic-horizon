@@ -1,66 +1,58 @@
 import { TestBed } from '@angular/core/testing';
 import { PerformanceDataService } from './performance-data.service';
-import { MessagingService } from './messaging.service';
-import { Subject, firstValueFrom } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { selectCpuHeatmap, selectGpuHeatmap, selectGpuHistoryLength, selectGpuProgressSeries, selectHistoryLength, selectProgressSeries } from '../store/features/telemetry/telemetry.selectors';
+import * as TelemetryActions from '../store/features/telemetry/telemetry.actions';
+import { vi } from 'vitest';
 
 describe('PerformanceDataService', () => {
   let service: PerformanceDataService;
-  let msg: Partial<MessagingService>;
-  let jobUpdates$: Subject<any>;
-  let http: Partial<HttpClient>;
-  let matrix$: Subject<number[][]>;
+  let store: MockStore;
 
   beforeEach(() => {
-    jobUpdates$ = new Subject();
-    msg = {
-      jobUpdate$: jobUpdates$.asObservable(),
-    } as any;
-
-    matrix$ = new Subject<number[][]>();
-    const gpuMatrix$ = new Subject<number[][]>();
-    http = {
-      get: vi.fn((url: string) =>
-        url.includes('gpu') ? gpuMatrix$.asObservable() : matrix$.asObservable(),
-      ),
-    } as any;
-
     TestBed.configureTestingModule({
       providers: [
         PerformanceDataService,
-        { provide: MessagingService, useValue: msg },
-        { provide: HttpClient, useValue: http },
+        provideMockStore(),
       ],
     });
+    store = TestBed.inject(MockStore);
+    store.overrideSelector(selectHistoryLength, 3);
+    store.overrideSelector(selectGpuHistoryLength, 2);
+    store.overrideSelector(selectCpuHeatmap, [[42]]);
+    store.overrideSelector(selectGpuHeatmap, [[7]]);
+    store.overrideSelector(selectProgressSeries, [
+      { name: 'window 0', series: [{ name: 'avg', value: 42 }] },
+    ]);
+    store.overrideSelector(selectGpuProgressSeries, [
+      { name: 'window 0', series: [{ name: 'avg', value: 7 }] },
+    ]);
+    store.refreshState();
     service = TestBed.inject(PerformanceDataService);
-
-    // seed the http streams so timer subscription emits
-    matrix$.next([[42]]);
-    gpuMatrix$.next([[7]]);
-    // also manually push a matrix so history immediately updates
-    (service as any).pushMatrix([[1]]);
-    (service as any).pushGpuMatrix([[1]]);
   });
 
-  it('emits heatmap arrays when http endpoint returns and maintains history/progress', async () => {
-    // the matrix$ stream has already pushed one value during setup
-
-    // history length should eventually be >=1
+  it('reads telemetry data from selectors', async () => {
     const len = await firstValueFrom(service.historyLength$);
-    expect(len).toBeGreaterThan(0);
+    expect(len).toBe(3);
 
-    // cpuHeatmap$ should produce an array
     const matrix = await firstValueFrom(service.cpuHeatmap$);
-    expect(Array.isArray(matrix)).toBe(true);
+    expect(matrix).toEqual([[42]]);
 
-    // gpuHeatmap$ should also emit something
     const gmatrix = await firstValueFrom(service.gpuHeatmap$);
-    expect(Array.isArray(gmatrix)).toBe(true);
+    expect(gmatrix).toEqual([[7]]);
 
-    // progressSeries$ should reflect at least one window
     const prog = await firstValueFrom(service.progressSeries$);
-    expect(Array.isArray(prog)).toBe(true);
+    expect(prog[0]?.name).toBe('window 0');
     const gprog = await firstValueFrom(service.gpuProgressSeries$);
-    expect(Array.isArray(gprog)).toBe(true);
+    expect(gprog[0]?.series[0]?.value).toBe(7);
+  });
+
+  it('dispatches window selection through store', () => {
+    const dispatchSpy = vi.spyOn(store, 'dispatch');
+    service.setWindow(4);
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      TelemetryActions.telemetryWindowSelected({ index: 4 }),
+    );
   });
 });

@@ -4,29 +4,45 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { JobOrchestrationService } from './job-orchestration.service';
-import { MockModeService } from '../../services/mock-mode.service';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { firstValueFrom } from 'rxjs';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import {
+  selectAllJobs,
+  selectJobCount,
+  selectJobsEntities,
+} from '../../store/features/jobs/jobs.selectors';
+import * as JobsActions from '../../store/features/jobs/jobs.actions';
+import { selectMockModeEnabled } from '../../store/features/ui/ui.selectors';
 
 describe('JobOrchestrationService', () => {
   let service: JobOrchestrationService;
   let httpMock: HttpTestingController;
+  let store: MockStore;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [JobOrchestrationService],
+      providers: [JobOrchestrationService, provideMockStore()],
     });
-    const mockSvc = TestBed.inject(MockModeService);
-    mockSvc.disable();
+
+    store = TestBed.inject(MockStore);
+    store.overrideSelector(selectAllJobs, [
+      { id: 'foo', name: 'Job Foo', status: 'running' } as any,
+    ]);
+    store.overrideSelector(selectJobCount, 1);
+    store.overrideSelector(selectJobsEntities, {
+      foo: { id: 'foo', name: 'Job Foo', status: 'running' } as any,
+    });
+    store.overrideSelector(selectMockModeEnabled, false);
+    store.refreshState();
+
     service = TestBed.inject(JobOrchestrationService);
     httpMock = TestBed.inject(HttpTestingController);
-    // constructor issues initial GETs; satisfy them so tests don't error
-    // constructor makes one initial GET to load jobs; satisfy it so
-    // other tests don't blow up.  We used to also fetch `/api/jobs/count`
-    // here, but that call was removed from the service in a refactor.
-    const initReq = httpMock.expectOne('/api/jobs');
-    initReq.flush([]);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should be created', () => {
@@ -39,61 +55,62 @@ describe('JobOrchestrationService', () => {
     expect(agents[0].name).toBe('AlphaCal');
   });
 
-  it('passes through submitJob POST to the server', async () => {
+  it('passes through submitJob POST to the server and dispatches request action', async () => {
+    const dispatchSpy = vi.spyOn(store, 'dispatch');
     const request = { name: 'Test', agentId: 'a1', parameters: {} };
     service.submitJob(request).subscribe();
     const req = httpMock.expectOne('/api/jobs/submit');
     expect(req.request.method).toBe('POST');
     req.flush({ jobId: 'j1', status: 'queued' });
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      JobsActions.jobSubmittedRequested({ request }),
+    );
   });
 
-  it('fetches jobs via GET /api/jobs', () => {
-    service.getJobs().subscribe();
-    const req = httpMock.expectOne('/api/jobs');
-    expect(req.request.method).toBe('GET');
-    req.flush([]);
+  it('returns jobs from store when mock mode is disabled', async () => {
+    store.overrideSelector(selectMockModeEnabled, false);
+    store.refreshState();
+    const jobs = await firstValueFrom(service.getJobs());
+    expect(jobs).toHaveLength(1);
+    expect(jobs[0].id).toBe('foo');
   });
 
-  it('returns empty list immediately when mock mode is active', () => {
-    const mockSvc = TestBed.inject(MockModeService);
-    mockSvc.enable();
-    const spy = vi.spyOn(httpMock, 'expectOne');
-    service.getJobs().subscribe((jobs) => {
-      expect(jobs).toEqual([]);
-    });
-    expect(spy).not.toHaveBeenCalled();
+  it('returns empty list immediately when mock mode is active', async () => {
+    store.overrideSelector(selectMockModeEnabled, true);
+    store.refreshState();
+    const jobs = await firstValueFrom(service.getJobs());
+    expect(jobs).toEqual([]);
   });
 
-  it('fetches job count from /api/jobs/count', async () => {
-    const promise = firstValueFrom(service.getJobCount());
-    const req = httpMock.expectOne('/api/jobs/count');
-    req.flush({ count: 42 });
-    const count = await promise;
-    expect(count).toBe(42);
+  it('returns job count from selector', async () => {
+    const count = await firstValueFrom(service.getJobCount());
+    expect(count).toBe(1);
   });
 
-  it('gets status for a specific job', async () => {
-    const promise = firstValueFrom(service.getJobById('foo'));
-    const req = httpMock.expectOne('/api/jobs/foo/status');
-    req.flush({ id: 'foo', status: 'running' });
-    const job = await promise;
+  it('returns job by id from entities selector', async () => {
+    const job = await firstValueFrom(service.getJobById('foo'));
     expect(job?.status).toBe('running');
   });
 
-  it('cancels a job with POST /cancel', () => {
+  it('cancels a job with POST /cancel and dispatches request action', () => {
+    const dispatchSpy = vi.spyOn(store, 'dispatch');
     service.cancelJob('foo').subscribe();
     const req = httpMock.expectOne('/api/jobs/foo/cancel');
     expect(req.request.method).toBe('POST');
     req.flush({});
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      JobsActions.jobCancelledRequested({ jobId: 'foo' }),
+    );
   });
 
-  it('applyJobUpdate merges into current job list', () => {
-    service['jobsSubject'].next([
-      { id: '1', name: 'x', status: 'queued' } as any,
-    ]);
+  it('dispatches job update to store', () => {
+    const dispatchSpy = vi.spyOn(store, 'dispatch');
     service.applyJobUpdate({ id: '1', status: 'running' });
-    const jobs = service['jobsSubject'].getValue();
-    expect(jobs[0].status).toBe('running');
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      JobsActions.jobUpdateReceived({ update: { id: '1', status: 'running' } }),
+    );
   });
 
   it('isPolling returns false when no polling subscription exists', () => {

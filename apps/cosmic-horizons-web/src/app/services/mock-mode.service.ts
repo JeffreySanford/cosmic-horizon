@@ -1,43 +1,33 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import * as UiActions from '../store/features/ui/ui.actions';
+import { selectMockModeEnabled } from '../store/features/ui/ui.selectors';
+import { AppState } from '../store/app.state';
 
 @Injectable({ providedIn: 'root' })
 export class MockModeService {
-  private readonly storageKey = 'mock_mode_enabled';
-  /** true when mock mode is enabled */
-  private _mock$ = new BehaviorSubject<boolean>(this.initialMockState());
-  readonly mock$ = this._mock$.asObservable();
+  readonly mock$: Observable<boolean>;
+  private latestMock = true;
+  private readonly store = inject<Store<AppState>>(Store);
+
+  constructor() {
+    this.mock$ = this.store.select(selectMockModeEnabled);
+    this.mock$.subscribe((enabled) => {
+      this.latestMock = enabled;
+    });
+  }
 
   enable(): void {
-    this.setMockState(true);
+    this.store.dispatch(UiActions.mockModeSetRequested({ enabled: true }));
   }
   disable(): void {
-    this.setMockState(false);
+    this.store.dispatch(UiActions.mockModeSetRequested({ enabled: false }));
   }
   toggle(): void {
-    this.setMockState(!this._mock$.value);
+    this.store.dispatch(UiActions.mockModeSetRequested({ enabled: !this.latestMock }));
   }
   get isMock(): boolean {
-    return this._mock$.value;
-  }
-
-  private setMockState(enabled: boolean): void {
-    this._mock$.next(enabled);
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.setItem(this.storageKey, String(enabled));
-    }
-  }
-
-  private initialMockState(): boolean {
-    if (typeof window === 'undefined') {
-      return true;
-    }
-
-    const raw = window.sessionStorage.getItem(this.storageKey);
-    if (raw === null) {
-      return true;
-    }
-
-    return raw !== 'false';
+    return this.latestMock;
   }
 }
