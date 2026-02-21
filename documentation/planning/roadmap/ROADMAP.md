@@ -3,52 +3,50 @@
 Status date: 2026-02-21
 
 Canonical scope: `documentation/product/PRODUCT-CHARTER.md` and `SCOPE-LOCK.md`.
-Tracking rule: this file is forward-looking only; completed implementation history belongs in `TODO.md`.
+Tracking rule: this document is forward-looking only; completed implementation history belongs in `TODO.md`.
 
-## Current Baseline
+## Baseline (Current)
 
-- MVP + v1.1 hardening are complete and stable.
-- Route-aware app shell/header/footer + MD3 styling system are implemented.
-- Community + moderation mock-mode workflows now have seeded demonstration data.
+- Angular app state migration to NgRx is complete in scoped domains.
+- SSR viewer preload resolver is active with TransferState hydration.
+- SSR performance telemetry counters are implemented for bootstrap/TransferState hit-rate tracking.
+- Core local quality gates are green (`lint`, `test`, `e2e`).
 
-## Next Big Step (Priority 1)
+## Priority 1: Remote Compute Gateway (v1.2)
 
-### Remote Compute Gateway Sprint 2 (Live Connectivity)
+### Sprint 2 (Live Connectivity)
 
-Objective: move from simulated orchestration to live remote compute integration while preserving test and audit quality.
+Objective: move from simulation to real remote orchestration while preserving auditability and release safety.
 
-- Implement real TACC Slurm/Tapis job orchestration adapter.
-- Add secure credential handling and rotation-safe request headers.
-- Persist live job audit/provenance records in PostgreSQL.
-- Link job outputs to explainable UI records (snapshot/provenance chain).
+- Implement TACC Slurm/Tapis live adapter and request/response mapping.
+- Add secure secret/header handling with redaction and operational guardrails.
+- Persist durable job provenance and outcome records in PostgreSQL.
+- Maintain feature-flagged runtime mode split (demo/mock vs live).
 
 Exit criteria:
 
-- Live path is feature-flagged and environment-gated.
-- Full Nx quality gates pass (`lint`, `test`, `e2e`, `e2e:ci`).
-- Audit logs capture request identity, action, and outcome for live jobs.
+- Live mode behind explicit config gates and role controls.
+- End-to-end provenance chain queryable per job.
+- All core gates green: `lint`, `test`, `e2e`.
+- CI strategy defined for `e2e-ci` (Nx Cloud aggregate or documented local-equivalent shards).
 
-## Near-Term Stream (Priority 2)
+## Priority 2: CI Signal Quality
 
-### Release and Governance Hygiene
+- Eliminate startup proxy-noise warnings in web e2e by tightening service readiness ordering.
+- Keep changed-file formatting checks consistently green.
+- Keep Lighthouse mobile checks stable with documented assertion baselines.
 
-- Finalize release notes for the styling/header/community wave.
-- Resolve stale/broken documentation links and keep docs index current.
-- Keep docs-policy and markdown quality checks green.
+## Priority 3: Documentation Governance
 
-## Near-Term Stream (Priority 3)
-
-### Community and Moderation Production Controls
-
-- Keep mock mode as default for demo flows.
-- Gate live posting/storage behavior by auth + role + runtime mode.
-- Expand table UX for moderation (filter/sort/pagination/detail view) with coverage.
+- Keep roadmap, TODO, and README status statements synchronized.
+- Remove stale historical duplication from legacy docs and route status to canonical files.
+- Maintain docs catalog and consistency checks as mandatory release gate.
 
 ## Strategic Milestone
 
 - Symposium: Cosmic Horizons Conference 2026 (Charlottesville, VA).
 - Abstract deadline: April 1, 2026.
-- Readiness target: stable live-gateway demo narrative with explainable provenance.
+- Readiness target: live-gateway demonstration with explainable provenance and auditable operator controls.
 
 ---
 

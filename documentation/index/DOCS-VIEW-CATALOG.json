@@ -234,6 +234,12 @@
     "sourcePath": "documentation/index/OVERVIEW-V2.md"
   },
   {
+    "id": "documentation--ngrx--ngrx-implementation-migration",
+    "label": "NGRX IMPLEMENTATION MIGRATION",
+    "section": "NGRX",
+    "sourcePath": "documentation/NGRX/NGRX-IMPLEMENTATION-MIGRATION.md"
+  },
+  {
     "id": "documentation--operations--github-actions-monitoring",
     "label": "GITHUB ACTIONS MONITORING",
     "section": "Operations",
