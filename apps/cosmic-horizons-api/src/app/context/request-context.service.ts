@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { UUID, generateCorrelationId, createUUID } from '@cosmic-horizons/event-models';
+import {
+  UUID,
+  generateCorrelationId,
+  createUUID,
+} from '@cosmic-horizons/event-models';
 
 /**
  * Simple request-scoped context container using AsyncLocalStorage.
@@ -21,7 +25,10 @@ export class RequestContextService {
    * Run a callback within a context.  If a correlationId is provided it will
    * be used; otherwise a fresh one is generated.
    */
-  run<T>(callback: (...args: unknown[]) => T, context: Partial<RequestContext> = {}): T {
+  run<T>(
+    callback: (...args: unknown[]) => T,
+    context: Partial<RequestContext> = {},
+  ): T {
     const store: RequestContext = {
       correlationId: context.correlationId ?? generateCorrelationId(),
     } as RequestContext;

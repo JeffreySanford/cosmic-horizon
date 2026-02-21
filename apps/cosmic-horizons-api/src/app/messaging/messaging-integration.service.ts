@@ -160,11 +160,11 @@ export class MessagingIntegrationService
 
     try {
       // Cast to a ClientProxy with an empty events map; this satisfies
-    // the library's generic constraint while keeping our call-site type
-    // errors quiet. eslint is disabled here because the underlying proxy
-    // implementation is sound.
-    // use a generic with no keys – avoids unsafe Function type warnings
-    await this.emitWithRetry(
+      // the library's generic constraint while keeping our call-site type
+      // errors quiet. eslint is disabled here because the underlying proxy
+      // implementation is sound.
+      // use a generic with no keys – avoids unsafe Function type warnings
+      await this.emitWithRetry(
         this.rabbitClient as ClientProxy<Record<never, never>, string>,
         this.rabbitRoutingKey,
         packet,
@@ -188,7 +188,7 @@ export class MessagingIntegrationService
     }
 
     try {
-            await this.emitWithRetry(
+      await this.emitWithRetry(
         this.kafkaClient as ClientProxy<Record<never, never>, string>,
         'element.raw_data',
         packet,
@@ -233,7 +233,10 @@ export class MessagingIntegrationService
             // Log parsing error instead of the original error to mark the
             // variable as used and to surface the URL parsing failure if it
             // happens.
-            this.logger.error('Failed to parse RabbitMQ URL after retries', parseErr);
+            this.logger.error(
+              'Failed to parse RabbitMQ URL after retries',
+              parseErr,
+            );
           }
           return;
         }
@@ -255,7 +258,9 @@ export class MessagingIntegrationService
       let channel: import('amqplib').Channel | undefined;
 
       try {
-        connection = (await connect(this.rabbitUrl)) as import('amqplib').ChannelModel;
+        connection = (await connect(
+          this.rabbitUrl,
+        )) as import('amqplib').ChannelModel;
         channel = await connection.createChannel();
         if (!channel) {
           // should never happen; defensively bail out

@@ -46,7 +46,8 @@ export class ViewerController {
     @Query('survey') surveyRaw: string,
     @Query('label') labelRaw?: string,
     @Query('detail') detailRaw?: string,
-    @Res({ passthrough: true }) res?: { setHeader: (name: string, value: string) => void },
+    @Res({ passthrough: true })
+    res?: { setHeader: (name: string, value: string) => void },
   ): Promise<StreamableFile> {
     if (res) {
       res.setHeader('Cache-Control', 'public, max-age=60');

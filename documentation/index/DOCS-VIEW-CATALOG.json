@@ -126,6 +126,24 @@
     "sourcePath": "documentation/backend/RATE-LIMITING.md"
   },
   {
+    "id": "documentation--database--data-dictionary",
+    "label": "DATA DICTIONARY",
+    "section": "Database",
+    "sourcePath": "documentation/database/DATA-DICTIONARY.md"
+  },
+  {
+    "id": "documentation--database--erd",
+    "label": "ERD",
+    "section": "Database",
+    "sourcePath": "documentation/database/ERD.md"
+  },
+  {
+    "id": "documentation--database--migrations",
+    "label": "MIGRATIONS",
+    "section": "Database",
+    "sourcePath": "documentation/database/MIGRATIONS.md"
+  },
+  {
     "id": "documentation--governance--source-of-truth",
     "label": "SOURCE OF TRUTH",
     "section": "Governance",
@@ -142,6 +160,18 @@
     "label": "TESTING GUIDE",
     "section": "Guides",
     "sourcePath": "documentation/guides/TESTING_GUIDE.md"
+  },
+  {
+    "id": "documentation--hardening--hardening-plan",
+    "label": "HARDENING PLAN",
+    "section": "Hardening",
+    "sourcePath": "documentation/hardening/HARDENING-PLAN.md"
+  },
+  {
+    "id": "documentation--hardening--readme",
+    "label": "README",
+    "section": "Hardening",
+    "sourcePath": "documentation/hardening/README.md"
   },
   {
     "id": "documentation--ideas--llm-enhanced-job-orchestration",
@@ -178,6 +208,12 @@
     "label": "QUICK START",
     "section": "Operations",
     "sourcePath": "documentation/operations/QUICK-START.md"
+  },
+  {
+    "id": "documentation--operations--upstream-resilience-runbook",
+    "label": "UPSTREAM RESILIENCE RUNBOOK",
+    "section": "Operations",
+    "sourcePath": "documentation/operations/UPSTREAM-RESILIENCE-RUNBOOK.md"
   },
   {
     "id": "documentation--overview--exascale-deck-wording-patch-2026-02-11",

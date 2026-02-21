@@ -64,14 +64,21 @@ export class RateLimitGuard implements CanActivate {
           await this.redis.expire(redisKey, Math.ceil(this.windowMs / 1000));
         }
         if (count > maxRequestsForPath) {
-          this.logger.warn(`redis rate limit exceeded for key=${redisKey} limit=${maxRequestsForPath}`);
+          this.logger.warn(
+            `redis rate limit exceeded for key=${redisKey} limit=${maxRequestsForPath}`,
+          );
+          // throw the HTTP exception so callers know we exceeded the limit
           throw new HttpException(
             `Rate limit exceeded: max ${maxRequestsForPath} write requests per ${this.windowMs / 1000}s window.`,
             HttpStatus.TOO_MANY_REQUESTS,
           );
         }
-      } catch {
-        // on redis errors, fall back to in‑memory behaviour below
+      } catch (err) {
+        // if the error is our own HttpException, rethrow it; otherwise
+        // treat it as a Redis failure and fall back to in‑memory behaviour.
+        if (err instanceof HttpException) {
+          throw err;
+        }
         this.redis = null;
       }
     }
@@ -83,7 +90,9 @@ export class RateLimitGuard implements CanActivate {
         (timestamp) => timestamp > cutoff,
       );
       if (current.timestamps.length >= maxRequestsForPath) {
-        this.logger.warn(`memory rate limit exceeded for key=${key} limit=${maxRequestsForPath}`);
+        this.logger.warn(
+          `memory rate limit exceeded for key=${key} limit=${maxRequestsForPath}`,
+        );
         throw new HttpException(
           `Rate limit exceeded: max ${maxRequestsForPath} write requests per ${this.windowMs / 1000}s window.`,
           HttpStatus.TOO_MANY_REQUESTS,

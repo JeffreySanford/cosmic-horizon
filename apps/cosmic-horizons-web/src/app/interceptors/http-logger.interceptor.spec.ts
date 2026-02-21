@@ -65,7 +65,10 @@ describe('HttpLoggerInterceptor', () => {
 
   it('should update correlation service from response header', async () => {
     const req = new HttpRequest<any>('GET' as any, '/test');
-    const resp = new HttpResponse({ status: 200, headers: req.headers.set('x-correlation-id', 'resp-123') } as any);
+    const resp = new HttpResponse({
+      status: 200,
+      headers: req.headers.set('x-correlation-id', 'resp-123'),
+    } as any);
     const hMock = handler.handle as any;
     hMock.mockReturnValue(of(resp));
 
@@ -84,6 +87,10 @@ describe('HttpLoggerInterceptor', () => {
     } catch {
       // expected to throw
     }
-    expect(logger.error).toHaveBeenCalledWith('http', 'http_error', expect.objectContaining({ correlation_id: 'cid-foo' }));
+    expect(logger.error).toHaveBeenCalledWith(
+      'http',
+      'http_error',
+      expect.objectContaining({ correlation_id: 'cid-foo' }),
+    );
   });
 });

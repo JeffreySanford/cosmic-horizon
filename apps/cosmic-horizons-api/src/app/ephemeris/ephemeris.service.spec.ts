@@ -75,8 +75,6 @@ describe('EphemerisService', () => {
     // Verify cache was checked and set
     expect(cacheService.get).toHaveBeenCalledWith(`ephem:mars:2026-02-11`);
     expect(cacheService.set).toHaveBeenCalled();
-
-
   });
 
   it('should return cached position if available', async () => {
@@ -132,8 +130,8 @@ $$EOE
     } as AxiosResponse<{ result: string }>;
     httpService.get.mockReturnValue(of(response));
 
-    const result = await service.calculatePosition('asteroid-123');
-    expect(result).not.toBeNull();
+    const asteroidResult = await service.calculatePosition('asteroid-123');
+    expect(asteroidResult).not.toBeNull();
 
     // outgoing HTTP should carry correlation header
     expect(httpService.get).toHaveBeenCalledWith(
@@ -146,17 +144,17 @@ $$EOE
       }),
     );
 
-    const result = await service.calculatePosition(
+    const erosResult = await service.calculatePosition(
       'eros',
       '2026-02-11T12:00:00Z',
     );
 
-    expect(result).toBeDefined();
-    expect(result?.source).toBe('jpl-horizons');
-    expect(result?.object_type).toBe('asteroid');
+    expect(erosResult).toBeDefined();
+    expect(erosResult?.source).toBe('jpl-horizons');
+    expect(erosResult?.object_type).toBe('asteroid');
     // 14h 28m 32.12s -> 14.47558... hours -> 217.133... degrees
-    expect(result?.ra).toBeCloseTo(217.1338, 4);
-    expect(result?.dec).toBeCloseTo(-15.47836, 4);
+    expect(erosResult?.ra).toBeCloseTo(217.1338, 4);
+    expect(erosResult?.dec).toBeCloseTo(-15.47836, 4);
   });
 
   // ========== ADDITIONAL COVERAGE TESTS ==========

@@ -10,6 +10,8 @@ Enable the astronomy community to discover, annotate, and publish observations t
 
 **Canonical Reference**: [SCOPE-LOCK.md](SCOPE-LOCK.md) + [PRODUCT-CHARTER.md](documentation/product/PRODUCT-CHARTER.md)
 
+**Hardening Checklist**: see [documentation/hardening/HARDENING-PLAN.md](documentation/hardening/HARDENING-PLAN.md) for the detailed security & operations hardening plan that underpins Phase 2.
+
 ## Recent Delta (2026-02-17)
 
 - Web test infrastructure was hardened to reduce CI/jsdom instability (`apps/cosmic-horizons-web/src/test-setup.ts`).

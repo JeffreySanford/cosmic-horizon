@@ -1,0 +1,192 @@
+
+> @cosmic-horizons/source@1.0.0 quality:ci C:\repos\cosmic-horizons
+> pnpm nx run docs-policy:check && pnpm format:check:changed && pnpm openapi:check && pnpm standalone:check && pnpm run env:check && pnpm nx run-many --target=test --all && pnpm nx run mvp-gates:e2e
+
+
+> nx run docs-policy:check
+
+> pnpm docs:view:build && pnpm docs:check
+
+
+> @cosmic-horizons/source@1.0.0 docs:view:build C:\repos\cosmic-horizons
+> node scripts/build-docs-view-catalog.mjs
+
+Docs catalog built: 55 entries -> documentation/index/DOCS-VIEW-CATALOG.json
+
+> @cosmic-horizons/source@1.0.0 docs:check C:\repos\cosmic-horizons
+> node scripts/check-doc-consistency.mjs
+
+Documentation consistency check passed.
+
+
+
+ NX   Successfully ran target check for project docs-policy
+
+
+
+> @cosmic-horizons/source@1.0.0 format:check:changed C:\repos\cosmic-horizons
+> node scripts/check-format-changed.mjs
+
+warning: in the working copy of '.github/workflows/e2e.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'HARDENING-PLAN.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api-e2e/src/cosmic-horizons-api/cosmic-horizons-api.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/auth/dto/login.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/auth/dto/refresh-token.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/auth/dto/register.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/config/env-validation.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/config/env-validation.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/config/session.config.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/config/session.config.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/context/request-context.service.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/context/request-context.service.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/create-comment.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/create-post.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/create-user.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/update-post.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/dto/update-user.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/ephemeris/ephemeris.service.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/guards/rate-limit.guard.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/guards/rate-limit.guard.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/jobs/jobs.module.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/messaging/messaging-integration.service.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/middleware/correlation.middleware.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/middleware/correlation.middleware.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/modules/community/community.service.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/modules/operations/broker-metrics.collector.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/modules/operations/broker-metrics.collector.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/profile/profile.controller.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/viewer/dto/create-viewer-snapshot.dto.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/viewer/viewer.controller.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/app/viewer/viewer.controller.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-api/src/main.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-web-e2e/src/broker-runtime-warnings.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-web-e2e/src/profile.console.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/cosmic-horizons-web/src/app/interceptors/http-logger.interceptor.spec.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'documentation/index/DOCS-VIEW-CATALOG.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'documentation/index/OVERVIEW-V2.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'documentation/reference/ENV-REFERENCE.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'documentation/reference/api/openapi.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'pnpm-lock.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/benchmark-pulsar-vs-rabbitmq.mjs', LF will be replaced by CRLF the next time Git touches it
+Checking formatting for 43 changed files...
+Checking formatting...
+All matched files use Prettier code style!
+
+> @cosmic-horizons/source@1.0.0 openapi:check C:\repos\cosmic-horizons
+> node scripts/check-openapi.mjs
+
+--- OpenAPI Regression Check ---
+Generating current OpenAPI spec...
+
+ NX   Running target openapi for project cosmic-horizons-api and 2 tasks it depends on:
+
+
+
+> nx run shared-event-models:build  [local cache]
+
+
+> nx run cosmic-horizons-api:build  [local cache]
+
+[2m> [22mwebpack-cli build --node-env=production
+
+webpack compiled [1m[32msuccessfully[39m[22m (e495a553809b5f2b)
+
+> nx run cosmic-horizons-api:openapi
+
+> node -e "process.env.GENERATE_OPENAPI_SPEC='true'; process.env.NODE_ENV='development'; process.env.API_PORT='3000'; process.env.FRONTEND_URL='http://localhost:4200'; process.env.JWT_SECRET='openapi-dev-jwt-secret-32-chars-minimum'; process.env.SESSION_SECRET='openapi-dev-session-secret-32-chars'; process.env.DB_HOST='localhost'; process.env.DB_PORT='15432'; process.env.DB_USER='cosmic_horizons_user'; process.env.DB_PASSWORD='cosmic_horizons_password_dev'; process.env.DB_NAME='cosmic_horizons'; process.env.REDIS_HOST='localhost'; process.env.REDIS_PORT='6379'; process.env.REDIS_PASSWORD='cosmic_horizons_redis_dev'; require('./apps/cosmic-horizons-api/dist/main.js');"
+
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +27ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mContextModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mLoggingModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHttpModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDiscoveryModule dependencies initialized[39m[38;5;3m +0ms[39m
+[95m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [95m  DEBUG[39m [38;5;3m[TaccIntegrationService] [39m[95mTACC Integration initialized with URL: https://api.tacc.utexas.edu (Key present: false)[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mScheduleModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCacheModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuditModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHealthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEventsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEphemerisModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmCoreModule dependencies initialized[39m[38;5;3m +26ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDatabaseModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mRepositoryModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOperationsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mNotificationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCommentsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProfileModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJobsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mViewerModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMessagingModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCommunityModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mDisconnecting from Kafka cluster...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mKafka cluster disconnection complete[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[SystemHealthConsumer] [39m[32mSystemHealthConsumer disconnected[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mDisconnecting from Kafka cluster...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mKafka cluster disconnection complete[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[AuditTrailConsumer] [39m[32mAuditTrailConsumer disconnected[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mDisconnecting from Kafka cluster...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mKafka cluster disconnection complete[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[JobEventsConsumer] [39m[32mJobEventsConsumer disconnected[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[EventsService] [39m[32mDestroying EventsService...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[RabbitMQService] [39m[32mDisconnecting from RabbitMQ...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[RabbitMQService] [39m[32mDisconnecting from RabbitMQ...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mDisconnecting from Kafka cluster...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mKafka cluster disconnection complete[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mDisconnecting from Kafka cluster...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mKafka cluster disconnection complete[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mDisconnecting from Kafka cluster...[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[KafkaService] [39m[32mKafka cluster disconnection complete[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [38;5;3m[EventsService] [39m[32mEventsService destroyed[39m
+[32m[Nest] 63836  - [39m02/20/2026, 5:30:20 PM [32m    LOG[39m [32mOpenAPI spec generated at C:\repos\cosmic-horizons\documentation\reference\api\openapi.json[39m
+
+
+
+ NX   Successfully ran target openapi for project cosmic-horizons-api and 2 tasks it depends on
+
+Nx read the output from the cache instead of running the command for 2 out of 3 tasks.
+
+warning: in the working copy of 'documentation/reference/api/openapi.json', LF will be replaced by CRLF the next time Git touches it
+❌ OpenAPI contract regression detected!
+Changes found in documentation/reference/api/openapi.json
+Please review the changes and commit them if they are intentional.
+warning: in the working copy of 'documentation/reference/api/openapi.json', LF will be replaced by CRLF the next time Git touches it
+diff --git a/documentation/reference/api/openapi.json b/documentation/reference/api/openapi.json
+index c9c5e74..5856e6d 100644
+--- a/documentation/reference/api/openapi.json
++++ b/documentation/reference/api/openapi.json
+@@ -10,7 +10,9 @@
+             "description": ""
+           }
+         },
+-        "tags": ["App"]
++        "tags": [
++          "App"
++        ]
+       }
+     },
+     "/api/health": {
+@@ -22,7 +24,23 @@
+             "description": ""
+           }
+         },
+-        "tags": ["App"]
+ ELIFECYCLE  Command failed with exit code 1.
+ ELIFECYCLE  Command failed with exit code 1.

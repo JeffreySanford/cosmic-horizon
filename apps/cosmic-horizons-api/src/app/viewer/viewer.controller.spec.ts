@@ -129,12 +129,15 @@ describe('ViewerController', () => {
       '1',
       '2',
       '3',
-      'S',
+      'SV',
       undefined,
       'standard',
       fakeRes,
     );
-    expect(fakeRes.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60');
+    expect(fakeRes.setHeader).toHaveBeenCalledWith(
+      'Cache-Control',
+      'public, max-age=60',
+    );
   });
 
   it('downloads cutout with high detail level', async () => {
@@ -207,7 +210,10 @@ describe('ViewerController', () => {
     viewerService.getNearbyLabels.mockResolvedValue([]);
     const fakeRes: any = { setHeader: jest.fn() };
     await controller.getNearbyLabels('1', '2', '0.1', '5', fakeRes);
-    expect(fakeRes.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=30');
+    expect(fakeRes.setHeader).toHaveBeenCalledWith(
+      'Cache-Control',
+      'public, max-age=30',
+    );
   });
 
   it('resolves viewer state by short ID', async () => {
@@ -228,8 +234,14 @@ describe('ViewerController', () => {
   });
 
   it('has authentication guard on write endpoints', () => {
-    const createStateGuards = Reflect.getMetadata('guards', controller.createState);
-    const createSnapshotGuards = Reflect.getMetadata('guards', controller.createSnapshot);
+    const createStateGuards = Reflect.getMetadata(
+      '__guards__',
+      controller.createState,
+    );
+    const createSnapshotGuards = Reflect.getMetadata(
+      '__guards__',
+      controller.createSnapshot,
+    );
     expect(createStateGuards).toBeDefined();
     expect(createSnapshotGuards).toBeDefined();
     const names = (createStateGuards as any[]).map((g) => g.name);
@@ -237,8 +249,14 @@ describe('ViewerController', () => {
   });
 
   it('applies RateLimitGuard to public read endpoints only', () => {
-    const cutoutGuards = Reflect.getMetadata('guards', controller.downloadCutout);
-    const nearbyGuards = Reflect.getMetadata('guards', controller.getNearbyLabels);
+    const cutoutGuards = Reflect.getMetadata(
+      '__guards__',
+      controller.downloadCutout,
+    );
+    const nearbyGuards = Reflect.getMetadata(
+      '__guards__',
+      controller.getNearbyLabels,
+    );
     expect(cutoutGuards).toBeDefined();
     expect(nearbyGuards).toBeDefined();
     const cutoutNames = (cutoutGuards as any[]).map((g) => g.name);

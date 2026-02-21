@@ -4,11 +4,14 @@ Status date: 2026-02-17 (Updated)
 
 **📋 REFERENCE**: Sprint/phase planning has been consolidated — see `ROADMAP.md` for the high-level roadmap and this `TODO.md` for actionable tasks. (Individual sprint/phase documents were removed.)
 
+**🔒 HARDENING**: The full security/operations hardening checklist and plan lives at `documentation/hardening/HARDENING-PLAN.md`.
+
 - Complete sprint breakdown (5.1-7.4)
 - Success criteria and metrics
 - Resource allocation and timeline
 - Risk mitigation strategies
 - Execution path from current state to Symposium 2026 readiness
+- Migrate hardening plan into `documentation/hardening` and update docs catalog ✅
 
 Canonical scope:
 `documentation/product/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md`.

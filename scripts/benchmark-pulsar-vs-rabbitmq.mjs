@@ -601,7 +601,7 @@ async function benchmarkKafka() {
     const startWait = Date.now();
     while (!finished && Date.now() - startWait < maxWaitMs) {
       // small sleep
-       
+
       await new Promise((r) => setTimeout(r, 50));
     }
 

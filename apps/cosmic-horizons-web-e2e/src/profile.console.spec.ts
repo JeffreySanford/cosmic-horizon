@@ -78,12 +78,11 @@ test.describe('Profile — console & retry behavior', () => {
     const reqUrls: string[] = [];
     page.on('request', (r) => {
       reqUrls.push(r.url());
-       
+
       console.log('[E2E DEBUG] request ->', r.method(), r.url());
     });
 
     page.on('response', (res) => {
-       
       console.log('[E2E DEBUG] response ->', res.status(), res.url());
     });
 
@@ -114,7 +113,7 @@ test.describe('Profile — console & retry behavior', () => {
     expect(errorResp.status()).toBe(500);
 
     // surface profile debug logs if present (helps CI failure inspection)
-     
+
     console.log('[E2E DEBUG] consoleMessages:', consoleMessages.slice(-20));
 
     // sanity: ensure the profile network request occurred

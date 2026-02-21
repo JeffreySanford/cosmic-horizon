@@ -21,9 +21,12 @@ describe('RequestContextService', () => {
   it('should preserve supplied correlation id', () => {
     const provided = '00000000-0000-4000-8000-000000000000';
     let seen: string | undefined;
-    service.run(() => {
-      seen = service.getCorrelationId();
-    }, { correlationId: provided as any });
+    service.run(
+      () => {
+        seen = service.getCorrelationId();
+      },
+      { correlationId: provided as any },
+    );
     expect(seen).toBe(provided);
   });
 
@@ -32,7 +35,9 @@ describe('RequestContextService', () => {
     service.run(() => {
       seen1 = service.getCorrelationId();
       service.setCorrelationId('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
-      expect(service.getCorrelationId()).toBe('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+      expect(service.getCorrelationId()).toBe(
+        'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      );
     });
     expect(seen1).toBeDefined();
   });

@@ -1,4 +1,23 @@
 import Redis from 'ioredis';
+
+// ensure connect-redis is a callable factory during tests; jest.mock
+// needs to be declared before the module that uses it is imported.
+jest.mock('connect-redis', () => {
+  // return a factory function that produces a minimal store with a
+  // .client property and an .on method so express-session is happy.
+  return jest.fn().mockImplementation(() => {
+    return class RedisStore {
+      client: any;
+      constructor(opts: any) {
+        this.client = opts.client;
+      }
+      on(_event: string, _listener: any) {
+        // no-op for tests
+      }
+    };
+  });
+});
+
 import { createSessionMiddleware } from './session.config';
 
 describe('createSessionMiddleware', () => {
@@ -39,7 +58,7 @@ describe('createSessionMiddleware', () => {
     delete process.env['REDIS_HOST'];
     delete process.env['REDIS_PORT'];
     expect(() => createSessionMiddleware()).toThrow(
-      /Redis session store requested but REDIS_HOST and REDIS_PORT are not both set/, 
+      /Redis session store requested but REDIS_HOST and REDIS_PORT are not both set/,
     );
   });
 

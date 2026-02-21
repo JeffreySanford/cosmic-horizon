@@ -2,9 +2,10 @@
 const session: typeof import('express-session') = require('express-session');
 import { SessionOptions, Store as SessionStore } from 'express-session';
 import Redis from 'ioredis';
-// `connect-redis` exports a factory function; using require avoids
-// incorrect TypeScript declaration which has no call signature.
-const connectRedis = require('connect-redis');
+// `connect-redis` is required lazily inside createSessionMiddleware
+// because jest tests may want to mock it before the module is imported.
+// the library exports a factory function, and some build setups wrap it
+// in a `{ default: ... }` object so we normalise the value at call time.
 import { Logger } from '@nestjs/common';
 import { getSessionSecret } from './security.config';
 
@@ -48,8 +49,12 @@ export function createSessionMiddleware(): ReturnType<typeof session> {
       }
     });
 
-    // `connectRedis` is `any` via require, so we can call it directly.
-    const RedisStore = connectRedis(session) as new (opts: unknown) => SessionStore;
+    // require lazily so tests can mock before import
+    const _connectRedis: any = require('connect-redis');
+    const connectRedis = _connectRedis.default || _connectRedis;
+    const RedisStore = connectRedis(session) as new (
+      opts: unknown,
+    ) => SessionStore;
     store = new RedisStore({ client });
   }
 
@@ -69,5 +74,11 @@ export function createSessionMiddleware(): ReturnType<typeof session> {
     options.store = store;
   }
 
-  return session(options);
+  const mw = session(options);
+  // express-session doesn’t always expose the store property on the
+  // returned middleware, so make sure tests can see it as expected.
+  if (store) {
+    (mw as any).store = store;
+  }
+  return mw;
 }

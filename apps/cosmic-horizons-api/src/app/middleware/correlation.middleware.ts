@@ -3,7 +3,6 @@ import { RequestContextService } from '../context/request-context.service';
 
 // we avoid importing Express types here to satisfy eslint no-restricted-imports rule
 
-
 /**
  * Middleware that ensures every HTTP request has an attached
  * X-Correlation-Id value and that it is available via
@@ -24,18 +23,19 @@ export class CorrelationMiddleware implements NestMiddleware {
     const corrFromHeader = Array.isArray(header) ? header[0] : header;
 
     // run callback inside ALS context so other code can read it
-    this.ctx.run(() => {
-      // grab the ID that ended up in the store (either header or generated)
-      const active = this.ctx.getCorrelationId();
-      if (active) {
-        res.setHeader('X-Correlation-Id', active);
-      }
-      next();
-    },
-    // pass header id only if it exists and is a string
-    corrFromHeader && typeof corrFromHeader === 'string'
-      ? { correlationId: corrFromHeader }
-      : undefined,
+    this.ctx.run(
+      () => {
+        // grab the ID that ended up in the store (either header or generated)
+        const active = this.ctx.getCorrelationId();
+        if (active) {
+          res.setHeader('X-Correlation-Id', active);
+        }
+        next();
+      },
+      // pass header id only if it exists and is a string
+      corrFromHeader && typeof corrFromHeader === 'string'
+        ? { correlationId: corrFromHeader }
+        : undefined,
     );
   }
 }

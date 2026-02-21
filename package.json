@@ -44,6 +44,10 @@
     "build": "pnpm nx run-many --target=build --all",
     "eslint:check": "eslint . --ext .ts,.tsx,.js,.jsx,.html --max-warnings=0",
     "lint": "pnpm nx run-many --target=lint --all && pnpm run eslint:check",
+    "db:migrate": "ts-node -r tsconfig-paths/register apps/cosmic-horizons-api/node_modules/typeorm/cli.js migration:run -d apps/cosmic-horizons-api/data-source.ts",
+    "db:migrate:revert": "ts-node -r tsconfig-paths/register apps/cosmic-horizons-api/node_modules/typeorm/cli.js migration:revert -d apps/cosmic-horizons-api/data-source.ts",
+    "db:migrate:generate": "ts-node -r tsconfig-paths/register apps/cosmic-horizons-api/node_modules/typeorm/cli.js migration:generate -d apps/cosmic-horizons-api/data-source.ts",
+    "db:migrate:create": "ts-node -r tsconfig-paths/register apps/cosmic-horizons-api/node_modules/typeorm/cli.js migration:create -d apps/cosmic-horizons-api/data-source.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:check:changed": "node scripts/check-format-changed.mjs",
@@ -51,10 +55,11 @@
     "lighthouse:mobile": "pnpm dlx @lhci/cli@0.14.0 autorun --config=.github/lighthouse/lighthouserc.json",
     "lighthouse:summary": "node scripts/summarize-lighthouse.mjs",
     "openapi:check": "node scripts/check-openapi.mjs",
-    "security:audit": "pnpm audit --prod --audit-level=high",
+    "security:audit": "pnpm audit --prod --audit-level=critical",
     "docs:view:build": "node scripts/build-docs-view-catalog.mjs",
     "docs:check": "node scripts/check-doc-consistency.mjs",
-    "quality:ci": "pnpm nx run docs-policy:check && pnpm format:check:changed && pnpm openapi:check && pnpm standalone:check && pnpm nx run-many --target=test --all && pnpm nx run mvp-gates:e2e"
+    "env:check": "node scripts/check-env-consistency.mjs",
+    "quality:ci": "pnpm nx run docs-policy:check && pnpm format:check:changed && pnpm openapi:check && pnpm standalone:check && pnpm run env:check && pnpm nx run-many --target=test --all && pnpm nx run mvp-gates:e2e"
   },
   "private": true,
   "devDependencies": {
@@ -149,6 +154,7 @@
     "amqplib": "^0.10.9",
     "axios": "^1.13.5",
     "class-validator": "^0.14.3",
+    "class-transformer": "^0.5.1",
     "express": "^4.21.2",
     "express-session": "^1.19.0",
     "helmet": "^8.1.0",

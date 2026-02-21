@@ -63,10 +63,12 @@ describe('RateLimitGuard', () => {
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
     await expect(guard.canActivate(context)).resolves.toBe(true);
-    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(HttpException);
+    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(
+      HttpException,
+    );
   });
 
-  it('scopes limits by path', () => {
+  it('scopes limits by path', async () => {
     const guard = new RateLimitGuard();
     const postsContext = executionContextFromRequest({
       ip: '127.0.0.1',
@@ -84,7 +86,7 @@ describe('RateLimitGuard', () => {
     await expect(guard.canActivate(usersContext)).resolves.toBe(true);
   });
 
-  it('applies stricter cutout path limits', () => {
+  it('applies stricter cutout path limits', async () => {
     const guard = new RateLimitGuard();
     const cutoutContext = executionContextFromRequest({
       ip: '127.0.0.1',
@@ -93,10 +95,12 @@ describe('RateLimitGuard', () => {
     });
 
     await expect(guard.canActivate(cutoutContext)).resolves.toBe(true);
-    await expect(guard.canActivate(cutoutContext)).rejects.toBeInstanceOf(HttpException);
+    await expect(guard.canActivate(cutoutContext)).rejects.toBeInstanceOf(
+      HttpException,
+    );
   });
 
-  it('applies nearby-label path limits', () => {
+  it('applies nearby-label path limits', async () => {
     const guard = new RateLimitGuard();
     const nearbyContext = executionContextFromRequest({
       ip: '127.0.0.1',
@@ -105,7 +109,9 @@ describe('RateLimitGuard', () => {
     });
 
     await expect(guard.canActivate(nearbyContext)).resolves.toBe(true);
-    await expect(guard.canActivate(nearbyContext)).rejects.toBeInstanceOf(HttpException);
+    await expect(guard.canActivate(nearbyContext)).rejects.toBeInstanceOf(
+      HttpException,
+    );
   });
 
   it('bypasses when correct API key present', async () => {

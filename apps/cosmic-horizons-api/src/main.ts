@@ -3,7 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -78,6 +78,16 @@ async function bootstrap() {
       helmet({
         contentSecurityPolicy: false,
         crossOriginEmbedderPolicy: false,
+      }),
+    );
+
+    // global validation pipe ensures DTOs are strictly checked
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
       }),
     );
 

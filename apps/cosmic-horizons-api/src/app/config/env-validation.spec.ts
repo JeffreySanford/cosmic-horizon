@@ -10,6 +10,14 @@ describe('env validation', () => {
         PORT: '3000',
       }),
     ).toThrow(/Legacy env key/);
+
+    // REDIS_ENABLED is also a hard failure now
+    expect(() =>
+      validateEnvironment({
+        NODE_ENV: 'development',
+        REDIS_ENABLED: 'true',
+      }),
+    ).toThrow(/REDIS_ENABLED/);
   });
 
   it('fails fast for missing production secrets', () => {

@@ -229,6 +229,7 @@ Required CI signals:
 - Environment contract: `documentation/reference/ENV-REFERENCE.md`
 
 - Demo flow: `documentation/operations/QUICK-START.md`
+- Upstream dependency resilience runbook: `documentation/operations/UPSTREAM-RESILIENCE-RUNBOOK.md`
 
 - Roadmap: `documentation/planning/roadmap/ROADMAP.md`
 

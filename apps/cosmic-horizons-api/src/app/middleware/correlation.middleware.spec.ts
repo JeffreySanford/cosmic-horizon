@@ -24,7 +24,10 @@ describe('CorrelationMiddleware', () => {
   it('should generate and attach header when none present', () => {
     middleware.use(req, res, next);
     expect(ctx.run).toHaveBeenCalled();
-    expect(res.setHeader).toHaveBeenCalledWith('X-Correlation-Id', 'generated-id');
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'X-Correlation-Id',
+      'generated-id',
+    );
     expect(next).toHaveBeenCalled();
   });
 
@@ -34,7 +37,10 @@ describe('CorrelationMiddleware', () => {
     expect(ctx.run).toHaveBeenCalledWith(expect.any(Function), {
       correlationId: 'external-123',
     });
-    expect(res.setHeader).toHaveBeenCalledWith('X-Correlation-Id', 'generated-id');
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'X-Correlation-Id',
+      'generated-id',
+    );
     expect(next).toHaveBeenCalled();
   });
 });
