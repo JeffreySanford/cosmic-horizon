@@ -226,7 +226,7 @@ export class MessagingService {
 
     // eslint-disable-next-line no-restricted-syntax -- emission API uses callback
     return new Promise<{ joined: boolean; room?: string; error?: string }>((resolve) => {
-      this.socket.emit('join_job_channel', { jobId }, (resp: unknown) => {
+      this.socket!.emit('join_job_channel', { jobId }, (resp: unknown) => {
         resolve(resp as { joined: boolean; room?: string; error?: string });
       });
     });
@@ -235,7 +235,7 @@ export class MessagingService {
   /**
    * Helper method exposed so tests can override or stub socket creation.
    */
-  protected createSocket(url: string, opts: unknown): Socket {
+  protected createSocket(url: string, opts: any): Socket {
     return io(url, opts);
   }
 

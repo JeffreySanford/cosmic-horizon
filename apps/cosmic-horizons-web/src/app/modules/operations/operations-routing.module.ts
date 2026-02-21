@@ -6,8 +6,13 @@ import { NodePerformanceComponent } from './node-performance/node-performance.co
 import { PerformanceHeatmapComponent } from './performance-heatmap/performance-heatmap.component';
 import { ProgressGraphComponent } from './progress-graph/progress-graph.component';
 import { LoadTestResultsComponent } from './load-test-results/load-test-results.component';
+import { OperationsHomeComponent } from './operations-home/operations-home.component';
 
 const routes: Routes = [
+  {
+    path: '',
+    component: OperationsHomeComponent,
+  },
   {
     path: 'broker-comparison',
     component: BrokerComparisonComponent,
@@ -33,9 +38,8 @@ const routes: Routes = [
     component: LoadTestResultsComponent,
   },
   {
-    path: '',
-    redirectTo: 'broker-comparison',
-    pathMatch: 'full',
+    path: '**',
+    redirectTo: '',
   },
 ];
 

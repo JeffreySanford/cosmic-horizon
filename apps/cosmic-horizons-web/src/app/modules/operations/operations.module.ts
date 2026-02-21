@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
+import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,6 +22,7 @@ import { PerformanceHeatmapComponent } from './performance-heatmap/performance-h
 import { NodePerformanceComponent } from './node-performance/node-performance.component';
 import { ProgressGraphComponent } from './progress-graph/progress-graph.component';
 import { LoadTestResultsComponent } from './load-test-results/load-test-results.component';
+import { OperationsHomeComponent } from './operations-home/operations-home.component';
 
 /**
  * OperationsModule (Angular)
@@ -34,12 +37,14 @@ import { LoadTestResultsComponent } from './load-test-results/load-test-results.
     NodePerformanceComponent,
     ProgressGraphComponent,
     LoadTestResultsComponent,
+    OperationsHomeComponent,
   ],
   exports: [
     PerformanceHeatmapComponent,
     NodePerformanceComponent,
     ProgressGraphComponent,
     LoadTestResultsComponent,
+    OperationsHomeComponent,
   ],
   imports: [
     FormsModule,
@@ -58,6 +63,8 @@ import { LoadTestResultsComponent } from './load-test-results/load-test-results.
     MatSliderModule,
     NgxChartsModule,
     OperationsRoutingModule,
+    RouterModule,
+    MatListModule,
   ],
 })
 export class OperationsModule {}

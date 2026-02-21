@@ -150,11 +150,12 @@ describe('LandingComponent', () => {
     expect(text).toContain('My Profile');
     expect(text).toContain('Moderation Console');
     expect(text).toContain('System Logs');
-    expect(text).toContain('Job Dashboard');
-    expect(text).toContain('Node Performance');
-    expect(text).toContain('CPU Heatmap');
-    expect(text).toContain('Progress Graph');
-    expect(text).toContain('Load Tests');
+    expect(text).toContain('Operations');
+    expect(text).not.toContain('Job Dashboard');
+    expect(text).not.toContain('Node Performance');
+    expect(text).not.toContain('CPU Heatmap');
+    expect(text).not.toContain('Progress Graph');
+    expect(text).not.toContain('Load Tests');
   });
 
   it('renders deferred list from scope lock', () => {

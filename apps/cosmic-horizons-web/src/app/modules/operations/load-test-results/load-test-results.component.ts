@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-load-test-results',
@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
   templateUrl: './load-test-results.component.html',
   styleUrls: ['./load-test-results.component.scss'],
 })
-export class LoadTestResultsComponent {
+export class LoadTestResultsComponent implements OnInit {
   results: unknown = null; // JSON shape not defined, unknown is safer than any
 
   ngOnInit(): void {

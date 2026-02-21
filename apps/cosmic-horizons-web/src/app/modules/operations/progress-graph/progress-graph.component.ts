@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { PerformanceDataService } from '../../../services/performance-data.service';
 import { Subscription } from 'rxjs';
 
