@@ -281,11 +281,11 @@ Real-time dashboard provides operational visibility during benchmarking. Local v
 
 **Sprint 6.1: WebSocket Infrastructure (3 weeks)**
 
-- [ ] Set up Socket.IO server with NestJS adapter
-- [ ] Implement connection pooling and heartbeat mechanism
-- [ ] Create broadcast channels for job updates (per-user namespaces)
-- [ ] Add reconnection logic with exponential backoff
-- [ ] Write 55+ tests for WebSocket connection lifecycle
+- [x] Set up Socket.IO server with NestJS adapter
+- [x] Implement connection pooling and heartbeat mechanism
+- [x] Create broadcast channels for job updates (per-user namespaces)
+- [x] Add reconnection logic with exponential backoff
+- [x] Write 55+ tests for WebSocket connection lifecycle
 - [ ] Load test for 500+ concurrent connections
 - **Success Criteria**: 500+ concurrent connections, reconnection < 2s
 
