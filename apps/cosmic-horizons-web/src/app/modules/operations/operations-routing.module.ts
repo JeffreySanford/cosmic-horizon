@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BrokerComparisonComponent } from './broker-comparison/broker-comparison.component';
+import { JobDashboardComponent } from './job-dashboard/job-dashboard.component';
 
 const routes: Routes = [
   {
