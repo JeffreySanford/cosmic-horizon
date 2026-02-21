@@ -1,8 +1,8 @@
 # TODO
 
-Status date: 2026-02-17 (Updated)
+Status date: 2026-02-21 (Updated)
 
-**📋 REFERENCE**: Sprint/phase planning has been consolidated — see `ROADMAP.md` for the high-level roadmap and this `TODO.md` for actionable tasks. (Individual sprint/phase documents were removed.)
+**📋 REFERENCE**: Forward-looking plan is canonical in `documentation/planning/roadmap/ROADMAP.md`. This `TODO.md` is the execution journal and active checklist.
 
 **🔒 HARDENING**: The full security/operations hardening checklist and plan lives at `documentation/hardening/HARDENING-PLAN.md`.
 
@@ -16,6 +16,23 @@ Status date: 2026-02-17 (Updated)
 
 Canonical scope:
 `documentation/product/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md`.
+
+## Next Big Step (Planned)
+
+- [ ] **Remote Compute Gateway Sprint 2 (live connectivity)**:
+  - Replace simulated orchestration with real TACC Slurm/Tapis integration path.
+  - Implement secure credential/header handling and auditability controls for live requests.
+  - Complete persistent job provenance linkage (job -> snapshot/explainable record).
+  - Exit gate: green Nx quality suite (`lint`, `test`, `e2e`, `e2e:ci`) on live-mode-compatible flows.
+
+## Recent Changes (2026-02-21)
+
+- [x] App shell/header behavior normalized across route groups (auth-specific slim/no-menu behavior and shared collapsed-by-default header pattern).
+- [x] Expanded/collapsed header hints were constrained to expanded mode only; collapsed mode kept concise.
+- [x] User menu and snackbar contrast issues fixed for dark surfaces (including error toasts).
+- [x] Footer + page identity behavior aligned with current route context.
+- [x] Community/moderation mock-mode data expanded with richer seeded content for UX/demo coverage.
+- [x] Styling governance was completed and moved to canonical docs location: `documentation/styling/APP_STYLE_GUIDELINES.md`.
 
 ## Recent Changes (2026-02-17)
 

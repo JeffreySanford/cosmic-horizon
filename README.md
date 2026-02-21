@@ -21,7 +21,7 @@ Strategic AI control-plane direction:
 
 - `AGENTS.md` (`CosmicAI Docking & AI Control Plane`)
 - `documentation/planning/roadmap/ROADMAP.md` (Phase planning consolidated)
-- `documentation/marketing/scope/COSMIC-HORIZONS-2026-SCOPE.md`
+- `documentation/architecture/COSMICAI-INTEGRATION-OVERLAY.md`
 
 Project hardening checklist:
 
@@ -107,16 +107,15 @@ pnpm nx run mvp-gates:e2e
 - `documentation/product/PRODUCT-CHARTER.md`
 - `SCOPE-LOCK.md`
 - `AGENTS.md`
-- `documentation/governance/STATUS.md`
 - `documentation/governance/SOURCE-OF-TRUTH.md`
 - `documentation/product/AFFILIATION.md`
-- `documentation/governance/EXTERNAL-RESEARCH-WORKFLOW.md`
-- `documentation/operations/ENV.md`
-- `documentation/operations/DEMO.md`
+- `documentation/operations/QUICK-START.md`
+- `documentation/operations/GITHUB-ACTIONS-MONITORING.md`
 - `documentation/index/OVERVIEW-V2.md`
 - `documentation/quality/TESTING-STRATEGY.md`
 - `documentation/planning/roadmap/ROADMAP.md`
-- `documentation/planning/INDUSTRY-CONTEXT-AND-FEASIBILITY-2026-02-11.md`
+- `documentation/styling/APP_STYLE_GUIDELINES.md`
+- `documentation/guides/AI-SKILLS-SETUP.md`
 - `documentation/hardening/HARDENING-PLAN.md`
 - `TODO.md`
 

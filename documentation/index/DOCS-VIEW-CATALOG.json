@@ -150,10 +150,52 @@
     "sourcePath": "documentation/governance/SOURCE-OF-TRUTH.md"
   },
   {
+    "id": "documentation--guides--ai-skills-setup",
+    "label": "AI SKILLS SETUP",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/AI-SKILLS-SETUP.md"
+  },
+  {
     "id": "documentation--guides--community-discoveries",
     "label": "COMMUNITY DISCOVERIES",
     "section": "Guides",
     "sourcePath": "documentation/guides/COMMUNITY-DISCOVERIES.md"
+  },
+  {
+    "id": "documentation--guides--skills--angular-skill",
+    "label": "ANGULAR SKILL",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/skills/ANGULAR-SKILL.md"
+  },
+  {
+    "id": "documentation--guides--skills--docker-skill",
+    "label": "DOCKER SKILL",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/skills/DOCKER-SKILL.md"
+  },
+  {
+    "id": "documentation--guides--skills--go-skill",
+    "label": "GO SKILL",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/skills/GO-SKILL.md"
+  },
+  {
+    "id": "documentation--guides--skills--material-md3-skill",
+    "label": "MATERIAL MD3 SKILL",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/skills/MATERIAL-MD3-SKILL.md"
+  },
+  {
+    "id": "documentation--guides--skills--nest-skill",
+    "label": "NEST SKILL",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/skills/NEST-SKILL.md"
+  },
+  {
+    "id": "documentation--guides--skills--nx-workspace-skill",
+    "label": "NX WORKSPACE SKILL",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/skills/NX-WORKSPACE-SKILL.md"
   },
   {
     "id": "documentation--guides--testing-guide",
@@ -322,6 +364,18 @@
     "label": "ENVIRONMENT CONFIG",
     "section": "Setup",
     "sourcePath": "documentation/setup/ENVIRONMENT-CONFIG.md"
+  },
+  {
+    "id": "documentation--styling--app-style-guidelines",
+    "label": "APP STYLE GUIDELINES",
+    "section": "Styling",
+    "sourcePath": "documentation/styling/APP_STYLE_GUIDELINES.md"
+  },
+  {
+    "id": "documentation--styling--readme",
+    "label": "README",
+    "section": "Styling",
+    "sourcePath": "documentation/styling/README.md"
   },
   {
     "id": "readme",
