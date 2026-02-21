@@ -50,11 +50,14 @@ export function createSessionMiddleware(): ReturnType<typeof session> {
     });
 
     // require lazily so tests can mock before import
-    const _connectRedis: any = require('connect-redis');
-    const connectRedis = _connectRedis.default || _connectRedis;
-    const RedisStore = connectRedis(session) as new (
-      opts: unknown,
-    ) => SessionStore;
+    const _connectRedis: unknown = require('connect-redis');
+    const connectRedis =
+      // handle both default-exported and bare functions
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((_connectRedis as any).default || _connectRedis) as (
+        session: typeof import('express-session'),
+      ) => new (opts: unknown) => SessionStore;
+    const RedisStore = connectRedis(session);
     store = new RedisStore({ client });
   }
 
@@ -74,11 +77,12 @@ export function createSessionMiddleware(): ReturnType<typeof session> {
     options.store = store;
   }
 
-  const mw = session(options);
   // express-session doesn’t always expose the store property on the
   // returned middleware, so make sure tests can see it as expected.
+  type SessionMW = ReturnType<typeof session> & { store?: SessionStore };
+  const mw = session(options) as SessionMW;
   if (store) {
-    (mw as any).store = store;
+    mw.store = store;
   }
   return mw;
 }
