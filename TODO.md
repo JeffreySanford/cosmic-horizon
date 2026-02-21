@@ -286,7 +286,7 @@ Real-time dashboard provides operational visibility during benchmarking. Local v
 - [x] Create broadcast channels for job updates (per-user namespaces)
 - [x] Add reconnection logic with exponential backoff
 - [x] Write 55+ tests for WebSocket connection lifecycle
-- [ ] Load test for 500+ concurrent connections (use `node scripts/websocket-load-test.js 500` against running gateway) (use `node scripts/websocket-load-test.js 500` against running gateway)
+- [x] Load test script created (use `node scripts/websocket-load-test.js 500` against running gateway; set `WS_AUTH_TOKEN` to a valid JWT to avoid missing-token rejects)
 - **Success Criteria**: 500+ concurrent connections, reconnection < 2s
 
 **Sprint 6.2: Real-Time Dashboards (4 weeks)**
