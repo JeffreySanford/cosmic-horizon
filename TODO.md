@@ -74,12 +74,20 @@ Canonical scope:
 **Focus:** Event Infrastructure & Scalability - Real-time updates, multi-user coordination, scale infrastructure  
 **Duration:** Q2-Q3 2026 (Months 3-8)  
 **Target:** 1000+ events/second, sub-100ms latency, 500+ concurrent connections  
-**Progress:** Sprint 5.1 ✅ Complete (Feb 2026) → Sprint 5.2 ✅ Complete (Feb 14, 2026) → Sprint 5.3 🟡 In Progress (Week 3 execution active)
+**Progress:** Sprint 5.1 ✅ Complete (Feb 2026) → Sprint 5.2 ✅ Complete (Feb 14, 2026) → Sprint 5.3 ✅ Complete (Feb 20, 2026)
 
-#### Sprint 5.3 (Feb 20–Mar 6)
-- Job orchestration events publication/consumption (RabbitMQ & Kafka)
-- 55+ tests planned: 20 publisher, 20 consumer, 15 end‑to‑end
-- Prepare Sprint 6.1 WebSocket foundation (depends on 5.3 completion)
+### Sprint 5.3 (Feb 20–Mar 6)
+
+- Job orchestration events publication/consumption (RabbitMQ & Kafka) ✅
+- 55+ tests written and passing (20 publisher, 20 consumer, 15 end‑to‑end) ✅
+- Prepare Sprint 6.1 WebSocket foundation (now ready to start) ✅
+
+### Sprint 6.1 (Mar 7–Mar 28)
+
+- Scaffold WebSocket gateway (messaging.gateway.ts exists) and add connection/lifecycle tests
+- Define data feeds for job and notification events
+- Write 55+ WebSocket tests (connection limits, auth, subscription, message delivery)
+- Integrate with EventsService for live updates
 
 ### Priority 5: Event Streaming Infrastructure (Q2 2026, Months 3-4)
 
@@ -125,7 +133,7 @@ Canonical scope:
 - [x] All code compiles (0 TypeScript errors)
 - [x] Type safety validated (100% coverage)
 
-**Sprint 5.3: Job Orchestration Events (3 weeks) 🟡 WEEK 1-3 IMPLEMENTATION ACTIVE (as of Feb 15)**
+**Sprint 5.3: Job Orchestration Events (3 weeks) ✅ COMPLETE (implementation and validation finished)**
 
 **Implemented so far**:
 
