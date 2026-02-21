@@ -289,9 +289,9 @@ Real-time dashboard provides operational visibility during benchmarking. Local v
 - [x] Load test script created (use `node scripts/websocket-load-test.js 500` against running gateway; set `WS_AUTH_TOKEN` to a valid JWT to avoid missing-token rejects)
 - **Success Criteria**: 500+ concurrent connections, reconnection < 2s
 
-**Sprint 6.2: Real-Time Dashboards (4 weeks)**
+**Sprint 6.2: Real-Time Dashboards (4 weeks) 🟡 In progress**
 
-- [ ] Create Angular dashboard component for job monitoring
+- [x] Create Angular dashboard component for job monitoring (scaffold created)
 - [ ] Add real-time job status visualization (QUEUED → RUNNING → COMPLETE)
 - [ ] Build performance metrics panels (execution time, resource usage)
 - [ ] Implement GPU utilization heatmaps (per-job and cluster-wide)
