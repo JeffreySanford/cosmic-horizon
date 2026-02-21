@@ -92,7 +92,7 @@
     "@playwright/test": "^1.36.0",
     "@schematics/angular": "~21.1.0",
     "@swc-node/register": "~1.9.1",
-    "@swc/core": "~1.5.7",
+    "@swc/core": "~1.15.11",
     "@swc/helpers": "~0.5.11",
     "@swc/jest": "~0.2.38",
     "@types/connect-redis": "^0.0.23",
