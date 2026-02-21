@@ -8,6 +8,17 @@ const alertsRoutes: Routes = [
   {
     path: '',
     component: AlertsComponent,
+    data: {
+      header: {
+        title: 'Alerts',
+        icon: 'notifications_active',
+        iconTone: 'solar',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Alerts', icon: 'notifications_active' },
+        ],
+      },
+    },
   },
 ];
 

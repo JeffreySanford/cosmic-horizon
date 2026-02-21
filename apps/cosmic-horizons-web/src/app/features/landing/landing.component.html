@@ -1,49 +1,4 @@
 <div class="landing-container">
-  @if (showTelemetryOverlay) {
-    <aside
-      class="sky-meta-panel"
-      [class.compact]="telemetryCompact"
-      aria-label="Sky background telemetry"
-    >
-      <button
-        type="button"
-        class="telemetry-toggle"
-        (click)="onTelemetryControl()"
-        [attr.aria-label]="
-          shouldPromptForLocation
-            ? 'Detect location and personalize background'
-            : telemetryCompact
-              ? 'Expand telemetry details'
-              : 'Collapse telemetry details'
-        "
-      >
-        @if (locating) {
-          <mat-icon class="locating-icon">my_location</mat-icon>
-        } @else if (telemetryCompact || shouldPromptForLocation) {
-          <mat-icon>info</mat-icon>
-        } @else {
-          <mat-icon>close_fullscreen</mat-icon>
-        }
-      </button>
-      <p class="telemetry-detail">{{ clockLine }}</p>
-      <p class="telemetry-detail">{{ locationLabel }}</p>
-      <p class="telemetry-detail">{{ latLonLabel }}</p>
-    </aside>
-  }
-  <mat-toolbar color="primary" class="app-toolbar">
-    <mat-icon class="brand-icon">satellite_alt</mat-icon>
-    <span class="brand">Cosmic Horizon</span>
-    <span class="spacer"></span>
-    @if (user.username) {
-      <a mat-button routerLink="/profile">
-        <mat-icon>account_circle</mat-icon> My Profile
-      </a>
-    }
-    <button mat-flat-button color="warn" (click)="logout()">
-      <mat-icon>logout</mat-icon> Logout
-    </button>
-  </mat-toolbar>
-
   <div class="content-wrapper">
     <section class="hero">
       <p class="eyebrow">CosmicAI Control Plane</p>

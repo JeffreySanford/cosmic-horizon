@@ -7,6 +7,9 @@
       [routerLink]="tile.route"
       *ngIf="tile"
     >
+      <div class="tile-icon" *ngIf="tile.icon">
+        <mat-icon>{{ tile.icon }}</mat-icon>
+      </div>
       <div class="tile-title">{{ tile.title }}</div>
       <div class="tile-subtitle" *ngIf="tile.subtitle$ | async as sub">
         {{ sub }}

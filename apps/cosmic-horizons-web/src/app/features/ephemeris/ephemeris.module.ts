@@ -9,6 +9,17 @@ const ephemerisRoutes: Routes = [
   {
     path: '',
     component: EphemerisComponent,
+    data: {
+      header: {
+        title: 'Ephemeris Explorer',
+        icon: 'public',
+        iconTone: 'solar',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Ephemeris', icon: 'public' },
+        ],
+      },
+    },
   },
 ];
 

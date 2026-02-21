@@ -89,6 +89,31 @@
           </mat-card-content>
         </mat-card>
 
+        @if (isOwner) {
+          <mat-card class="location-pref-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>my_location</mat-icon>
+              <mat-card-title>Location Preference</mat-card-title>
+              <mat-card-subtitle>
+                Use exact coordinates for personalized sky previews
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-checkbox
+                [checked]="useExactLocation"
+                (change)="onExactLocationPreferenceChange($event.checked)"
+              >
+                Enable exact location
+              </mat-checkbox>
+              <p class="telemetry-line">{{ locationLabel }}</p>
+              <p class="telemetry-line">{{ latLonLabel }}</p>
+              @if (locationPreferenceMessage) {
+                <p class="save-message location-status">{{ locationPreferenceMessage }}</p>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+
         <section class="user-posts">
           <h3>
             <mat-icon>science</mat-icon>

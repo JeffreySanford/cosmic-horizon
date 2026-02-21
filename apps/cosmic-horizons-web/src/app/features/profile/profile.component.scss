@@ -41,6 +41,18 @@
   }
 }
 
+.location-pref-card {
+  margin-top: 16px;
+  border-top: 4px solid #00bcd4;
+  background: linear-gradient(140deg, #f5fbff, #eef9ff 70%, #e9f6ff);
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
 .avatar-placeholder {
   display: flex;
   align-items: center;
@@ -114,6 +126,17 @@
   border-radius: 4px;
   text-align: center;
   font-size: 0.9rem;
+}
+
+.telemetry-line {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #33506b;
+  font-family: 'Consolas', 'Menlo', monospace;
+}
+
+.location-status {
+  margin-top: 8px;
 }
 
 .user-posts {

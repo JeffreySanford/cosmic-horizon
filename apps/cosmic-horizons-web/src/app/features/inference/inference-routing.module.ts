@@ -6,6 +6,17 @@ const routes: Routes = [
   {
     path: '',
     component: InferenceComponent,
+    data: {
+      header: {
+        title: 'Inference',
+        icon: 'neurology',
+        iconTone: 'violet',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Inference', icon: 'neurology' },
+        ],
+      },
+    },
   },
 ];
 

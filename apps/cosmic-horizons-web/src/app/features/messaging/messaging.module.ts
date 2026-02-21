@@ -7,6 +7,17 @@ const messagingRoutes: Routes = [
   {
     path: '',
     component: MessagingComponent,
+    data: {
+      header: {
+        title: 'Array Telemetry',
+        icon: 'sensors',
+        iconTone: 'teal',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Array Telemetry', icon: 'sensors' },
+        ],
+      },
+    },
   },
 ];
 

@@ -10,7 +10,7 @@ test.beforeEach(async ({ context, page }) => {
   });
 });
 
-test.skip('community post requiring moderation is hidden until approved', async ({
+test.fixme('community post requiring moderation is hidden until approved', async ({
   page,
   request,
 }) => {
@@ -86,7 +86,7 @@ test.skip('community post requiring moderation is hidden until approved', async 
     .toBe(true);
 });
 
-test.skip('admin can hide a visible community post and UI updates accordingly', async ({
+test.fixme('admin can hide a visible community post and UI updates accordingly', async ({
   page,
   request,
 }) => {

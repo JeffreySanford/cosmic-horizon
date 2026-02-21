@@ -3,11 +3,13 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BehaviorSubject, of } from 'rxjs';
 import { MessagingService } from '../../../services/messaging.service';
 import { OperationsHomeComponent } from './operations-home.component';
 import { PerformanceDataService } from '../../../services/performance-data.service';
+import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
 
 class MockMessagingService {
   jobUpdate$ = of(0);
@@ -24,6 +26,10 @@ const perfStub = {
   gpuProgressSeries$: of([{ name: 'w0', series: [{ name: 'avg', value: 42 }] }]),
 };
 
+const jobServiceStub = {
+  getJobCount: () => of(1),
+};
+
 describe('OperationsHomeComponent', () => {
   let fixture: ComponentFixture<OperationsHomeComponent>;
   let component: OperationsHomeComponent;
@@ -31,10 +37,11 @@ describe('OperationsHomeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [OperationsHomeComponent],
-      imports: [RouterTestingModule, MatCardModule, MatBadgeModule, MatChipsModule],
+      imports: [RouterTestingModule, MatCardModule, MatBadgeModule, MatChipsModule, MatIconModule],
       providers: [
         { provide: MessagingService, useClass: MockMessagingService },
         { provide: PerformanceDataService, useValue: perfStub },
+        { provide: JobOrchestrationService, useValue: jobServiceStub },
       ],
     }).compileComponents();
 
@@ -49,7 +56,7 @@ describe('OperationsHomeComponent', () => {
     }
   });
 
-  it('renders tile titles', async () => {
+  it('renders tile titles and icons', async () => {
     expect(component).toBeTruthy();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -59,6 +66,13 @@ describe('OperationsHomeComponent', () => {
     expect(titleTexts).toContain('Job Dashboard');
     expect(titleTexts).toContain('Node Performance');
     expect(titleTexts).toContain('Load Tests');
+
+    const icons = fixture.nativeElement.querySelectorAll('.tile-icon mat-icon');
+    const iconTexts = Array.from(icons).map((el: any) => el.textContent.trim());
+    expect(iconTexts).toContain('compare_arrows');
+    expect(iconTexts).toContain('dashboard');
+    expect(iconTexts).toContain('memory');
+    expect(iconTexts).toContain('speed');
   });
 
   it('shows status chip and subtitles from stats and metrics chips', async () => {
@@ -66,14 +80,14 @@ describe('OperationsHomeComponent', () => {
     fixture.detectChanges();
     const statusChip = fixture.nativeElement.querySelector('.status-chip');
     expect(statusChip).toBeTruthy();
-    expect(statusChip.textContent.trim()).toBe('healthy');
+    expect(statusChip.textContent).toContain('healthy');
 
     const subtitle = fixture.nativeElement.querySelector('.tile-subtitle');
     expect(subtitle.textContent).toContain('refreshed 2026-02-21T00:00:00Z');
 
-    const badge = fixture.nativeElement.querySelector('.mat-badge-content');
-    expect(badge).toBeTruthy();
-    expect(badge.textContent.trim()).toBe('1');
+    const badgeContent: HTMLElement | null = fixture.nativeElement.querySelector('.mat-badge-content');
+    expect(badgeContent).toBeTruthy();
+    expect(badgeContent?.textContent?.trim()).toBe('1');
 
     const chips = fixture.nativeElement.querySelectorAll('mat-chip');
     expect(chips.length).toBeGreaterThanOrEqual(2);

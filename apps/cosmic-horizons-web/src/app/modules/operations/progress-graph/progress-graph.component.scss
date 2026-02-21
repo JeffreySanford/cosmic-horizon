@@ -13,3 +13,11 @@
 ngx-charts-line-chart {
   max-width: 100%;
 }
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}

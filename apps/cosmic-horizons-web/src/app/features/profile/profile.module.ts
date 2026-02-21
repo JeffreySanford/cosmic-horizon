@@ -10,11 +10,46 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ProfileComponent } from './profile.component';
 
 const routes: Routes = [
-  { path: '', component: ProfileComponent },
-  { path: ':username', component: ProfileComponent },
+  {
+    path: '',
+    component: ProfileComponent,
+    data: {
+      header: {
+        title: 'Profile',
+        icon: 'account_circle',
+        iconTone: 'teal',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Profile', icon: 'account_circle' },
+        ],
+      },
+    },
+  },
+  {
+    path: ':username',
+    component: ProfileComponent,
+    data: {
+      header: {
+        title: 'User Profile',
+        icon: 'badge',
+        iconTone: 'teal',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Profile', route: '/profile', icon: 'account_circle' },
+          { label: 'User', icon: 'badge' },
+        ],
+        parentLink: {
+          label: 'Back to Profile',
+          route: '/profile',
+          icon: 'arrow_back',
+        },
+      },
+    },
+  },
 ];
 
 @NgModule({
@@ -31,6 +66,7 @@ const routes: Routes = [
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatCheckboxModule,
   ],
 })
 export class ProfileModule {}

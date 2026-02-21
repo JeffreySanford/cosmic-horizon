@@ -1,27 +1,17 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectorRef,
   Component,
   inject,
-  NgZone,
-  OnDestroy,
   OnInit,
   PLATFORM_ID,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription, interval } from 'rxjs';
-import { finalize, startWith } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthSessionService } from '../../services/auth-session.service';
 import {
   SkyPreview,
   SkyPreviewService,
 } from '../../services/sky-preview.service';
 import { UserRole } from '../../services/auth-session.service';
-import { AuthApiService } from '../auth/auth-api.service';
-import { AppLoggerService } from '../../services/app-logger.service';
-import { GdprLocationDialogComponent } from './gdpr-location-dialog/gdpr-location-dialog.component';
 
 interface LandingPillar {
   icon: string;
@@ -42,7 +32,7 @@ interface LandingRouteLink {
   styleUrls: ['./landing.component.scss'],
   standalone: false,
 })
-export class LandingComponent implements OnInit, OnDestroy {
+export class LandingComponent implements OnInit {
   user = {
     name: 'User',
     username: '',
@@ -122,18 +112,10 @@ export class LandingComponent implements OnInit, OnDestroy {
   clockLine = '';
   private locationPromptHandled = false;
 
-  private clockSubscription?: Subscription;
-
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
   private authSessionService = inject(AuthSessionService);
   private skyPreviewService = inject(SkyPreviewService);
-  private authApiService = inject(AuthApiService);
-  private readonly logger = inject(AppLoggerService);
-  private readonly ngZone = inject(NgZone);
-  private readonly cdr = inject(ChangeDetectorRef);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
 
   constructor() {
     this.showTelemetryOverlay = isPlatformBrowser(this.platformId);
@@ -153,19 +135,9 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.ngZone.runOutsideAngular(() => {
-        this.clockSubscription = interval(1000)
-          .pipe(startWith(0))
-          .subscribe(() => {
-            this.clockLine = this.buildClockLine();
-            this.cdr.detectChanges();
-          });
-      });
+      this.clockLine = this.buildClockLine();
+      this.updateBackgroundImage();
     }
-  }
-
-  ngOnDestroy(): void {
-    this.clockSubscription?.unsubscribe();
   }
 
   get isAdmin(): boolean {
@@ -177,28 +149,8 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.logger.info('auth', 'logout_requested', {
-      current_role: this.user.role,
-    });
-
-    this.authApiService
-      .logout(this.authSessionService.getRefreshToken() ?? undefined)
-      .pipe(
-        finalize(() => {
-          this.authSessionService.clearSession();
-          this.router.navigate(['/auth/login']);
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.logger.info('auth', 'logout_success');
-        },
-        error: (error: { status?: number }) => {
-          this.logger.info('auth', 'logout_failed', {
-            status_code: error.status ?? null,
-          });
-        },
-      });
+    this.authSessionService.clearSession();
+    this.router.navigate(['/auth/login']);
   }
 
   openPillar(pillar: LandingPillar): void {
@@ -213,94 +165,43 @@ export class LandingComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/logs');
   }
 
-  toggleTelemetryCompact(): void {
-    this.telemetryCompact = !this.telemetryCompact;
-  }
-
   onTelemetryControl(): void {
     if (this.locating) {
       return;
     }
 
     if (this.shouldPromptForLocation) {
-      this.showGdprDialog();
-      return;
-    }
-
-    this.toggleTelemetryCompact();
-  }
-
-  private showGdprDialog(): void {
-    this.dialog
-      .open(GdprLocationDialogComponent, {
-        width: '480px',
-        maxWidth: '90vw',
-        disableClose: true,
-        panelClass: 'gdpr-location-dialog-panel',
-      })
-      .afterClosed()
-      .subscribe((result) => {
-        this.locationPromptHandled = true;
-        this.expandTelemetryPanel();
-        if (result) {
-          this.personalizePreviewWithLocation(
-            result.latitude,
-            result.longitude,
-          );
-        }
-      });
-  }
-
-  get shouldPromptForLocation(): boolean {
-    return !this.preview.personalized && !this.locationPromptHandled;
-  }
-
-  private personalizePreviewWithLocation(
-    latitude: number,
-    longitude: number,
-  ): void {
-    this.locating = true;
-    this.locationMessage = '';
-
-    this.skyPreviewService
-      .personalizeFromCoordinates(latitude, longitude)
-      .subscribe({
+      this.locationPromptHandled = true;
+      this.telemetryCompact = false;
+      this.locating = true;
+      this.locationMessage = '';
+      this.skyPreviewService.personalizeFromBrowserLocation().subscribe({
         next: (preview) => {
-          if (preview) {
-            this.preview = preview;
-            this.syncTelemetryFromPreview();
-            this.locationMessage = `Sky preview personalized for coordinates LAT ${latitude.toFixed(4)} LON ${longitude.toFixed(4)}.`;
-            this.expandTelemetryPanel();
-            this.updateBackgroundImage();
-            this.snackBar.open(
-              'Sky map personalized to your overhead location.',
-              'Dismiss',
-              {
-                duration: 3200,
-                horizontalPosition: 'center',
-                verticalPosition: 'top',
-              },
-            );
-          } else {
-            this.locationMessage =
-              'Failed to personalize preview. Using default.';
+          if (!preview) {
+            this.locationMessage = 'Failed to personalize preview. Using default.';
+            return;
           }
+
+          this.preview = preview;
+          this.syncTelemetryFromPreview();
+          this.locationMessage = 'Sky map personalized to your overhead location.';
+          this.updateBackgroundImage();
         },
         error: () => {
-          this.locating = false;
           this.locationMessage = 'Error personalizing preview. Using default.';
         },
         complete: () => {
           this.locating = false;
         },
       });
+      return;
+    }
+
+    this.telemetryCompact = !this.telemetryCompact;
   }
 
-  private expandTelemetryPanel(): void {
-    queueMicrotask(() => {
-      this.telemetryCompact = false;
-      this.cdr.markForCheck();
-    });
+  get shouldPromptForLocation(): boolean {
+    return !this.preview.personalized && !this.locationPromptHandled;
   }
 
   private updateBackgroundImage(): void {

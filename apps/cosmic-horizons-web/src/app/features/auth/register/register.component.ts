@@ -1,10 +1,7 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, interval } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
 import { AuthApiService } from '../auth-api.service';
 import { AuthSessionService } from '../../../services/auth-session.service';
 import {
@@ -25,29 +22,16 @@ export class RegisterComponent {
   submitted = false;
   error = '';
   preview: SkyPreview;
-  locating = false;
-  locationMessage = '';
-  locationLabel = 'REG ---- | SRC default';
-  latLonLabel = 'LAT --.---- | LON --.----';
-  showTelemetryOverlay = false;
-  telemetryCompact = true;
-  readonly clockLine$: Observable<string> = interval(1000).pipe(
-    startWith(0),
-    map(() => this.buildClockLine()),
-  );
 
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
-  private platformId = inject(PLATFORM_ID);
   private authApiService = inject(AuthApiService);
   private authSessionService = inject(AuthSessionService);
   private skyPreviewService = inject(SkyPreviewService);
   private readonly logger = inject(AppLoggerService);
 
   constructor() {
-    this.showTelemetryOverlay = isPlatformBrowser(this.platformId);
     this.preview = this.skyPreviewService.getInitialPreview();
-    this.syncTelemetryFromPreview();
     this.registerForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
@@ -119,71 +103,6 @@ export class RegisterComponent {
 
   login(): void {
     this.router.navigate(['/auth/login']);
-  }
-
-  toggleTelemetryCompact(): void {
-    this.telemetryCompact = !this.telemetryCompact;
-  }
-
-  onTelemetryControl(): void {
-    if (this.locating) {
-      return;
-    }
-
-    if (!this.preview.personalized) {
-      this.personalizePreview();
-      return;
-    }
-
-    this.toggleTelemetryCompact();
-  }
-
-  private personalizePreview(): void {
-    this.locating = true;
-    this.locationMessage = '';
-
-    this.skyPreviewService.personalizeFromBrowserLocation().subscribe({
-      next: (preview) => {
-        if (preview) {
-          this.preview = preview;
-          this.syncTelemetryFromPreview();
-          this.locationMessage = `Background personalized for region ${preview.geohash.toUpperCase()}.`;
-          this.telemetryCompact = false;
-        } else {
-          this.locationMessage =
-            'Location services are unavailable in this browser.';
-        }
-      },
-      error: () => {
-        this.locating = false;
-        this.locationMessage =
-          'Location permission denied. Using default background.';
-      },
-      complete: () => {
-        this.locating = false;
-      },
-    });
-  }
-
-  private syncTelemetryFromPreview(): void {
-    this.locationLabel = `REG ${this.preview.geohash.toUpperCase()} | SRC ${this.preview.source}`;
-
-    if (this.preview.latitude === null || this.preview.longitude === null) {
-      this.latLonLabel = 'LAT --.---- | LON --.----';
-      return;
-    }
-
-    this.latLonLabel = `LAT ${this.preview.latitude.toFixed(4)} | LON ${this.preview.longitude.toFixed(4)}`;
-  }
-
-  private buildClockLine(): string {
-    const now = new Date();
-    const localTime = now.toLocaleTimeString('en-US', {
-      hour12: false,
-      timeZoneName: 'short',
-    });
-    const zuluTime = now.toUTCString().slice(17, 25);
-    return `LCL ${localTime} | ZUL ${zuluTime}`;
   }
 
   private errorFromHttp(error: HttpErrorResponse): string {

@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,14 +8,11 @@ import { Observable, of } from 'rxjs';
 import { AuthSessionService } from '../../services/auth-session.service';
 import { SkyPreviewService } from '../../services/sky-preview.service';
 import { LandingComponent } from './landing.component';
-import { AuthApiService } from '../auth/auth-api.service';
 
 describe('LandingComponent', () => {
   let fixture: ComponentFixture<LandingComponent>;
   let component: LandingComponent;
   let clearSessionCalls = 0;
-  let dialogOpenSpy: ReturnType<typeof vi.fn>;
-  let snackBarOpenSpy: ReturnType<typeof vi.fn>;
   let authSessionService: {
     getUser: () => {
       username: string;
@@ -48,9 +43,14 @@ describe('LandingComponent', () => {
       latitude: number | null;
       longitude: number | null;
     } | null>;
-  };
-  let authApiService: {
-    logout: ReturnType<typeof vi.fn>;
+    personalizeFromBrowserLocation: () => Observable<{
+      geohash: string;
+      imageUrl: string;
+      personalized: boolean;
+      source: 'cookie' | 'default' | 'browser';
+      latitude: number | null;
+      longitude: number | null;
+    } | null>;
   };
   let router: Router;
 
@@ -86,21 +86,16 @@ describe('LandingComponent', () => {
           latitude,
           longitude,
         }),
-    };
-    authApiService = {
-      logout: vi
-        .fn()
-        .mockReturnValue(of({ message: 'Logged out successfully' })),
-    };
-
-    dialogOpenSpy = vi.fn().mockReturnValue({
-      afterClosed: () =>
+      personalizeFromBrowserLocation: () =>
         of({
+          geohash: 'u09t',
+          imageUrl: '/previews/region-2.png',
+          personalized: true,
+          source: 'browser',
           latitude: 34.0522,
           longitude: -118.2437,
         }),
-    });
-    snackBarOpenSpy = vi.fn();
+    };
 
     await TestBed.configureTestingModule({
       declarations: [LandingComponent],
@@ -114,22 +109,6 @@ describe('LandingComponent', () => {
         {
           provide: SkyPreviewService,
           useValue: skyPreviewService,
-        },
-        {
-          provide: AuthApiService,
-          useValue: authApiService,
-        },
-        {
-          provide: MatDialog,
-          useValue: {
-            open: dialogOpenSpy,
-          },
-        },
-        {
-          provide: MatSnackBar,
-          useValue: {
-            open: snackBarOpenSpy,
-          },
         },
       ],
     }).compileComponents();
@@ -170,7 +149,6 @@ describe('LandingComponent', () => {
 
     component.logout();
 
-    expect(authApiService.logout).toHaveBeenCalledWith('refresh-token');
     expect(clearSessionCalls).toBe(1);
     expect(navigateSpy).toHaveBeenCalledWith(['/auth/login']);
   });
@@ -210,85 +188,61 @@ describe('LandingComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith('/jobs');
   });
 
-  it('dialog continue personalizes preview and expands telemetry', async () => {
+  it('first telemetry control personalizes preview and expands telemetry', async () => {
     component.onTelemetryControl();
     await Promise.resolve();
 
-    expect(dialogOpenSpy).toHaveBeenCalled();
     expect(component.preview.personalized).toBe(true);
     expect(component.preview.geohash).toBe('u09t');
     expect(component.latLonLabel).toContain('LAT 34.0522');
     expect(component.telemetryCompact).toBe(false);
-    expect(snackBarOpenSpy).toHaveBeenCalledWith(
+    expect(component.locationMessage).toBe(
       'Sky map personalized to your overhead location.',
-      'Dismiss',
-      expect.objectContaining({
-        duration: 3200,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-      }),
     );
   });
 
-  it('dialog continue uses selected coordinates for personalization', () => {
-    dialogOpenSpy.mockReturnValueOnce({
-      afterClosed: () =>
-        of({
-          latitude: 12.3456,
-          longitude: -78.9012,
-        }),
-    });
-    const personalizeSpy = vi.spyOn(
-      skyPreviewService,
-      'personalizeFromCoordinates',
-    );
-
-    component.onTelemetryControl();
-
-    expect(personalizeSpy).toHaveBeenCalledWith(12.3456, -78.9012);
-  });
-
-  it('dialog deny expands telemetry without coordinates', async () => {
-    dialogOpenSpy.mockReturnValueOnce({
-      afterClosed: () => of(null),
-    });
-
-    component.onTelemetryControl();
-    await Promise.resolve();
-
-    expect(dialogOpenSpy).toHaveBeenCalled();
-    expect(component.preview.personalized).toBe(false);
-    expect(component.latLonLabel).toBe('LAT --.---- | LON --.----');
-    expect(component.telemetryCompact).toBe(false);
-    expect(snackBarOpenSpy).not.toHaveBeenCalled();
-  });
-
-  it('after deny, next click toggles telemetry instead of reopening dialog', async () => {
-    dialogOpenSpy.mockReturnValueOnce({
-      afterClosed: () => of(null),
-    });
-
+  it('after first prompt, telemetry control toggles compact mode', async () => {
     component.onTelemetryControl();
     await Promise.resolve();
     expect(component.telemetryCompact).toBe(false);
 
     component.onTelemetryControl();
-
-    expect(dialogOpenSpy).toHaveBeenCalledTimes(1);
     expect(component.telemetryCompact).toBe(true);
   });
 
-  it('does not show personalization toast when coordinate personalization fails', () => {
-    vi.spyOn(skyPreviewService, 'personalizeFromCoordinates').mockReturnValue(
-      of(null),
-    );
+  it('when browser personalization fails, telemetry still expands', async () => {
+    vi.spyOn(
+      skyPreviewService,
+      'personalizeFromBrowserLocation',
+    ).mockReturnValueOnce(of(null));
 
     component.onTelemetryControl();
+    await Promise.resolve();
 
     expect(component.preview.personalized).toBe(false);
+    expect(component.latLonLabel).toBe('LAT --.---- | LON --.----');
+    expect(component.telemetryCompact).toBe(false);
     expect(component.locationMessage).toBe(
       'Failed to personalize preview. Using default.',
     );
-    expect(snackBarOpenSpy).not.toHaveBeenCalled();
+  });
+
+  it('sets error message when browser personalization errors', async () => {
+    vi.spyOn(
+      skyPreviewService,
+      'personalizeFromBrowserLocation',
+    ).mockImplementationOnce(
+      () =>
+        new Observable((observer) => {
+          observer.error(new Error('geo error'));
+        }),
+    );
+
+    component.onTelemetryControl();
+    await Promise.resolve();
+
+    expect(component.locationMessage).toBe(
+      'Error personalizing preview. Using default.',
+    );
   });
 });

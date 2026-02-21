@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SystemMetricsChartComponent } from './system-metrics-chart.component';
 
-describe.skip('SystemMetricsChartComponent', () => {
+describe('SystemMetricsChartComponent', () => {
   let fixture: ComponentFixture<SystemMetricsChartComponent>;
   let component: SystemMetricsChartComponent;
 
@@ -56,5 +56,14 @@ describe.skip('SystemMetricsChartComponent', () => {
     component.onCustomMessageBytesChange('-10');
     component.onCustomMessageBytesChange('NaN');
     expect(component.averageMessageBytes).toBe(before);
+  });
+
+  it('should create chartContainer element and tooltip without errors', () => {
+    const elem: HTMLElement = fixture.nativeElement.querySelector('.chart-container');
+    expect(elem).toBeTruthy();
+    // simulate tooltip usage via bracket access to bypass privacy
+    expect(() => (component as any)['hideTooltip']()).not.toThrow();
+    (component as any)['tooltip'] = null;
+    expect(() => (component as any)['hideTooltip']()).not.toThrow();
   });
 });

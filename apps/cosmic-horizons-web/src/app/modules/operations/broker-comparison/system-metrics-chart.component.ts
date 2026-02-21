@@ -492,7 +492,9 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   }
 
   private hideTooltip() {
-    this.tooltip.style('opacity', 0);
+    if (this.tooltip) {
+      this.tooltip.style('opacity', 0);
+    }
   }
 
   clearData(): void {

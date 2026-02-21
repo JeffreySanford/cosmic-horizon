@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   HttpInterceptor,
   HttpRequest,
@@ -8,6 +8,7 @@ import {
 } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { MockModeService } from '../../services/mock-mode.service';
 
 /**
  * Mock API Interceptor for Development
@@ -20,11 +21,17 @@ import { delay } from 'rxjs/operators';
 @Injectable()
 export class MockApiInterceptor implements HttpInterceptor {
   private jobCounter = 0;
+  private mode = inject(MockModeService);
 
   intercept(
     req: HttpRequest<unknown>,
     next: HttpHandler,
   ): Observable<HttpEvent<unknown>> {
+    // bypass mock logic if the toggle is off
+    if (!this.mode.isMock) {
+      return next.handle(req);
+    }
+
     // Mock job submission
     if (req.url.includes('/api/jobs/submit') && req.method === 'POST') {
       this.jobCounter++;

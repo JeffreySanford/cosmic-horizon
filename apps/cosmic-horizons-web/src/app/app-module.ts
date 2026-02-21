@@ -22,6 +22,7 @@ import { AuthTokenInterceptor } from './interceptors/auth-token.interceptor';
 import { HttpLoggerInterceptor } from './interceptors/http-logger.interceptor';
 import { MockApiInterceptor } from './shared/interceptors/mock-api.interceptor';
 import { FooterComponent } from './shared/layout/footer/footer.component';
+import { AppHeaderComponent } from './shared/layout/app-header/app-header.component';
 import { AppStartupWarmupService } from './services/app-startup-warmup.service';
 
 function startupWarmupFactory(
@@ -31,7 +32,7 @@ function startupWarmupFactory(
 }
 
 @NgModule({
-  declarations: [App, FooterComponent],
+  declarations: [App, FooterComponent, AppHeaderComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

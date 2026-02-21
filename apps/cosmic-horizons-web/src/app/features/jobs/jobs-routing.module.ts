@@ -6,6 +6,17 @@ const routes: Routes = [
   {
     path: '',
     component: JobsConsoleComponent,
+    data: {
+      header: {
+        title: 'Jobs Console',
+        icon: 'work_history',
+        iconTone: 'teal',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Jobs', icon: 'work_history' },
+        ],
+      },
+    },
   },
 ];
 

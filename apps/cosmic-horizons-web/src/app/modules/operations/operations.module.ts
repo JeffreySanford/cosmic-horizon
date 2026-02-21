@@ -13,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
@@ -26,6 +28,7 @@ import { ProgressGraphComponent } from './progress-graph/progress-graph.componen
 import { LoadTestResultsComponent } from './load-test-results/load-test-results.component';
 import { JobDashboardComponent } from './job-dashboard/job-dashboard.component';
 import { OperationsHomeComponent } from './operations-home/operations-home.component';
+import { JobDetailsDialogComponent } from './job-dashboard/job-details-dialog.component';
 
 /**
  * OperationsModule (Angular)
@@ -42,6 +45,7 @@ import { OperationsHomeComponent } from './operations-home/operations-home.compo
     LoadTestResultsComponent,
     JobDashboardComponent,
     OperationsHomeComponent,
+    JobDetailsDialogComponent,
   ],
   exports: [
     PerformanceHeatmapComponent,
@@ -50,6 +54,7 @@ import { OperationsHomeComponent } from './operations-home/operations-home.compo
     LoadTestResultsComponent,
     JobDashboardComponent,
     OperationsHomeComponent,
+    JobDetailsDialogComponent,
   ],
   imports: [
     FormsModule,
@@ -66,6 +71,8 @@ import { OperationsHomeComponent } from './operations-home/operations-home.compo
     MatTooltipModule,
     MatBadgeModule,
     MatChipsModule,
+    MatButtonToggleModule,
+    MatDialogModule,
     // modules required by now‑declared components:
     MatSlideToggleModule,
     MatSliderModule,

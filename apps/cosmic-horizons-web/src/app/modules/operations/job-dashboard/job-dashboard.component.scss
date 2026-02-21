@@ -45,6 +45,14 @@ tr.updated {
   animation: highlight 1s ease-in-out;
 }
 
+/* clickable row visual feedback */
+.clickable-row {
+  cursor: pointer;
+}
+.clickable-row:hover {
+  background-color: rgba(0,0,0,0.04);
+}
+
 @keyframes highlight {
   from {
     background-color: #ffff99;

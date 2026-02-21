@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationService } from './notification.service';
+import { MessagingGateway } from '../../../messaging/messaging.gateway';
 
 describe('NotificationService (notifications module)', () => {
   let service: NotificationService;
@@ -14,7 +15,7 @@ describe('NotificationService (notifications module)', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationService,
-        { provide: 'MessagingGateway', useValue: gateway },
+        { provide: MessagingGateway, useValue: gateway },
       ],
     }).compile();
 

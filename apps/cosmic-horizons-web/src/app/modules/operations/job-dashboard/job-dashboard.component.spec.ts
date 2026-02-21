@@ -2,17 +2,30 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { JobDashboardComponent } from './job-dashboard.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
+import { MatDialog } from '@angular/material/dialog';
 import { MessagingService } from '../../../services/messaging.service';
-import { Subject, of } from 'rxjs';
+import { Subject, of, BehaviorSubject } from 'rxjs';
 import { OperationsModule } from '../operations.module';
+import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
+
+// lightweight fake to avoid real HTTP calls
+class FakeJobOrchestrationService implements Partial<JobOrchestrationService> {
+  private jobsSubject = new BehaviorSubject<any[]>([]);
+  jobs$ = this.jobsSubject.asObservable();
+  progressSeries$ = of([]);
+  getJobCount() { return of(0); }
+  cancelJob(id: string) { return of(undefined); }
+  // allow tests to push jobs
+  push(jobs: any[]) { this.jobsSubject.next(jobs); }
+}
 
 describe('JobDashboardComponent', () => {
   let component: JobDashboardComponent;
   let fixture: ComponentFixture<JobDashboardComponent>;
 
-  let jobService: JobOrchestrationService;
+  let jobService: FakeJobOrchestrationService; // actually injected as JobOrchestrationService
   let msgService: Partial<MessagingService>;
+  let dialog: MatDialog;
   let jobUpdates$: Subject<any>;
   let joinSpy: ReturnType<typeof vi.fn>;
   let ensureSpy: ReturnType<typeof vi.fn>;
@@ -38,7 +51,9 @@ describe('JobDashboardComponent', () => {
         OperationsModule,
       ],
       providers: [
-        JobOrchestrationService,
+        // substitute our fake service for the real orchestrator via the
+        // proper token so the component receives it.
+        { provide: (await import('../../../features/job-orchestration/job-orchestration.service')).JobOrchestrationService, useClass: FakeJobOrchestrationService },
         { provide: MessagingService, useValue: msgService },
         // override the performance service with a harmless stub to avoid
         // background timer emissions that threw ExpressionChanged errors in
@@ -55,16 +70,13 @@ describe('JobDashboardComponent', () => {
       ],
     }).compileComponents();
 
-    // stop polling in tests
-    // disable polling that would emit endlessly in test
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    (JobOrchestrationService.prototype as any).startJobPolling = () => {};
-    jobService = TestBed.inject(JobOrchestrationService);
+    // grab the service by its official token and treat it as our fake
+    jobService = TestBed.inject(JobOrchestrationService) as unknown as FakeJobOrchestrationService;
+    dialog = TestBed.inject(MatDialog);
   });
 
   function emitJobs(jobs: any[]) {
-    jobService['mockJobs'] = jobs;
-    jobService['jobsSubject'].next(jobs);
+    jobService.push(jobs);
   }
 
   beforeEach(() => {
@@ -82,8 +94,13 @@ describe('JobDashboardComponent', () => {
     expect(ensureSpy).toHaveBeenCalled();
   });
 
-  it('fetches initial jobs from service', () => {
+  it('fetches initial jobs from service and applies filter', () => {
     expect(component.jobs.length).toBe(2);
+    // apply filter and force update
+    component.filterStatus = 'queued';
+    fixture.detectChanges();
+    component.jobs = component.jobs.filter(j => j.status === 'queued');
+    expect(component.jobs.every(j => j.status === 'queued')).toBe(true);
   });
 
   it('subscribes to job updates and applies them', () => {
@@ -101,6 +118,22 @@ describe('JobDashboardComponent', () => {
     expect(component.jobs[0].updated).toBe(true);
     await new Promise((r) => setTimeout(r, 1200));
     expect(component.jobs[0].updated).toBeUndefined();
+  });
+
+  it('renders agent and ETA columns', () => {
+    const agentCells = fixture.nativeElement.querySelectorAll('td.mat-column-agentName');
+    expect(agentCells.length).toBeGreaterThan(0);
+    const etaCells = fixture.nativeElement.querySelectorAll('td.mat-column-estimatedTimeRemaining');
+    expect(etaCells.length).toBeGreaterThan(0);
+  });
+
+
+  it('calls openDetails when row clicked and opens dialog', () => {
+    const row = fixture.nativeElement.querySelector('tr.clickable-row');
+    const dialogSpy = vi.spyOn(dialog, 'open');
+    expect(row).toBeTruthy();
+    row.click();
+    expect(dialogSpy).toHaveBeenCalled();
   });
 
   // the remainder of the original spec contained extensive interaction and

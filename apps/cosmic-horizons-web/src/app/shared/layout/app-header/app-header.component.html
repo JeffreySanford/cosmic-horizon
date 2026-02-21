@@ -1,0 +1,143 @@
+<header class="app-header" [class.without-user-menu]="!config.showUserMenu">
+  <div class="app-header__glow" aria-hidden="true"></div>
+
+  <div class="app-header__row app-header__row--mainline">
+    <div class="app-header__identity">
+      <div class="app-header__nav-actions">
+        <a
+          mat-stroked-button
+          class="app-header__nav-button"
+          [routerLink]="config.homeLink.route"
+          [attr.aria-label]="config.homeLink.label"
+        >
+          <mat-icon>{{ config.homeLink.icon }}</mat-icon>
+          <span>{{ config.homeLink.label }}</span>
+        </a>
+
+        <a
+          *ngIf="config.parentLink"
+          mat-stroked-button
+          class="app-header__nav-button"
+          [routerLink]="config.parentLink.route"
+          [attr.aria-label]="config.parentLink.label"
+        >
+          <mat-icon>{{ config.parentLink.icon }}</mat-icon>
+          <span>{{ config.parentLink.label }}</span>
+        </a>
+      </div>
+
+      <div class="app-header__page-icon" [ngClass]="'tone-' + config.iconTone">
+        <mat-icon>{{ config.icon }}</mat-icon>
+      </div>
+
+      <div class="app-header__title-group">
+        <h1 class="app-header__title">{{ config.title }}</h1>
+        <p *ngIf="config.subtitle" class="app-header__subtitle">{{ config.subtitle }}</p>
+      </div>
+
+      <nav
+        class="app-header__breadcrumbs"
+        aria-label="Breadcrumb"
+        *ngIf="config.breadcrumbs.length"
+      >
+        <ng-container
+          *ngFor="let crumb of config.breadcrumbs; let i = index; trackBy: trackBreadcrumb"
+        >
+          <a
+            *ngIf="crumb.route; else currentCrumb"
+            class="app-header__breadcrumb"
+            [routerLink]="crumb.route"
+          >
+            <mat-icon *ngIf="crumb.icon">{{ crumb.icon }}</mat-icon>
+            <span>{{ crumb.label }}</span>
+          </a>
+
+          <ng-template #currentCrumb>
+            <span class="app-header__breadcrumb app-header__breadcrumb--current">
+              <mat-icon *ngIf="crumb.icon">{{ crumb.icon }}</mat-icon>
+              <span>{{ crumb.label }}</span>
+            </span>
+          </ng-template>
+
+          <mat-icon
+            *ngIf="i < config.breadcrumbs.length - 1"
+            class="app-header__crumb-separator"
+          >
+            chevron_right
+          </mat-icon>
+        </ng-container>
+      </nav>
+    </div>
+
+    <div class="app-header__right-actions">
+      <button
+        *ngIf="config.allowExpand && config.insights.length"
+        mat-stroked-button
+        class="app-header__expand-button"
+        (click)="toggleExpanded()"
+        [attr.aria-expanded]="isExpanded"
+      >
+        <mat-icon>{{ isExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
+        <span>{{ isExpanded ? 'Collapse' : 'Expand' }}</span>
+      </button>
+
+      <button
+        *ngIf="config.showUserMenu"
+        mat-icon-button
+        class="app-header__user-button"
+        [matMenuTriggerFor]="userMenu"
+        aria-label="Open user menu"
+      >
+        <mat-icon>account_circle</mat-icon>
+      </button>
+
+      <mat-slide-toggle
+        class="app-header__mock-toggle"
+        [checked]="mockMode.isMock"
+        (change)="mockMode.toggle()"
+        aria-label="Toggle mock mode"
+      >
+        <span [class.mock-active]="mockMode.isMock" [class.live-active]="!mockMode.isMock">
+          {{ mockMode.isMock ? 'Mock' : 'Live' }}
+        </span>
+      </mat-slide-toggle>
+    </div>
+
+    <mat-menu #userMenu="matMenu" xPosition="before">
+      <ng-container *ngFor="let item of config.userMenuItems">
+        <button
+          *ngIf="item.route; else actionItem"
+          mat-menu-item
+          [routerLink]="item.route"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </button>
+        <ng-template #actionItem>
+          <button mat-menu-item (click)="onMenuAction(item)">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+          </button>
+        </ng-template>
+      </ng-container>
+    </mat-menu>
+  </div>
+
+  <section
+    *ngIf="config.allowExpand && config.insights.length"
+    class="app-header__expanded"
+    [class.app-header__expanded--open]="isExpanded"
+    [attr.aria-hidden]="!isExpanded"
+  >
+    <h2 class="app-header__expanded-title">{{ config.expandLabel }}</h2>
+    <div class="app-header__insight-grid">
+      <article class="app-header__insight" *ngFor="let insight of config.insights">
+        <mat-icon>{{ insight.icon }}</mat-icon>
+        <div>
+          <h3>{{ insight.value }}</h3>
+          <p>{{ insight.label }}</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</header>

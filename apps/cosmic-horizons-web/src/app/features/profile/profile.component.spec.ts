@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, PLATFORM_ID } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthSessionService } from '../../services/auth-session.service';
 import { ProfileApiService } from './profile-api.service';
 import { ProfileComponent } from './profile.component';
+import { SkyPreviewService } from '../../services/sky-preview.service';
 
 describe('ProfileComponent', () => {
   let fixture: ComponentFixture<ProfileComponent>;
@@ -72,6 +73,22 @@ describe('ProfileComponent', () => {
             })),
           },
         },
+        {
+          provide: SkyPreviewService,
+          useValue: {
+            getInitialPreview: vi.fn(() => ({
+              geohash: 'dr5r',
+              imageUrl: '/previews/region-default.png',
+              personalized: false,
+              source: 'default',
+              latitude: null,
+              longitude: null,
+            })),
+            personalizeFromBrowserLocation: vi.fn(() => of(null)),
+            clearStoredRegion: vi.fn(),
+          },
+        },
+        { provide: PLATFORM_ID, useValue: 'browser' },
       ],
     }).compileComponents();
 

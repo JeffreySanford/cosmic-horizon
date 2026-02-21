@@ -1,26 +1,29 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { PerformanceDataService } from '../../../services/performance-data.service';
 import { Subject } from 'rxjs';
 import { OperationsModule } from '../operations.module';
 import { ProgressGraphComponent } from './progress-graph.component';
+import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
 
 describe('ProgressGraphComponent', () => {
   let component: ProgressGraphComponent;
   let fixture: ComponentFixture<ProgressGraphComponent>;
-  let perf: Partial<PerformanceDataService>;
+  let jobService: Partial<JobOrchestrationService>;
   let progress$: Subject<any[]>;
 
   beforeEach(async () => {
     progress$ = new Subject();
-    perf = {
+    jobService = {
       progressSeries$: progress$.asObservable(),
     } as any;
 
     await TestBed.configureTestingModule({
-      imports: [NoopAnimationsModule, OperationsModule],
-      providers: [{ provide: PerformanceDataService, useValue: perf }],
+      imports: [NoopAnimationsModule, HttpClientTestingModule, OperationsModule],
+      providers: [{ provide: JobOrchestrationService, useValue: jobService }],
     }).compileComponents();
+
+    // no need to flush; service now swallows errors from /api/jobs
 
     fixture = TestBed.createComponent(ProgressGraphComponent);
     component = fixture.componentInstance;

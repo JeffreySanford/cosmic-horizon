@@ -8,6 +8,17 @@ const logsRoutes: Routes = [
   {
     path: '',
     component: LogsComponent,
+    data: {
+      header: {
+        title: 'Audit Logs',
+        icon: 'receipt_long',
+        iconTone: 'slate',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Logs', icon: 'receipt_long' },
+        ],
+      },
+    },
   },
 ];
 

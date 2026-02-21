@@ -1,6 +1,17 @@
 <div class="app-layout">
+  <div class="app-background app-background--aurora" aria-hidden="true"></div>
+  <div class="app-background app-background--sunrise" aria-hidden="true"></div>
+
+  <app-header
+    *ngIf="showHeader"
+    [config]="headerConfig"
+    (menuAction)="handleHeaderMenuAction($event)"
+  ></app-header>
+
   <main class="app-main">
-    <router-outlet></router-outlet>
+    <div class="app-main__surface">
+      <router-outlet></router-outlet>
+    </div>
   </main>
   <app-footer></app-footer>
 </div>

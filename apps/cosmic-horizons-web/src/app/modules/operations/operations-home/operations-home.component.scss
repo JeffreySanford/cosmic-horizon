@@ -20,6 +20,17 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  transition: transform .2s, box-shadow .2s;
+}
+.mat-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.tile-icon {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 24px;
 }
 
 .tile-primary { background: #1976d2; }

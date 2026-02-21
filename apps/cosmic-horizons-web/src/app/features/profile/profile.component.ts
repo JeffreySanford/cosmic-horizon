@@ -4,13 +4,16 @@ import {
   inject,
   DestroyRef,
   ChangeDetectorRef,
+  PLATFORM_ID,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
 import { finalize, timeout } from 'rxjs/operators';
 import { ProfileApiService, ProfileModel } from './profile-api.service';
 import { AuthSessionService } from '../../services/auth-session.service';
+import { SkyPreviewService } from '../../services/sky-preview.service';
 
 @Component({
   selector: 'app-profile',
@@ -26,6 +29,10 @@ export class ProfileComponent implements OnInit {
   saving = false;
   isOwner = false;
   saveMessage: string | null = null;
+  useExactLocation = false;
+  locationPreferenceMessage: string | null = null;
+  locationLabel = 'REG ---- | SRC default';
+  latLonLabel = 'LAT --.---- | LON --.----';
 
   // Retry/fallback state for stuck loads
   loadTimedOut = false;
@@ -36,8 +43,10 @@ export class ProfileComponent implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly profileApi = inject(ProfileApiService);
   private readonly authSessionService = inject(AuthSessionService);
+  private readonly skyPreviewService = inject(SkyPreviewService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -48,6 +57,8 @@ export class ProfileComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.initializeLocationPreference();
+
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
@@ -79,6 +90,43 @@ export class ProfileComponent implements OnInit {
           sessionUsername.length > 0 && resolvedUsername === sessionUsername;
         this.loadProfile(resolvedUsername);
       });
+  }
+
+  onExactLocationPreferenceChange(enabled: boolean): void {
+    this.useExactLocation = enabled;
+    this.locationPreferenceMessage = null;
+
+    if (!enabled) {
+      this.skyPreviewService.clearStoredRegion();
+      this.persistLocationPreference(false);
+      this.locationLabel = 'REG ---- | SRC default';
+      this.latLonLabel = 'LAT --.---- | LON --.----';
+      this.locationPreferenceMessage = 'Exact location personalization disabled.';
+      return;
+    }
+
+    this.locationPreferenceMessage = 'Detecting browser location...';
+    this.skyPreviewService.personalizeFromBrowserLocation().subscribe({
+      next: (preview) => {
+        if (!preview) {
+          this.locationPreferenceMessage =
+            'Location permission denied or unavailable. Preference not changed.';
+          this.useExactLocation = false;
+          this.persistLocationPreference(false);
+          return;
+        }
+
+        this.persistLocationPreference(true);
+        this.syncLocationTelemetry(preview);
+        this.locationPreferenceMessage = 'Location personalization enabled.';
+      },
+      error: () => {
+        this.locationPreferenceMessage =
+          'Unable to read browser location. Preference not changed.';
+        this.useExactLocation = false;
+        this.persistLocationPreference(false);
+      },
+    });
   }
 
   loadProfile(username: string): void {
@@ -258,5 +306,44 @@ export class ProfileComponent implements OnInit {
           this.saveMessage = err.error?.message || 'Failed to update profile.';
         },
       });
+  }
+
+  private initializeLocationPreference(): void {
+    const preview = this.skyPreviewService.getInitialPreview();
+    this.syncLocationTelemetry(preview);
+    this.useExactLocation = this.getStoredLocationPreference();
+
+    if (this.useExactLocation && preview.source !== 'browser') {
+      this.onExactLocationPreferenceChange(true);
+    }
+  }
+
+  private syncLocationTelemetry(preview: {
+    geohash: string;
+    source: 'cookie' | 'default' | 'browser';
+    latitude: number | null;
+    longitude: number | null;
+  }): void {
+    this.locationLabel = `REG ${preview.geohash.toUpperCase()} | SRC ${preview.source}`;
+    this.latLonLabel =
+      preview.latitude !== null && preview.longitude !== null
+        ? `LAT ${preview.latitude.toFixed(4)} | LON ${preview.longitude.toFixed(4)}`
+        : 'LAT --.---- | LON --.----';
+  }
+
+  private persistLocationPreference(enabled: boolean): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    localStorage.setItem('profile_exact_location_enabled', enabled ? '1' : '0');
+  }
+
+  private getStoredLocationPreference(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+
+    return localStorage.getItem('profile_exact_location_enabled') === '1';
   }
 }

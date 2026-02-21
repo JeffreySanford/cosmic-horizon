@@ -11,4 +11,10 @@
     align-items: center;
     gap: 0.5rem;
   }
+
+  .chart-container {
+    width: 100%;
+    height: 300px; /* default height, can be overridden by parent */
+    position: relative;
+  }
 }

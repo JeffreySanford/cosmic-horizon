@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, interval } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable, Subscription, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { MockModeService } from '../../services/mock-mode.service';
 import {
   Job,
   JobSubmissionRequest,
@@ -12,16 +14,41 @@ import {
   providedIn: 'root',
 })
 export class JobOrchestrationService {
+  // NOTE: The service now always interacts with the real backend.  There
+  // used to be a `useMocks` toggle that simulated jobs for offline demos, but
+  // that functionality has been removed in favor of a separate offline-demo
+  // configuration feature.  The old flag and related polling logic have been
+  // stripped; this comment remains for historical context until the next
+  // cleanup sweep.
+
   private jobsSubject = new BehaviorSubject<Job[]>([]);
   public jobs$ = this.jobsSubject.asObservable();
 
-  private mockJobs: Job[] = [];
+  // series data for per-job progress chart
+  private progressSeriesSubject = new BehaviorSubject<{
+    name: string;
+    series: { name: number; value: number }[];
+  }[]>([]);
+  public progressSeries$ = this.progressSeriesSubject.asObservable();
+
+  // in-memory staging removed; all operations hit the API
+  private pollingSub?: Subscription;
+  private eventSource?: EventSource;
+
+  // Injectable references via `inject` to satisfy ESLint
+  private http = inject(HttpClient);
+  private mockMode = inject(MockModeService);
 
   constructor() {
-    this.loadMockData();
-    // Poll for job updates every 5 seconds
-    this.startJobPolling();
+    // always pull fresh data and subscribe to server stream
+    this.refreshFromServer();
+    this.connectLiveUpdates();
   }
+
+
+  // ------------------------------------------------------------------
+  // Public API
+  // ------------------------------------------------------------------
 
   /**
    * Load mock agents for MVP
@@ -75,62 +102,48 @@ export class JobOrchestrationService {
    * Submit a new job
    */
   submitJob(request: JobSubmissionRequest): Observable<JobSubmissionResponse> {
-    return new Observable((observer) => {
-      const jobId = `job-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const agent = this.getAgentName(request.agentId);
-
-      const newJob: Job = {
-        id: jobId,
-        name: request.name,
-        agentId: request.agentId,
-        agentName: agent,
-        status: 'queued',
-        parameters: request.parameters,
-        createdAt: new Date(),
-        progress: 0,
-        logs: [],
-      };
-
-      this.mockJobs.unshift(newJob);
-      this.jobsSubject.next([...this.mockJobs]);
-
-      observer.next({
-        jobId,
-        status: 'queued',
-        message: `Job submitted successfully. ID: ${jobId}`,
-      });
-      observer.complete();
-    });
+    // always send to real API
+    return this.http.post<JobSubmissionResponse>('/api/jobs/submit', request);
   }
 
   /**
    * Get all jobs
+   *
+   * Example of a service-level guard: when mock mode is enabled we bypass the
+   * HTTP client and return an empty list (the interceptor could also handle
+   * this globally). This illustrates step 4 of the migration guide.
    */
   getJobs(): Observable<Job[]> {
-    return this.jobs$;
+    if (this.mockMode.isMock) {
+      return of([]);
+    }
+    return this.http.get<Job[]>('/api/jobs');
+  }
+
+  /**
+   * Convenience API to retrieve current job count.  Hits the dedicated
+   * `/api/jobs/count` endpoint on the server.
+   */
+  getJobCount(): Observable<number> {
+    return this.http.get<{ count: number }>('/api/jobs/count').pipe(
+      map((r) => r.count),
+      // if API unavailable return zero instead of propagating error
+      catchError(() => of(0)),
+    );
   }
 
   /**
    * Get job by ID
    */
   getJobById(jobId: string): Observable<Job | undefined> {
-    return this.jobs$.pipe(map((jobs) => jobs.find((job) => job.id === jobId)));
+    return this.http.get<Job>(`/api/jobs/${jobId}/status`);
   }
 
   /**
    * Cancel a job
    */
   cancelJob(jobId: string): Observable<void> {
-    return new Observable((observer) => {
-      const job = this.mockJobs.find((j) => j.id === jobId);
-      if (job && (job.status === 'queued' || job.status === 'running')) {
-        job.status = 'cancelled';
-        job.cancelledAt = new Date();
-        this.jobsSubject.next([...this.mockJobs]);
-      }
-      observer.next();
-      observer.complete();
-    });
+    return this.http.post<void>(`/api/jobs/${jobId}/cancel`, {});
   }
 
   /**
@@ -138,69 +151,75 @@ export class JobOrchestrationService {
    * Useful when dashboard receives events from server or mocks.
    */
   applyJobUpdate(update: Partial<Job> & { id: string }) {
-    const idx = this.mockJobs.findIndex((j) => j.id === update.id);
-    if (idx !== -1) {
-      this.mockJobs[idx] = { ...this.mockJobs[idx], ...update } as Job;
-      this.jobsSubject.next([...this.mockJobs]);
-    }
+    // incoming server event, merge into current list
+    this.jobsSubject.next(
+      this.jobsSubject.getValue().map((j) =>
+        j.id === update.id ? { ...j, ...update } : j,
+      ),
+    );
   }
 
   /**
-   * Start job polling for real-time updates
+   * Helper used by unit tests (and could be used by callers) to determine if
+   * the polling timer has been started.
    */
-  private startJobPolling(): void {
-    // simply run simulation on a fixed timer; we don't need to react to
-    // the jobs$ observable itself, which would cause the recursive loop
-    // where simulateJobProgress emits and triggers the subscription again.
-    interval(5000).subscribe(() => {
-      this.simulateJobProgress();
+  isPolling(): boolean {
+    return !!this.pollingSub && !this.pollingSub.closed;
+  }
+
+  /**
+   * Toggle between mock mode and live mode at runtime.
+   * When switching off mocks we clear any in-memory job list and cancel the
+   * polling subscription; then we immediately fetch the current jobs from the
+   * server.  When enabling mocks we reset the data and restart the simulator.
+   */
+  // demo control removed; all callers should hit live data now
+
+  // ------------------------------------------------------------------
+  // internal helpers
+  // ------------------------------------------------------------------
+
+  // polling and simulation removed; live events come via SSE
+
+  // mock data loader removed
+
+  private refreshFromServer(): void {
+    this.http.get<Job[]>('/api/jobs').pipe(
+      catchError(() => of<Job[]>([])),
+    ).subscribe((jobs) => {
+      this.jobsSubject.next(jobs as Job[]);
+      // also update progress series based on returned histories if provided
+      const series = jobs.map((j) => ({
+        name: j.name,
+        series: (j.progressHistory || []).map((h) => ({ name: h.time, value: h.progress })),
+      }));
+      this.progressSeriesSubject.next(series);
     });
   }
 
-  /**
-   * Simulate job progress for MVP
-   */
-  private simulateJobProgress(): void {
-    for (const job of this.mockJobs) {
-      if (job.status === 'queued' && Math.random() > 0.7) {
-        job.status = 'running';
-        job.startedAt = new Date();
-        job.progress = 5;
-      } else if (job.status === 'running') {
-        job.progress = Math.min(job.progress + Math.random() * 15, 99);
-        job.estimatedTimeRemaining = Math.max(
-          0,
-          3600 - (Date.now() - (job.startedAt?.getTime() || 0)) / 1000,
-        );
-
-        if (Math.random() > 0.95) {
-          job.status = 'completed';
-          job.completedAt = new Date();
-          job.progress = 100;
-          job.outputPath = `/results/${job.id}`;
-        }
-      }
+  private connectLiveUpdates(): void {
+    // EventSource is not available in node test environments; bail early.
+    if (typeof EventSource === 'undefined') {
+      return;
     }
-    this.jobsSubject.next([...this.mockJobs]);
-  }
-
-  /**
-   * Load mock data for MVP
-   */
-  private loadMockData(): void {
-    this.mockJobs = [];
-    this.jobsSubject.next([...this.mockJobs]);
+    if (this.eventSource) {
+      return;
+    }
+    this.eventSource = new EventSource('/api/jobs/stream');
+    this.eventSource.onmessage = (e) => {
+      try {
+        const update = JSON.parse(e.data) as Partial<Job> & { id: string };
+        this.applyJobUpdate(update);
+      } catch {
+        // ignore bad data
+      }
+    };
+    this.eventSource.onerror = () => {
+      // could add retry logic here
+    };
   }
 
   /**
    * Get agent name from ID
    */
-  private getAgentName(agentId: string): string {
-    const agentMap: { [key: string]: string } = {
-      'alphacal-001': 'AlphaCal',
-      'reconstruction-001': 'Radio Image Reconstruction',
-      'anomaly-001': 'Anomaly Detection',
-    };
-    return agentMap[agentId] || 'Unknown Agent';
-  }
 }

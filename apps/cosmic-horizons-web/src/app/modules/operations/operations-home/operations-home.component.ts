@@ -2,12 +2,15 @@ import { Component, inject } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { MessagingService } from '../../../services/messaging.service';
 import { PerformanceDataService } from '../../../services/performance-data.service';
-import { scan, startWith, map } from 'rxjs/operators';
+import { startWith, map } from 'rxjs/operators';
+import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
 
 interface OperationTile {
   title: string;
   route: string;
   colorClass: string;
+  /** material icon name shown in the tile header */
+  icon?: string;
   badge$?: Observable<number>;
   subtitle$?: Observable<string>;
   status$?: Observable<string>;
@@ -25,13 +28,9 @@ export class OperationsHomeComponent {
 
   private messaging = inject(MessagingService);
   private perf = inject(PerformanceDataService);
+  private jobService: JobOrchestrationService = inject(JobOrchestrationService) as JobOrchestrationService;
 
   constructor() {
-    const alertCount$ = this.messaging.notifications$.pipe(
-      scan((acc) => acc + 1, 0),
-      startWith(0),
-    );
-
     const brokerStatus$ = this.messaging.stats$.pipe(
       map((s) => {
         if (!s) return 'unknown';
@@ -91,6 +90,7 @@ export class OperationsHomeComponent {
         title: 'Broker Comparison',
         route: 'broker-comparison',
         colorClass: 'tile-primary',
+        icon: 'compare_arrows',
         status$: brokerStatus$,
         subtitle$: lastRefresh$.pipe(map(ts => ts ? `refreshed ${ts}` : '')),
         extraChips$: brokerChips$,
@@ -99,19 +99,22 @@ export class OperationsHomeComponent {
         title: 'Job Dashboard',
         route: 'job-dashboard',
         colorClass: 'tile-accent',
-        badge$: alertCount$,
+        icon: 'dashboard',
+        badge$: this.jobService.getJobCount(),
         subtitle$: msgsPerSec$.pipe(map(v => `${v} msg/s`)),
       },
       {
         title: 'Node Performance',
         route: 'node-performance',
         colorClass: 'tile-warn',
+        icon: 'memory',
         extraChips$: nodeChips$,
       },
       {
         title: 'Load Tests',
         route: 'load-tests',
         colorClass: 'tile-secondary',
+        icon: 'speed',
       },
     ];
   }

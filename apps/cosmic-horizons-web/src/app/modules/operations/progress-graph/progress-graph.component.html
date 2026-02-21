@@ -1,3 +1,7 @@
+<div class="chart-header">
+  <span>Job progress over time</span>
+  <mat-icon matTooltip="Each line represents a job, plotting its percentage complete versus elapsed seconds since creation.">info</mat-icon>
+</div>
 <ngx-charts-line-chart
   [results]="series"
   [view]="[600,300]"
@@ -5,8 +9,9 @@
   [gradient]="false"
   [xAxis]="true"
   [yAxis]="true"
-  [xAxisLabel]="'Window'"
-  [yAxisLabel]="'Average CPU'"
+  [xAxisLabel]="'Elapsed (s)'"
+  [yAxisLabel]="'Progress %'"
   [autoScale]="true"
+  [legend]="true"
   [tooltipDisabled]="false"
 ></ngx-charts-line-chart>

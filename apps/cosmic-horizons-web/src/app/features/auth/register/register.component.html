@@ -2,40 +2,15 @@
   class="register-container"
   [style.--sky-preview-url]="'url(' + preview.imageUrl + ')'"
 >
-  @if (showTelemetryOverlay) {
-    <aside
-      class="sky-meta-panel"
-      [class.compact]="telemetryCompact"
-      aria-label="Sky background telemetry"
-    >
-      <button
-        type="button"
-        class="telemetry-toggle"
-        (click)="onTelemetryControl()"
-        [attr.aria-label]="
-          preview.personalized
-            ? telemetryCompact
-              ? 'Expand telemetry details'
-              : 'Collapse telemetry details'
-            : 'Detect location and personalize background'
-        "
-      >
-        @if (locating) {
-          <mat-icon class="locating-icon">my_location</mat-icon>
-        } @else if (telemetryCompact || !preview.personalized) {
-          <mat-icon>info</mat-icon>
-        } @else {
-          <mat-icon>close_fullscreen</mat-icon>
-        }
-      </button>
-      <p class="telemetry-detail">{{ clockLine$ | async }}</p>
-      <p class="telemetry-detail">{{ locationLabel }}</p>
-      <p class="telemetry-detail">{{ latLonLabel }}</p>
-    </aside>
-  }
+  <section class="auth-intro">
+    <p class="auth-kicker">COSMIC HORIZONS</p>
+    <h1>New Operator Setup</h1>
+    <p>Create your account to launch and monitor AI-assisted science jobs.</p>
+  </section>
+
   <mat-card class="register-card">
     <mat-card-header>
-      <h1>Create Account</h1>
+      <h2>Create Account</h2>
     </mat-card-header>
     <mat-card-content>
       <p class="subtitle">Set up your Cosmic Horizon account in a minute.</p>

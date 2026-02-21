@@ -6,6 +6,17 @@ const routes: Routes = [
   {
     path: '',
     component: JobOrchestrationComponent,
+    data: {
+      header: {
+        title: 'Job Orchestration',
+        icon: 'lan',
+        iconTone: 'aurora',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Job Orchestration', icon: 'lan' },
+        ],
+      },
+    },
   },
 ];
 

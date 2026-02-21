@@ -1,55 +1,96 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { JobOrchestrationService } from './job-orchestration.service';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { MockModeService } from '../../services/mock-mode.service';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { firstValueFrom } from 'rxjs';
+
 
 describe('JobOrchestrationService', () => {
   let service: JobOrchestrationService;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [JobOrchestrationService],
     });
     service = TestBed.inject(JobOrchestrationService);
+    httpMock = TestBed.inject(HttpTestingController);
+    // constructor issues initial GETs; satisfy them so tests don't error
+    // constructor makes one initial GET to load jobs; satisfy it so
+    // other tests don't blow up.  We used to also fetch `/api/jobs/count`
+    // here, but that call was removed from the service in a refactor.
+    const initReq = httpMock.expectOne('/api/jobs');
+    initReq.flush([]);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should get agents', async () => {
+  it('returns a list of agents', async () => {
     const agents = await firstValueFrom(service.getAgents());
     expect(agents.length).toBe(3);
     expect(agents[0].name).toBe('AlphaCal');
   });
 
-  it('should submit job', async () => {
-    const request = {
-      name: 'Test Job',
-      agentId: 'alphacal-001',
-      parameters: {},
-    };
-
-    const response = await firstValueFrom(service.submitJob(request));
-    expect(response.jobId).toBeTruthy();
-    expect(response.status).toBe('queued');
+  it('passes through submitJob POST to the server', async () => {
+    const request = { name: 'Test', agentId: 'a1', parameters: {} };
+    service.submitJob(request).subscribe();
+    const req = httpMock.expectOne('/api/jobs/submit');
+    expect(req.request.method).toBe('POST');
+    req.flush({ jobId: 'j1', status: 'queued' });
   });
 
-  it('should retrieve jobs', async () => {
-    const jobs = await firstValueFrom(service.getJobs());
-    expect(Array.isArray(jobs)).toBe(true);
+  it('fetches jobs via GET /api/jobs', () => {
+    service.getJobs().subscribe();
+    const req = httpMock.expectOne('/api/jobs');
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
   });
 
-  it('should cancel job', async () => {
-    const request = {
-      name: 'Test Job',
-      agentId: 'alphacal-001',
-      parameters: {},
-    };
+  it('returns empty list immediately when mock mode is active', () => {
+    const mockSvc = TestBed.inject(MockModeService);
+    mockSvc.enable();
+    const spy = vi.spyOn(httpMock, 'expectOne');
+    service.getJobs().subscribe((jobs) => {
+      expect(jobs).toEqual([]);
+    });
+    expect(spy).not.toHaveBeenCalled();
+  });
 
-    const resp = await firstValueFrom(service.submitJob(request));
-    await firstValueFrom(service.cancelJob(resp.jobId));
-    const job = await firstValueFrom(service.getJobById(resp.jobId));
-    expect(job?.status).toBe('cancelled');
+  it('fetches job count from /api/jobs/count', async () => {
+    const promise = firstValueFrom(service.getJobCount());
+    const req = httpMock.expectOne('/api/jobs/count');
+    req.flush({ count: 42 });
+    const count = await promise;
+    expect(count).toBe(42);
+  });
+
+  it('gets status for a specific job', async () => {
+    const promise = firstValueFrom(service.getJobById('foo'));
+    const req = httpMock.expectOne('/api/jobs/foo/status');
+    req.flush({ id: 'foo', status: 'running' });
+    const job = await promise;
+    expect(job?.status).toBe('running');
+  });
+
+  it('cancels a job with POST /cancel', () => {
+    service.cancelJob('foo').subscribe();
+    const req = httpMock.expectOne('/api/jobs/foo/cancel');
+    expect(req.request.method).toBe('POST');
+    req.flush({});
+  });
+
+  it('applyJobUpdate merges into current job list', () => {
+    service['jobsSubject'].next([{ id: '1', name: 'x', status: 'queued' } as any]);
+    service.applyJobUpdate({ id: '1', status: 'running' });
+    const jobs = service['jobsSubject'].getValue();
+    expect(jobs[0].status).toBe('running');
+  });
+
+  it('isPolling returns false when no polling subscription exists', () => {
+    expect(service.isPolling()).toBe(false);
   });
 });

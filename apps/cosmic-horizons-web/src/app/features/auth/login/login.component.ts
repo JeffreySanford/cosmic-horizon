@@ -1,18 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectorRef,
   Component,
   inject,
-  NgZone,
-  OnDestroy,
   OnInit,
   PLATFORM_ID,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { interval, Subscription } from 'rxjs';
-import { startWith } from 'rxjs/operators';
 import { AuthApiService } from '../auth-api.service';
 import { AuthSessionService } from '../../../services/auth-session.service';
 import {
@@ -27,19 +22,12 @@ import { AppLoggerService } from '../../../services/app-logger.service';
   styleUrls: ['./login.component.scss'],
   standalone: false,
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   submitted = false;
   error = '';
   preview: SkyPreview;
-  locating = false;
-  locationMessage = '';
-  locationLabel = 'REG ---- | SRC default';
-  latLonLabel = 'LAT --.---- | LON --.----';
-  showTelemetryOverlay = false;
-  telemetryCompact = true;
-  clockLine = '';
 
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
@@ -49,15 +37,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   private authSessionService = inject(AuthSessionService);
   private skyPreviewService = inject(SkyPreviewService);
   private readonly logger = inject(AppLoggerService);
-  private readonly ngZone = inject(NgZone);
-  private readonly cdr = inject(ChangeDetectorRef);
-
-  private clockSubscription?: Subscription;
 
   constructor() {
-    this.showTelemetryOverlay = isPlatformBrowser(this.platformId);
     this.preview = this.skyPreviewService.getInitialPreview();
-    this.syncTelemetryFromPreview();
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -75,20 +57,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (isPlatformBrowser(this.platformId)) {
-      this.ngZone.runOutsideAngular(() => {
-        this.clockSubscription = interval(1000)
-          .pipe(startWith(0))
-          .subscribe(() => {
-            this.clockLine = this.buildClockLine();
-            this.cdr.detectChanges();
-          });
-      });
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.clockSubscription?.unsubscribe();
   }
 
   get f() {
@@ -141,71 +109,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   signUp(): void {
     this.router.navigate(['/auth/register']);
-  }
-
-  toggleTelemetryCompact(): void {
-    this.telemetryCompact = !this.telemetryCompact;
-  }
-
-  onTelemetryControl(): void {
-    if (this.locating) {
-      return;
-    }
-
-    if (!this.preview.personalized) {
-      this.personalizePreview();
-      return;
-    }
-
-    this.toggleTelemetryCompact();
-  }
-
-  private personalizePreview(): void {
-    this.locating = true;
-    this.locationMessage = '';
-
-    this.skyPreviewService.personalizeFromBrowserLocation().subscribe({
-      next: (preview) => {
-        if (preview) {
-          this.preview = preview;
-          this.syncTelemetryFromPreview();
-          this.locationMessage = `Preview personalized for region ${preview.geohash.toUpperCase()}.`;
-          this.telemetryCompact = false;
-        } else {
-          this.locationMessage =
-            'Location services are unavailable in this browser.';
-        }
-      },
-      error: () => {
-        this.locating = false;
-        this.locationMessage =
-          'Location permission denied. Continuing with default preview.';
-      },
-      complete: () => {
-        this.locating = false;
-      },
-    });
-  }
-
-  private syncTelemetryFromPreview(): void {
-    this.locationLabel = `REG ${this.preview.geohash.toUpperCase()} | SRC ${this.preview.source}`;
-
-    if (this.preview.latitude === null || this.preview.longitude === null) {
-      this.latLonLabel = 'LAT --.---- | LON --.----';
-      return;
-    }
-
-    this.latLonLabel = `LAT ${this.preview.latitude.toFixed(4)} | LON ${this.preview.longitude.toFixed(4)}`;
-  }
-
-  private buildClockLine(): string {
-    const now = new Date();
-    const localTime = now.toLocaleTimeString('en-US', {
-      hour12: false,
-      timeZoneName: 'short',
-    });
-    const zuluTime = now.toUTCString().slice(17, 25);
-    return `LCL ${localTime} | ZUL ${zuluTime}`;
   }
 
   private errorFromHttp(error: HttpErrorResponse): string {

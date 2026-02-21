@@ -79,6 +79,14 @@ export class SkyPreviewService {
     return this.generateClientPreview(latitude, longitude);
   }
 
+  clearStoredRegion(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    document.cookie = `${LOCATION_COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`;
+  }
+
   private generateSsrPreviewFromBackend(
     latitude: number,
     longitude: number,

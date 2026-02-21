@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { PerformanceDataService } from '../../../services/performance-data.service';
+import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -14,10 +14,10 @@ export class ProgressGraphComponent implements OnInit, OnDestroy {
   series: unknown[] = [];
 
   private sub?: Subscription;
-  private perf = inject(PerformanceDataService);
+  private jobService = inject(JobOrchestrationService);
 
   ngOnInit(): void {
-    this.sub = this.perf.progressSeries$.subscribe((data) => {
+    this.sub = this.jobService.progressSeries$.subscribe((data) => {
       this.series = data;
     });
   }

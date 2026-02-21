@@ -35,6 +35,8 @@ export interface Job {
   outputPath?: string;
   errorMessage?: string;
   logs?: string[];
+  /** history of progress updates used for charting */
+  progressHistory?: { time: number; progress: number }[];
 }
 
 export interface JobSubmissionRequest {

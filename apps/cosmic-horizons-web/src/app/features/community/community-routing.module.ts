@@ -9,11 +9,39 @@ const routes: Routes = [
   {
     path: '',
     component: CommunityFeedComponent,
+    data: {
+      header: {
+        title: 'Community Feed',
+        icon: 'groups',
+        iconTone: 'violet',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Community', icon: 'groups' },
+        ],
+      },
+    },
   },
   {
     path: 'moderation',
     component: ModerationComponent,
     canActivate: [AuthGuard, ModerationGuard],
+    data: {
+      header: {
+        title: 'Community Moderation',
+        icon: 'rule',
+        iconTone: 'solar',
+        breadcrumbs: [
+          { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Community', route: '/community', icon: 'groups' },
+          { label: 'Moderation', icon: 'rule' },
+        ],
+        parentLink: {
+          label: 'Back to Community',
+          route: '/community',
+          icon: 'arrow_back',
+        },
+      },
+    },
   },
 ];
 
