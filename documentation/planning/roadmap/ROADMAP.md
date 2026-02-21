@@ -46,6 +46,18 @@ Execution note (2026-02-16):
 - Keep roadmap references constrained to existing docs paths.
 - Keep canonical scope docs synchronized with delivered post-MVP features.
 
+## Upcoming Sprint: Event Streaming & Scalability (starting Feb 2026)
+
+Objective: build the core publish/subscribe infrastructure that will
+support job events, notifications, and downstream dashboards.
+
+- Sprint 5.3: Job event publishing (Rabbit/Kafka) with comprehensive test
+  coverage and latency instrumentation.
+- Sprint 6.1: WebSocket foundation and dashboard data feeds (follow-on
+  once 5.3 is ready).
+- This work feeds into the longer-term Remote Compute Gateway and
+  Provenance/UX phases.
+
 ## Recently Completed (2026-02-16)
 
 - Completed reliability and contract hardening sprint goals (security boundary, env unification, messaging reliability, docs consistency, CI formatting gate).

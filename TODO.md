@@ -76,6 +76,11 @@ Canonical scope:
 **Target:** 1000+ events/second, sub-100ms latency, 500+ concurrent connections  
 **Progress:** Sprint 5.1 ✅ Complete (Feb 2026) → Sprint 5.2 ✅ Complete (Feb 14, 2026) → Sprint 5.3 🟡 In Progress (Week 3 execution active)
 
+#### Sprint 5.3 (Feb 20–Mar 6)
+- Job orchestration events publication/consumption (RabbitMQ & Kafka)
+- 55+ tests planned: 20 publisher, 20 consumer, 15 end‑to‑end
+- Prepare Sprint 6.1 WebSocket foundation (depends on 5.3 completion)
+
 ### Priority 5: Event Streaming Infrastructure (Q2 2026, Months 3-4)
 
 **Sprint 5.1: RabbitMQ Foundation (3 weeks) ✅ COMPLETE**
