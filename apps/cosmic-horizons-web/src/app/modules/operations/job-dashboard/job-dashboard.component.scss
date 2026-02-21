@@ -2,3 +2,54 @@
 h2 {
   margin-bottom: 1rem;
 }
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+table {
+  width: 100%;
+}
+
+.status {
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: white;
+  font-weight: 600;
+}
+
+.queued { background: orange; }
+.running { background: dodgerblue; }
+.completed { background: seagreen; }
+.failed { background: crimson; }
+.cancelled { background: gray; }
+
+.summary-cards {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.status-card {
+  flex: 1 1 120px;
+  text-align: center;
+  .count {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+}
+
+tr.updated {
+  animation: highlight 1s ease-in-out;
+}
+
+@keyframes highlight {
+  from {
+    background-color: #ffff99;
+  }
+  to {
+    background-color: transparent;
+  }
+}

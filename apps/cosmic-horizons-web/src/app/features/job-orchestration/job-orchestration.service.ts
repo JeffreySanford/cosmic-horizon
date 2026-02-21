@@ -134,6 +134,18 @@ export class JobOrchestrationService {
   }
 
   /**
+   * Apply an incoming websocket/update partial to existing job list.
+   * Useful when dashboard receives events from server or mocks.
+   */
+  applyJobUpdate(update: Partial<Job> & { id: string }) {
+    const idx = this.mockJobs.findIndex((j) => j.id === update.id);
+    if (idx !== -1) {
+      this.mockJobs[idx] = { ...this.mockJobs[idx], ...update } as Job;
+      this.jobsSubject.next([...this.mockJobs]);
+    }
+  }
+
+  /**
    * Start job polling for real-time updates
    */
   private startJobPolling(): void {

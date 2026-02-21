@@ -95,11 +95,13 @@ Canonical scope:
 - Implement basic Material table layout and status colour styling ✅
 - Add initial unit test covering component creation, row rendering, status classes, and heartbeat progress ✅
 - Wire routing and register component in operations module ✅
-- Wire WebSocket subscription with mock data for UI proof-of-concept (work in progress)
+- Wire WebSocket subscription with mock data for UI proof-of-concept ✅
+- Flesh out job dashboard with status summary cards, progress bars, cancel actions, row‑highlight animations ✅
 - Document load-test results (500 connections) and record script enhancements
+- Complete initial unit tests for job dashboard (creation, row rendering, status classes, summary counts, cancel action, heartbeat progress) ✅
+- WebSocket integration stubbed via `ngOnInit` override in tests; remaining live event tests to follow
 - Continue writing full suite of dashboard/WebSocket tests (30+ planned)
 - Update roadmap/TODO to reflect sprint tasks
-
 
 ### Priority 5: Event Streaming Infrastructure (Q2 2026, Months 3-4)
 
