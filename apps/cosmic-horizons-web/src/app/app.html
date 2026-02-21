@@ -1,4 +1,4 @@
-<div class="app-layout">
+<div class="app-layout" [ngClass]="routeVisualClass">
   <div class="app-background app-background--aurora" aria-hidden="true"></div>
   <div class="app-background app-background--sunrise" aria-hidden="true"></div>
 
@@ -15,5 +15,5 @@
       <router-outlet></router-outlet>
     </div>
   </main>
-  <app-footer></app-footer>
+  <app-footer [config]="headerConfig"></app-footer>
 </div>

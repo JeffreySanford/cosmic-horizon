@@ -60,7 +60,10 @@
     <!-- Header Info -->
     <mat-card class="info-card">
       <mat-card-header>
-        <mat-card-title>📊 Last Updated: {{ lastRefreshLabel }}</mat-card-title>
+        <mat-card-title class="info-card-refresh">
+          <span>Last Updated</span>
+          <span>{{ getLastRefreshText() }}</span>
+        </mat-card-title>
         <mat-card-subtitle>
           Refresh cadence: 5s • Phase 3.5 Pulsar Evaluation
         </mat-card-subtitle>

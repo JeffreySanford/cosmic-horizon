@@ -9,7 +9,7 @@
 
     .header-content {
       h1 {
-        font-size: 32px;
+        font-size: var(--ch-font-size-display-sm);
         font-weight: 600;
         margin: 0 0 8px 0;
         background: linear-gradient(135deg, #58a6ff, #79c0ff);
@@ -19,7 +19,7 @@
       }
 
       .subtitle {
-        font-size: 14px;
+        font-size: var(--ch-font-size-body);
         color: #8b949e;
         margin: 0;
       }
@@ -75,7 +75,7 @@
           text-align: center;
 
           .stat-label {
-            font-size: 12px;
+            font-size: var(--ch-font-size-caption);
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -83,7 +83,7 @@
           }
 
           .stat-value {
-            font-size: 32px;
+            font-size: var(--ch-font-size-display-sm);
             font-weight: 600;
             color: #58a6ff;
 
@@ -104,7 +104,7 @@
 
       .agent-stats {
         h3 {
-          font-size: 18px;
+          font-size: var(--ch-font-size-title);
           font-weight: 600;
           margin: 0 0 16px 0;
           color: #ffffff;
@@ -134,14 +134,14 @@
               margin-bottom: 8px;
 
               h4 {
-                font-size: 14px;
+                font-size: var(--ch-font-size-body);
                 font-weight: 600;
                 margin: 0;
                 color: #ffffff;
               }
 
               .agent-version {
-                font-size: 11px;
+                font-size: var(--ch-font-size-xs);
                 color: #8b949e;
                 background-color: #0d1117;
                 padding: 2px 6px;
@@ -150,7 +150,7 @@
             }
 
             .agent-description {
-              font-size: 12px;
+              font-size: var(--ch-font-size-caption);
               color: #8b949e;
               margin: 0 0 12px 0;
               line-height: 1.4;
@@ -160,7 +160,7 @@
               display: flex;
               flex-direction: column;
               gap: 6px;
-              font-size: 11px;
+              font-size: var(--ch-font-size-xs);
               color: #c9d1d9;
               padding-top: 12px;
               border-top: 1px solid #30363d;
@@ -175,3 +175,4 @@
     }
   }
 }
+

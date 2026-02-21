@@ -44,7 +44,7 @@
       color: #666;
 
       mat-icon {
-        font-size: 64px;
+        font-size: var(--ch-font-size-display-lg);
         width: 64px;
         height: 64px;
         margin-bottom: 24px;
@@ -179,7 +179,7 @@
 
     mat-icon {
       color: #f57f17;
-      font-size: 32px;
+      font-size: var(--ch-font-size-display-sm);
       width: 32px;
       height: 32px;
     }
@@ -194,3 +194,4 @@
     }
   }
 }
+

@@ -1,46 +1,79 @@
 .app-footer {
-  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
-  border-top: 1px solid #30363d;
-  padding: 2rem 1rem;
+  position: relative;
+  background:
+    radial-gradient(circle at 10% -120%, rgba(56, 189, 248, 0.26), transparent 54%),
+    radial-gradient(circle at 88% -95%, rgba(250, 204, 21, 0.2), transparent 52%),
+    linear-gradient(145deg, #0a1528 0%, #122643 62%, #0e1f38 100%);
+  border-top: 1px solid rgba(125, 211, 252, 0.32);
+  padding: 0.95rem 1rem;
   margin-top: auto;
-  color: #c9d1d9;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  color: #eaf4ff;
+  font-size: var(--ch-font-size-body);
+  line-height: var(--ch-line-height-normal);
+}
 
-  .footer-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: center;
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
 
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-      text-align: center;
-    }
-  }
+.footer-section--left .affiliation {
+  margin: 0;
+  color: #dbeafe;
+  font-size: var(--ch-font-size-body-sm);
+}
 
-  .footer-section {
-    p {
-      margin: 0;
-      color: #c9d1d9;
+.footer-section--route {
+  display: flex;
+  justify-content: flex-end;
+}
 
-      &.affiliation {
-        font-size: 0.8125rem;
-        color: #b8c3cf;
-      }
+.route-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.62rem;
+  border-radius: 999px;
+  border: 1px solid rgba(186, 230, 253, 0.5);
+  background: rgba(8, 16, 30, 0.38);
+  color: #eaf4ff;
 
-      &.copyright {
-        font-size: 0.75rem;
-        color: #9dadbd;
-        text-align: right;
-
-        @media (max-width: 768px) {
-          text-align: center;
-        }
-      }
-    }
+  .mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: var(--ch-font-size-title);
+    line-height: 1;
+    color: #fef08a;
   }
 }
+
+.route-label {
+  font-weight: 700;
+  font-size: var(--ch-font-size-body-sm);
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr auto;
+    gap: 0.7rem;
+  }
+
+  .footer-section--left .affiliation {
+    font-size: var(--ch-font-size-caption);
+  }
+
+  .route-label {
+    display: none;
+  }
+
+  .route-chip {
+    padding: 0.32rem;
+    min-width: 2rem;
+    justify-content: center;
+  }
+}
+

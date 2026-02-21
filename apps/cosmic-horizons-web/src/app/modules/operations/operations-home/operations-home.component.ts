@@ -30,6 +30,32 @@ export class OperationsHomeComponent {
   private perf = inject(PerformanceDataService);
   private jobService: JobOrchestrationService = inject(JobOrchestrationService) as JobOrchestrationService;
 
+  private formatRelativeTime(isoTimestamp: string): string {
+    const date = new Date(isoTimestamp);
+    const timestamp = date.getTime();
+    if (!Number.isFinite(timestamp)) {
+      return '';
+    }
+
+    const deltaSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+    if (deltaSeconds < 60) {
+      return 'just now';
+    }
+
+    const minutes = Math.floor(deltaSeconds / 60);
+    if (minutes < 60) {
+      return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `${hours} hr${hours === 1 ? '' : 's'} ago`;
+    }
+
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+  }
+
   constructor() {
     const brokerStatus$ = this.messaging.stats$.pipe(
       map((s) => {
@@ -92,7 +118,9 @@ export class OperationsHomeComponent {
         colorClass: 'tile-primary',
         icon: 'compare_arrows',
         status$: brokerStatus$,
-        subtitle$: lastRefresh$.pipe(map(ts => ts ? `refreshed ${ts}` : '')),
+        subtitle$: lastRefresh$.pipe(
+          map((ts) => (ts ? `Refreshed\n${this.formatRelativeTime(ts)}` : '')),
+        ),
         extraChips$: brokerChips$,
       },
       {

@@ -11,7 +11,7 @@
     align-items: center;
 
     h2 {
-      font-size: 20px;
+      font-size: var(--ch-font-size-title-md);
       font-weight: 600;
       margin: 0;
       color: #ffffff;
@@ -32,7 +32,7 @@
           border: 1px solid #30363d;
           color: #8b949e;
           border-radius: 6px;
-          font-size: 12px;
+          font-size: var(--ch-font-size-caption);
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -62,7 +62,7 @@
       padding: 48px 24px;
 
       .empty-icon {
-        font-size: 48px;
+        font-size: var(--ch-font-size-display-md);
         width: 48px;
         height: 48px;
         color: #30363d;
@@ -121,7 +121,7 @@
 
           .status-icon {
             margin-top: 2px;
-            font-size: 20px;
+            font-size: var(--ch-font-size-title-md);
             width: 20px;
             height: 20px;
           }
@@ -132,14 +132,14 @@
             gap: 2px;
 
             h3 {
-              font-size: 14px;
+              font-size: var(--ch-font-size-body);
               font-weight: 600;
               margin: 0;
               color: #ffffff;
             }
 
             .job-id {
-              font-size: 11px;
+              font-size: var(--ch-font-size-xs);
               color: #8b949e;
               font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             }
@@ -147,7 +147,7 @@
         }
 
         .job-status {
-          font-size: 11px;
+          font-size: var(--ch-font-size-xs);
           font-weight: 700;
           letter-spacing: 0.5px;
         }
@@ -165,14 +165,14 @@
           gap: 2px;
 
           .meta-label {
-            font-size: 10px;
+            font-size: var(--ch-font-size-2xs);
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
 
           .meta-value {
-            font-size: 12px;
+            font-size: var(--ch-font-size-caption);
             color: #c9d1d9;
           }
         }
@@ -185,7 +185,7 @@
           display: flex;
           justify-content: space-between;
           margin-bottom: 6px;
-          font-size: 12px;
+          font-size: var(--ch-font-size-caption);
 
           span:first-child {
             color: #8b949e;
@@ -207,7 +207,7 @@
         }
 
         .time-remaining {
-          font-size: 11px;
+          font-size: var(--ch-font-size-xs);
           color: #8b949e;
           margin-top: 4px;
         }
@@ -228,13 +228,13 @@
           gap: 2px;
 
           .label {
-            font-size: 10px;
+            font-size: var(--ch-font-size-2xs);
             color: #8b949e;
             text-transform: uppercase;
           }
 
           .value {
-            font-size: 12px;
+            font-size: var(--ch-font-size-caption);
             color: #238636;
             font-weight: 600;
           }
@@ -244,7 +244,7 @@
           background-color: #238636;
           color: white;
           border: none;
-          font-size: 12px;
+          font-size: var(--ch-font-size-caption);
 
           &:hover {
             background-color: #2ea043;
@@ -260,7 +260,7 @@
         margin-bottom: 12px;
 
         .error-message {
-          font-size: 12px;
+          font-size: var(--ch-font-size-caption);
           color: #f85149;
           margin: 0;
         }
@@ -291,7 +291,7 @@
           }
 
           mat-icon {
-            font-size: 18px;
+            font-size: var(--ch-font-size-title);
             width: 18px;
             height: 18px;
           }
@@ -300,3 +300,4 @@
     }
   }
 }
+

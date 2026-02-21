@@ -55,6 +55,7 @@ export class JobsConsoleComponent implements OnInit {
         next: (res) => {
           this.snackBar.open(`Job ${res.jobId} submitted successfully`, 'OK', {
             duration: 3000,
+            panelClass: ['toast-success'],
           });
           this.pollStatus(res.jobId);
           this.isLoading = false;
@@ -63,6 +64,7 @@ export class JobsConsoleComponent implements OnInit {
         error: (err) => {
           this.snackBar.open('Failed to submit job', 'Close', {
             duration: 5000,
+            panelClass: ['toast-warn'],
           });
           this.isLoading = false;
           this.cdr.markForCheck();

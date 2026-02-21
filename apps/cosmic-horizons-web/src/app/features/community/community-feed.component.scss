@@ -19,9 +19,10 @@
 }
 .meta {
   color: rgba(0, 0, 0, 0.54);
-  font-size: 12px;
+  font-size: var(--ch-font-size-caption);
   margin: 4px 0;
 }
 .body {
   margin: 8px 0 0 0;
 }
+

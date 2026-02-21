@@ -7,32 +7,40 @@
       <mat-icon>add_circle</mat-icon>
       New Draft
     </button>
-    <a mat-button routerLink="/landing">
-      <mat-icon>home</mat-icon>
-      Home
-    </a>
+    @if (canModerate) {
+      <button mat-button type="button" class="moderation-btn" (click)="openModeration()">
+        <mat-icon>gavel</mat-icon>
+        Moderation
+      </button>
+    }
   </mat-toolbar>
 
   <section class="posts-content">
     <section class="list-controls">
       <mat-form-field appearance="outline">
+        <mat-label>Search posts</mat-label>
+        <input
+          matInput
+          [ngModel]="filterValue"
+          (ngModelChange)="applyFilter($event)"
+          placeholder="Title, author, status, content"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
         <mat-label>Sort by</mat-label>
         <select
           matNativeControl
           [(ngModel)]="sortBy"
+          (ngModelChange)="onSortModeChange()"
         >
           <option value="recent">Recent</option>
           <option value="author">Author</option>
           <option value="title">Title</option>
         </select>
       </mat-form-field>
-      <label class="mine-filter">
-        <input
-          type="checkbox"
-          [(ngModel)]="onlyMine"
-        />
+      <mat-checkbox [(ngModel)]="onlyMine" (ngModelChange)="onToggleOnlyMine()">
         My posts only
-      </label>
+      </mat-checkbox>
     </section>
 
     @if (loading) {
@@ -55,54 +63,75 @@
         </button>
       </div>
     } @else {
-      <div class="post-grid">
-        @for (post of visiblePosts; track post.id) {
-          <mat-card class="post-card">
-            <mat-card-header>
-              <mat-card-title>
-                <span
-                  class="status-badge"
-                  [class.draft]="post.status === 'draft'"
-                  [class.published]="post.status === 'published'"
-                >
-                  {{ post.status }}
-                </span>
-                {{ post.title }}
-              </mat-card-title>
-              <mat-card-subtitle>
-                @if (post.user?.username) {
-                  <a
-                    [routerLink]="['/profile', post.user?.username]"
-                    (click)="$event.stopPropagation()"
-                    class="author-link"
+      <mat-card class="table-shell">
+        <div class="table-wrapper">
+          <table mat-table [dataSource]="dataSource" matSort class="posts-table">
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+              <td mat-cell *matCellDef="let post">
+                <div class="title-cell">
+                  <span
+                    class="status-badge"
+                    [class.draft]="post.status === 'draft'"
+                    [class.published]="post.status === 'published'"
                   >
-                    {{ authorName(post) }}
-                  </a>
-                } @else {
-                  <span class="author-link">{{ authorName(post) }}</span>
-                }
-              </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <p>Updated: {{ post.updated_at | date: 'medium' }}</p>
-              <p>
-                Published:
+                    {{ post.status }}
+                  </span>
+                  <span>{{ post.title }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="author">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Author</th>
+              <td mat-cell *matCellDef="let post">
+                {{ authorName(post) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let post">
+                {{ post.hidden_at ? 'Hidden' : (post.status | titlecase) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="updated">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Updated</th>
+              <td mat-cell *matCellDef="let post">
+                {{ post.updated_at | date: 'medium' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="published">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Published</th>
+              <td mat-cell *matCellDef="let post">
                 {{
                   post.published_at
                     ? (post.published_at | date: 'mediumDate')
                     : 'n/a'
                 }}
-              </p>
-              <p class="excerpt">{{ excerpt(post) }}</p>
-            </mat-card-content>
-            <mat-card-actions>
-              <button mat-button type="button" (click)="openPost(post)">
-                Open
-              </button>
-            </mat-card-actions>
-          </mat-card>
-        }
-      </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns"
+              class="data-row"
+              (click)="openPost(row)"
+              tabindex="0"
+            ></tr>
+          </table>
+        </div>
+
+        <mat-paginator
+          [length]="dataSource.data.length"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+          showFirstLastButtons
+        ></mat-paginator>
+      </mat-card>
     }
   </section>
 </div>

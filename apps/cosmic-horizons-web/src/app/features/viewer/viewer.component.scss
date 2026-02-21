@@ -94,10 +94,10 @@
 }
 
 :host ::ng-deep .target-search .mat-mdc-form-field-icon-suffix .mat-icon {
-  font-size: 18px;
+  font-size: var(--ch-font-size-title);
   width: 18px;
   height: 18px;
-  line-height: 18px;
+  line-height: 1;
   margin-top: -4px;
 }
 
@@ -563,3 +563,4 @@
     gap: 0.5rem;
   }
 }
+

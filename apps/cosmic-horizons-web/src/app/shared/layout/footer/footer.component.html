@@ -1,10 +1,16 @@
 <footer class="app-footer">
   <div class="footer-content">
-    <div class="footer-section">
+    <div class="footer-section footer-section--left">
       <p class="affiliation">
         Independent project by Jeffrey Sanford using public VLASS data. Not
         affiliated with or endorsed by VLA/NRAO.
       </p>
+    </div>
+    <div class="footer-section footer-section--route" aria-label="Current page">
+      <div class="route-chip" [attr.title]="'Current page: ' + currentRouteMeta.label">
+        <mat-icon aria-hidden="true">{{ currentRouteMeta.icon }}</mat-icon>
+        <span class="route-label">{{ currentRouteMeta.label }}</span>
+      </div>
     </div>
   </div>
 </footer>

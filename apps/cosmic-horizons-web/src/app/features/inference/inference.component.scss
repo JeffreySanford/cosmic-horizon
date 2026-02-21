@@ -17,7 +17,7 @@
       margin-bottom: 32px;
 
       h1 {
-        font-size: 28px;
+        font-size: var(--ch-font-size-title-xl);
         font-weight: 600;
         margin: 0 0 8px 0;
         background: linear-gradient(135deg, #58a6ff, #79c0ff);
@@ -27,7 +27,7 @@
       }
 
       .subtitle {
-        font-size: 14px;
+        font-size: var(--ch-font-size-body);
         color: #8b949e;
         margin: 0;
       }
@@ -58,14 +58,14 @@
           margin-bottom: 12px;
 
           .stat-label {
-            font-size: 12px;
+            font-size: var(--ch-font-size-caption);
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
 
           .stat-badge {
-            font-size: 12px;
+            font-size: var(--ch-font-size-caption);
             padding: 4px 8px;
             border-radius: 4px;
             background-color: #30363d;
@@ -79,7 +79,7 @@
         }
 
         .stat-value {
-          font-size: 24px;
+          font-size: var(--ch-font-size-title-lg);
           font-weight: 600;
           color: #ffffff;
         }
@@ -91,7 +91,7 @@
       margin-bottom: 32px;
 
       h2 {
-        font-size: 18px;
+        font-size: var(--ch-font-size-title);
         font-weight: 600;
         margin: 0 0 16px 0;
         color: #ffffff;
@@ -134,13 +134,13 @@
           margin-bottom: 16px;
 
           .agent-name {
-            font-size: 16px;
+            font-size: var(--ch-font-size-body-lg);
             font-weight: 600;
             color: #ffffff;
           }
 
           .agent-status {
-            font-size: 11px;
+            font-size: var(--ch-font-size-xs);
             font-weight: 700;
             letter-spacing: 0.5px;
           }
@@ -157,7 +157,7 @@
             gap: 4px;
 
             .metric-label {
-              font-size: 12px;
+              font-size: var(--ch-font-size-caption);
               color: #8b949e;
               text-transform: uppercase;
               letter-spacing: 0.5px;
@@ -173,13 +173,13 @@
             }
 
             .metric-value {
-              font-size: 14px;
+              font-size: var(--ch-font-size-body);
               font-weight: 500;
               color: #c9d1d9;
 
               &.throughput {
                 font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-                font-size: 13px;
+                font-size: var(--ch-font-size-sm);
               }
             }
           }
@@ -212,7 +212,7 @@
 
           .session-id {
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 12px;
+            font-size: var(--ch-font-size-caption);
             color: #58a6ff;
             background-color: rgba(88, 166, 255, 0.1);
             padding: 4px 8px;
@@ -220,7 +220,7 @@
           }
 
           .session-agent {
-            font-size: 14px;
+            font-size: var(--ch-font-size-body);
             font-weight: 600;
             color: #ffffff;
           }
@@ -237,14 +237,14 @@
             gap: 4px;
 
             .label {
-              font-size: 11px;
+              font-size: var(--ch-font-size-xs);
               color: #8b949e;
               text-transform: uppercase;
               letter-spacing: 0.5px;
             }
 
             .value {
-              font-size: 13px;
+              font-size: var(--ch-font-size-sm);
               color: #c9d1d9;
             }
           }
@@ -297,7 +297,7 @@
       }
 
       mat-icon {
-        font-size: 20px;
+        font-size: var(--ch-font-size-title-md);
       }
     }
 
@@ -309,7 +309,7 @@
       flex-direction: column;
 
       h3 {
-        font-size: 16px;
+        font-size: var(--ch-font-size-body-lg);
         font-weight: 600;
         margin: 0 0 16px 0;
         color: #ffffff;
@@ -331,14 +331,14 @@
           border: 1px solid #30363d;
 
           .label {
-            font-size: 12px;
+            font-size: var(--ch-font-size-caption);
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
 
           .value {
-            font-size: 14px;
+            font-size: var(--ch-font-size-body);
             font-weight: 600;
             color: #58a6ff;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -351,7 +351,7 @@
         margin-bottom: 16px;
 
         .info-text {
-          font-size: 12px;
+          font-size: var(--ch-font-size-caption);
           color: #8b949e;
           line-height: 1.5;
           margin: 0;
@@ -362,7 +362,7 @@
         background-color: transparent;
         border: 1px solid #30363d;
         color: #f85149;
-        font-size: 12px;
+        font-size: var(--ch-font-size-caption);
         font-weight: 600;
         padding: 8px 16px;
         border-radius: 6px;
@@ -397,3 +397,4 @@
     background: #484f58;
   }
 }
+

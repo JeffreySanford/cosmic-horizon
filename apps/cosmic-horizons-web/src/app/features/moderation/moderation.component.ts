@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, finalize, of, timeout } from 'rxjs';
 import {
   CommentsApiService,
   CommentReportModel,
@@ -24,18 +25,24 @@ export class ModerationComponent implements OnInit {
   }
 
   loadReports(): void {
+    this.error = '';
     this.loading = true;
     this.commentsApi
       .getAllReports()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        timeout(10000),
+        catchError(() => {
+          this.error = 'Failed to load moderation reports.';
+          return of([] as CommentReportModel[]);
+        }),
+        finalize(() => {
+          this.loading = false;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (reports) => {
           this.reports = reports;
-          this.loading = false;
-        },
-        error: () => {
-          this.error = 'Failed to load moderation reports.';
-          this.loading = false;
         },
       });
   }
@@ -43,7 +50,7 @@ export class ModerationComponent implements OnInit {
   resolveReport(reportId: string, status: 'reviewed' | 'dismissed'): void {
     this.commentsApi
       .resolveReport(reportId, status)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(timeout(10000), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.loadReports();
@@ -57,7 +64,7 @@ export class ModerationComponent implements OnInit {
   hideComment(commentId: string): void {
     this.commentsApi
       .hideComment(commentId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(timeout(10000), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.loadReports();

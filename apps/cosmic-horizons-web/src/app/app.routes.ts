@@ -282,6 +282,7 @@ export const appRoutes: Route[] = [
         ],
         breadcrumbs: [
           { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Community', route: '/community', icon: 'groups' },
           { label: 'Moderation', icon: 'gavel' },
         ],
       },

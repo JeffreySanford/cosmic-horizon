@@ -17,7 +17,7 @@ async function fetchSsrHtml(
 test.describe('SSR preview payload', () => {
   test('renders regional preview in /auth/login HTML', async ({ request }) => {
     const html = await fetchSsrHtml('/auth/login', request);
-    expect(html).toContain('Login');
+    expect(html).toContain('Mission Access');
     // Verify application structure is present in SSR
     expect(html).toContain('app-login');
     // Ensure SSR produced a cache-busted preview image URL.
@@ -30,7 +30,7 @@ test.describe('SSR preview payload', () => {
     const html = await fetchSsrHtml('/landing', request);
     // Verify application structure is present in SSR
     expect(html).toContain('app-landing');
-    // Verify Material components are rendered
-    expect(html).toContain('mat-toolbar');
+    // Verify custom app shell header is rendered
+    expect(html).toContain('app-header');
   });
 });

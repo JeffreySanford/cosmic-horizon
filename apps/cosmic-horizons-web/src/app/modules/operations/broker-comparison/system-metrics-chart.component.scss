@@ -1,9 +1,23 @@
 .system-metrics-chart {
   .chart-header {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 1rem;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  h3 {
+    margin: 0.2rem 0 0;
+    white-space: nowrap;
+  }
+
+  .chart-controls {
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.65rem;
   }
 
   .view-selector {
@@ -16,5 +30,25 @@
     width: 100%;
     height: 300px; /* default height, can be overridden by parent */
     position: relative;
+  }
+}
+
+@media (max-width: 980px) {
+  .system-metrics-chart {
+    .chart-header {
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    h3 {
+      align-self: flex-start;
+      white-space: normal;
+    }
+
+    .chart-controls {
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-end;
+    }
   }
 }

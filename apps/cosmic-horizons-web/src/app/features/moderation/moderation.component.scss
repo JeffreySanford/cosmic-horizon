@@ -72,7 +72,7 @@
     color: #a4a9b6;
 
     mat-icon {
-      font-size: 48px;
+      font-size: var(--ch-font-size-display-md);
       width: 48px;
       height: 48px;
       margin-bottom: 16px;
@@ -88,3 +88,4 @@
     color: #ffb8b8;
   }
 }
+

@@ -3,10 +3,12 @@ import {
   ElementRef,
   ViewChild,
   OnInit,
+  OnChanges,
   OnDestroy,
   Input,
   Output,
   EventEmitter,
+  SimpleChanges,
 } from '@angular/core';
 import * as d3 from 'd3';
 
@@ -74,7 +76,9 @@ type SeriesDefinition = {
   styleUrls: ['./system-metrics-chart.component.scss'],
 })
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export class SystemMetricsChartComponent implements OnInit, OnDestroy {
+export class SystemMetricsChartComponent
+  implements OnInit, OnChanges, OnDestroy
+{
   private static readonly DEFAULT_SYSTEM_LEGEND = [
     { label: 'CPU Usage', color: '#ff6b6b' },
     { label: 'Memory Usage', color: '#4ecdc4' },
@@ -89,7 +93,7 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   // Sampling interval (ms) for rendering the chart. Emits changes to parent if different.
   samplingInterval = this.updateInterval;
   // options used by the selector
-  samplingOptions: number[] = [20, 100, 300, 500, 1000, 2000, 5000, 10000, 15000];
+  samplingOptions: number[] = [2000, 1000, 5000, 10000, 15000, 500, 300, 100, 20];
   // Expose sampling-interval changes so parent polling cadence can be adjusted.
   @Output() samplingIntervalChange = new EventEmitter<number>();
 
@@ -134,7 +138,14 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
+    this.syncSamplingIntervalFromInput();
     this.initializeChart();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['updateInterval']) {
+      this.syncSamplingIntervalFromInput();
+    }
   }
 
   ngOnDestroy() {
@@ -800,6 +811,14 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     this.samplingIntervalChange.emit(this.samplingInterval);
   }
 
+  formatSamplingOption(ms: number): string {
+    if (ms >= 1000) {
+      const seconds = ms / 1000;
+      return Number.isInteger(seconds) ? `${seconds} s` : `${seconds.toFixed(1)} s`;
+    }
+    return `${ms} ms`;
+  }
+
   private areLegendItemsEqual(
     current: Array<{ label: string; color: string }>,
     next: Array<{ label: string; color: string }>,
@@ -818,6 +837,16 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
     }
 
     return true;
+  }
+
+  private syncSamplingIntervalFromInput(): void {
+    const normalized = Number.isFinite(this.updateInterval) && this.updateInterval > 0
+      ? Math.round(this.updateInterval)
+      : 2000;
+    this.samplingInterval = normalized;
+    if (!this.samplingOptions.includes(normalized)) {
+      this.samplingOptions = [normalized, ...this.samplingOptions];
+    }
   }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */

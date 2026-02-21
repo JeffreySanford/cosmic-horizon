@@ -14,6 +14,10 @@
 }
 
 .app-layout {
+  --app-max-width: 1220px;
+  --app-aurora-opacity: 0.34;
+  --app-sunrise-opacity: 0.34;
+  --ch-motion-scale: 0.9;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -22,11 +26,24 @@
   overflow-x: hidden;
 }
 
+.app-layout.route-calm {
+  --app-max-width: 1360px;
+  --app-aurora-opacity: 0.2;
+  --app-sunrise-opacity: 0.2;
+  --ch-motion-scale: 0.72;
+}
+
+.app-layout.route-expressive {
+  --app-max-width: 1160px;
+  --app-aurora-opacity: 0.42;
+  --app-sunrise-opacity: 0.4;
+  --ch-motion-scale: 1;
+}
+
 .app-background {
   position: absolute;
   pointer-events: none;
   filter: blur(14px);
-  opacity: 0.38;
 }
 
 .app-background--aurora {
@@ -36,7 +53,8 @@
   height: 360px;
   border-radius: 50%;
   background: radial-gradient(circle, #38bdf8, #1d4ed8 65%, transparent 72%);
-  animation: pulseDrift 9s ease-in-out infinite alternate;
+  opacity: var(--app-aurora-opacity);
+  animation: pulseDrift calc(9s * var(--ch-motion-scale)) ease-in-out infinite alternate;
 }
 
 .app-background--sunrise {
@@ -46,7 +64,8 @@
   height: 420px;
   border-radius: 50%;
   background: radial-gradient(circle, #fb7185, #f97316 62%, transparent 75%);
-  animation: pulseDrift 11s ease-in-out infinite alternate-reverse;
+  opacity: var(--app-sunrise-opacity);
+  animation: pulseDrift calc(11s * var(--ch-motion-scale)) ease-in-out infinite alternate-reverse;
 }
 
 .app-main {
@@ -61,6 +80,8 @@
 
 .app-main__surface {
   flex: 1;
+  width: min(100%, var(--app-max-width));
+  margin: 0 auto;
   border-radius: 1rem;
   border: 1px solid rgba(148, 163, 184, 0.24);
   background: linear-gradient(

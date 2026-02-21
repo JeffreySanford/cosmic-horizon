@@ -10,7 +10,7 @@
   align-content: center;
   justify-content: center;
   padding: clamp(0.9rem, 2vw, 1.6rem);
-  color: #ebf4ff;
+  color: var(--ch-text-primary);
   background:
     linear-gradient(135deg, rgba(10, 16, 36, 0.82), rgba(24, 24, 62, 0.7)),
     radial-gradient(circle at 14% 14%, rgba(14, 165, 233, 0.2), transparent 38%),
@@ -42,9 +42,9 @@
   .auth-kicker {
     margin: 0;
     letter-spacing: 0.12em;
-    font-size: 0.75rem;
+    font-size: var(--ch-font-size-caption);
     font-weight: 700;
-    color: #93c5fd;
+    color: var(--ch-text-secondary);
   }
 
   h1 {
@@ -54,7 +54,7 @@
 
   p {
     margin: 0;
-    color: rgba(223, 236, 255, 0.9);
+    color: var(--ch-text-secondary);
   }
 }
 
@@ -70,7 +70,7 @@
 
 mat-card-header h2 {
   margin: 0;
-  font-size: 1.45rem;
+  font-size: var(--ch-font-size-title-lg);
 }
 
 mat-card-content {
@@ -79,7 +79,7 @@ mat-card-content {
 
 .subtitle {
   margin: 0 0 0.7rem;
-  color: rgba(221, 235, 255, 0.9);
+  color: var(--ch-text-secondary);
 }
 
 .full-width {
@@ -107,21 +107,22 @@ form {
   margin-top: 0.55rem;
   border-radius: 999px;
   font-weight: 700;
-  color: #062321 !important;
+  color: #031018 !important;
   background: linear-gradient(90deg, #34d399, #22d3ee) !important;
 }
 
 .error-message {
-  color: #7f1d1d;
+  color: #fef2f2;
   padding: 0.6rem 0.75rem;
   border-radius: 0.7rem;
-  background: linear-gradient(135deg, #fecaca, #fca5a5);
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+  border: 1px solid rgba(248, 113, 113, 0.6);
 }
 
 .login-link {
   margin-top: 0.8rem;
   text-align: center;
-  color: rgba(219, 234, 254, 0.92);
+  color: var(--ch-text-secondary);
 
   a {
     color: #86efac;

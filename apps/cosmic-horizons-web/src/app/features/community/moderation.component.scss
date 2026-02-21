@@ -12,9 +12,10 @@
 }
 .meta {
   color: rgba(0, 0, 0, 0.6);
-  font-size: 12px;
+  font-size: var(--ch-font-size-caption);
   margin: 4px 0;
 }
 .body {
   margin: 4px 0 0 0;
 }
+

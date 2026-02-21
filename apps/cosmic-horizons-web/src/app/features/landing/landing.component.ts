@@ -17,14 +17,19 @@ interface LandingPillar {
   icon: string;
   title: string;
   route: string;
+  summary: string;
 }
 
 interface LandingRouteLink {
   icon: string;
   title: string;
   route: string;
+  summary: string;
+  group?: 'mission' | 'info';
   adminOnly?: boolean;
 }
+
+type LandingSection = 'capabilities' | 'mission' | 'info';
 
 @Component({
   selector: 'app-landing',
@@ -44,21 +49,19 @@ export class LandingComponent implements OnInit {
       icon: 'travel_explore',
       title: 'Viewer, Permalinks, and Snapshots',
       route: '/view',
+      summary: 'Explore sky imagery, save stateful links, and capture reproducible snapshots.',
     },
     {
       icon: 'auto_graph',
       title: 'Scientific Ephemeris & Target Search',
       route: '/ephem',
-    },
-    {
-      icon: 'menu_book',
-      title: 'Community Research Notebook',
-      route: '/posts',
+      summary: 'Calculate object positions and visibility windows for observation planning.',
     },
     {
       icon: 'hub',
       title: 'Array Telemetry Network',
       route: '/array-telemetry',
+      summary: 'Monitor stream and node telemetry from the live messaging fabric.',
     },
   ];
   routeLinks: LandingRouteLink[] = [
@@ -66,33 +69,37 @@ export class LandingComponent implements OnInit {
       icon: 'workspaces',
       title: 'Job Console',
       route: '/jobs',
+      summary: 'Inspect active jobs, status transitions, and queue behavior.',
+      group: 'mission',
     },
     {
       icon: 'description',
       title: 'Project Documentation',
       route: '/docs',
+      summary: 'Read platform docs, runbooks, and implementation references.',
+      group: 'info',
     },
     {
-      icon: 'person',
-      title: 'My Profile',
-      route: '/profile',
+      icon: 'menu_book',
+      title: 'Community Research Notebook',
+      route: '/posts',
+      summary: 'Write, review, and share notebook posts with team context.',
+      group: 'info',
     },
     {
       icon: 'dns',
       title: 'Broker Metrics',
       route: '/operations/broker-comparison',
-      adminOnly: true,
-    },
-    {
-      icon: 'gavel',
-      title: 'Moderation Console',
-      route: '/moderation',
+      summary: 'Compare broker performance, throughput, and reliability metrics.',
+      group: 'mission',
       adminOnly: true,
     },
     {
       icon: 'list_alt',
       title: 'System Logs',
       route: '/logs',
+      summary: 'Audit operational events and investigate platform activity trails.',
+      group: 'info',
       adminOnly: true,
     },
     // operational dashboards
@@ -100,8 +107,15 @@ export class LandingComponent implements OnInit {
       icon: 'settings',
       title: 'Operations',
       route: '/operations',
+      summary: 'Open operations dashboards for infrastructure health and diagnostics.',
+      group: 'mission',
     },
   ];
+  sectionExpanded: Record<LandingSection, boolean> = {
+    capabilities: false,
+    mission: false,
+    info: false,
+  };
   preview: SkyPreview;
   locating = false;
   locationMessage = '';
@@ -148,6 +162,14 @@ export class LandingComponent implements OnInit {
     return this.routeLinks.filter((link) => !link.adminOnly || this.isAdmin);
   }
 
+  get visibleMissionLinks(): LandingRouteLink[] {
+    return this.visibleRouteLinks.filter((link) => (link.group ?? 'mission') === 'mission');
+  }
+
+  get visibleInfoLinks(): LandingRouteLink[] {
+    return this.visibleRouteLinks.filter((link) => link.group === 'info');
+  }
+
   logout(): void {
     this.authSessionService.clearSession();
     this.router.navigate(['/auth/login']);
@@ -159,6 +181,14 @@ export class LandingComponent implements OnInit {
 
   openRouteLink(link: LandingRouteLink): void {
     this.router.navigateByUrl(link.route);
+  }
+
+  toggleSection(section: LandingSection): void {
+    this.sectionExpanded[section] = !this.sectionExpanded[section];
+  }
+
+  isSectionExpanded(section: LandingSection): boolean {
+    return this.sectionExpanded[section];
   }
 
   openLogs(): void {

@@ -11,13 +11,13 @@
 
     .header-icon {
       color: #58a6ff;
-      font-size: 28px;
+      font-size: var(--ch-font-size-title-xl);
       width: 28px;
       height: 28px;
     }
 
     h2 {
-      font-size: 18px;
+      font-size: var(--ch-font-size-title);
       font-weight: 600;
       margin: 0;
       color: #ffffff;
@@ -28,7 +28,7 @@
     padding: 24px;
 
     .permission-text {
-      font-size: 14px;
+      font-size: var(--ch-font-size-body);
       line-height: 1.6;
       margin: 0 0 12px 0;
       color: #c9d1d9;
@@ -43,7 +43,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        font-size: 13px;
+        font-size: var(--ch-font-size-sm);
         color: #8b949e;
         margin-bottom: 8px;
         padding-left: 20px;
@@ -60,7 +60,7 @@
     }
 
     .permission-footer {
-      font-size: 12px;
+      font-size: var(--ch-font-size-caption);
       color: #8b949e;
       margin: 0;
       padding: 12px;
@@ -81,14 +81,14 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 13px;
+      font-size: var(--ch-font-size-sm);
       font-weight: 600;
       padding: 10px 16px;
       border-radius: 6px;
       transition: all 0.2s ease;
 
       mat-icon {
-        font-size: 18px;
+        font-size: var(--ch-font-size-title);
         width: 18px;
         height: 18px;
       }
@@ -116,3 +116,4 @@
     }
   }
 }
+

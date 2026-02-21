@@ -7,36 +7,41 @@
       [routerLink]="tile.route"
       *ngIf="tile"
     >
-      <div class="tile-icon" *ngIf="tile.icon">
-        <mat-icon>{{ tile.icon }}</mat-icon>
-      </div>
-      <div class="tile-title">{{ tile.title }}</div>
-      <div class="tile-subtitle" *ngIf="tile.subtitle$ | async as sub">
-        {{ sub }}
-      </div>
-      <mat-chip
-        *ngIf="tile.status$ | async as status"
-        [color]="status === 'healthy' ? 'primary' : 'warn'"
-        selected
-        class="status-chip"
-      >
-        {{ status }}
-      </mat-chip>
-      <ng-container *ngIf="tile.badge$ | async as badge">
-        <div class="tile-badge">
-          <span [matBadge]="badge" matBadgeOverlap="false"></span>
+      <div class="tile-header">
+        <div class="tile-icon" *ngIf="tile.icon">
+          <mat-icon>{{ tile.icon }}</mat-icon>
         </div>
-        <a *ngIf="badge > 0" class="alert-link" [routerLink]="'alerts'">
-          View alerts
-        </a>
-      </ng-container>
-      <ng-container *ngIf="tile.extraChips$ | async as chips">
-        <div class="tile-chips">
-          <mat-chip *ngFor="let c of chips" [color]="c.color || 'primary'" selected>
-            {{ c.text }}
-          </mat-chip>
+        <div class="tile-title">{{ tile.title }}</div>
+      </div>
+
+      <div class="tile-bottom">
+        <div class="tile-subtitle tile-pill" *ngIf="tile.subtitle$ | async as sub">
+          {{ sub }}
         </div>
-      </ng-container>
+        <div
+          *ngIf="tile.status$ | async as status"
+          class="status-chip tile-pill"
+          [class.status-chip--healthy]="status === 'healthy'"
+          [class.status-chip--degraded]="status !== 'healthy'"
+        >
+          {{ status }}
+        </div>
+        <ng-container *ngIf="tile.badge$ | async as badge">
+          <div class="tile-badge tile-pill" [matBadge]="badge" matBadgeOverlap="false">
+            Jobs
+          </div>
+          <a *ngIf="badge > 0" class="alert-link tile-pill" [routerLink]="'alerts'">
+            View alerts
+          </a>
+        </ng-container>
+        <ng-container *ngIf="tile.extraChips$ | async as chips">
+          <div class="tile-chips">
+            <span class="tile-pill" *ngFor="let c of chips">
+              {{ c.text }}
+            </span>
+          </div>
+        </ng-container>
+      </div>
     </mat-card>
   </ng-container>
 </div>

@@ -34,6 +34,7 @@ export class App implements OnInit {
   protected headerConfig: AppHeaderConfig = DEFAULT_APP_HEADER_CONFIG;
   protected showHeader = true;
   protected headerExpanded = false;
+  protected routeVisualClass = 'route-neutral';
   private readonly messaging = inject(MessagingService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
@@ -129,6 +130,7 @@ export class App implements OnInit {
       .filter((value): value is boolean => value !== undefined)
       .at(-1);
     this.showHeader = !(inheritedHideHeader ?? false);
+    this.routeVisualClass = this.resolveRouteVisualClass(activeSnapshot);
 
     const defaultParentLink = this.buildDefaultParentLink(activeSnapshot);
 
@@ -169,5 +171,39 @@ export class App implements OnInit {
       route: `/${segments.slice(0, -1).join('/')}`,
       icon: 'arrow_upward',
     };
+  }
+
+  private resolveRouteVisualClass(activeRoute: ActivatedRouteSnapshot): string {
+    const segments = activeRoute.pathFromRoot
+      .flatMap((snapshot) => snapshot.url.map((segment) => segment.path))
+      .filter(Boolean);
+    const root = segments[0] ?? '';
+
+    const calmRoots = new Set([
+      'operations',
+      'logs',
+      'alerts',
+      'jobs',
+      'jobs-orchestration',
+      'array-telemetry',
+    ]);
+    const expressiveRoots = new Set([
+      'landing',
+      'view',
+      'community',
+      'posts',
+      'profile',
+      'docs',
+      'ephem',
+      'inference',
+    ]);
+
+    if (calmRoots.has(root)) {
+      return 'route-calm';
+    }
+    if (expressiveRoots.has(root)) {
+      return 'route-expressive';
+    }
+    return 'route-neutral';
   }
 }

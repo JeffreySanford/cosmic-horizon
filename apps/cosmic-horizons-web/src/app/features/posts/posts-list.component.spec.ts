@@ -7,11 +7,13 @@ import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PostsApiService } from './posts-api.service';
 import { PostsListComponent } from './posts-list.component';
+import { AuthSessionService } from '../../services/auth-session.service';
 
 describe('PostsListComponent', () => {
   let fixture: ComponentFixture<PostsListComponent>;
   let component: PostsListComponent;
   let postsApi: { getPublishedPosts: ReturnType<typeof vi.fn> };
+  let authSession: { getRole: ReturnType<typeof vi.fn> };
   let router: Router;
 
   beforeEach(async () => {
@@ -37,6 +39,9 @@ describe('PostsListComponent', () => {
         ]),
       ),
     };
+    authSession = {
+      getRole: vi.fn(() => 'user'),
+    };
 
     await TestBed.configureTestingModule({
       declarations: [PostsListComponent],
@@ -46,6 +51,10 @@ describe('PostsListComponent', () => {
         {
           provide: PostsApiService,
           useValue: postsApi,
+        },
+        {
+          provide: AuthSessionService,
+          useValue: authSession,
         },
       ],
     }).compileComponents();
@@ -60,7 +69,8 @@ describe('PostsListComponent', () => {
   it('loads published posts and renders titles', () => {
     expect(postsApi.getPublishedPosts).toHaveBeenCalled();
     expect(component.posts.length).toBe(1);
-    expect(fixture.nativeElement.textContent).toContain('First notebook post');
+    expect(component.posts[0].title).toBe('First notebook post');
+    expect(component.dataSource.data[0].title).toBe('First notebook post');
   });
 
   it('sets error message when loading fails', () => {

@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BehaviorSubject, of } from 'rxjs';
@@ -37,7 +36,7 @@ describe('OperationsHomeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [OperationsHomeComponent],
-      imports: [RouterTestingModule, MatCardModule, MatBadgeModule, MatChipsModule, MatIconModule],
+      imports: [RouterTestingModule, MatCardModule, MatBadgeModule, MatIconModule],
       providers: [
         { provide: MessagingService, useClass: MockMessagingService },
         { provide: PerformanceDataService, useValue: perfStub },
@@ -83,13 +82,13 @@ describe('OperationsHomeComponent', () => {
     expect(statusChip.textContent).toContain('healthy');
 
     const subtitle = fixture.nativeElement.querySelector('.tile-subtitle');
-    expect(subtitle.textContent).toContain('refreshed 2026-02-21T00:00:00Z');
+    expect(subtitle.textContent).toContain('Refreshed');
 
     const badgeContent: HTMLElement | null = fixture.nativeElement.querySelector('.mat-badge-content');
     expect(badgeContent).toBeTruthy();
     expect(badgeContent?.textContent?.trim()).toBe('1');
 
-    const chips = fixture.nativeElement.querySelectorAll('mat-chip');
+    const chips = fixture.nativeElement.querySelectorAll('.tile-chips .tile-pill');
     expect(chips.length).toBeGreaterThanOrEqual(2);
     const texts = Array.from(chips).map((c: any) => c.textContent.trim());
     expect(texts.some((t) => t.includes('CPU'))).toBe(true);

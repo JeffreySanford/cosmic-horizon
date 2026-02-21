@@ -13,6 +13,7 @@ const routes: Routes = [
         iconTone: 'solar',
         breadcrumbs: [
           { label: 'Home', route: '/landing', icon: 'home' },
+          { label: 'Community', route: '/community', icon: 'groups' },
           { label: 'Moderation', icon: 'gavel' },
         ],
       },

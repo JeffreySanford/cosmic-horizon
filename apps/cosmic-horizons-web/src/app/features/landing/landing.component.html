@@ -13,7 +13,15 @@
     </section>
 
     <mat-card class="welcome-card">
-      <mat-card-content>
+      <mat-card-content class="section-card-content">
+        <button
+          type="button"
+          class="section-label section-label-btn"
+          (click)="toggleSection('capabilities')"
+        >
+          Core Capabilities
+          <mat-icon>{{ isSectionExpanded('capabilities') ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </button>
         <div class="feature-grid">
           @for (pillar of pillars; track pillar.title) {
             <article
@@ -24,8 +32,13 @@
               (keydown.enter)="openPillar(pillar)"
               (keydown.space)="openPillar(pillar)"
             >
-              <mat-icon>{{ pillar.icon }}</mat-icon>
-              <h2>{{ pillar.title }}</h2>
+              <div class="feature-card__header">
+                <mat-icon>{{ pillar.icon }}</mat-icon>
+                <h2>{{ pillar.title }}</h2>
+              </div>
+              @if (isSectionExpanded('capabilities')) {
+                <p>{{ pillar.summary }}</p>
+              }
             </article>
           }
         </div>
@@ -33,10 +46,17 @@
     </mat-card>
 
     <mat-card class="welcome-card">
-      <mat-card-content>
-        <h2>Mission Routes</h2>
+      <mat-card-content class="section-card-content">
+        <button
+          type="button"
+          class="section-label section-label-btn"
+          (click)="toggleSection('mission')"
+        >
+          Mission Routes
+          <mat-icon>{{ isSectionExpanded('mission') ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </button>
         <div class="feature-grid">
-          @for (link of visibleRouteLinks; track link.title) {
+          @for (link of visibleMissionLinks; track link.title) {
             <article
               class="feature-card"
               role="button"
@@ -45,12 +65,52 @@
               (keydown.enter)="openRouteLink(link)"
               (keydown.space)="openRouteLink(link)"
             >
-              <mat-icon>{{ link.icon }}</mat-icon>
-              <h2>{{ link.title }}</h2>
+              <div class="feature-card__header">
+                <mat-icon>{{ link.icon }}</mat-icon>
+                <h2>{{ link.title }}</h2>
+              </div>
+              @if (isSectionExpanded('mission')) {
+                <p>{{ link.summary }}</p>
+              }
             </article>
           }
         </div>
       </mat-card-content>
     </mat-card>
+
+    @if (visibleInfoLinks.length) {
+      <mat-card class="welcome-card info-routes-card">
+        <mat-card-content class="section-card-content">
+          <button
+            type="button"
+            class="section-label section-label-btn"
+            (click)="toggleSection('info')"
+          >
+            Information
+            <mat-icon>{{ isSectionExpanded('info') ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+          <div class="feature-grid">
+            @for (link of visibleInfoLinks; track link.title) {
+              <article
+                class="feature-card"
+                role="button"
+                tabindex="0"
+                (click)="openRouteLink(link)"
+                (keydown.enter)="openRouteLink(link)"
+                (keydown.space)="openRouteLink(link)"
+              >
+                <div class="feature-card__header">
+                  <mat-icon>{{ link.icon }}</mat-icon>
+                  <h2>{{ link.title }}</h2>
+                </div>
+                @if (isSectionExpanded('info')) {
+                  <p>{{ link.summary }}</p>
+                }
+              </article>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
   </div>
 </div>

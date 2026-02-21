@@ -25,9 +25,11 @@ test.beforeEach(async ({ context, page }) => {
 test('redirects unauthenticated users to login', async ({ page }) => {
   await page.goto('/landing');
   await expect(page).toHaveURL(/\/auth\/login/);
-  await expect(page.locator('h1')).toContainText('Login');
   await expect(
-    page.getByRole('button', { name: 'Personalize background' }),
+    page.getByRole('heading', { name: 'Mission Access', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Login' }),
   ).toBeVisible();
 });
 
@@ -64,7 +66,9 @@ test('shows error for invalid credentials', async ({ page }) => {
   await page.getByRole('button', { name: 'Login' }).click();
 
   await expect(page).toHaveURL(/\/auth\/login/);
-  await expect(page.locator('h1')).toContainText('Login');
+  await expect(
+    page.getByRole('heading', { name: 'Mission Access', exact: true }),
+  ).toBeVisible();
 });
 
 test('logs in and allows logout', async ({ page }) => {
@@ -118,9 +122,12 @@ test('logs in and allows logout', async ({ page }) => {
 
   await page.goto('/landing', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
-  await expect(page.locator('h1')).toContainText(
-    'Scientific Operations Gateway',
-  );
+  await expect(
+    page.getByRole('heading', {
+      name: 'Scientific Operations Gateway',
+      exact: true,
+    }),
+  ).toBeVisible();
   await expect(
     page.getByRole('heading', {
       name: 'Viewer, Permalinks, and Snapshots',
@@ -134,7 +141,8 @@ test('logs in and allows logout', async ({ page }) => {
     }),
   ).toBeVisible();
 
-  await page.getByRole('button', { name: 'Logout' }).click();
+  await page.getByRole('button', { name: 'Open user menu' }).click();
+  await page.getByRole('menuitem', { name: 'Log Out' }).click();
   await expect(page).toHaveURL(/\/auth\/login/);
 });
 
@@ -761,7 +769,9 @@ test('registers a user and redirects to landing', async ({ page }) => {
   const registerConfirmPassword = page.locator(
     'input[formcontrolname="confirmPassword"]',
   );
-  await expect(page.locator('h1')).toContainText('Create Account');
+  await expect(
+    page.getByRole('heading', { name: 'New Operator Setup', exact: true }),
+  ).toBeVisible();
 
   await registerUsername.fill('newuser');
   await registerEmail.fill('new@cosmic.local');
@@ -780,9 +790,12 @@ test('registers a user and redirects to landing', async ({ page }) => {
   await Promise.all([registerResponse, createAccountButton.click()]);
   await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
 
-  await expect(page.locator('h1')).toContainText(
-    'Scientific Operations Gateway',
-  );
+  await expect(
+    page.getByRole('heading', {
+      name: 'Scientific Operations Gateway',
+      exact: true,
+    }),
+  ).toBeVisible();
 });
 
 test('shows conflict errors on duplicate registration', async ({ page }) => {
@@ -818,8 +831,8 @@ test('shows conflict errors on duplicate registration', async ({ page }) => {
     .fill('Password123!');
   await page.getByRole('button', { name: 'Create Account' }).click();
   await expect(
-    page.getByRole('button', { name: 'Create Account' }),
-  ).toBeEnabled();
+    page.getByRole('heading', { name: 'New Operator Setup', exact: true }),
+  ).toBeVisible();
 
   await expect(page).toHaveURL(/\/auth\/register/);
   await expect(page).not.toHaveURL(/\/landing/);

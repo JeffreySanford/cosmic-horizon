@@ -15,6 +15,8 @@ describe('JobOrchestrationService', () => {
       imports: [HttpClientTestingModule],
       providers: [JobOrchestrationService],
     });
+    const mockSvc = TestBed.inject(MockModeService);
+    mockSvc.disable();
     service = TestBed.inject(JobOrchestrationService);
     httpMock = TestBed.inject(HttpTestingController);
     // constructor issues initial GETs; satisfy them so tests don't error

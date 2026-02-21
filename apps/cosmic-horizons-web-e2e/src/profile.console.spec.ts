@@ -135,13 +135,14 @@ test.describe('Profile — console & retry behavior', () => {
     await expect(page.locator('.error-card button')).toHaveText('Try again');
 
     // Click 'Try again' and verify the profile loads on successful retry
+    const successRespPromise = page.waitForResponse(
+      (r) => PROFILE_API_PATH.test(r.url()) && r.status() === 200,
+      { timeout: 10000 },
+    );
     await page.click('.error-card button');
 
     // wait for the retry request and ensure it returned 200
-    const successResp = await page.waitForResponse(
-      (r) => PROFILE_API_PATH.test(r.url()) && r.status() === 200,
-      { timeout: 5000 },
-    );
+    const successResp = await successRespPromise;
     expect(successResp.status()).toBe(200);
 
     await page

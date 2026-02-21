@@ -10,7 +10,7 @@
   align-content: center;
   justify-content: center;
   padding: clamp(0.9rem, 2vw, 1.6rem);
-  color: #ebf4ff;
+  color: var(--ch-text-primary);
   background:
     linear-gradient(135deg, rgba(10, 17, 34, 0.8), rgba(18, 27, 56, 0.7)),
     radial-gradient(circle at 16% 12%, rgba(56, 189, 248, 0.2), transparent 38%),
@@ -42,9 +42,9 @@
   .auth-kicker {
     margin: 0;
     letter-spacing: 0.12em;
-    font-size: 0.75rem;
+    font-size: var(--ch-font-size-caption);
     font-weight: 700;
-    color: #93c5fd;
+    color: var(--ch-text-secondary);
   }
 
   h1 {
@@ -54,7 +54,7 @@
 
   p {
     margin: 0;
-    color: rgba(223, 236, 255, 0.9);
+    color: var(--ch-text-secondary);
   }
 }
 
@@ -70,7 +70,7 @@
 
 mat-card-header h2 {
   margin: 0;
-  font-size: 1.45rem;
+  font-size: var(--ch-font-size-title-lg);
 }
 
 mat-card-content {
@@ -79,7 +79,7 @@ mat-card-content {
 
 .subtitle {
   margin: 0 0 0.4rem;
-  color: rgba(221, 235, 255, 0.9);
+  color: var(--ch-text-secondary);
 }
 
 .affiliation-note {
@@ -87,9 +87,9 @@ mat-card-content {
   padding: 0.45rem 0.65rem;
   border: 1px solid rgba(251, 191, 36, 0.45);
   border-radius: 0.65rem;
-  color: #fde68a;
+  color: #fef08a;
   background: rgba(51, 30, 7, 0.36);
-  font-size: 0.8rem;
+  font-size: var(--ch-font-size-body-sm);
 }
 
 .full-width {
@@ -117,7 +117,7 @@ form {
   margin-top: 0.55rem;
   border-radius: 999px;
   font-weight: 700;
-  color: #111827 !important;
+  color: #071321 !important;
   background: linear-gradient(90deg, #fbbf24, #fb923c) !important;
 }
 
@@ -126,8 +126,9 @@ form {
   gap: 0.7rem;
   padding: 0.75rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, #fecaca, #fca5a5);
-  color: #7f1d1d;
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+  color: #fef2f2;
+  border: 1px solid rgba(248, 113, 113, 0.55);
 
   mat-icon {
     margin-top: 2px;
@@ -141,7 +142,7 @@ form {
 .signup-link {
   margin-top: 0.8rem;
   text-align: center;
-  color: rgba(219, 234, 254, 0.92);
+  color: var(--ch-text-secondary);
 
   a {
     color: #fcd34d;

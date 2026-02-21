@@ -21,6 +21,14 @@
         "command": "playwright test src/perf.spec.ts --project=chromium",
         "cwd": "apps/cosmic-horizons-web-e2e"
       }
+    },
+    "contrast-lint": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "playwright test src/contrast.spec.ts --project=chromium --workers=1",
+        "cwd": "apps/cosmic-horizons-web-e2e"
+      }
     }
   }
 }

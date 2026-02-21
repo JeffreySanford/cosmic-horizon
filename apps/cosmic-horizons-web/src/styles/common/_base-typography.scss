@@ -1,0 +1,57 @@
+@use 'common/mixins' as *;
+@use 'material/typography' as *;
+@use 'material/variables' as *;
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: $md3-space-4;
+  color: var(--md3-color-on-surface);
+}
+
+h1 {
+  @include md3-typography-style($md3-typography-headline-large);
+}
+
+h2 {
+  @include md3-typography-style($md3-typography-headline-medium);
+}
+
+h3 {
+  @include md3-typography-style($md3-typography-headline-small);
+}
+
+h4 {
+  @include md3-typography-style($md3-typography-title-large);
+}
+
+h5 {
+  @include md3-typography-style($md3-typography-title-medium);
+}
+
+h6 {
+  @include md3-typography-style($md3-typography-title-small);
+}
+
+p {
+  @include md3-typography-style($md3-typography-body-large);
+  margin-bottom: $md3-space-4;
+}
+
+a {
+  color: var(--md3-color-primary);
+  text-decoration: none;
+  transition: color $md3-transition-duration-short $md3-transition-easing-standard;
+
+  &:hover {
+    color: var(--md3-color-secondary);
+    text-decoration: underline;
+  }
+
+  &:active {
+    color: var(--md3-color-tertiary);
+  }
+}

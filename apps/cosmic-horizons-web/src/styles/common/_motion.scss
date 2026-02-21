@@ -1,0 +1,33 @@
+router-outlet + * {
+  display: block;
+  animation: routeFadeIn calc(280ms * var(--ch-motion-scale, 1)) ease;
+}
+
+.stagger-in > * {
+  opacity: 0;
+  animation: routeFadeIn 320ms ease forwards;
+}
+
+.stagger-in > *:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.stagger-in > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.stagger-in > *:nth-child(4) {
+  animation-delay: 180ms;
+}
+
+@keyframes routeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

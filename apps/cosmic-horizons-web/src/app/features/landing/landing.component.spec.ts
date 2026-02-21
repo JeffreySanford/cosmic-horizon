@@ -126,8 +126,6 @@ describe('LandingComponent', () => {
     expect(text).toContain('Community Research Notebook');
     expect(text).toContain('Mission Routes');
     expect(text).toContain('Job Console');
-    expect(text).toContain('My Profile');
-    expect(text).toContain('Moderation Console');
     expect(text).toContain('System Logs');
     expect(text).toContain('Operations');
     expect(text).not.toContain('Job Dashboard');
@@ -169,8 +167,6 @@ describe('LandingComponent', () => {
 
     const routeTitles = component.visibleRouteLinks.map((link) => link.title);
     expect(routeTitles).toContain('Job Console');
-    expect(routeTitles).toContain('My Profile');
-    expect(routeTitles).not.toContain('Moderation Console');
     expect(routeTitles).not.toContain('System Logs');
   });
 
@@ -183,6 +179,7 @@ describe('LandingComponent', () => {
       icon: 'workspaces',
       title: 'Job Console',
       route: '/jobs',
+      summary: 'Inspect active jobs, status transitions, and queue behavior.',
     });
 
     expect(navigateSpy).toHaveBeenCalledWith('/jobs');
