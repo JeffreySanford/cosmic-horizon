@@ -23,6 +23,12 @@ import { createSessionMiddleware } from './session.config';
 describe('createSessionMiddleware', () => {
   const originalEnv = { ...process.env };
 
+  beforeEach(() => {
+    process.env['SESSION_SECRET'] =
+      process.env['SESSION_SECRET'] ??
+      'unit-test-session-secret-min-32-characters';
+  });
+
   afterEach(() => {
     process.env = { ...originalEnv };
   });
