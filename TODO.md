@@ -97,9 +97,10 @@ Canonical scope:
 - Wire routing and register component in operations module ✅
 - Wire WebSocket subscription with mock data for UI proof-of-concept ✅
 - Flesh out job dashboard with status summary cards, progress bars, cancel actions, row‑highlight animations ✅
-- Document load-test results (500 connections) and record script enhancements
+- Document load-test results (500 connections) and record script enhancements ✅
 - Complete initial unit tests for job dashboard (creation, row rendering, status classes, summary counts, cancel action, heartbeat progress) ✅
 - WebSocket integration stubbed via `ngOnInit` override in tests; remaining live event tests to follow
+- Dashboard ready for live feed once EventsService and auth are wired ✅
 - Continue writing full suite of dashboard/WebSocket tests (30+ planned)
 - Update roadmap/TODO to reflect sprint tasks
 
