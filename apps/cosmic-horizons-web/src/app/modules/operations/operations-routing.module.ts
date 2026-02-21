@@ -8,6 +8,10 @@ const routes: Routes = [
     component: BrokerComparisonComponent,
   },
   {
+    path: 'job-dashboard',
+    component: JobDashboardComponent,
+  },
+  {
     path: '',
     redirectTo: 'broker-comparison',
     pathMatch: 'full',

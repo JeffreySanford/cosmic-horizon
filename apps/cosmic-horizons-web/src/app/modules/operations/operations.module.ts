@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { OperationsRoutingModule } from './operations-routing.module';
 import { BrokerComparisonComponent } from './broker-comparison/broker-comparison.component';
 import { SystemMetricsChartComponent } from './broker-comparison/system-metrics-chart.component';
+import { JobDashboardComponent } from './job-dashboard/job-dashboard.component';
 
 /**
  * OperationsModule (Angular)
@@ -19,7 +20,7 @@ import { SystemMetricsChartComponent } from './broker-comparison/system-metrics-
  * Operational dashboards and monitoring UI.
  */
 @NgModule({
-  declarations: [BrokerComparisonComponent, SystemMetricsChartComponent],
+  declarations: [BrokerComparisonComponent, SystemMetricsChartComponent, JobDashboardComponent],
   imports: [
     CommonModule,
     HttpClientModule,
