@@ -5,6 +5,8 @@
   <app-header
     *ngIf="showHeader"
     [config]="headerConfig"
+    [expanded]="headerExpanded"
+    (expandedChange)="onHeaderExpandedChange($event)"
     (menuAction)="handleHeaderMenuAction($event)"
   ></app-header>
 

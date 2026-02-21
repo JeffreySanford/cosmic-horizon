@@ -13,7 +13,7 @@ const landingRoutes: Routes = [
         title: 'Cosmic Horizons',
         icon: 'rocket_launch',
         iconTone: 'aurora',
-        subtitle: 'Docking surface for autonomous CosmicAI agents',
+        showQuickStats: false,
         breadcrumbs: [{ label: 'Home', route: '/landing', icon: 'home' }],
       },
     },

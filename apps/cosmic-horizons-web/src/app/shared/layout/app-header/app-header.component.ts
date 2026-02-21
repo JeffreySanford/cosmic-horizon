@@ -2,9 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
   Output,
-  SimpleChanges,
   inject,
 } from '@angular/core';
 import {
@@ -21,19 +19,21 @@ import { MockModeService } from '../../../services/mock-mode.service';
   styleUrls: ['./app-header.component.scss'],
   standalone: false,
 })
-export class AppHeaderComponent implements OnChanges {
+export class AppHeaderComponent {
   @Input() config: AppHeaderConfig = DEFAULT_APP_HEADER_CONFIG;
+  @Input()
+  set expanded(value: boolean) {
+    this._expanded = !!value;
+  }
+  get expanded(): boolean {
+    return this._expanded;
+  }
   @Output() menuAction = new EventEmitter<string>();
-  isExpanded = false;
+  @Output() expandedChange = new EventEmitter<boolean>();
+  private _expanded = false;
 
   // expose toggle service for template binding
   mockMode = inject(MockModeService);
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['config']) {
-      this.isExpanded = !!this.config.expandedByDefault;
-    }
-  }
 
   trackBreadcrumb(index: number, breadcrumb: AppHeaderBreadcrumb): string {
     return breadcrumb.route ?? `${breadcrumb.label}-${index}`;
@@ -46,6 +46,8 @@ export class AppHeaderComponent implements OnChanges {
   }
 
   toggleExpanded(): void {
-    this.isExpanded = !this.isExpanded;
+    const next = !this._expanded;
+    this._expanded = next;
+    this.expandedChange.emit(next);
   }
 }

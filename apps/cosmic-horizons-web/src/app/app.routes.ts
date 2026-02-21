@@ -36,10 +36,10 @@ export const appRoutes: Route[] = [
         title: 'Cosmic Horizons Landing',
         icon: 'rocket_launch',
         iconTone: 'aurora',
-        subtitle: 'AI-ready exploration control plane',
+        showQuickStats: false,
         allowExpand: true,
         expandedByDefault: true,
-        expandLabel: 'Mission Scale Highlights',
+        expandLabel: 'ngVLA Scale Highlights',
         insights: [
           {
             icon: 'bolt',

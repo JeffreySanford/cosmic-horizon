@@ -44,6 +44,7 @@ export interface AppHeaderConfig {
   expandedByDefault: boolean;
   expandLabel: string;
   insights: AppHeaderInsight[];
+  showQuickStats: boolean;
 }
 
 export const DEFAULT_APP_HEADER_CONFIG: AppHeaderConfig = {
@@ -80,4 +81,5 @@ export const DEFAULT_APP_HEADER_CONFIG: AppHeaderConfig = {
   expandedByDefault: false,
   expandLabel: 'Page details',
   insights: [],
+  showQuickStats: true,
 };

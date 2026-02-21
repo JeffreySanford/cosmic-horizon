@@ -16,6 +16,7 @@ import { filter, startWith } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthApiService } from './features/auth/auth-api.service';
 import { AuthSessionService } from './services/auth-session.service';
+import { AppHeaderControlService } from './shared/layout/app-header/app-header-control.service';
 
 interface AppHeaderRouteData extends Partial<AppHeaderConfig> {
   header?: Partial<AppHeaderConfig>;
@@ -32,11 +33,13 @@ export class App implements OnInit {
   protected title = 'cosmic-horizons-web';
   protected headerConfig: AppHeaderConfig = DEFAULT_APP_HEADER_CONFIG;
   protected showHeader = true;
+  protected headerExpanded = false;
   private readonly messaging = inject(MessagingService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly authApi = inject(AuthApiService);
   private readonly authSession = inject(AuthSessionService);
+  private readonly headerControl = inject(AppHeaderControlService);
   private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
@@ -47,7 +50,14 @@ export class App implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
+        this.headerExpanded = false;
         this.updateHeaderConfigFromRoute();
+      });
+
+    this.headerControl.expanded$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((expanded) => {
+        this.headerExpanded = expanded;
       });
 
     // Global toast for notification events (e.g. community.discovery.created)
@@ -86,6 +96,10 @@ export class App implements OnInit {
       next: () => this.completeLogout(),
       error: () => this.completeLogout(),
     });
+  }
+
+  protected onHeaderExpandedChange(expanded: boolean): void {
+    this.headerExpanded = expanded;
   }
 
   private completeLogout(): void {

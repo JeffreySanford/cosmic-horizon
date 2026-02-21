@@ -392,3 +392,32 @@ blockquote {
   background-color: var(--md3-color-primary);
   color: var(--md3-color-on-primary);
 }
+
+/* ============================================================================
+   Overlay Menu Contrast
+   ============================================================================ */
+
+.cdk-overlay-pane .mat-mdc-menu-panel {
+  background: linear-gradient(155deg, #0b1220, #10203a 64%, #13304f);
+  border: 1px solid rgba(56, 189, 248, 0.34);
+  box-shadow: 0 14px 30px rgba(2, 6, 23, 0.55);
+}
+
+.cdk-overlay-pane .mat-mdc-menu-panel .mat-mdc-menu-item {
+  color: #a5f3fc;
+}
+
+.cdk-overlay-pane .mat-mdc-menu-panel .mat-mdc-menu-item .mat-icon {
+  color: #67e8f9;
+}
+
+.cdk-overlay-pane
+  .mat-mdc-menu-panel
+  .mat-mdc-menu-item
+  .mdc-list-item__primary-text {
+  color: #a5f3fc;
+}
+
+.cdk-overlay-pane .mat-mdc-menu-panel .mat-mdc-menu-item:hover {
+  background: rgba(56, 189, 248, 0.16);
+}

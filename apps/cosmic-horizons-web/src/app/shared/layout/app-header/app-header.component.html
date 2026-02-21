@@ -5,16 +5,6 @@
     <div class="app-header__identity">
       <div class="app-header__nav-actions">
         <a
-          mat-stroked-button
-          class="app-header__nav-button"
-          [routerLink]="config.homeLink.route"
-          [attr.aria-label]="config.homeLink.label"
-        >
-          <mat-icon>{{ config.homeLink.icon }}</mat-icon>
-          <span>{{ config.homeLink.label }}</span>
-        </a>
-
-        <a
           *ngIf="config.parentLink"
           mat-stroked-button
           class="app-header__nav-button"
@@ -75,10 +65,10 @@
         mat-stroked-button
         class="app-header__expand-button"
         (click)="toggleExpanded()"
-        [attr.aria-expanded]="isExpanded"
+        [attr.aria-expanded]="expanded"
       >
-        <mat-icon>{{ isExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
-        <span>{{ isExpanded ? 'Collapse' : 'Expand' }}</span>
+        <mat-icon>{{ expanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
+        <span>{{ expanded ? 'Collapse' : 'Expand' }}</span>
       </button>
 
       <button
@@ -126,8 +116,8 @@
   <section
     *ngIf="config.allowExpand && config.insights.length"
     class="app-header__expanded"
-    [class.app-header__expanded--open]="isExpanded"
-    [attr.aria-hidden]="!isExpanded"
+    [class.app-header__expanded--open]="expanded"
+    [attr.aria-hidden]="!expanded"
   >
     <h2 class="app-header__expanded-title">{{ config.expandLabel }}</h2>
     <div class="app-header__insight-grid">
