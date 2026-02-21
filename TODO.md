@@ -101,6 +101,10 @@ Canonical scope:
 - Complete initial unit tests for job dashboard (creation, row rendering, status classes, summary counts, cancel action, heartbeat progress) ✅
 - WebSocket integration stubbed via `ngOnInit` override in tests; remaining live event tests to follow
 - Dashboard ready for live feed once EventsService and auth are wired ✅
+- Begin building graphs/heatmaps and job detail widgets on dashboard
+- Replace mock WebSocket socket in tests with real EventsService messages
+- Expand dashboard/WebSocket test suite toward 30+ cases (auth, filters, reconnection)
+- Record and visualize load-test latency & error-rate metrics in documentation
 - Continue writing full suite of dashboard/WebSocket tests (30+ planned)
 - Update roadmap/TODO to reflect sprint tasks
 
