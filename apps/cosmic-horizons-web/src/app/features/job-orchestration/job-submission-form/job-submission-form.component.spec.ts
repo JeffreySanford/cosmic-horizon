@@ -60,15 +60,18 @@ describe('JobSubmissionFormComponent', () => {
     );
   });
 
-  it('should add parameter', () => {
-    expect(component.parameterFields.length).toBe(0);
+  it('should add and remove parameters via form array with validation', () => {
+    expect(component.parameters.length).toBe(0);
     component.addParameter();
-    expect(component.parameterFields.length).toBe(1);
-  });
+    expect(component.parameters.length).toBe(1);
 
-  it('should remove parameter', () => {
-    component.parameterFields.push({ key: 'test', value: 'value' });
+    const group = component.parameters.at(0);
+    expect(group.valid).toBe(false); // required validators
+    group.get('key')?.setValue('foo');
+    group.get('value')?.setValue('bar');
+    expect(group.valid).toBe(true);
+
     component.removeParameter(0);
-    expect(component.parameterFields.length).toBe(0);
+    expect(component.parameters.length).toBe(0);
   });
 });

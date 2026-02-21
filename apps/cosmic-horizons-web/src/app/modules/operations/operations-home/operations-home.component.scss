@@ -1,1 +1,58 @@
 /* styles for operations home - empty for now */
+
+/* grid layout for operation tiles */
+:host {
+  display: block;
+  padding: 1rem;
+}
+
+.operations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.mat-card {
+  cursor: pointer;
+  color: white;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.tile-primary { background: #1976d2; }
+.tile-accent { background: #ff4081; }
+.tile-warn { background: #f44336; }
+.tile-secondary { background: #9c27b0; }
+
+/* badge styling override: make circle stand out */
+.mat-badge-content {
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+}
+
+.tile-subtitle {
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.status-chip {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.tile-chips {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.alert-link {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  color: #fff;
+}

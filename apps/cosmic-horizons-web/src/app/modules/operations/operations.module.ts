@@ -11,6 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
@@ -61,6 +63,8 @@ import { OperationsHomeComponent } from './operations-home/operations-home.compo
     MatToolbarModule,
     MatIconModule,
     MatTooltipModule,
+    MatBadgeModule,
+    MatChipsModule,
     // modules required by now‑declared components:
     MatSlideToggleModule,
     MatSliderModule,

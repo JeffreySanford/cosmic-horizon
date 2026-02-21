@@ -6,15 +6,11 @@ import {
   inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { JobOrchestrationService } from '../job-orchestration.service';
 import { Agent, JobSubmissionRequest } from '../job.models';
 import { Observable } from 'rxjs';
 
-interface ParameterField {
-  key: string;
-  value: string;
-}
 
 @Component({
   selector: 'app-job-submission-form',
@@ -35,7 +31,10 @@ export class JobSubmissionFormComponent implements OnInit {
   isSubmitting = false;
   submitError: string | null = null;
 
-  parameterFields: ParameterField[] = [];
+  // helper getter for parameters form array
+  get parameters(): FormArray {
+    return this.submissionForm.get('parameters') as FormArray;
+  }
 
   constructor() {
     this.agents$ = this.jobService.getAgents();
@@ -62,15 +61,21 @@ export class JobSubmissionFormComponent implements OnInit {
         1,
         [Validators.required, Validators.min(0), Validators.max(8)],
       ],
+      parameters: this.fb.array([]),
     });
   }
 
   addParameter(): void {
-    this.parameterFields.push({ key: '', value: '' });
+    this.parameters.push(
+      this.fb.group({
+        key: ['', Validators.required],
+        value: ['', Validators.required],
+      }),
+    );
   }
 
   removeParameter(index: number): void {
-    this.parameterFields.splice(index, 1);
+    this.parameters.removeAt(index);
   }
 
   onSubmit(): void {
@@ -83,10 +88,12 @@ export class JobSubmissionFormComponent implements OnInit {
     this.submitError = null;
 
     const formValue = this.submissionForm.value;
+    const paramsArray: Array<{ key: string; value: string }> =
+      formValue.parameters || [];
     const parameters: { [key: string]: string } = {};
-    for (const param of this.parameterFields) {
-      if (param.key) {
-        parameters[param.key] = param.value;
+    for (const p of paramsArray) {
+      if (p.key) {
+        parameters[p.key] = p.value;
       }
     }
 
@@ -112,7 +119,6 @@ export class JobSubmissionFormComponent implements OnInit {
           memoryGb: 128,
           gpuCount: 1,
         });
-        this.parameterFields = [];
         this.jobSubmitted.emit();
       },
       error: (error) => {

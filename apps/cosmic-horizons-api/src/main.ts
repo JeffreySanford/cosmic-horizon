@@ -97,7 +97,14 @@ async function bootstrap() {
       origin: corsOrigin,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+      // the front‑end sets a custom x-correlation-id header on each request
+      // and other clients may add additional headers; allow them here.
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-CSRF-Token',
+        'X-Correlation-Id',
+      ],
     });
 
     // Setup session middleware (may use Redis store depending on environment)

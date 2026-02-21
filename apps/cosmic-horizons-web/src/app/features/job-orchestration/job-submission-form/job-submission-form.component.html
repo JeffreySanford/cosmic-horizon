@@ -104,26 +104,27 @@
     <div class="form-section">
       <label class="form-label">Agent Parameters (Optional)</label>
       <div class="parameters-list">
+        <div formArrayName="parameters" class="parameters-list">
         <div
-          *ngFor="let param of parameterFields; let i = index"
+          *ngFor="let ctrl of parameters.controls; let i = index"
+          [formGroupName]="i"
           class="parameter-input"
         >
           <input
             type="text"
             placeholder="Key"
-            [(ngModel)]="param.key"
-            [ngModelOptions]="{ standalone: true }"
+            formControlName="key"
           />
           <input
             type="text"
             placeholder="Value"
-            [(ngModel)]="param.value"
-            [ngModelOptions]="{ standalone: true }"
+            formControlName="value"
           />
           <button type="button" (click)="removeParameter(i)" class="remove-btn">
             <mat-icon>close</mat-icon>
           </button>
         </div>
+      </div>
         <button type="button" (click)="addParameter()" class="add-param-btn">
           <mat-icon>add</mat-icon>
           Add Parameter

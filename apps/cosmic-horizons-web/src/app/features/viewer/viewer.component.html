@@ -9,7 +9,6 @@
         type="text"
         spellcheck="false"
         [(ngModel)]="targetQuery"
-        [ngModelOptions]="{ standalone: true }"
         (keyup.enter)="searchTarget()"
       />
       <button
@@ -167,7 +166,6 @@
                 matInput
                 type="text"
                 [(ngModel)]="labelDraft"
-                [ngModelOptions]="{ standalone: true }"
               />
             </mat-form-field>
             <button mat-stroked-button type="button" (click)="addCenterLabel()">
@@ -238,7 +236,6 @@
             <select
               id="cutout-detail"
               [(ngModel)]="cutoutDetail"
-              [ngModelOptions]="{ standalone: true }"
             >
               <option value="standard">Standard (1024 px)</option>
               <option value="high">High (2048 px)</option>

@@ -5,6 +5,7 @@ import { BrokerMetrics } from './broker-metrics.entity';
 import { BrokerMetricsCollector } from './broker-metrics.collector';
 import { BrokerMetricsService } from './broker-metrics.service';
 import { BrokerMetricsController } from './broker-metrics.controller';
+import { PerformanceController } from './performance.controller';
 
 /**
  * OperationsModule
@@ -19,7 +20,7 @@ import { BrokerMetricsController } from './broker-metrics.controller';
 @Module({
   imports: [TypeOrmModule.forFeature([BrokerMetrics]), HttpModule],
   providers: [BrokerMetricsCollector, BrokerMetricsService],
-  controllers: [BrokerMetricsController],
+  controllers: [BrokerMetricsController, PerformanceController],
   exports: [BrokerMetricsService, BrokerMetricsCollector],
 })
 export class OperationsModule {}
