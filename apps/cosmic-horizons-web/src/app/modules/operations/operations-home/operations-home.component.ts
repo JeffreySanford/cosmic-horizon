@@ -66,7 +66,14 @@ export class OperationsHomeComponent {
       startWith(0),
     );
 
-    const gpuAvg$ = cpuAvg$; // mirror for now; backend support may differ
+    const gpuAvg$ = this.perf.gpuProgressSeries$.pipe(
+      map((arr) => {
+        if (!arr || arr.length === 0) return 0;
+        const last = arr[arr.length - 1].series[0]?.value;
+        return last ?? 0;
+      }),
+      startWith(0),
+    );
 
     const nodeChips$ = combineLatest([cpuAvg$, gpuAvg$]).pipe(
       map(([c, g]) => [

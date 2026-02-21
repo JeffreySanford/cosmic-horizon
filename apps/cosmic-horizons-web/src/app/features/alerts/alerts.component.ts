@@ -1,24 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { AlertsService } from './alerts.service';
 
 @Component({
   selector: 'app-alerts',
   standalone: false,
-  template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Alerts</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>No alerts to display yet.</p>
-      </mat-card-content>
-    </mat-card>
-  `,
-  styles: [
-    `
-      mat-card {
-        margin: 1rem;
-      }
-    `,
-  ],
+  templateUrl: './alerts.component.html',
+  styleUrls: ['./alerts.component.scss'],
 })
-export class AlertsComponent {}
+export class AlertsComponent {
+  private readonly alertsSvc = inject(AlertsService);
+  readonly alerts$: Observable<string[]> = this.alertsSvc.alerts$;
+}

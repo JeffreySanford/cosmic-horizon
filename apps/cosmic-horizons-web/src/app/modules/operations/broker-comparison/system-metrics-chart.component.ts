@@ -70,200 +70,8 @@ type SeriesDefinition = {
 @Component({
   selector: 'app-system-metrics-chart',
   standalone: false,
-  template: `
-    <div class="system-metrics-chart">
-      <div class="chart-header">
-        <h3>System Resource Monitor</h3>
-        <div class="view-selector">
-          <label for="chart-view">View</label>
-          <select
-            id="chart-view"
-            [value]="selectedView"
-            (change)="onViewChange($any($event.target).value)"
-          >
-            <option value="system">System (CPU/Memory/Disk)</option>
-            <option value="throughputImpact">Broker Throughput Impact</option>
-            <option value="memoryImpact">Broker Memory Impact</option>
-            <option value="latencyImpact">Broker Latency Impact</option>
-          </select>
-        </div>
-        <div class="view-selector">
-          <label for="payload-size">Payload</label>
-          <select
-            id="payload-size"
-            [value]="messageSizePreset"
-            (change)="onMessageSizePresetChange($any($event.target).value)"
-          >
-            <option value="512">512 B/msg</option>
-            <option value="2048">2 KB/msg</option>
-            <option value="8192">8 KB/msg</option>
-            <option value="65536">64 KB/msg</option>
-            <option value="custom">Custom</option>
-          </select>
-          @if (messageSizePreset === 'custom') {
-            <input
-              type="number"
-              min="1"
-              step="1"
-              [value]="customMessageBytes"
-              (input)="onCustomMessageBytesChange($any($event.target).value)"
-              aria-label="Custom payload bytes per message"
-            />
-          }
-        </div>
-
-        <div class="view-selector">
-          <label for="sample-interval">Sample</label>
-          <select
-            id="sample-interval"
-            [value]="samplingInterval"
-            (change)="onSamplingIntervalChange(+$any($event.target).value)"
-          >
-            <option value="20">20 ms</option>
-            <option value="100">100 ms</option>
-            <option value="300">300 ms</option>
-            <option value="500">500 ms</option>
-            <option value="1000">1 s</option>
-            <option value="2000">2 s</option>
-            <option value="5000">5 s</option>
-            <option value="10000">10 s</option>
-            <option value="15000">15 s</option>
-          </select>
-        </div>
-        <div class="legend">
-          @for (item of legendItems; track item.label) {
-            <div class="legend-item">
-              <div
-                class="legend-color"
-                [style.backgroundColor]="item.color"
-              ></div>
-              <span>{{ item.label }}</span>
-            </div>
-          }
-        </div>
-      </div>
-      <div #chartContainer class="chart-container"></div>
-    </div>
-  `,
-  styles: [
-    `
-      .system-metrics-chart {
-        background: white;
-        border-radius: 8px;
-        padding: 16px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin: 16px 0;
-      }
-
-      .chart-header {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-      }
-
-      .chart-header h3 {
-        margin: 0;
-        color: #333;
-        font-size: 18px;
-        font-weight: 500;
-      }
-
-      .legend {
-        display: flex;
-        gap: 16px;
-      }
-
-      .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 12px;
-        color: #666;
-      }
-
-      .legend-color {
-        width: 12px;
-        height: 12px;
-        border-radius: 2px;
-      }
-
-      .view-selector {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 12px;
-        color: #666;
-      }
-
-      .view-selector select {
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 4px 8px;
-        font-size: 12px;
-        color: #333;
-        background: #fff;
-      }
-
-      .view-selector input {
-        width: 90px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 4px 8px;
-        font-size: 12px;
-        color: #333;
-      }
-
-      .chart-container {
-        width: 100%;
-        height: 300px;
-        position: relative;
-      }
-
-      .axis text {
-        font-size: 11px;
-        fill: #666;
-      }
-
-      .axis line,
-      .axis path {
-        stroke: #ddd;
-      }
-
-      .grid line {
-        stroke: #f0f0f0;
-        stroke-dasharray: 2, 2;
-      }
-
-      .line {
-        fill: none;
-        stroke-width: 2;
-      }
-
-      .line.cpu {
-        stroke: #ff6b6b;
-      }
-      .line.memory {
-        stroke: #4ecdc4;
-      }
-      .line.disk {
-        stroke: #45b7d1;
-      }
-
-      .tooltip {
-        position: absolute;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 4px;
-        font-size: 12px;
-        pointer-events: none;
-        z-index: 1000;
-      }
-    `,
-  ],
+  templateUrl: './system-metrics-chart.component.html',
+  styleUrls: ['./system-metrics-chart.component.scss'],
 })
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export class SystemMetricsChartComponent implements OnInit, OnDestroy {
@@ -280,10 +88,16 @@ export class SystemMetricsChartComponent implements OnInit, OnDestroy {
 
   // Sampling interval (ms) for rendering the chart. Emits changes to parent if different.
   samplingInterval = this.updateInterval;
+  // options used by the selector
+  samplingOptions: number[] = [20, 100, 300, 500, 1000, 2000, 5000, 10000, 15000];
   // Expose sampling-interval changes so parent polling cadence can be adjusted.
   @Output() samplingIntervalChange = new EventEmitter<number>();
 
   messageSizePreset: '512' | '2048' | '8192' | '65536' | 'custom' = '2048';
+
+  resetData(): void {
+    // placeholder method invoked from template
+  }
   customMessageBytes = 2048;
 
   selectedView: ChartView = 'system';

@@ -18,8 +18,11 @@ describe('PerformanceDataService', () => {
     } as any;
 
     matrix$ = new Subject<number[][]>();
+    const gpuMatrix$ = new Subject<number[][]>();
     http = {
-      get: vi.fn(() => matrix$.asObservable()),
+      get: vi.fn((url: string) =>
+        url.includes('gpu') ? gpuMatrix$.asObservable() : matrix$.asObservable(),
+      ),
     } as any;
 
     TestBed.configureTestingModule({
@@ -31,10 +34,12 @@ describe('PerformanceDataService', () => {
     });
     service = TestBed.inject(PerformanceDataService);
 
-    // seed the http stream so timer subscription emits
+    // seed the http streams so timer subscription emits
     matrix$.next([[42]]);
+    gpuMatrix$.next([[7]]);
     // also manually push a matrix so history immediately updates
     (service as any).pushMatrix([[1]]);
+    (service as any).pushGpuMatrix([[1]]);
   });
 
   it('emits heatmap arrays when http endpoint returns and maintains history/progress', async () => {
@@ -48,8 +53,14 @@ describe('PerformanceDataService', () => {
     const matrix = await firstValueFrom(service.cpuHeatmap$);
     expect(Array.isArray(matrix)).toBe(true);
 
+    // gpuHeatmap$ should also emit something
+    const gmatrix = await firstValueFrom(service.gpuHeatmap$);
+    expect(Array.isArray(gmatrix)).toBe(true);
+
     // progressSeries$ should reflect at least one window
     const prog = await firstValueFrom(service.progressSeries$);
     expect(Array.isArray(prog)).toBe(true);
+    const gprog = await firstValueFrom(service.gpuProgressSeries$);
+    expect(Array.isArray(gprog)).toBe(true);
   });
 });

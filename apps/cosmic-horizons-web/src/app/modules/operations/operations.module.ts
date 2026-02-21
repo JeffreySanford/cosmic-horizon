@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, JsonPipe } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
@@ -54,6 +54,7 @@ import { OperationsHomeComponent } from './operations-home/operations-home.compo
   imports: [
     FormsModule,
     CommonModule,
+    JsonPipe,
     HttpClientModule,
     MatTableModule,
     MatButtonModule,

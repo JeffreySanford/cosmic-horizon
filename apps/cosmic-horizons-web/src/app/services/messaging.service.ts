@@ -226,7 +226,10 @@ export class MessagingService {
 
     // eslint-disable-next-line no-restricted-syntax -- emission API uses callback
     return new Promise<{ joined: boolean; room?: string; error?: string }>((resolve) => {
-      const socket = this.socket!; // previous guard ensures it exists
+      const socket = this.socket; // previous guard ensures it exists
+      if (!socket) {
+        return resolve({ joined: false, error: 'not connected' });
+      }
       socket.emit('join_job_channel', { jobId }, (resp: unknown) => {
         resolve(resp as { joined: boolean; room?: string; error?: string });
       });

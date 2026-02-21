@@ -1,0 +1,61 @@
+<div class="system-metrics-chart">
+  <div class="chart-header">
+    <h3>System Resource Monitor</h3>
+    <div class="view-selector">
+      <label for="chart-view">View</label>
+      <select
+        id="chart-view"
+        [value]="selectedView"
+        (change)="onViewChange($any($event.target).value)"
+      >
+        <option value="system">System (CPU/Memory/Disk)</option>
+        <option value="throughputImpact">Broker Throughput Impact</option>
+        <option value="memoryImpact">Broker Memory Impact</option>
+        <option value="latencyImpact">Broker Latency Impact</option>
+      </select>
+    </div>
+    <div class="view-selector">
+      <label for="payload-size">Payload</label>
+      <select
+        id="payload-size"
+        [value]="messageSizePreset"
+        (change)="onMessageSizePresetChange($any($event.target).value)"
+      >
+        <option value="512">512 B/msg</option>
+        <option value="2048">2 KB/msg</option>
+        <option value="8192">8 KB/msg</option>
+        <option value="65536">64 KB/msg</option>
+        <option value="custom">Custom</option>
+      </select>
+      <ng-container *ngIf="messageSizePreset === 'custom'">
+        <input
+          type="number"
+          min="1"
+          step="1"
+          [value]="customMessageBytes"
+          (input)="onCustomMessageBytesChange($any($event.target).value)"
+          aria-label="Custom payload bytes per message"
+        />
+      </ng-container>
+    </div>
+
+    <div class="view-selector">
+      <label for="sample-interval">Sample</label>
+      <select
+        id="sample-interval"
+        [value]="samplingInterval"
+        (change)="onSamplingIntervalChange(+$any($event.target).value)"
+      >
+        <option *ngFor="let i of samplingOptions" [value]="i">
+          {{ i }} ms
+        </option>
+      </select>
+    </div>
+
+    <div class="view-selector">
+      <button (click)="resetData()">Reset</button>
+    </div>
+  </div>
+
+  <!-- chart area omitted for brevity -->
+</div>

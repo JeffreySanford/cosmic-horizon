@@ -58,6 +58,12 @@ export const appRoutes: Route[] = [
     canActivate: [AuthGuard, AdminGuard],
   },
   {
+    path: 'alerts',
+    loadChildren: () =>
+      import('./features/alerts/alerts.module').then((m) => m.AlertsModule),
+    canActivate: [AuthGuard, AdminGuard],
+  },
+  {
     path: 'logs',
     loadChildren: () =>
       import('./features/logs/logs.module').then((m) => m.LogsModule),

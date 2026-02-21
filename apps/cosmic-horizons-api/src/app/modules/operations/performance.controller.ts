@@ -26,4 +26,16 @@ export class PerformanceController {
     );
     return matrix;
   }
+
+  @Get('gpu-heatmap')
+  @ApiOperation({ summary: 'Get a GPU heatmap matrix' })
+  @ApiResponse({ status: 200, description: 'GPU heatmap matrix returned' })
+  getGpuHeatmap(): number[][] {
+    const rows = 10;
+    const cols = 10;
+    const matrix: number[][] = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => Math.random() * 100)
+    );
+    return matrix;
+  }
 }

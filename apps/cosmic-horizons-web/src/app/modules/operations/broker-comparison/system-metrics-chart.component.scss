@@ -1,0 +1,14 @@
+.system-metrics-chart {
+  .chart-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .view-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
