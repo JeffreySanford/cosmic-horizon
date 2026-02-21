@@ -1,35 +1,21 @@
-import { Component as NgComponent, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { interval, Subscription } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatButtonModule } from '@angular/material/button';
 import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
 import { Job } from '../../../features/job-orchestration/job.models';
 import { MessagingService } from '../../../services/messaging.service';
-import { OperationsModule } from '../operations.module';
-// heatmap & graph now included via OperationsModule
+// this component is declared in OperationsModule
 
 // Use the same Job interface from the orchestration feature for consistency.
 
 // allow temporary animation flag on jobs
 export type JobWithUpdate = Job & { updated?: boolean };
 
-@NgComponent({
+@Component({
   selector: 'app-job-dashboard',
   templateUrl: './job-dashboard.component.html',
   styleUrls: ['./job-dashboard.component.scss'],
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatTableModule,
-    MatProgressBarModule,
-    MatButtonModule,
-    // bring in entire operations feature module (which exports the dashboards)
-    OperationsModule,
-  ],
+  standalone: false, // required by coding standard
+  // declared in OperationsModule
 })
 export class JobDashboardComponent implements OnInit, OnDestroy {
   jobs: JobWithUpdate[] = [];
