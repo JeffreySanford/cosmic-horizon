@@ -3,6 +3,7 @@
 Status date: 2026-02-21
 
 Canonical planning docs:
+
 - `documentation/planning/roadmap/ROADMAP.md` (forward-looking roadmap)
 - `documentation/product/PRODUCT-CHARTER.md` + `SCOPE-LOCK.md` (scope authority)
 - `documentation/governance/SOURCE-OF-TRUTH.md` (doc governance)
