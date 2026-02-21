@@ -12,6 +12,10 @@
   </mat-card>
 </div>
 
+<!-- visualization panels -->
+<app-performance-heatmap></app-performance-heatmap>
+<app-progress-graph></app-progress-graph>
+
 <table mat-table [dataSource]="jobs" class="mat-elevation-z8">
   <!-- ID Column -->
   <ng-container matColumnDef="jobId">

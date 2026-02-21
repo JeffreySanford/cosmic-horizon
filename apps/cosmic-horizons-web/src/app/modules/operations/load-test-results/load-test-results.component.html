@@ -1,0 +1,7 @@
+<div *ngIf="results; else noData">
+  <h3>Load Test Results</h3>
+  <pre>{{ results | json }}</pre>
+</div>
+<ng-template #noData>
+  <p>No results file found. Run <code>node scripts/websocket-load-test.js 500</code> (or your desired count) and set <code>WS_OUTPUT=apps/cosmic-horizons-web/src/assets/load-test-results.json</code> (or <code>LOAD_TEST_OUT</code>) to generate a file. You may also need <code>WS_AUTH_TOKEN</code> with a valid JWT.</p>
+</ng-template>

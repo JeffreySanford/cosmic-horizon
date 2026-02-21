@@ -34,15 +34,30 @@ for (let i = 0; i < count; i++) {
     if (connected + failed === count) report();
   });
 
-  socket.on('connect_error', (err) => {
+  socket.on('connect_error', () => {
     failed++;
     if (connected + failed === count) report();
   });
 
-  socket.on('disconnect', () => {});
+  socket.on('disconnect', () => {
+    // nothing to do on disconnect during load test
+  });
 }
 
 function report() {
+  const result = { connected, failed };
   console.log(`connected: ${connected}, failed: ${failed}`);
+
+  // write JSON output if path specified
+  const outPath = process.env['WS_OUTPUT'] || process.env['LOAD_TEST_OUT'];
+  if (outPath) {
+    try {
+      require('fs').writeFileSync(outPath, JSON.stringify(result, null, 2));
+      console.log(`wrote results to ${outPath}`);
+    } catch (err) {
+      console.error('failed to write load test output', err);
+    }
+  }
+
   process.exit(0);
 }

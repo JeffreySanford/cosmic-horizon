@@ -119,3 +119,31 @@ pnpm nx run mvp-gates:e2e
 - `documentation/planning/INDUSTRY-CONTEXT-AND-FEASIBILITY-2026-02-11.md`
 - `documentation/hardening/HARDENING-PLAN.md`
 - `TODO.md`
+
+## WebSocket Load Testing
+
+A lightweight helper script is available at `scripts/websocket-load-test.js` to
+exercise the MessagingGateway with many simultaneous Socket.IO connections.
+It reports a simple connected/failed count and, if you set the `WS_OUTPUT` or
+`LOAD_TEST_OUT` environment variable, dumps the same data to a JSON file that can
+be displayed by the `LoadTestResultsComponent` in the frontend.
+
+```bash
+# example usage (gateway must be running at localhost:3000)
+WS_AUTH_TOKEN=<valid-jwt> \
+  WS_OUTPUT=apps/cosmic-horizons-web/src/assets/load-test-results.json \
+  node scripts/websocket-load-test.js 500
+```
+
+The backend issues JWTs using the NestJS `@nestjs/jwt` module; you can obtain a
+valid token by calling any authenticated endpoint or by manually signing with
+the project's secret (see `apps/cosmic-horizons-api/src/...` config).  A
+convenience script is provided at `scripts/generate-jwt.js`:
+
+```bash
+# use same secret as API or let default dev secret apply
+JWT_SECRET=openapi-dev-jwt-secret-32-chars-minimum \
+  node scripts/generate-jwt.js astro > token.txt
+```
+
+The test suite includes fixtures demonstrating token format.

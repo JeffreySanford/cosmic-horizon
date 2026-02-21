@@ -373,10 +373,11 @@ MVP Release  →  MVP Hardening  →  Phase 2 Pillar  →  Phase 3
 
 #### Sprint 6.2: Real-Time Dashboards (4 weeks)
 
-- [ ] Create Angular dashboard component for job monitoring
-- [ ] Live job status visualization (QUEUED → RUNNING → COMPLETE)
-- [ ] GPU utilization heatmaps
+- [x] Create Angular dashboard component for job monitoring (job list, status cards)
+- [x] Live job status visualization (QUEUED → RUNNING → COMPLETE) via WebSocket feed
+- [x] GPU utilization heatmaps (toggleable per-node panel added)
 - [ ] Performance metrics panels
+- [x] Record load-test stats (500 clients, latency P50/P95, error rate)
 - Target: 60 FPS rendering, <500ms update latency
 
 #### Sprint 6.3: Performance Analytics (3 weeks)

@@ -97,9 +97,15 @@ export interface MessagingLiveStats {
 export class MessagingService {
   private apiUrl = 'http://localhost:3000/api/messaging';
   private socket: Socket | null = null;
+
+  // subjects for various incoming event types
   private telemetrySubject = new Subject<TelemetryPacket>();
   private statsSubject = new Subject<MessagingLiveStats>();
   private notificationSubject = new Subject<EventBase>();
+
+  /** new observable used by dashboards to receive job update events */
+  private jobUpdateSubject = new Subject<Partial<unknown> & { id: string }>();
+
   private readonly http = inject(HttpClient);
   private readonly logger = inject(AppLoggerService);
   private readonly authSessionService = inject(AuthSessionService);
@@ -115,7 +121,7 @@ export class MessagingService {
     }
   }
 
-  private connectSocket(): void {
+  protected connectSocket(): void {
     if (this.socket) {
       return; // Already connected
     }
@@ -126,7 +132,7 @@ export class MessagingService {
       return;
     }
 
-    this.socket = io('http://localhost:3000/messaging', {
+    this.socket = this.createSocket('http://localhost:3000/messaging', {
       path: '/socket.io',
       transports: ['websocket'],
       withCredentials: true,
@@ -150,6 +156,8 @@ export class MessagingService {
 
     this.socket.on('disconnect', (reason: string) => {
       this.logger.warn('messaging', 'WebSocket disconnected', { reason });
+      // clear our reference so ensureConnected can recreate later
+      this.socket = null;
     });
 
     this.socket.on('connect_error', (error: Error) => {
@@ -168,10 +176,8 @@ export class MessagingService {
     });
 
     // Notifications (toaster-support): generic notification channel from server
-    // Server currently emits job_notification for user-targeted notifications.
     this.socket.on('job_notification', (payload: EventBase) => {
       try {
-        // Log only primitive/string details (AppLoggerService expects LogDetails)
         this.logger.debug('messaging', 'Received job_notification', {
           event_type: payload.event_type ?? null,
           event_id: payload.event_id ?? null,
@@ -188,12 +194,49 @@ export class MessagingService {
         });
       }
     });
+
+    // job updates path (EventsService → gateway → frontend)
+    this.socket.on('job_update', (update: Partial<unknown> & { id: string }) => {
+      this.jobUpdateSubject.next(update);
+    });
   }
 
   ensureConnected(): void {
     if (!this.socket && this.authSessionService.isAuthenticated()) {
       this.connectSocket();
     }
+  }
+
+  /**
+   * Observable consumers can subscribe to for job updates coming from the server.
+   */
+  get jobUpdate$(): Observable<Partial<unknown> & { id: string }> {
+    return this.jobUpdateSubject.asObservable();
+  }
+
+  /**
+   * Instruct the gateway to join a specific job room so that only relevant
+   * updates are sent to this socket. Returns the acknowledgement response
+   * from the server.
+   */
+  joinJobChannel(jobId: string): Promise<{ joined: boolean; room?: string; error?: string }> {
+    if (!this.socket) {
+      return Promise.reject(new Error('socket not connected'));
+    }
+
+    // eslint-disable-next-line no-restricted-syntax -- emission API uses callback
+    return new Promise<{ joined: boolean; room?: string; error?: string }>((resolve) => {
+      this.socket.emit('join_job_channel', { jobId }, (resp: unknown) => {
+        resolve(resp as { joined: boolean; room?: string; error?: string });
+      });
+    });
+  }
+
+  /**
+   * Helper method exposed so tests can override or stub socket creation.
+   */
+  protected createSocket(url: string, opts: unknown): Socket {
+    return io(url, opts);
   }
 
   get telemetry$(): Observable<TelemetryPacket> {

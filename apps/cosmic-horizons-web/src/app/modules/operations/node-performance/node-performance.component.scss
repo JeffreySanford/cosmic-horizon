@@ -1,0 +1,17 @@
+.node-performance-card {
+  max-width: 800px;
+  margin: 1rem auto;
+}
+
+.controls {
+  padding: 0.5rem;
+}
+
+.chart-placeholder {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.54);
+  border: 1px dashed #ccc;
+}

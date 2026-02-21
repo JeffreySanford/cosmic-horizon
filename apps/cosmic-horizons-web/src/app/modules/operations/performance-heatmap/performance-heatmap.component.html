@@ -1,0 +1,21 @@
+<ngx-charts-heat-map
+  [view]="[400,300]"
+  scheme="cool"
+  [results]="heatmap"
+  [gradient]="true"
+  [xAxis]="true"
+  [yAxis]="true"
+  [xAxisLabel]="'Column'"
+  [yAxisLabel]="'Row'"
+  [legend]="false"
+  [tooltipDisabled]="false"
+></ngx-charts-heat-map>
+<div *ngIf="windowCount > 1" class="slider-container">
+  <label>Window {{ currentWindow + 1 }} / {{ windowCount }}</label>
+  <mat-slider
+    [min]="0"
+    [max]="windowCount - 1"
+    [(ngModel)]="currentWindow"
+    (ngModelChange)="perf.setWindow($event)"
+  ></mat-slider>
+</div>

@@ -74,16 +74,26 @@ export class JobsConsoleComponent implements OnInit {
   pollStatus(jobId: string) {
     this.http.get<TaccJobStatus>(`/api/jobs/status/${jobId}`).subscribe({
       next: (status) => {
-        const index = this.activeJobs.findIndex((j) => j.id === jobId);
-        if (index > -1) {
-          this.activeJobs[index] = status;
-        } else {
-          this.activeJobs.push(status);
-        }
-
-        if (status.status !== 'COMPLETED' && status.status !== 'FAILED') {
-          setTimeout(() => this.pollStatus(jobId), 5000);
-        }
+        // double-defer the update: first tick to exit this callback, second
+        // tick to mutate the array.  this prevents the new mat-progress-bar
+        // from being instantiated in the same change-detection cycle that
+        // triggered the HTTP callback (which was causing NG0100 errors).
+        setTimeout(() => {
+          setTimeout(() => {
+            const index = this.activeJobs.findIndex((j) => j.id === jobId);
+            if (index > -1) {
+              this.activeJobs[index] = status;
+            } else {
+              this.activeJobs.push(status);
+            }
+            // force a second CD to flush any child-component updates
+            this.cdr.detectChanges();
+            // continue polling if still running
+            if (status.status !== 'COMPLETED' && status.status !== 'FAILED') {
+              setTimeout(() => this.pollStatus(jobId), 5000);
+            }
+          });
+        });
       },
     });
   }

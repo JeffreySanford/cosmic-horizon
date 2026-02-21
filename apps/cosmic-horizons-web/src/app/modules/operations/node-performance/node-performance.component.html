@@ -1,0 +1,10 @@
+<mat-card class="node-performance-card">
+  <mat-toolbar color="primary">Node Performance</mat-toolbar>
+  <div class="controls">
+    <mat-slide-toggle [(ngModel)]="showGpu">GPU view</mat-slide-toggle>
+  </div>
+  <div class="chart-placeholder">
+    <!-- later: replace with D3/ngx-charts/Highcharts implementation -->
+    <p>{{ showGpu ? 'GPU' : 'CPU' }} metrics will render here</p>
+  </div>
+</mat-card>

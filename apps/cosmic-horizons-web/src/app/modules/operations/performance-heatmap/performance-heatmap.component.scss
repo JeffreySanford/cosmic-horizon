@@ -1,0 +1,18 @@
+.heatmap-placeholder {
+  height: 300px;
+  border: 1px dashed #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-container {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+ngx-charts-heat-map {
+  max-width: 100%;
+}

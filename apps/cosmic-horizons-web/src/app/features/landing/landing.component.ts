@@ -105,6 +105,32 @@ export class LandingComponent implements OnInit, OnDestroy {
       route: '/logs',
       adminOnly: true,
     },
+    // operational dashboards
+    {
+      icon: 'dashboard',
+      title: 'Job Dashboard',
+      route: '/operations/job-dashboard',
+    },
+    {
+      icon: 'device_hub',
+      title: 'Node Performance',
+      route: '/operations/node-performance',
+    },
+    {
+      icon: 'heat_pump',
+      title: 'CPU Heatmap',
+      route: '/operations/heatmap',
+    },
+    {
+      icon: 'timeline',
+      title: 'Progress Graph',
+      route: '/operations/progress-graph',
+    },
+    {
+      icon: 'bar_chart',
+      title: 'Load Tests',
+      route: '/operations/load-tests',
+    },
   ];
   preview: SkyPreview;
   locating = false;
