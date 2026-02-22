@@ -70,9 +70,80 @@ async function checkDatabaseConnectivity() {
   try {
     await client.connect();
     await client.query('SELECT 1');
+    await ensureRequiredRuntimeTables(client);
   } finally {
     await client.end().catch(() => undefined);
   }
+}
+
+async function ensureRequiredRuntimeTables(client) {
+  await client.query('CREATE EXTENSION IF NOT EXISTS "pgcrypto"');
+
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS "datasets" (
+      "id" varchar(255) PRIMARY KEY,
+      "label" varchar(255),
+      "last_updated" timestamptz
+    )
+  `);
+
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS "jobs" (
+      "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      "user_id" uuid NOT NULL,
+      "agent" varchar NOT NULL,
+      "dataset_id" varchar NOT NULL,
+      "tacc_job_id" varchar,
+      "status" varchar NOT NULL,
+      "progress" double precision NOT NULL DEFAULT 0,
+      "params" jsonb NOT NULL DEFAULT '{}'::jsonb,
+      "result" jsonb,
+      "notes" text,
+      "estimated_runtime_minutes" integer,
+      "gpu_count" integer,
+      "created_at" timestamp NOT NULL DEFAULT now(),
+      "updated_at" timestamp NOT NULL DEFAULT now(),
+      "completed_at" timestamp
+    )
+  `);
+
+  await client.query(
+    'CREATE INDEX IF NOT EXISTS "IDX_jobs_user_created" ON "jobs" ("user_id", "created_at")',
+  );
+  await client.query(
+    'CREATE INDEX IF NOT EXISTS "IDX_jobs_status_created" ON "jobs" ("status", "created_at")',
+  );
+  await client.query(
+    'CREATE INDEX IF NOT EXISTS "IDX_jobs_tacc_job_id" ON "jobs" ("tacc_job_id")',
+  );
+
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS "broker_metrics" (
+      "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      "brokerName" text NOT NULL,
+      "messagesPerSecond" integer,
+      "p50LatencyMs" numeric(8,2),
+      "p95LatencyMs" numeric(8,2),
+      "p99LatencyMs" numeric(8,2),
+      "memoryUsageMb" numeric(10,2),
+      "cpuPercentage" numeric(5,2),
+      "connectionCount" integer,
+      "isConnected" boolean NOT NULL DEFAULT false,
+      "uptime" text,
+      "partitionCount" integer,
+      "brokerCount" integer,
+      "topicStats" jsonb,
+      "errorMessage" text,
+      "capturedAt" timestamptz NOT NULL DEFAULT now()
+    )
+  `);
+
+  await client.query(
+    'CREATE INDEX IF NOT EXISTS "IDX_broker_metrics_broker_captured" ON "broker_metrics" ("brokerName", "capturedAt")',
+  );
+  await client.query(
+    'CREATE INDEX IF NOT EXISTS "IDX_broker_metrics_captured" ON "broker_metrics" ("capturedAt")',
+  );
 }
 
 function sleep(ms) {

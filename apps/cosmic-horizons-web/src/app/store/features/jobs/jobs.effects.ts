@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   catchError,
@@ -20,10 +20,14 @@ export class JobsEffects {
   private readonly actions$ = inject(Actions);
   private readonly http = inject(HttpClient);
   private readonly messaging = inject(MessagingService);
+  private jobsPollingBlockedByAuth = false;
 
   initialize$ = createEffect(() =>
     this.actions$.pipe(
       ofType(JobsActions.jobsInitialize),
+      tap(() => {
+        this.jobsPollingBlockedByAuth = false;
+      }),
       map(() => JobsActions.jobsLoadRequested()),
     ),
   );
@@ -43,12 +47,63 @@ export class JobsEffects {
   loadJobs$ = createEffect(() =>
     this.actions$.pipe(
       ofType(JobsActions.jobsLoadRequested),
-      switchMap(() =>
-        this.http.get<Job[]>('/api/jobs').pipe(
-          map((jobs) => JobsActions.jobsLoadSucceeded({ jobs })),
-          catchError(() =>
-            of(JobsActions.jobsLoadFailed({ error: 'Unable to load jobs' })),
+      switchMap(() => {
+        if (this.jobsPollingBlockedByAuth) {
+          return of(
+            JobsActions.jobsLoadFailed({
+              error: 'Authentication required to load job history',
+            }),
+          );
+        }
+
+        return this.http
+          .get<{ jobs: Job[]; total: number }>('/api/jobs/history/list')
+          .pipe(
+            map((response) =>
+              JobsActions.jobsLoadSucceeded({ jobs: response.jobs }),
+            ),
+            catchError((error: HttpErrorResponse) => {
+              const details = this.describeHttpError(error);
+              console.error('[JobsEffects] jobsLoadRequested failed', details);
+
+              if (error.status === 401) {
+                this.jobsPollingBlockedByAuth = true;
+              }
+
+              return of(
+                JobsActions.jobsLoadFailed({
+                  error:
+                    error.status === 401
+                      ? 'Authentication required to load job history'
+                      : `Unable to load jobs (${details.summary})`,
+                }),
+              );
+            }),
+          );
+      }),
+    ),
+  );
+
+  cancelJob$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(JobsActions.jobCancelledRequested),
+      switchMap(({ jobId }) =>
+        this.http.delete<void>(`/api/jobs/${jobId}`).pipe(
+          mergeMap(() =>
+            of(
+              JobsActions.jobCancelledSucceeded({ jobId }),
+              JobsActions.jobsLoadRequested(),
+            ),
           ),
+          catchError((error: HttpErrorResponse) => {
+            const details = this.describeHttpError(error);
+            console.error('[JobsEffects] jobCancelledRequested failed', details);
+            return of(
+              JobsActions.jobCancelledFailed({
+                error: `Unable to cancel job (${details.summary})`,
+              }),
+            );
+          }),
         ),
       ),
     ),
@@ -65,32 +120,15 @@ export class JobsEffects {
               JobsActions.jobsLoadRequested(),
             ),
           ),
-          catchError(() =>
-            of(
-              JobsActions.jobSubmittedFailed({ error: 'Unable to submit job' }),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  cancelJob$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(JobsActions.jobCancelledRequested),
-      switchMap(({ jobId }) =>
-        this.http.post<void>(`/api/jobs/${jobId}/cancel`, {}).pipe(
-          mergeMap(() =>
-            of(
-              JobsActions.jobCancelledSucceeded({ jobId }),
-              JobsActions.jobsLoadRequested(),
-            ),
-          ),
-          catchError(() =>
-            of(
-              JobsActions.jobCancelledFailed({ error: 'Unable to cancel job' }),
-            ),
-          ),
+          catchError((error: HttpErrorResponse) => {
+            const details = this.describeHttpError(error);
+            console.error('[JobsEffects] jobSubmittedRequested failed', details);
+            return of(
+              JobsActions.jobSubmittedFailed({
+                error: `Unable to submit job (${details.summary})`,
+              }),
+            );
+          }),
         ),
       ),
     ),
@@ -111,4 +149,52 @@ export class JobsEffects {
       ),
     ),
   );
+
+  private describeHttpError(error: HttpErrorResponse): {
+    status: number;
+    statusText: string;
+    url: string;
+    message: string;
+    correlationId: string | null;
+    summary: string;
+    reason: string;
+  } {
+    const headers = error.headers instanceof HttpHeaders ? error.headers : undefined;
+    const correlationId = headers?.get('x-correlation-id') ?? null;
+    const backendMessage =
+      typeof error.error === 'string'
+        ? error.error
+        : (error.error?.message as string | undefined) ?? error.message;
+    const status = error.status ?? 0;
+    const statusText = error.statusText || 'Unknown Error';
+    const url = error.url ?? 'unknown-url';
+    const summary = `${status} ${statusText}`;
+    let reason = 'request_failed';
+    if (status === 401) {
+      reason = 'auth_required';
+    } else if (status === 403) {
+      reason = 'forbidden';
+    } else if (status === 404) {
+      reason = 'not_found';
+    } else if (status === 0) {
+      reason = 'network_unreachable';
+    } else if (status >= 500) {
+      const messageLower = backendMessage.toLowerCase();
+      reason =
+        messageLower.includes('econnrefused') ||
+        messageLower.includes('connect')
+          ? 'backend_unavailable'
+          : 'server_error';
+    }
+
+    return {
+      status,
+      statusText,
+      url,
+      message: backendMessage,
+      correlationId,
+      summary,
+      reason,
+    };
+  }
 }

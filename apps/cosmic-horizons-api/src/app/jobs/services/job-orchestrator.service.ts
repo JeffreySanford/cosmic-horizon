@@ -184,7 +184,7 @@ export class JobOrchestratorService {
       const updatedJob = await this.jobRepository.findById(job.id);
 
       if (updatedJob) {
-        updatedJob.tacc_job_id = result.jobId;
+        await this.jobRepository.updateTaccJobId(job.id, result.jobId);
         await this.jobRepository.updateResult(job.id, {});
       }
 
@@ -222,7 +222,12 @@ export class JobOrchestratorService {
 
       return updatedJob || job;
     } catch (error) {
-      this.logger.error(`Failed to submit job ${job.id}: ${error}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to submit job ${job.id}: ${errorMessage}`);
+      await this.jobRepository.updateResult(job.id, {
+        error_message: errorMessage,
+      });
       await this.jobRepository.updateStatus(job.id, 'FAILED');
 
       // Publish job.failed event (Phase 3)
@@ -235,8 +240,7 @@ export class JobOrchestratorService {
             job_id: job.id,
             failed_at: new Date().toISOString(),
             error_code: 500,
-            error_message:
-              error instanceof Error ? error.message : 'Unknown error',
+            error_message: errorMessage,
             logs_path: `/jobs/${job.id}/logs`,
           },
         );
@@ -248,8 +252,7 @@ export class JobOrchestratorService {
         await this.publishJobEventToKafka('job.failed', job.id, {
           failed_at: new Date().toISOString(),
           error_code: 500,
-          error_message:
-            error instanceof Error ? error.message : 'Unknown error',
+          error_message: errorMessage,
           logs_path: `/jobs/${job.id}/logs`,
         });
       } catch (eventError) {
@@ -297,19 +300,35 @@ export class JobOrchestratorService {
     // If job has TACC ID, fetch latest status
     if (job.tacc_job_id && ['QUEUING', 'RUNNING'].includes(job.status)) {
       const taccStatus = await this.taccService.getJobStatus(job.tacc_job_id);
+      const nextStatus =
+        taccStatus.status === 'QUEUED'
+          ? 'QUEUING'
+          : (taccStatus.status as Job['status']);
 
       // Update local record
-      await this.jobRepository.updateProgress(jobId, taccStatus.progress);
+      if (nextStatus === 'RUNNING' || nextStatus === 'QUEUING') {
+        await this.jobRepository.updateStatus(jobId, nextStatus, taccStatus.progress);
+      } else {
+        await this.jobRepository.updateProgress(jobId, taccStatus.progress);
+      }
 
-      if (taccStatus.status === 'COMPLETED' || taccStatus.status === 'FAILED') {
+      if (nextStatus === 'COMPLETED' || nextStatus === 'FAILED') {
+        const resultPayload =
+          nextStatus === 'FAILED'
+            ? {
+                error_message:
+                  taccStatus.error_message ??
+                  'Remote compute reported job failure without details.',
+              }
+            : {
+                output_url: taccStatus.output_url,
+              };
         await this.jobRepository.updateStatus(
           jobId,
-          taccStatus.status,
+          nextStatus,
           taccStatus.progress,
         );
-        await this.jobRepository.updateResult(jobId, {
-          output_url: taccStatus.output_url,
-        });
+        await this.jobRepository.updateResult(jobId, resultPayload);
       }
     }
 

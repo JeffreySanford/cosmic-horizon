@@ -363,7 +363,7 @@ Response (when complete):
 
 - [ ] Create `BrokerMetricsService` in `libs/shared`
   - RabbitMQ stats collector (HTTP API to port 15672)
-  - Pulsar stats collector (REST API to port 8080)
+  - Pulsar stats collector (REST API to port 8088)
   - Kafka stats collector (optional, via JMX or Kafka CLI)
 
 - [ ] Implement `/api/internal/brokers/stats` endpoint

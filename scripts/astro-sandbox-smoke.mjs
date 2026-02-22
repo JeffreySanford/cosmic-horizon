@@ -17,7 +17,7 @@ function smokeRun(image, cmd = '--version') {
   }
 }
 
-smokeRun('casapy/casa:latest', '-c "print(\"CASA OK\")"');
+smokeRun('casapy/casa:latest', `-c "print('CASA OK')"`);
 smokeRun('bera/wsclean:latest', '--help');
 
 console.log('Astronomy sandbox smoke tests completed successfully');

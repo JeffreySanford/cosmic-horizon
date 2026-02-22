@@ -14,7 +14,7 @@
 
 import axios from 'axios';
 
-const PULSAR_ADMIN_URL = 'http://localhost:8080';
+const PULSAR_ADMIN_URL = 'http://localhost:8088';
 
 // ============================================================================
 // Configuration: Namespaces & Topics
@@ -356,7 +356,7 @@ async function setup(cleanup = false) {
   console.log('\n  2. Access Pulsar Manager UI:');
   console.log('     http://localhost:9527 (user: admin, pass: apachepulsar)');
   console.log('\n  3. Monitor metrics:');
-  console.log('     http://localhost:8080/admin/v2 (Pulsar REST API)');
+  console.log('     http://localhost:8088/admin/v2 (Pulsar REST API)');
 }
 
 // Parse CLI arguments

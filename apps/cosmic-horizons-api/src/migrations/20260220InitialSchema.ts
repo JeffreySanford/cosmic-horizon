@@ -6,8 +6,10 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 // The SQL below is deliberately a minimal representation; developers are
 // encouraged to regenerate this file with the CLI when the real schema drifts.
 
-export class InitialSchema20260220 implements MigrationInterface {
+export class InitialSchema2026022000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query('CREATE EXTENSION IF NOT EXISTS "pgcrypto"');
+
     // users table (partial)
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "users" (
@@ -38,7 +40,7 @@ export class InitialSchema20260220 implements MigrationInterface {
       );
     `);
 
-    // dataset table for Phase 4 dataset catalog
+    // dataset table for Phase 4 dataset catalog
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "datasets" (
         "id" varchar(255) PRIMARY KEY,
@@ -47,14 +49,45 @@ export class InitialSchema20260220 implements MigrationInterface {
       );
     `);
 
-    // other tables omitted for brevity - see generated migrations for full
-    // definitions.  This baseline ensures the database can be bootstrapped
-    // without relying on `synchronize: true`.
+    // jobs table used by job orchestration APIs.
+    await queryRunner.query(`
+      CREATE TABLE IF NOT EXISTS "jobs" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        "user_id" uuid NOT NULL,
+        "agent" varchar NOT NULL,
+        "dataset_id" varchar NOT NULL,
+        "tacc_job_id" varchar,
+        "status" varchar NOT NULL,
+        "progress" double precision NOT NULL DEFAULT 0,
+        "params" jsonb NOT NULL DEFAULT '{}'::jsonb,
+        "result" jsonb,
+        "notes" text,
+        "estimated_runtime_minutes" integer,
+        "gpu_count" integer,
+        "created_at" timestamp NOT NULL DEFAULT now(),
+        "updated_at" timestamp NOT NULL DEFAULT now(),
+        "completed_at" timestamp
+      );
+    `);
+
+    await queryRunner.query(
+      'CREATE INDEX IF NOT EXISTS "IDX_jobs_user_created" ON "jobs" ("user_id", "created_at")',
+    );
+    await queryRunner.query(
+      'CREATE INDEX IF NOT EXISTS "IDX_jobs_status_created" ON "jobs" ("status", "created_at")',
+    );
+    await queryRunner.query(
+      'CREATE INDEX IF NOT EXISTS "IDX_jobs_tacc_job_id" ON "jobs" ("tacc_job_id")',
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query('DROP INDEX IF EXISTS "IDX_jobs_tacc_job_id"');
+    await queryRunner.query('DROP INDEX IF EXISTS "IDX_jobs_status_created"');
+    await queryRunner.query('DROP INDEX IF EXISTS "IDX_jobs_user_created"');
+    await queryRunner.query('DROP TABLE IF EXISTS "jobs"');
+    await queryRunner.query('DROP TABLE IF EXISTS "datasets"');
     await queryRunner.query('DROP TABLE IF EXISTS "audit_logs"');
     await queryRunner.query('DROP TABLE IF EXISTS "users"');
-    // reverse other baseline changes as needed
   }
 }

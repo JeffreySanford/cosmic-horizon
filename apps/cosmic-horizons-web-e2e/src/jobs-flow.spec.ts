@@ -1,48 +1,16 @@
-import { test, expect, Page } from '@playwright/test';
-
-// reuse helper from example.spec.ts to set fake authenticated state
-function createFakeJwt(
-  exp: number,
-  claims: Record<string, string> = {},
-): string {
-  const header = Buffer.from(
-    JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
-  ).toString('base64url');
-  const payload = Buffer.from(
-    JSON.stringify({ sub: 'user-1', exp, ...claims }),
-  ).toString('base64url');
-  const signature = 'test-signature';
-  return `${header}.${payload}.${signature}`;
-}
+import { test, expect, Page, APIRequestContext } from '@playwright/test';
+import { primeAuthenticatedSession } from './support/auth';
 
 // set token in session storage so the app thinks we're logged in
-async function loginAsTestUser(page: Page) {
-  const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
-  await page.addInitScript((jwt: string) => {
-    window.sessionStorage.setItem('auth_token', jwt);
-    window.sessionStorage.setItem(
-      'auth_user',
-      JSON.stringify({
-        id: 'user-1',
-        username: 'testuser',
-        email: 'test@cosmic.local',
-        display_name: 'Test User',
-        role: 'user',
-        created_at: '2026-02-07T00:00:00.000Z',
-      }),
-    );
-  }, token);
+async function loginAsTestUser(page: Page, request: APIRequestContext) {
+  await primeAuthenticatedSession(page, request);
 }
 
 // simple end-to-end job submission flow
-test('can submit a job and see status card', async ({
-  page,
-}: {
-  page: Page;
-}) => {
+test('can submit a job and see status card', async ({ page, request }) => {
   // log any console output for debugging
   page.on('console', (msg) => console.log('PAGE LOG>', msg.type(), msg.text()));
-  await loginAsTestUser(page);
+  await loginAsTestUser(page, request);
   // intercept status polling to return a deterministic sequence
   let count = 0;
   await page.route('**/api/jobs/*/status', async (route) => {
@@ -72,6 +40,20 @@ test('can submit a job and see status card', async ({
     });
   });
 
+  await page.route('**/api/datasets**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        {
+          id: 'VLASS2.1.test',
+          label: 'VLASS2.1.test',
+          lastUpdated: new Date().toISOString(),
+        },
+      ]),
+    });
+  });
+
   // stub submit so we don't depend on backend availability
   await page.route('**/api/jobs/submit', async (route) => {
     console.log('stubbed submit');
@@ -95,11 +77,19 @@ test('can submit a job and see status card', async ({
   await page.goto('/jobs');
   await expect(page).toHaveURL(/\/jobs$/);
 
-  // fill in dataset id to enable the submit button
-  await page.fill(
-    'input[placeholder="e.g. VLASS2.1.eb123456"]',
-    'VLASS2.1.test',
-  );
+  await page.evaluate(() => {
+    const ng = (window as any).ng as any;
+    const host = document.querySelector('app-jobs-console');
+    if (!ng || !host || typeof ng.getComponent !== 'function') {
+      throw new Error('jobs component not available');
+    }
+    const component = ng.getComponent(host);
+    component.selectedDataset = { id: 'VLASS2.1.test', label: 'VLASS2.1.test' };
+    component.datasetId = 'VLASS2.1.test';
+    if (typeof ng.applyChanges === 'function') {
+      ng.applyChanges(host);
+    }
+  });
   // submit
   await page.click('button.submit-btn');
 
@@ -114,18 +104,28 @@ test('can submit a job and see status card', async ({
   await expect(page.locator('.tips-card li')).toHaveCount(2);
 });
 
-test('can open summary panel and get pre-run QA answer', async ({
-  page,
-}: {
-  page: Page;
-}) => {
-  await loginAsTestUser(page);
+test('can open summary panel and get pre-run QA answer', async ({ page, request }) => {
+  await loginAsTestUser(page, request);
 
   await page.route('**/api/jobs/capabilities', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({ demoMode: true, baseUrlReachable: true }),
+    });
+  });
+
+  await page.route('**/api/datasets', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        {
+          id: 'VLASS2.1.test',
+          label: 'VLASS2.1.test',
+          lastUpdated: new Date().toISOString(),
+        },
+      ]),
     });
   });
 

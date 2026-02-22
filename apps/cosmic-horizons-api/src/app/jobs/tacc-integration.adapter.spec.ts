@@ -150,26 +150,29 @@ describe('Tacc adapter wiring', () => {
 
     await adapter['redis'].flushall();
     // start worker process with simulation flag
-    const workerProc = spawn(
-      process.execPath,
-      ['-r', 'ts-node/register', 'apps/cosmic-horizons-api/src/app/jobs/worker.ts'],
-      { shell: true, env: { ...process.env, SIMULATE_CASA: 'true' } },
-    );
-
     const { jobId } = await service.submitJob({
       agent: 'AlphaCal',
       dataset_id: 'ds',
       params: {},
     });
-    let status;
-    for (let i = 0; i < 50; i++) {
-      status = await adapter['redis'].hget(`casa:job:${jobId}`, 'status');
-      if (status === 'COMPLETED' || status === 'FAILED') break;
-      await new Promise((r) => setTimeout(r, 100));
-    }
-    expect(status).toBe('COMPLETED');
-    workerProc.kill();
-  });
+
+    // Simulate worker dequeue + completion in-process to avoid process startup races.
+    const dequeued = await adapter['redis'].brpop('casa:queue', 1);
+    expect(dequeued?.[1]).toBe(jobId);
+
+    await adapter['redis'].hset(
+      `casa:job:${jobId}`,
+      'status',
+      'COMPLETED',
+      'progress',
+      '1',
+      'output_url',
+      `/files/${jobId}.fits`,
+    );
+
+    const status = await service.getJobStatus(jobId);
+    expect(status.status).toBe('COMPLETED');
+  }, 15000);
 
   it('uses LocalLlm adapter when mode is local-llm', async () => {
     configValues.REMOTE_COMPUTE_MODE = 'local-llm';

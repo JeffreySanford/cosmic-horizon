@@ -60,6 +60,7 @@ describe('JobOrchestratorService', () => {
             updateStatus: jest.fn().mockResolvedValue(undefined),
             updateProgress: jest.fn().mockResolvedValue(undefined),
             updateResult: jest.fn().mockResolvedValue(undefined),
+            updateTaccJobId: jest.fn().mockResolvedValue(undefined),
             search: jest.fn().mockResolvedValue([[mockJob], 1]),
             delete: jest.fn().mockResolvedValue(undefined),
           },

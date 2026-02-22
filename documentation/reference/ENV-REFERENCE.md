@@ -93,7 +93,7 @@ Complete reference of all environment variables used by Cosmic Horizons.
 | -------------------- | ------- | ----------------------- | -------- | ---------------------------------------------------- |
 | `PULSAR_ENABLED`     | boolean | `false`                 | No       | Enable Pulsar broker in local demos/benchmarks       |
 | `PULSAR_BROKERS`     | string  | `localhost:6650`        | No       | Pulsar broker connection string                      |
-| `PULSAR_ADMIN_URL`   | string  | `http://localhost:8080` | No       | Pulsar admin REST API URL                            |
+| `PULSAR_ADMIN_URL`   | string  | `http://localhost:8088` | No       | Pulsar admin REST API URL                            |
 | `PULSAR_MANAGER_URL` | string  | `http://localhost:9527` | No       | Pulsar manager UI URL                                |
 | `PULSAR_NAMESPACES`  | string  | (none)                  | No       | Comma-separated list of Pulsar namespaces used       |
 | `PULSAR_TOPICS`      | string  | (none)                  | No       | Comma-separated list of Pulsar topics for evaluation |

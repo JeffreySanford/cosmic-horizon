@@ -27,6 +27,7 @@ export interface TaccJobStatus {
   status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | string;
   progress: number;
   output_url?: string;
+  error_message?: string;
 }
 
 /**
@@ -330,12 +331,22 @@ export class LocalLlmAdapter implements TaccAdapter {
     }
 
     if (record.cancelled) {
-      return { id: jobId, status: 'FAILED', progress: 0 };
+      return {
+        id: jobId,
+        status: 'FAILED',
+        progress: 0,
+        error_message: 'Job was cancelled before completion.',
+      };
     }
 
     let status: TaccJobStatus;
     if (record.failed) {
-      status = { id: jobId, status: 'FAILED', progress: 0 };
+      status = {
+        id: jobId,
+        status: 'FAILED',
+        progress: 0,
+        error_message: 'Local LLM generation failed during job execution.',
+      };
     } else {
       const elapsed = Date.now() - record.createdAtMs;
       if (elapsed < 1500) {
@@ -481,7 +492,7 @@ export class CasaTaccAdapter implements TaccAdapter {
       status: (data.status as TaccJobStatus['status']) || 'UNKNOWN',
       progress: Number(data.progress) || 0,
       output_url: data.output_url,
-      // optionally return error field
+      error_message: data.error || undefined,
     };
   }
 

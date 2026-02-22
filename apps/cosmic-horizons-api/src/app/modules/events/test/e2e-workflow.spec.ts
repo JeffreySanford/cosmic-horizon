@@ -61,6 +61,7 @@ describe('Week 3 E2E Workflow', () => {
             }),
             updateResult: jest.fn().mockResolvedValue(undefined),
             updateProgress: jest.fn().mockResolvedValue(undefined),
+            updateTaccJobId: jest.fn().mockResolvedValue(undefined),
             findByUser: jest.fn().mockResolvedValue([[], 0]),
             search: jest.fn().mockResolvedValue([[], 0]),
           },

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { finalize } from 'rxjs';
 
 type JobStatusValue =
   | 'QUEUED'
@@ -24,8 +25,11 @@ interface TaccJobStatus {
   status: JobStatusValue;
   progress: number;
   output_url?: string;
+  notes?: string;
+  error_message?: string;
   result?: {
     output_url?: string;
+    error_message?: string;
   };
 }
 
@@ -116,6 +120,7 @@ export class JobsConsoleComponent implements OnInit {
     'anomaly-report',
   ];
   readonly frequencyBands = ['L', 'S', 'C', 'X', 'Ku', 'K', 'Ka', 'Q'];
+  private readonly failedJobReasonsLogged = new Set<string>();
 
   private readonly agentWorkflow: Record<
     string,
@@ -192,15 +197,46 @@ export class JobsConsoleComponent implements OnInit {
    */
   refreshDatasets(): void {
     this.refreshingDatasets = true;
-    this.http.post<Array<{id:string;label:string;lastUpdated?:string}>>('/api/datasets/refresh', {})
+    this.http
+      .post<Array<{ id: string; label: string; lastUpdated?: string }>>(
+        '/api/datasets/refresh',
+        {},
+      )
+      .pipe(
+        finalize(() => {
+          queueMicrotask(() => {
+            this.refreshingDatasets = false;
+            this.cdr.markForCheck();
+          });
+        }),
+      )
       .subscribe((list) => {
         this.datasets = list;
         if (list.length) {
           this.selectedDataset = list[0];
+          this.datasetId = list[0].id;
+          queueMicrotask(() => {
+            this.snackBar.open(`Loaded ${list.length} dataset${list.length === 1 ? '' : 's'}.`, 'Close', {
+              duration: 2500,
+            });
+          });
+          return;
         }
-        this.refreshingDatasets = false;
-      }, () => {
-        this.refreshingDatasets = false;
+
+        this.selectedDataset = null;
+        this.datasetId = '';
+        queueMicrotask(() => {
+          this.snackBar.open(
+            'No datasets found. Add one or more dataset folders under astronomy-data/ and click refresh.',
+            'Close',
+            {
+              duration: 6000,
+              panelClass: ['toast-warn'],
+            },
+          );
+        });
+      }, (error: HttpErrorResponse) => {
+        this.handleDatasetLoadError(error, true);
       });
   }
 
@@ -226,19 +262,88 @@ export class JobsConsoleComponent implements OnInit {
     this.loadJobs();
     this.http
       .get<Record<string, boolean>>('/api/jobs/capabilities')
-      .subscribe((caps) => {
-        this.capabilities = caps;
+      .subscribe({
+        next: (caps) => {
+          this.capabilities = caps;
+        },
+        error: () => {
+          this.capabilities = {};
+        },
       });
 
     // fetch available datasets
-    this.http.get<Array<{id:string;label:string;lastUpdated?:string}>>('/api/datasets')
-      .subscribe((list) => {
-        this.datasets = list;
-        if (list.length) {
-          this.selectedDataset = list[0];
-          this.datasetId = list[0].id;
-        }
+    this.http
+      .get<Array<{ id: string; label: string; lastUpdated?: string }>>(
+        '/api/datasets',
+      )
+      .subscribe({
+        next: (list) => {
+          this.datasets = list;
+          if (list.length) {
+            this.selectedDataset = list[0];
+            this.datasetId = list[0].id;
+            return;
+          }
+
+          this.selectedDataset = null;
+          this.datasetId = '';
+        },
+        error: (error: HttpErrorResponse) => {
+          this.handleDatasetLoadError(error, false);
+        },
       });
+  }
+
+  private handleDatasetLoadError(
+    error: HttpErrorResponse,
+    isRefresh: boolean,
+  ): void {
+    const correlationId = error.headers?.get('x-correlation-id') ?? null;
+    const backendMessage =
+      typeof error.error === 'string'
+        ? error.error
+        : (error.error?.message as string | undefined) ?? error.message;
+    const reason = this.classifyHttpFailure(error, backendMessage);
+    console.error('[JobsConsole] dataset request failed', {
+      status: error.status,
+      statusText: error.statusText,
+      url: error.url,
+      message: backendMessage,
+      correlationId,
+      reason,
+      operation: isRefresh ? 'refresh' : 'initial-load',
+    });
+
+    this.datasets = [];
+    this.selectedDataset = null;
+    this.datasetId = '';
+
+    if (error.status === 401) {
+      queueMicrotask(() => {
+        this.snackBar.open(
+          'Sign in to load or refresh datasets for job submission.',
+          'Close',
+          {
+            duration: 5000,
+            panelClass: ['toast-warn'],
+          },
+        );
+      });
+      return;
+    }
+
+    queueMicrotask(() => {
+      this.snackBar.open(
+        isRefresh
+          ? 'Dataset refresh failed. Check API connectivity and retry.'
+          : 'Unable to load datasets right now.',
+        'Close',
+        {
+          duration: 5000,
+          panelClass: ['toast-warn'],
+        },
+      );
+    });
   }
 
   loadJobs() {
@@ -294,16 +399,17 @@ export class JobsConsoleComponent implements OnInit {
           this.isLoading = false;
           this.cdr.markForCheck();
         },
-        error: (err) => {
-          this.snackBar.open('Failed to submit job', 'Close', {
-            duration: 5000,
-            panelClass: ['toast-warn'],
-          });
-          this.isLoading = false;
-          this.cdr.markForCheck();
-          console.error(err);
-        },
-      });
+      error: (err) => {
+        const details = this.describeHttpError(err);
+        console.error('[JobsConsole] submitJob failed', details);
+        this.snackBar.open('Failed to submit job', 'Close', {
+          duration: 5000,
+          panelClass: ['toast-warn'],
+        });
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   pollStatus(jobId: string) {
@@ -313,6 +419,7 @@ export class JobsConsoleComponent implements OnInit {
           ...status,
           progress: this.normalizeProgress(status.progress),
           output_url: status.output_url ?? status.result?.output_url,
+          error_message: status.error_message ?? status.result?.error_message,
         };
         // double-defer the update: first tick to exit this callback, second
         // tick to mutate the array.  this prevents the new mat-progress-bar
@@ -328,6 +435,7 @@ export class JobsConsoleComponent implements OnInit {
             }
             // force a second CD to flush any child-component updates
             this.cdr.detectChanges();
+            this.logJobFailureReason(normalizedStatus);
             // continue polling if still running
             if (
               normalizedStatus.status !== 'COMPLETED' &&
@@ -339,6 +447,9 @@ export class JobsConsoleComponent implements OnInit {
             }
           });
         });
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('[JobsConsole] pollStatus failed', this.describeHttpError(error));
       },
     });
   }
@@ -514,5 +625,85 @@ export class JobsConsoleComponent implements OnInit {
         science_intent: this.scienceIntentSummary,
       },
     };
+  }
+
+  private logJobFailureReason(job: TaccJobStatus): void {
+    if (job.status !== 'FAILED' || this.failedJobReasonsLogged.has(job.id)) {
+      return;
+    }
+
+    const reason =
+      job.error_message ??
+      job.result?.error_message ??
+      job.notes ??
+      'Job failed without a detailed reason from backend.';
+    console.error('[JobsConsole] job failed', {
+      jobId: job.id,
+      taccJobId: job.tacc_job_id ?? null,
+      reason,
+    });
+    this.failedJobReasonsLogged.add(job.id);
+  }
+
+  private describeHttpError(error: unknown): {
+    status: number;
+    statusText: string;
+    url: string;
+    message: string;
+    correlationId: string | null;
+    reason: string;
+  } {
+    if (!(error instanceof HttpErrorResponse)) {
+      return {
+        status: 0,
+        statusText: 'Unknown Error',
+        url: 'unknown-url',
+        message: String(error),
+        correlationId: null,
+        reason: 'unknown_error',
+      };
+    }
+
+    const message =
+      typeof error.error === 'string'
+        ? error.error
+        : (error.error?.message as string | undefined) ?? error.message;
+    return {
+      status: error.status ?? 0,
+      statusText: error.statusText || 'Unknown Error',
+      url: error.url ?? 'unknown-url',
+      message,
+      correlationId: error.headers?.get('x-correlation-id') ?? null,
+      reason: this.classifyHttpFailure(error, message),
+    };
+  }
+
+  private classifyHttpFailure(
+    error: HttpErrorResponse,
+    message: string,
+  ): string {
+    if (error.status === 401) {
+      return 'auth_required';
+    }
+    if (error.status === 403) {
+      return 'forbidden';
+    }
+    if (error.status === 404) {
+      return 'not_found';
+    }
+    if (error.status === 0) {
+      return 'network_unreachable';
+    }
+    if (error.status >= 500) {
+      const messageLower = message.toLowerCase();
+      if (
+        messageLower.includes('econnrefused') ||
+        messageLower.includes('connect')
+      ) {
+        return 'backend_unavailable';
+      }
+      return 'server_error';
+    }
+    return 'request_failed';
   }
 }

@@ -43,6 +43,7 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
       updateStatus: jest.fn().mockResolvedValue(undefined),
       updateProgress: jest.fn().mockResolvedValue(undefined),
       updateResult: jest.fn().mockResolvedValue(undefined),
+      updateTaccJobId: jest.fn().mockResolvedValue(undefined),
       findByUser: jest.fn(),
       search: jest.fn(),
       findByTaccJobId: jest.fn(),
@@ -302,7 +303,11 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
 
       expect(result).toBeDefined();
       expect(taccService.getJobStatus).toHaveBeenCalledWith('tacc-1');
-      expect(jobRepository.updateProgress).toHaveBeenCalledWith('job-1', 5);
+      expect(jobRepository.updateStatus).toHaveBeenCalledWith(
+        'job-1',
+        'RUNNING',
+        5,
+      );
     });
 
     it('should update job when TACC reports completion', async () => {

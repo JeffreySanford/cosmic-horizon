@@ -12,6 +12,16 @@ const dockerReady = () =>
   spawnSync('docker', ['info'], { stdio: 'ignore' }).status === 0;
 
 if (dockerReady()) {
+  // ensure external network exists as compose files expect
+  try {
+    const netCheck = spawnSync('docker', ['network', 'ls', '--filter', 'name=^cosmic-horizons-network$', '-q']);
+    if (netCheck.stdout.toString().trim() === '') {
+      console.log('Creating missing Docker network cosmic-horizons-network');
+      spawnSync('docker', ['network', 'create', '--driver', 'bridge', 'cosmic-horizons-network'], { stdio: 'inherit' });
+    }
+  } catch {
+    // ignore failures; network may be managed differently
+  }
   process.exit(0);
 }
 

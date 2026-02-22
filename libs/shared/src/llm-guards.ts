@@ -29,7 +29,11 @@ if (typeof rateBucketSweep.unref === 'function') {
   rateBucketSweep.unref();
 }
 
-export function applyRateLimit(payload: any): void {
+interface DatasetPayload {
+  dataset_id?: string;
+}
+
+export function applyRateLimit(payload: DatasetPayload | undefined): void {
   const key = payload?.dataset_id || 'global';
   const now = Date.now();
   let bucket = rateBuckets.get(key);
@@ -47,7 +51,9 @@ export function applyRateLimit(payload: any): void {
     }
   }
   if (bucket.tokens <= 0) {
-    const err: any = new Error('rate limit exceeded');
+    const err = new Error('rate limit exceeded') as Error & {
+      code: string;
+    };
     err.code = 'RATE_LIMIT';
     throw err;
   }
@@ -67,7 +73,9 @@ const LLMOutputSchema = z.object({
  * Validate the JSON output coming back from the LLM worker and normalize.
  * Throws if the structure does not match the expected schema.
  */
-export function validateLLMOutput(output: any): any {
+export type LLMOutput = z.infer<typeof LLMOutputSchema>;
+
+export function validateLLMOutput(output: unknown): LLMOutput {
   return LLMOutputSchema.parse(output);
 }
 
@@ -76,7 +84,7 @@ export function validateLLMOutput(output: any): any {
  * the adapter to avoid spinning up the LLM for identical parameter sets.
  */
 interface CacheEntry {
-  value: any;
+  value: unknown;
   created: number;
 }
 const responseCache = new Map<string, CacheEntry>();
@@ -95,7 +103,7 @@ if (typeof responseCacheSweep.unref === 'function') {
   responseCacheSweep.unref();
 }
 
-export function cacheResponse(key: string, value?: any): any {
+export function cacheResponse(key: string, value?: unknown): unknown {
   if (value === undefined) {
     const entry = responseCache.get(key);
     if (!entry) return undefined;

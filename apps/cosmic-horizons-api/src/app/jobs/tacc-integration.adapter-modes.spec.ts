@@ -11,6 +11,8 @@ import { ConfigService } from '@nestjs/config';
 let hsetSpy: jest.Mock;
 let lpushSpy: jest.Mock;
 let hgetallSpy: jest.Mock;
+let llenSpy: jest.Mock;
+let flushallSpy: jest.Mock;
 
 // mock ioredis at the top level so jest can hoist and intercept imports
 jest.mock('ioredis', () => {
@@ -18,6 +20,8 @@ jest.mock('ioredis', () => {
     hset: (hsetSpy = jest.fn()),
     lpush: (lpushSpy = jest.fn()),
     hgetall: (hgetallSpy = jest.fn()),
+    llen: (llenSpy = jest.fn().mockResolvedValue(0)),
+    flushall: (flushallSpy = jest.fn().mockResolvedValue('OK')),
     ping: jest.fn().mockResolvedValue('PONG'),
   }));
 });

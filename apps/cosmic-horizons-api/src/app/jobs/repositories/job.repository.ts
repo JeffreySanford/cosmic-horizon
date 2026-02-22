@@ -85,6 +85,10 @@ export class JobRepository {
     await this.repository.update({ id }, { result });
   }
 
+  async updateTaccJobId(id: string, taccJobId: string): Promise<void> {
+    await this.repository.update({ id }, { tacc_job_id: taccJobId });
+  }
+
   async search(
     filters: {
       user_id?: string;

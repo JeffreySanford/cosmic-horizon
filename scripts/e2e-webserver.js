@@ -18,6 +18,19 @@ function spawnCommand(cmd, args) {
   return proc;
 }
 
+function runCommandOnce(cmd, args) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn(cmd, args, { shell: true, stdio: 'inherit' });
+    proc.on('exit', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`${cmd} ${args.join(' ')} exited with ${code}`));
+    });
+  });
+}
+
 function waitForUrl(url, timeout = 120000) {
   return new Promise((resolve, reject) => {
     const start = Date.now();
@@ -55,6 +68,9 @@ async function main() {
   const apiPort = process.env.API_PORT || '3000';
   const apiBase = process.env.API_BASE_URL || `http://127.0.0.1:${apiPort}`;
   const healthUrl = `${apiBase.replace(/\/$/, '')}/api/health`;
+
+  console.log('running db:migrate before e2e webserver boot');
+  await runCommandOnce('pnpm', ['run', 'db:migrate']);
 
   console.log('starting cosmic-horizons-api serve');
   const api = spawnCommand('pnpm', ['run', 'start:api']);

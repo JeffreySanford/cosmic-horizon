@@ -10,8 +10,6 @@ const redis = new Redis(redisUrl);
 async function processJob(jobId: string) {
   const key = `casa:job:${jobId}`;
   await redis.hset(key, 'status', 'RUNNING');
-  // for simplicity assume a script is already present at /data/run-image.py
-  const scriptPath = `${dataDir}/run-image.py`;
 
   try {
     if (process.env.SIMULATE_CASA === 'true') {
@@ -46,12 +44,12 @@ async function processJob(jobId: string) {
     } else {
       await new Promise<void>((resolve, reject) => {
         // launch our custom astronomy worker image which already includes the run script
-      const proc = spawn(
+        const proc = spawn(
           'docker',
           [
             'run',
             '--rm',
-            `-v`,
+            '-v',
             `${dataDir}:${dataDir}`,
             '-e',
             `ASTRO_DATA_DIR=${dataDir}`,

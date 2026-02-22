@@ -24,12 +24,6 @@ test.beforeEach(async ({ context, page }) => {
 test('admin posts table shows all records with correct paginator and green-tinted shell', async ({
   page,
 }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
-  test.skip(
-    true,
-    'Flaky loading race in full-suite /posts table hydration; keep skipped until request lifecycle is stabilized.',
-  );
-
   const seededPosts = Array.from({ length: 20 }, (_, index) => {
     const n = index + 1;
     return {

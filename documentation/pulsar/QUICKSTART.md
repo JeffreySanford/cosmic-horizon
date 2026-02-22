@@ -81,7 +81,7 @@ After startup, visit:
 | --------------- | ---------------------------------------------------------------- | -------------------- |
 | Pulsar Manager  | [http://localhost:9527](http://localhost:9527)                   | admin / apachepulsar |
 | RabbitMQ        | [http://localhost:15672](http://localhost:15672)                 | guest / guest        |
-| Pulsar REST API | [http://localhost:8080/admin/v2](http://localhost:8080/admin/v2) | open                 |
+| Pulsar REST API | [http://localhost:8088/admin/v2](http://localhost:8088/admin/v2) | open                 |
 
 ---
 

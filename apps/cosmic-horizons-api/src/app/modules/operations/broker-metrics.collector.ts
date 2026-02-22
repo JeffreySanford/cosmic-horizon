@@ -14,7 +14,7 @@ import { BrokerMetricsDTO } from './broker-metrics.entity';
  * Each broker has different admin APIs:
  * - RabbitMQ: HTTP REST API on port 15672
  * - Kafka: JMX metrics (can also use CLI or KSM - Kafka Service Monitor)
- * - Pulsar: HTTP REST API on port 8080
+ * - Pulsar: HTTP REST API on port 8088
  */
 @Injectable()
 export class BrokerMetricsCollector {
@@ -346,7 +346,7 @@ export class BrokerMetricsCollector {
       }
 
       // Try to get real metrics from Pulsar broker stats
-      const broker = brokerList[0]; // e.g., "localhost:8080"
+      const broker = brokerList[0]; // e.g., "localhost:8088"
       try {
         const stats = await this.pulsarClient.get(
           `/admin/v2/brokers/standalone/${broker}/stats`,
@@ -694,7 +694,7 @@ export class BrokerMetricsCollector {
   }
 
   private buildPulsarUrl(): string {
-    const url = process.env['PULSAR_ADMIN_URL'] ?? 'http://localhost:8080';
+    const url = process.env['PULSAR_ADMIN_URL'] ?? 'http://localhost:8088';
     return url;
   }
 

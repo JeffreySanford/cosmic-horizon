@@ -12,6 +12,9 @@ import {
   Discovery,
   CosmicTileCache,
 } from './entities';
+import { Job } from './jobs/entities/job.entity';
+import { Dataset } from './jobs/entities/dataset.entity';
+import { BrokerMetrics } from './modules/operations/broker-metrics.entity';
 import { loadEnvFromFirstAvailable } from './config/env-loader';
 
 loadEnvFromFirstAvailable();
@@ -73,6 +76,9 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
     AuditLog,
     Discovery,
     CosmicTileCache,
+    Job,
+    Dataset,
+    BrokerMetrics,
   ],
   synchronize: false,
   logging: loggingEnabled,

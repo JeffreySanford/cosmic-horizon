@@ -1,4 +1,4 @@
-# cosmic-horizon-data service Dockerfile
+# cosmic-horizons-casa-data service Dockerfile
 # based on lightweight Python image; provides FastAPI microservice
 
 FROM python:3.11-slim

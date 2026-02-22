@@ -1,7 +1,7 @@
-import { InitialSchema20260220 } from './20260220InitialSchema';
+import { InitialSchema2026022000000 } from './20260220InitialSchema';
 
 describe('InitialSchema20260220 migration', () => {
-  const migration = new InitialSchema20260220();
+  const migration = new InitialSchema2026022000000();
   const mockRunner: any = {
     query: jest.fn().mockResolvedValue(undefined),
   };

@@ -151,18 +151,19 @@ services:
   # ============================================================================
   # PULSAR STANDALONE (Alternative Async Broker)
   # ============================================================================
-  pulsar-standalone:
+  pulsar:
     image: apachepulsar/pulsar:latest
-    container_name: cosmic-horizons-pulsar-standalone
+    container_name: cosmic-horizons-pulsar
     environment:
       PULSAR_MEM: '-Xms1g -Xmx1g'
       PULSAR_GC: '-XX:+UseG1GC -XX:MaxGCPauseMillis=10'
     ports:
-      - '6650:6650' # Pulsar broker protocol
-      - '8080:8080' # HTTP REST API
-      - '8081:8081' # WebSocket
+      - '6650:6650' # Pulsar broker protocol (kept on standard port)
+      # remap HTTP/API ports to avoid colliding with CASA GUI
+      - '8088:8080' # HTTP REST API (host 8088)
+      - '9081:8081' # WebSocket (host 9081)
     volumes:
-      - pulsar-standalone-data:/var/lib/pulsar
+      - pulsar-data:/var/lib/pulsar
     networks:
       - cosmic-horizons-network
     command: bin/pulsar standalone
@@ -200,14 +201,14 @@ services:
       start_period: 30s
 
   # ============================================================================
-  # Astronomy microservice for real-data jobs (optional, enabled by 'astro' profile)
+  # Astronomy microservice for real-data jobs (optional, enabled by 'astro-data' profile)
   # ============================================================================
-  cosmic-horizon-data:
-    profiles: ['astro']
+  cosmic-horizons-casa-data:
+    profiles: ['astro-data']
     build:
       context: ./apps/cosmic-horizons-api
       dockerfile: docker/astronomy-worker.Dockerfile
-    container_name: cosmic-horizon-data
+    container_name: cosmic-horizons-casa-data
     environment:
       - REDIS_URL=redis://cosmic-horizons-redis:6379
       - ASTRO_DATA_DIR=/data
@@ -218,7 +219,7 @@ services:
       - cosmic-horizons-redis
       - cosmic-horizons-casa
     ports:
-      - "8080:8080"
+      - "8090:8080"
     networks:
       - cosmic-horizons-network
     restart: unless-stopped
@@ -247,7 +248,7 @@ volumes:
     driver: local
   cosmic-horizons-kafka-data:
     driver: local
-  pulsar-standalone-data:
+  pulsar-data:
     driver: local
   cosmic-horizons-ollama-models:
     driver: local

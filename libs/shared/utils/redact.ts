@@ -13,13 +13,14 @@ export function redactHeaders(
   return result;
 }
 
-export function redactBody(body: any): any {
+export function redactBody(body: unknown): unknown {
   if (!body || typeof body !== 'object') return body;
-  const cloned = JSON.parse(JSON.stringify(body));
-  function recurse(obj: any) {
+  const cloned: Record<string, unknown> = JSON.parse(JSON.stringify(body));
+  function recurse(obj: Record<string, unknown>) {
     for (const key of Object.keys(obj)) {
-      if (typeof obj[key] === 'object') {
-        recurse(obj[key]);
+      const current = obj[key];
+      if (current && typeof current === 'object') {
+        recurse(current as Record<string, unknown>);
       } else if (/(token|secret|password)/i.test(key)) {
         obj[key] = '<REDACTED>';
       }

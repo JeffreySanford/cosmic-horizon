@@ -1,36 +1,9 @@
-import { test, expect, Page } from '@playwright/test';
-
-function createFakeJwt(
-  exp: number,
-  claims: Record<string, string> = {},
-): string {
-  const header = Buffer.from(
-    JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
-  ).toString('base64url');
-  const payload = Buffer.from(
-    JSON.stringify({ sub: 'user-1', exp, ...claims }),
-  ).toString('base64url');
-  const signature = 'test-signature';
-  return `${header}.${payload}.${signature}`;
-}
+import { test, expect, Page, APIRequestContext } from '@playwright/test';
+import { primeAuthenticatedSession } from './support/auth';
 
 // copy of jobs-flow.spec.ts adjusted for local-llm mode
-async function loginAsTestUser(page: Page) {
-  const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
-  await page.addInitScript((jwt: string) => {
-    window.sessionStorage.setItem('auth_token', jwt);
-    window.sessionStorage.setItem(
-      'auth_user',
-      JSON.stringify({
-        id: 'user-1',
-        username: 'testuser',
-        email: 'test@cosmic.local',
-        display_name: 'Test User',
-        role: 'user',
-        created_at: '2026-02-07T00:00:00.000Z',
-      }),
-    );
-  }, token);
+async function loginAsTestUser(page: Page, request: APIRequestContext) {
+  await primeAuthenticatedSession(page, request);
 }
 
 async function enableLocalLlmMode(page: Page) {
@@ -39,8 +12,8 @@ async function enableLocalLlmMode(page: Page) {
   });
 }
 
-test('local-llm job flow', async ({ page }: { page: Page }) => {
-  await loginAsTestUser(page);
+test('local-llm job flow', async ({ page, request }) => {
+  await loginAsTestUser(page, request);
   await enableLocalLlmMode(page);
 
   // stub endpoints as in main spec
@@ -49,6 +22,19 @@ test('local-llm job flow', async ({ page }: { page: Page }) => {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({ localLLM: true, baseUrlReachable: true }),
+    });
+  });
+  await page.route('**/api/datasets**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        {
+          id: 'VLASS2.1.test',
+          label: 'VLASS2.1.test',
+          lastUpdated: new Date().toISOString(),
+        },
+      ]),
     });
   });
   await page.route('**/api/jobs/submit', async (route) => {
@@ -83,7 +69,19 @@ test('local-llm job flow', async ({ page }: { page: Page }) => {
   await page.goto('/jobs');
   await expect(page).toHaveURL(/\/jobs$/);
 
-  await page.fill('input[placeholder="e.g. VLASS2.1.eb123456"]', 'test');
+  await page.evaluate(() => {
+    const ng = (window as any).ng as any;
+    const host = document.querySelector('app-jobs-console');
+    if (!ng || !host || typeof ng.getComponent !== 'function') {
+      throw new Error('jobs component not available');
+    }
+    const component = ng.getComponent(host);
+    component.selectedDataset = { id: 'VLASS2.1.test', label: 'VLASS2.1.test' };
+    component.datasetId = 'VLASS2.1.test';
+    if (typeof ng.applyChanges === 'function') {
+      ng.applyChanges(host);
+    }
+  });
   await page.click('button.submit-btn');
   await expect(page.getByText(/submitted successfully/)).toBeVisible();
 

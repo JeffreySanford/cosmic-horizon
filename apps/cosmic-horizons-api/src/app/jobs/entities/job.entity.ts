@@ -34,7 +34,7 @@ export class Job {
   @Column('varchar')
   agent!: AgentType;
 
-  @Column('uuid')
+  @Column('varchar')
   dataset_id!: string;
 
   @Column('varchar', { nullable: true })

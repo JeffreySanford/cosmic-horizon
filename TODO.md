@@ -17,7 +17,7 @@ This file is the active execution checklist and near-term operating journal.
 - **Real‑Data Jobs Integration (astronomy mode)**
   - Phase 1 – Preparation (completed)
     - [x] Select one or two small public MS files and make them available under `astronomy-data/` (or add `scripts/fetch-demo-data.mjs`).
-    - [x] Add `docker-compose.astronomy.yml` with CASA/WSClean services; ensure `start:infra` supports an `ASTRO=true` flag.
+    - [x] Add `docker-compose.astronomy.yml` with CASA/WSClean services; originally gated by `ASTRO=true`, but now the astronomy profile is included by default (no env variable needed for cross‑platform compatibility). Network creation is now automatic during `start:infra`.
     - [x] Create a `CasaAdapter` stub implementing the existing demo interface and gate it on `REMOTE_COMPUTE_MODE === 'astronomy'`.
   - Phase 2 – Metadata & LLM (completed)
     - [x] Write a helper that runs `casa -c "print(listobs('/data/sample.ms'))" inside the CASA container and parses useful fields.
@@ -36,9 +36,9 @@ This file is the active execution checklist and near-term operating journal.
     - [x] Update or retire the Node worker to call the service via HTTP (code moved to `jobs/archived/worker.ts`).
 
   - Phase 4 – Frontend UX
-    - [ ] Update jobs-console.component with dataset selector and display of chosen dataset in summary.
-    - [ ] Add optional "Fetch latest data" button to refresh sample directory.
-    - [ ] Show the last‑updated timestamp for the selected dataset alongside its name.
+    - [x] Update jobs-console.component with dataset selector and display of chosen dataset in summary.
+    - [x] Add optional "Fetch latest data" button to refresh sample directory.
+    - [x] Show the last‑updated timestamp for the selected dataset alongside its name.
 
   - Phase 5 – Scaling & polish
     - [ ] Support multiple datasets with pre-download & selection logic.

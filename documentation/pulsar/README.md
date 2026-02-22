@@ -25,7 +25,7 @@ Complete reference with setup, monitoring, performance interpretation, cost anal
 **File**: `docker-compose.events.yml` (Pulsar section)
 
 - Pulsar Standalone (includes ZooKeeper, BookKeeper, and Broker in one container)
-- Ports: 6650 (broker), 8080 (REST API), 8081 (WebSocket)
+- Ports: 6650 (broker), 8088 (REST API), 9081 (WebSocket)
 - Health checks and proper networking
 
 **Size estimate**: 1.5-2 GB RAM when running  

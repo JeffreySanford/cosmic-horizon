@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { primeAuthenticatedSession } from './support/auth';
 
 function createFakeJwt(
   exp: number,
@@ -69,43 +70,8 @@ test('shows error for invalid credentials', async ({ page }) => {
   ).toBeVisible();
 });
 
-test('logs in and allows logout', async ({ page }) => {
-  const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
-
-  await page.addInitScript((jwt: string) => {
-    window.sessionStorage.setItem('auth_token', jwt);
-    window.sessionStorage.setItem(
-      'auth_user',
-      JSON.stringify({
-        id: 'user-1',
-        username: 'testuser',
-        email: 'test@cosmic.local',
-        display_name: 'Test User',
-        role: 'user',
-        created_at: '2026-02-07T00:00:00.000Z',
-      }),
-    );
-  }, token);
-
-  await page.route('**/api/auth/me', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      headers: {
-        'access-control-allow-origin': '*',
-      },
-      body: JSON.stringify({
-        user: {
-          id: 'user-1',
-          username: 'testuser',
-          email: 'test@cosmic.local',
-          display_name: 'Test User',
-          role: 'user',
-          created_at: '2026-02-07T00:00:00.000Z',
-        },
-      }),
-    });
-  });
+test('logs in and allows logout', async ({ page, request }) => {
+  await primeAuthenticatedSession(page, request);
 
   await page.route('**/api/auth/logout', async (route) => {
     await route.fulfill({
@@ -146,42 +112,9 @@ test('logs in and allows logout', async ({ page }) => {
 
 test('blocks access to logs when backend confirms non-admin role', async ({
   page,
+  request,
 }) => {
-  const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
-
-  await page.addInitScript((jwt: string) => {
-    window.sessionStorage.setItem('auth_token', jwt);
-    window.sessionStorage.setItem(
-      'auth_user',
-      JSON.stringify({
-        id: 'user-1',
-        username: 'testuser',
-        email: 'test@cosmic.local',
-        display_name: 'Test User',
-        role: 'user',
-        created_at: '2026-02-07T00:00:00.000Z',
-      }),
-    );
-  }, token);
-
-  await page.route('**/api/auth/me', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      headers: { 'access-control-allow-origin': '*' },
-      body: JSON.stringify({
-        authenticated: true,
-        user: {
-          id: 'user-1',
-          username: 'testuser',
-          email: 'test@cosmic.local',
-          display_name: 'Test User',
-          role: 'user',
-          created_at: '2026-02-07T00:00:00.000Z',
-        },
-      }),
-    });
-  });
+  await primeAuthenticatedSession(page, request);
 
   await page.goto('/landing', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
@@ -378,23 +311,8 @@ test('creates viewer permalink and snapshot from pillar 2 flow', async ({
   await expect(page.getByText(/M87 Core \(RA/)).toBeVisible();
 });
 
-test('creates a notebook post from pillar 3 flow', async ({ page }) => {
-  const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
-
-  await page.addInitScript((jwt: string) => {
-    window.sessionStorage.setItem('auth_token', jwt);
-    window.sessionStorage.setItem(
-      'auth_user',
-      JSON.stringify({
-        id: 'user-1',
-        username: 'astro',
-        email: 'astro@cosmic.local',
-        display_name: 'Astro User',
-        role: 'user',
-        created_at: '2026-02-07T00:00:00.000Z',
-      }),
-    );
-  }, token);
+test('creates a notebook post from pillar 3 flow', async ({ page, request }) => {
+  await primeAuthenticatedSession(page, request);
 
   await page.route('**/api/posts**', async (route) => {
     const method = route.request().method();
@@ -487,30 +405,9 @@ test('creates a notebook post from pillar 3 flow', async ({ page }) => {
     });
   });
 
-  await page.route('**/api/auth/me', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      headers: { 'access-control-allow-origin': '*' },
-      body: JSON.stringify({
-        user: {
-          id: 'user-1',
-          username: 'astro',
-          email: 'astro@cosmic.local',
-          display_name: 'Astro User',
-          role: 'user',
-          created_at: '2026-02-07T00:00:00.000Z',
-        },
-      }),
-    });
-  });
-
   await page.goto('/landing', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/landing/, { timeout: 15000 });
-
-  await page
-    .locator('article.feature-card', { hasText: 'Community Research Notebook' })
-    .click();
+  await page.goto('/posts', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/posts/);
   await page.getByRole('button', { name: 'New Draft' }).click();
   await expect(page).toHaveURL(/\/posts\/new/);

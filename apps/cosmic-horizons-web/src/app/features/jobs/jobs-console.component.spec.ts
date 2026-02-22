@@ -102,6 +102,16 @@ describe('JobsConsoleComponent', () => {
     // ngOnInit capabilities call
     const capabilities = httpMock.expectOne('/api/jobs/capabilities');
     capabilities.flush({ demoMode: true, baseUrlReachable: true });
+
+    // ngOnInit dataset load
+    const initialDatasets = httpMock.expectOne('/api/datasets');
+    initialDatasets.flush([
+      {
+        id: 'seed-1',
+        label: 'Seed Dataset',
+        lastUpdated: new Date().toISOString(),
+      },
+    ]);
   });
 
   afterEach(() => {
@@ -109,35 +119,23 @@ describe('JobsConsoleComponent', () => {
   });
 
   it('should load datasets on init and pick first', () => {
-    const dsReq = httpMock.expectOne('/api/datasets');
-    dsReq.flush([
-      { id: 'one', label: 'Dataset One', lastUpdated: new Date().toISOString() },
-      { id: 'two', label: 'Dataset Two' },
-    ]);
-
-    expect(component.datasets.length).toBe(2);
-    expect(component.selectedDataset?.id).toBe('one');
-    expect(component.datasetId).toBe('one');
+    expect(component.datasets.length).toBe(1);
+    expect(component.selectedDataset?.id).toBe('seed-1');
+    expect(component.datasetId).toBe('seed-1');
   });
 
   it('should update datasetId when selection changes', () => {
-    // prepare initial list
-    const dsReq = httpMock.expectOne('/api/datasets');
-    dsReq.flush([{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }]);
-    fixture.detectChanges();
+    component.datasets = [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }];
+    component.selectedDataset = component.datasets[0];
+    component.datasetId = component.selectedDataset.id;
 
     component.selectedDataset = component.datasets[1];
     component.datasetId = component.selectedDataset.id;
-    fixture.detectChanges();
 
     expect(component.datasetId).toBe('b');
   });
 
   it('refreshDatasets should POST and replace list', () => {
-    // initial load
-    const dsReq = httpMock.expectOne('/api/datasets');
-    dsReq.flush([{ id: 'x', label: 'X' }]);
-
     component.refreshDatasets();
     const refreshReq = httpMock.expectOne('/api/datasets/refresh');
     expect(refreshReq.request.method).toBe('POST');
