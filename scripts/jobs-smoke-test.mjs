@@ -106,18 +106,20 @@ async function main() {
   // - DATASET_ID: explicit dataset identifier (takes precedence)
   // - FAILURE: when truthy the script will pick a "quota" dataset to
   //   exercise the failure path in the demo adapter.
+  // - TARGET: object name to include in job params and FITS header
   // Default behaviour is to submit a working job (e2e-pass-dataset...).
   const datasetId =
     process.env.DATASET_ID ||
     (process.env.FAILURE
       ? `quota-trigger-${Date.now()}`
       : `e2e-pass-dataset-${Date.now()}`);
-  console.log(`Submitting job against dataset: ${datasetId}`);
+  const targetName = process.env.TARGET || 'M51';
+  console.log(`Submitting job against dataset: ${datasetId} target: ${targetName}`);
   if (userToken) {
     const jobId = await submitJob(userToken, datasetId, {
       gpu_count: 1,
       rfi_strategy: 'medium',
-      target_name: 'M51',
+      target_name: targetName,
     });
     if (jobId) {
       const final = await waitForStatus(jobId, userToken);
@@ -176,7 +178,9 @@ from astropy.io import fits
 
 # simple 100x100 test image
 arr = np.arange(100*100, dtype=np.float32).reshape((100,100))
-fits.writeto(r'${safeFitsPath}', arr, overwrite=True)
+hdu = fits.PrimaryHDU(arr)
+hdu.header['OBJECT'] = '${targetName}'
+hdu.writeto(r'${safeFitsPath}', overwrite=True)
 `;
           const tmp = path.join(outDir, 'generate_fits.py');
           await fs.promises.writeFile(tmp, script);
@@ -239,7 +243,10 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 
 hdu = fits.open(r'${safeFits}')[0]
-plt.imsave(r'${safePng}', hdu.data, cmap='gray', origin='lower')
+plt.imshow(hdu.data, cmap='gray', origin='lower')
+plt.title('OBJECT: ${targetName}')
+plt.axis('off')
+plt.savefig(r'${safePng}', bbox_inches='tight', pad_inches=0)
 `;
             const convTmp = path.join(outDir, 'convert_fits.py');
             await fs.promises.writeFile(convTmp, convScript);
