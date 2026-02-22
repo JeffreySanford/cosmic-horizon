@@ -206,6 +206,31 @@ fits.writeto(r'${safeFitsPath}', arr, overwrite=True)
           await fs.promises.unlink(tmp);
           // convert FITS -> PNG using Python/astropy & matplotlib
           try {
+            // ensure matplotlib installed in the venv
+            try {
+              await new Promise((res, rej) => {
+                exec(
+                  `${pythonCmd} -c "import matplotlib"`,
+                  (err) => {
+                    if (err) return rej(err);
+                    res();
+                  },
+                );
+              });
+            } catch {
+              console.log('matplotlib not present, installing in venv');
+              await new Promise((res, rej) => {
+                exec(
+                  `${pythonCmd} -m pip install matplotlib`,
+                  (err, stdout, stderr) => {
+                    if (err) return rej(err);
+                    console.log(stdout, stderr);
+                    res();
+                  },
+                );
+              });
+            }
+
             const pngPath = path.join(outDir, `job-output-${final.id}.png`);
             const safeFits = fitsPath.replace(/\\/g, '\\\\');
             const safePng = pngPath.replace(/\\/g, '\\\\');
