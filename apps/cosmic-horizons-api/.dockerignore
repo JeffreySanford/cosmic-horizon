@@ -1,0 +1,7 @@
+# Ignore Node modules and build output when building Docker images for the API/worker
+node_modules
+# `dist` is intentionally excluded from ignore as we now copy prebuilt assets there
+npm-debug.log*
+.git
+**/.git
+**/.DS_Store

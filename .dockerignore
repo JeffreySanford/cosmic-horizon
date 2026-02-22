@@ -1,0 +1,8 @@
+# Global ignore for Docker builds invoked from repo root
+node_modules
+**/node_modules
+/dist
+npm-debug.log*
+.git
+**/.git
+**/.DS_Store

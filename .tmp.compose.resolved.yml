@@ -1,0 +1,393 @@
+name: cosmic-horizons
+services:
+  cosmic-horizons-casa:
+    command:
+      - tail
+      - -f
+      - /dev/null
+    container_name: cosmic-horizons-casa
+    image: rxastro/casa6:latest
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
+      - mode: ingress
+        target: 8081
+        published: "8081"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: C:\repos\cosmic-horizons\astronomy-data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        bind:
+          create_host_path: true
+  cosmic-horizons-casa-data:
+    profiles:
+      - astro
+    build:
+      context: C:\repos\cosmic-horizons\apps\cosmic-horizons-api
+      dockerfile: docker/astronomy-worker.Dockerfile
+    container_name: cosmic-horizons-casa-data
+    depends_on:
+      cosmic-horizons-casa:
+        condition: service_started
+        required: true
+      cosmic-horizons-redis:
+        condition: service_started
+        required: true
+    environment:
+      ASTRO_DATA_DIR: /data
+      CASA_QUEUE_NAME: casa:queue
+      REDIS_URL: redis://cosmic-horizons-redis:6379
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8090"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: C:\repos\cosmic-horizons\astronomy-data
+        target: /data
+        bind:
+          create_host_path: true
+  cosmic-horizons-kafka:
+    container_name: cosmic-horizons-kafka
+    depends_on:
+      cosmic-horizons-zookeeper:
+        condition: service_healthy
+        required: true
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cosmic-horizons-kafka:29092,PLAINTEXT_HOST://127.0.0.1:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_BROKER_ID: "1"
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.rmi.port=9999 -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=cosmic-horizons-kafka
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LOG_RETENTION_BYTES: "1099511627776"
+      KAFKA_LOG_RETENTION_HOURS: "2160"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_ZOOKEEPER_CONNECT: cosmic-horizons-zookeeper:2181
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - KAFKA_JMX_OPTS="" kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1
+      timeout: 10s
+      interval: 5s
+      retries: 20
+      start_period: 30s
+    image: confluentinc/cp-kafka:7.6.0
+    networks:
+      cosmic-horizons-network:
+        aliases:
+          - kafka
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 9092
+        published: "9092"
+        protocol: tcp
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 9999
+        published: "9999"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: cosmic-horizons-kafka-data
+        target: /var/lib/kafka/data
+        volume: {}
+  cosmic-horizons-kafka-exporter:
+    container_name: cosmic-horizons-kafka-exporter
+    depends_on:
+      cosmic-horizons-kafka:
+        condition: service_healthy
+        required: true
+    environment:
+      KAFKA_BROKERS: cosmic-horizons-kafka:29092
+      KAFKA_SERVER: cosmic-horizons-kafka:29092
+      KAFKA_URI: cosmic-horizons-kafka:29092
+      LOG_LEVEL: info
+    image: danielqsj/kafka-exporter:latest
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 9308
+        published: "9308"
+        protocol: tcp
+    restart: unless-stopped
+  cosmic-horizons-ollama:
+    container_name: cosmic-horizons-ollama
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_KEEP_ALIVE: 10m
+    gpus:
+      - count: -1
+    healthcheck:
+      test:
+        - CMD
+        - ollama
+        - list
+      timeout: 10s
+      interval: 20s
+      retries: 10
+      start_period: 30s
+    image: ollama/ollama:latest
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 11434
+        published: "11435"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: cosmic-horizons-ollama-models
+        target: /root/.ollama
+        volume: {}
+  cosmic-horizons-postgres:
+    container_name: cosmic-horizons-postgres
+    environment:
+      POSTGRES_DB: cosmic_horizons
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=en_US.UTF-8
+      POSTGRES_PASSWORD: cosmic_horizons_password_dev
+      POSTGRES_USER: cosmic_horizons_user
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U cosmic_horizons_user -d cosmic_horizons
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    image: postgres:16-alpine
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 5432
+        published: "15432"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: cosmic-horizons-postgres-data
+        target: /var/lib/postgresql/data
+        volume: {}
+      - type: bind
+        source: C:\repos\cosmic-horizons\docs\database\init.sql
+        target: /docker-entrypoint-initdb.d/01-init.sql
+        read_only: true
+        bind:
+          create_host_path: true
+  cosmic-horizons-rabbitmq:
+    container_name: cosmic-horizons-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_VHOST: /
+      RABBITMQ_NODENAME: rabbit@cosmic-horizons-rabbitmq
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - rabbitmq-diagnostics -q ping
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    image: rabbitmq:3.13-management-alpine
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 5672
+        published: "5672"
+        protocol: tcp
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 15672
+        published: "15672"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: cosmic-horizons-rabbitmq-data
+        target: /var/lib/rabbitmq
+        volume: {}
+      - type: bind
+        source: C:\repos\cosmic-horizons\docker\rabbitmq.conf
+        target: /etc/rabbitmq/rabbitmq.conf
+        read_only: true
+        bind:
+          create_host_path: true
+  cosmic-horizons-redis:
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+    container_name: cosmic-horizons-redis
+    healthcheck:
+      test:
+        - CMD
+        - sh
+        - -c
+        - redis-cli --raw ping
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    image: redis:7-alpine
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 6379
+        published: "6379"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: cosmic-horizons-redis-data
+        target: /data
+        volume: {}
+  cosmic-horizons-worker:
+    build:
+      context: C:\repos\cosmic-horizons\apps\cosmic-horizons-api
+      dockerfile: Dockerfile
+      target: worker
+    container_name: cosmic-horizons-worker
+    depends_on:
+      cosmic-horizons-casa:
+        condition: service_started
+        required: true
+      cosmic-horizons-redis:
+        condition: service_started
+        required: true
+    environment:
+      ASTRO_DATA_DIR: /data
+      NODE_ENV: development
+      REDIS_URL: redis://cosmic-horizons-redis:6379
+    networks:
+      cosmic-horizons-network: null
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: C:\repos\cosmic-horizons\astronomy-data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        bind:
+          create_host_path: true
+  cosmic-horizons-zookeeper:
+    container_name: cosmic-horizons-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_TICK_TIME: "2000"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - echo stat | nc localhost 2181
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    image: confluentinc/cp-zookeeper:7.6.0
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 2181
+        published: "2181"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: cosmic-horizons-zookeeper-data
+        target: /var/lib/zookeeper/data
+        volume: {}
+  pulsar:
+    command:
+      - bin/pulsar
+      - standalone
+    container_name: cosmic-horizons-pulsar
+    environment:
+      PULSAR_GC: -XX:+UseG1GC -XX:MaxGCPauseMillis=10
+      PULSAR_MEM: -Xms1g -Xmx1g
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:8080/admin/v2/brokers/healthy
+      timeout: 5s
+      interval: 10s
+      retries: 5
+      start_period: 15s
+    image: apachepulsar/pulsar:latest
+    networks:
+      cosmic-horizons-network: null
+    ports:
+      - mode: ingress
+        target: 6650
+        published: "6650"
+        protocol: tcp
+      - mode: ingress
+        target: 8080
+        published: "8088"
+        protocol: tcp
+      - mode: ingress
+        target: 8081
+        published: "9081"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: pulsar-data
+        target: /var/lib/pulsar
+        volume: {}
+networks:
+  cosmic-horizons-network:
+    name: cosmic-horizons-network
+    driver: bridge
+    external: true
+volumes:
+  cosmic-horizons-kafka-data:
+    name: cosmic-horizons_cosmic-horizons-kafka-data
+    driver: local
+  cosmic-horizons-ollama-models:
+    name: cosmic-horizons_cosmic-horizons-ollama-models
+    driver: local
+  cosmic-horizons-postgres-data:
+    name: cosmic-horizons_cosmic-horizons-postgres-data
+    driver: local
+  cosmic-horizons-rabbitmq-data:
+    name: cosmic-horizons_cosmic-horizons-rabbitmq-data
+    driver: local
+  cosmic-horizons-redis-data:
+    name: cosmic-horizons_cosmic-horizons-redis-data
+    driver: local
+  cosmic-horizons-zookeeper-data:
+    name: cosmic-horizons_cosmic-horizons-zookeeper-data
+    driver: local
+  pulsar-data:
+    name: cosmic-horizons_pulsar-data
+    driver: local
