@@ -92,9 +92,16 @@ async function main() {
   console.log('Probing history endpoint with user token');
   await probeHistory(userToken);
 
-  // determine dataset to use for submission; env var overrides
+  // determine dataset to use for submission; env vars control outcome
+  // - DATASET_ID: explicit dataset identifier (takes precedence)
+  // - FAILURE: when truthy the script will pick a "quota" dataset to
+  //   exercise the failure path in the demo adapter.
+  // Default behaviour is to submit a working job (e2e-pass-dataset...).
   const datasetId =
-    process.env.DATASET_ID || `quota-trigger-${Date.now()}`; // include "quota" in id to force simulated failure
+    process.env.DATASET_ID ||
+    (process.env.FAILURE
+      ? `quota-trigger-${Date.now()}`
+      : `e2e-pass-dataset-${Date.now()}`);
   console.log(`Submitting job against dataset: ${datasetId}`);
   if (userToken) {
     const jobId = await submitJob(userToken, datasetId, {
