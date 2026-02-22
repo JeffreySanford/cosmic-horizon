@@ -108,6 +108,45 @@ describe('JobsConsoleComponent', () => {
     httpMock.verify();
   });
 
+  it('should load datasets on init and pick first', () => {
+    const dsReq = httpMock.expectOne('/api/datasets');
+    dsReq.flush([
+      { id: 'one', label: 'Dataset One', lastUpdated: new Date().toISOString() },
+      { id: 'two', label: 'Dataset Two' },
+    ]);
+
+    expect(component.datasets.length).toBe(2);
+    expect(component.selectedDataset?.id).toBe('one');
+    expect(component.datasetId).toBe('one');
+  });
+
+  it('should update datasetId when selection changes', () => {
+    // prepare initial list
+    const dsReq = httpMock.expectOne('/api/datasets');
+    dsReq.flush([{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }]);
+    fixture.detectChanges();
+
+    component.selectedDataset = component.datasets[1];
+    component.datasetId = component.selectedDataset.id;
+    fixture.detectChanges();
+
+    expect(component.datasetId).toBe('b');
+  });
+
+  it('refreshDatasets should POST and replace list', () => {
+    // initial load
+    const dsReq = httpMock.expectOne('/api/datasets');
+    dsReq.flush([{ id: 'x', label: 'X' }]);
+
+    component.refreshDatasets();
+    const refreshReq = httpMock.expectOne('/api/datasets/refresh');
+    expect(refreshReq.request.method).toBe('POST');
+    refreshReq.flush([{ id: 'y', label: 'Y' }]);
+
+    expect(component.datasets[0].id).toBe('y');
+    expect(component.selectedDataset?.id).toBe('y');
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });

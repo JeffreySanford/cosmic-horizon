@@ -11,21 +11,24 @@ import {
   TaccAdapter,
 } from './tacc-integration.service';
 import { JobsController } from './jobs.controller';
+import { DatasetsController } from './datasets.controller';
 import { JobRepository } from './repositories/job.repository';
 import { JobOrchestratorService } from './services/job-orchestrator.service';
 import { DatasetStagingService } from './services/dataset-staging.service';
+import { DatasetCatalogService } from './services/dataset-catalog.service';
 import { AuditRetentionService } from './audit-retention.service';
 import { Job } from './entities/job.entity';
+import { Dataset } from './entities/dataset.entity';
 import { EventsModule } from '../modules/events/events.module';
 import { RepositoryModule } from '../repositories/repository.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Job]),
+    TypeOrmModule.forFeature([Job, Dataset]),
     RepositoryModule, // provides AuditLogRepository for the retention service
     EventsModule, // Phase 3: Event infrastructure integration
   ],
-  controllers: [JobsController],
+  controllers: [JobsController, DatasetsController],
   providers: [
     {
       provide: TACC_ADAPTER,
@@ -59,6 +62,7 @@ import { RepositoryModule } from '../repositories/repository.module';
     JobRepository,
     JobOrchestratorService,
     DatasetStagingService,
+    DatasetCatalogService,
     AuditRetentionService,
   ],
   exports: [
@@ -66,6 +70,7 @@ import { RepositoryModule } from '../repositories/repository.module';
     JobRepository,
     JobOrchestratorService,
     DatasetStagingService,
+    DatasetCatalogService,
     AuditRetentionService,
   ],
 })

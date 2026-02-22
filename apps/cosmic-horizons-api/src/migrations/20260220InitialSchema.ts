@@ -38,6 +38,15 @@ export class InitialSchema20260220 implements MigrationInterface {
       );
     `);
 
+    // dataset table for Phase 4 dataset catalog
+    await queryRunner.query(`
+      CREATE TABLE IF NOT EXISTS "datasets" (
+        "id" varchar(255) PRIMARY KEY,
+        "label" varchar(255),
+        "last_updated" timestamptz
+      );
+    `);
+
     // other tables omitted for brevity - see generated migrations for full
     // definitions.  This baseline ensures the database can be bootstrapped
     // without relying on `synchronize: true`.

@@ -65,7 +65,11 @@ export class JobsConsoleComponent implements OnInit {
 
   agents = ['AlphaCal', 'ImageReconstruction', 'AnomalyDetection'];
   selectedAgent = 'AlphaCal';
-  datasetId = 'VLASS2.1.sb38593457.eb38602345.58784.45634282407';
+  // datasets come from backend; initially none
+  datasets: Array<{ id: string; label: string; lastUpdated?: string }> = [];
+  selectedDataset: { id: string; label: string; lastUpdated?: string } | null = null;
+  // id of the chosen dataset (sent to API)
+  datasetId = '';
   targetName = 'M87 Core Field';
   rightAscensionHours = 12.5137;
   declinationDegrees = 12.3911;
@@ -89,6 +93,8 @@ export class JobsConsoleComponent implements OnInit {
   qaError = '';
   qaResponse: PreflightQaResponse | null = null;
   selectedFilter: JobFilter = 'ALL';
+
+  refreshingDatasets = false;
   readonly filters: JobFilter[] = [
     'ALL',
     'QUEUED',
@@ -151,8 +157,15 @@ export class JobsConsoleComponent implements OnInit {
   }
 
   get scienceIntentSummary(): string {
+    const datasetPart = this.selectedDataset
+      ? ` on ${this.selectedDataset.label}`
+      : '';
+    const datePart = this.selectedDataset && this.selectedDataset.lastUpdated
+      ? ` (updated ${new Date(this.selectedDataset.lastUpdated).toLocaleDateString()})`
+      : '';
+
     return [
-      `${this.selectedAgent}: ${this.selectedAgentSummary.objective}`,
+      `${this.selectedAgent}: ${this.selectedAgentSummary.objective}${datasetPart}${datePart}`,
       `Target ${this.targetName} at RA ${this.rightAscensionHours}h / Dec ${this.declinationDegrees}deg.`,
       `Band ${this.frequencyBand}, ${this.observationDurationHours}h window, product ${this.productGoal}.`,
     ].join(' ');
@@ -172,6 +185,23 @@ export class JobsConsoleComponent implements OnInit {
 
   get totalJobs(): number {
     return this.activeJobs.length;
+  }
+
+  /**
+   * Refresh the dataset list from the server
+   */
+  refreshDatasets(): void {
+    this.refreshingDatasets = true;
+    this.http.post<Array<{id:string;label:string;lastUpdated?:string}>>('/api/datasets/refresh', {})
+      .subscribe((list) => {
+        this.datasets = list;
+        if (list.length) {
+          this.selectedDataset = list[0];
+        }
+        this.refreshingDatasets = false;
+      }, () => {
+        this.refreshingDatasets = false;
+      });
   }
 
   get queuedJobs(): number {
@@ -198,6 +228,16 @@ export class JobsConsoleComponent implements OnInit {
       .get<Record<string, boolean>>('/api/jobs/capabilities')
       .subscribe((caps) => {
         this.capabilities = caps;
+      });
+
+    // fetch available datasets
+    this.http.get<Array<{id:string;label:string;lastUpdated?:string}>>('/api/datasets')
+      .subscribe((list) => {
+        this.datasets = list;
+        if (list.length) {
+          this.selectedDataset = list[0];
+          this.datasetId = list[0].id;
+        }
       });
   }
 

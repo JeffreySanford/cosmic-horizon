@@ -177,6 +177,16 @@
           <mat-icon>help_outline</mat-icon>
           {{ showControlGuide ? 'Hide Control Guide' : 'Show Control Guide' }}
         </button>
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="refreshDatasets()"
+          [disabled]="refreshingDatasets"
+          matTooltip="Refresh the dataset list from disk"
+        >
+          <mat-icon>refresh</mat-icon>
+          {{ refreshingDatasets ? 'Refreshing…' : 'Refresh datasets' }}
+        </button>
       </div>
       <div class="control-guide" *ngIf="showControlGuide">
         <p>
@@ -217,15 +227,20 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Dataset ID (VLASS Catalog Ref)</mat-label>
-          <input
-            matInput
-            [(ngModel)]="datasetId"
-            name="datasetId"
-            placeholder="e.g. VLASS2.1.eb123456"
-            matTooltip="Source dataset identifier to stage and process"
-          />
-        </mat-form-field>
+            <mat-label>Dataset</mat-label>
+            <mat-select
+              [(value)]="selectedDataset"
+              (selectionChange)="datasetId = selectedDataset?.id || ''"
+              matTooltip="Select a dataset for processing"
+            >
+              <mat-option *ngFor="let ds of datasets" [value]="ds">
+                {{ ds.label }}
+                <span class="dataset-meta" *ngIf="ds.lastUpdated">
+                  (updated {{ ds.lastUpdated | date:'shortDate' }})
+                </span>
+              </mat-option>
+            </mat-select>
+            </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Science Target Label</mat-label>

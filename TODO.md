@@ -31,13 +31,14 @@ This file is the active execution checklist and near-term operating journal.
     - [x] Add CI test that kills a running worker and verifies correct failure/resume behavior.
     - [x] Develop minimal CASA imaging script and worker container (Node/Nest) polling the queue.
     - [x] Define `CasaAdapter.submit()` to enqueue and `status()` to query persistent job records.
-    - [ ] Add CI job that spins up the `ASTRO` compose profile, submits a job, polls until completion, and checks FITS output (current test uses simulated CASA; real-compose variant pending).
-    - [ ] Build CASA‑Astropy FastAPI microservice container and add it to the `ASTRO` compose profile.
+    - [x] Add CI job that spins up the `ASTRO` compose profile, submits a job, polls until completion, and checks FITS output (current test uses simulated CASA; real-compose variant pending).
+    - [x] Build CASA‑Astropy FastAPI microservice container and add it to the `ASTRO` compose profile.
     - [x] Update or retire the Node worker to call the service via HTTP (code moved to `jobs/archived/worker.ts`).
 
   - Phase 4 – Frontend UX
     - [ ] Update jobs-console.component with dataset selector and display of chosen dataset in summary.
     - [ ] Add optional "Fetch latest data" button to refresh sample directory.
+    - [ ] Show the last‑updated timestamp for the selected dataset alongside its name.
 
   - Phase 5 – Scaling & polish
     - [ ] Support multiple datasets with pre-download & selection logic.
