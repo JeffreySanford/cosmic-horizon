@@ -11,6 +11,12 @@ import { exec } from 'child_process';
 
 const baseUrl = process.env.API_URL || 'http://localhost:3000';
 
+function maskToken(tok) {
+  if (!tok || typeof tok !== 'string') return tok;
+  if (tok.length <= 10) return tok;
+  return `${tok.slice(0,6)}...${tok.slice(-4)}`;
+}
+
 async function login(email, password) {
   const url = `${baseUrl}/api/auth/login`;
   try {
@@ -89,7 +95,7 @@ async function main() {
   try {
     const user = await login(userEmail, userPass);
     userToken = user.access_token;
-    console.log('User token:', userToken);
+    console.log('User token:', maskToken(userToken));
   } catch (err) {
     console.error('User login error:', err.message);
   }
@@ -240,7 +246,7 @@ plt.imsave(r'${safePng}', hdu.data, cmap='gray', origin='lower')
   try {
     const admin = await login(adminEmail, adminPass);
     adminToken = admin.access_token;
-    console.log('Admin token:', adminToken);
+    console.log('Admin token:', maskToken(adminToken));
   } catch (err) {
     console.error('Admin login error:', err.message);
   }
