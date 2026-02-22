@@ -1,31 +1,32 @@
 #!/usr/bin/env node
 // simple script to exercise the login endpoint for a user and admin account
 // usage: node scripts/auth-test.mjs
-// set USER_EMAIL, USER_PASS, ADMIN_EMAIL, ADMIN_PASS env vars or defaults will be used
+// environment variables override defaults; .env.local is loaded automatically
 
-import fetch from 'node:fetch';
+import 'dotenv/config';
+import axios from 'axios';
 
 const baseUrl = process.env.API_URL || 'http://localhost:3000';
 
 async function login(email, password) {
   const url = `${baseUrl}/api/auth/login`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(`login failed (${res.status}): ${JSON.stringify(data)}`);
+  try {
+    const res = await axios.post(url, { email, password });
+    return res.data;
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response) {
+      throw new Error(`login failed (${err.response.status}): ${JSON.stringify(err.response.data)}`);
+    }
+    throw err;
   }
-  return data;
 }
 
 async function main() {
-  const userEmail = process.env.USER_EMAIL || 'demo@cosmic.example';
-  const userPass = process.env.USER_PASS || 'demo-password123';
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@cosmic.example';
-  const adminPass = process.env.ADMIN_PASS || 'admin-password123';
+  // use seeded credentials from env if available
+  const userEmail = process.env.USER_EMAIL || process.env.SEED_TEST_EMAIL || 'test@cosmic.local';
+  const userPass = process.env.USER_PASS || process.env.SEED_TEST_PASSWORD || 'Password123!';
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.SEED_ADMIN_EMAIL || 'admin@cosmic.local';
+  const adminPass = process.env.ADMIN_PASS || process.env.SEED_ADMIN_PASSWORD || 'AdminPassword123!';
 
   console.log('Logging in as regular user...');
   try {
