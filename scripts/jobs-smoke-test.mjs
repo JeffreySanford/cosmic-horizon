@@ -7,6 +7,7 @@ import 'dotenv/config';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import { exec } from 'child_process';
 
 const baseUrl = process.env.API_URL || 'http://localhost:3000';
 
@@ -78,8 +79,10 @@ async function main() {
   const adminEmail = process.env.ADMIN_EMAIL || process.env.SEED_ADMIN_EMAIL || 'admin@cosmic.local';
   const adminPass = process.env.ADMIN_PASS || process.env.SEED_ADMIN_PASSWORD || 'AdminPassword123!';
 
-  console.log('Probing history endpoint without token');
-  await probeHistory(null);
+  // clean previous artifacts so only a single job's files remain
+  const outDir = path.resolve(process.cwd(), 'job-test');
+  await fs.promises.rm(outDir, { recursive: true, force: true });
+  await fs.promises.mkdir(outDir, { recursive: true });
 
   console.log('Logging in as regular user...');
   let userToken = null;
@@ -91,8 +94,7 @@ async function main() {
     console.error('User login error:', err.message);
   }
 
-  console.log('Probing history endpoint with user token');
-  await probeHistory(userToken);
+  // skip listing history; demo should focus on the single submitted job
 
   // determine dataset to use for submission; env vars control outcome
   // - DATASET_ID: explicit dataset identifier (takes precedence)
@@ -131,9 +133,7 @@ async function main() {
           );
           console.log('job produced output:', display);
         }
-      // ensure job-test directory exists
-      const outDir = path.resolve(process.cwd(), 'job-test');
-      await fs.promises.mkdir(outDir, { recursive: true });
+      // outDir was already prepared at script start
 
       // write a simple report file for CI/inspection
       try {
@@ -211,7 +211,6 @@ plt.imsave(r'${safePng}', hdu.data, cmap='gray', origin='lower')
             const convTmp = path.join(outDir, 'convert_fits.py');
             await fs.promises.writeFile(convTmp, convScript);
             await new Promise((res, rej) => {
-              const { exec } = require('child_process');
               exec(
                 `${process.env.PYTHON || 'python'} ${convTmp}`,
                 { cwd: outDir },
@@ -244,8 +243,7 @@ plt.imsave(r'${safePng}', hdu.data, cmap='gray', origin='lower')
     console.error('Admin login error:', err.message);
   }
 
-  console.log('Probing history endpoint with admin token');
-  await probeHistory(adminToken);
+  // admin probe omitted in demo run
 }
 
 main().catch((e) => {
