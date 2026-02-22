@@ -1,7 +1,7 @@
 # Hardening Documentation
 
 This folder collects materials related to the security, operational, and
-quality hardening effort for the Cosmic Horizons platform.  The primary
+quality hardening effort for the Cosmic Horizons platform. The primary
 artefact is the hardening plan itself, which lives at
 `HARDENING-PLAN.md` and is kept up to date as phases are executed.
 

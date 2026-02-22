@@ -85,7 +85,7 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-        await firstValueFrom(
+      await firstValueFrom(
         interceptor.intercept(executionContext, callHandler),
       );
       expect(loggingService.add).toHaveBeenCalledWith(

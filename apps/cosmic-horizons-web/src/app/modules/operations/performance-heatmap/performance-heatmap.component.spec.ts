@@ -36,11 +36,26 @@ describe('PerformanceHeatmapComponent', () => {
   });
 
   it('updates heatmap when service emits and converts to chart format', () => {
-    const sample = [[1, 2], [3, 4]];
+    const sample = [
+      [1, 2],
+      [3, 4],
+    ];
     cpu$.next(sample);
     expect(component.heatmap).toEqual([
-      { name: 'row 0', series: [{ name: '0', value: 1 }, { name: '1', value: 2 }] },
-      { name: 'row 1', series: [{ name: '0', value: 3 }, { name: '1', value: 4 }] },
+      {
+        name: 'row 0',
+        series: [
+          { name: '0', value: 1 },
+          { name: '1', value: 2 },
+        ],
+      },
+      {
+        name: 'row 1',
+        series: [
+          { name: '0', value: 3 },
+          { name: '1', value: 4 },
+        ],
+      },
     ]);
   });
 
@@ -58,6 +73,4 @@ describe('PerformanceHeatmapComponent', () => {
     expect(component.currentWindow).toBe(2);
     expect(perf.setWindow).toHaveBeenCalledWith(2);
   });
-
-
 });

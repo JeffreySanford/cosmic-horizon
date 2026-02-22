@@ -1,10 +1,10 @@
 # Mode-delta report: local-LLM vs live
 
-*Status date: 2026-02-22*
+_Status date: 2026-02-22_
 
 This document will catalog any behavioral differences observed between the
 `local-llm` execution mode and the expected `live` counterpart prior to the
-public cutover.  The goal is to ensure the UI and API produce identical
+public cutover. The goal is to ensure the UI and API produce identical
 status codes, error taxonomies, and recovery semantics so that operator
 instructions and runbook steps remain the same.
 

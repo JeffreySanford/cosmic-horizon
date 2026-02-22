@@ -252,6 +252,12 @@
     "sourcePath": "documentation/hardening/README.md"
   },
   {
+    "id": "documentation--ideas--jobs-real-data--architecture-diagram",
+    "label": "Architecture Diagram",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/jobs-real-data/architecture-diagram.md"
+  },
+  {
     "id": "documentation--ideas--jobs-real-data--backend-adapter-design",
     "label": "Backend Adapter Design",
     "section": "Ideas",

@@ -42,7 +42,7 @@ milestones even if the external grant process takes longer than expected.
 
 ## Progress checklist (2026-02-22)
 
-All of the above items have been completed.  Actionable work is now tracked
+All of the above items have been completed. Actionable work is now tracked
 in **`TODO.md`** and **`ROADMAP.md`**; refer to those documents for the current
 list of open tasks rather than maintaining a separate list here.
 
@@ -93,14 +93,14 @@ they are cleared.)_
 
 - [x] Implement a structured event schema for job lifecycle events (submitted,
       queued, running, failed, completed, output-ready); update logging and UI to
-      emit/consume this schema.  (schemas live in `libs/shared/event-models`)
+      emit/consume this schema. (schemas live in `libs/shared/event-models`)
 - [x] Build a central redaction utility that scrubs headers/bodies:
   - [x] Authorization headers
   - [x] refresh tokens
   - [x] client secrets
   - [x] signed URLs (if used) _(none currently in use)_
 - [x] Add correlation ID generation per job submission and propagate through all
-      logs and WebSocket events.  (middleware and RequestContextService already in place)
+      logs and WebSocket events. (middleware and RequestContextService already in place)
 - [x] Implement status normalization layer with mapping table (demo/Tapis/Slurm
       → canonical SUBMITTED | QUEUED | RUNNING | SUCCEEDED | FAILED | CANCELED | UNKNOWN) and tests for unknown statuses.
 - [x] Add retry/backoff policy for live mode: exponential backoff for polling,
@@ -109,11 +109,12 @@ they are cleared.)_
 
 ### Data staging realism (D)
 
-- [ ] Introduce data-staging realism features (large upload progress, missing
+- [x] Introduce data-staging realism features (large upload progress, missing
       inputs 404, permission 403, outputs-delayed) and artifact packaging (zip with
-      checksum) in demo mode.
-- [ ] Model files as first-class entities (inputManifest, outputManifest,
-      artifactRefs).
+      checksum) in demo mode.  
+      _(service now simulates these conditions plus delayed outputs via special ids)_
+- [x] Model files as first-class entities (inputManifest, outputManifest,
+      artifactRefs). _(DatasetInfo and StagingStatus interfaces extended; tests added)_
 
 ### Local LLM bridge track (new)
 
@@ -160,11 +161,11 @@ _This section tracks local-llm implementation status while live credentials are 
       tooltips, etc.). See `web-e2e/src/jobs-flow.spec.ts`. CI will run these
       alongside existing example specs.
 - [x] Build a visual indicator (badge or banner) showing whether the gateway is in
-      demo or live mode.  _(implemented in JobsConsoleComponent; uses `capabilities` endpoint)_
+      demo or live mode. _(implemented in JobsConsoleComponent; uses `capabilities` endpoint)_
 - [x] Implement optimization tips, resource metrics, and provenance links in the
       UI, powering them with fake data when offline. _(tips panel added, mock data supplied)_
 - [x] Create a standalone `load-test` spec for the job notification WebSocket
-      paths using `websocket-load-test.js` (see `scripts/websocket-load-test.js`).
+      paths using `websocket-load-test.js` (now archived; see `scripts/archived/websocket-load-test.js`).
 
 ## Phase 3 – Frontend Development
 
@@ -173,14 +174,14 @@ _This section tracks local-llm implementation status while live credentials are 
 - [x] Wire UI components to the adapter interface so they work in both demo and
       live modes (mock interceptor and adapter abstraction used by component).
 - [x] Build a visual indicator (badge or banner) showing whether the gateway is in
-      demo or live mode.  _(implemented in JobsConsoleComponent)_
+      demo or live mode. _(implemented in JobsConsoleComponent)_
 - [x] Implement optimization tips, resource metrics, and provenance links in the
       UI, powering them with fake data when offline. _(tips panel added, mock data supplied)_
 
 ## Phase 4 – Documentation & Contracts
 
 - [x] Draft an OpenAPI/Swagger specification for the gateway endpoints that mirror
-      Tapis (or SSH/slurm) operations.  (`documentation/api/remote-compute-gateway.openapi.yaml` now exists.)
+      Tapis (or SSH/slurm) operations. (`documentation/api/remote-compute-gateway.openapi.yaml` now exists.)
 - [x] Document the adapter interface and configuration strategy in a developer
       guide (`documentation/guides/remote-compute-adapter.md` is now created).
 - [ ] Capture the minimal and stretch demo goals in the access plan (already done)
@@ -202,8 +203,10 @@ _This section tracks local-llm implementation status while live credentials are 
 - [x] `documentation/adr/ADR-remote-compute-tapis-vs-slurm.md`
 - [x] `documentation/api/remote-compute-gateway.openapi.yaml`
 - [x] `documentation/runbooks/remote-compute-live-cutover.md` created with cutover steps.
-- [ ] `documentation/security/remote-compute-threat-model.md`
-- [ ] `documentation/testing/remote-compute-test-matrix.md`
+- [x] `documentation/security/remote-compute-threat-model.md`  
+- [x] `documentation/testing/remote-compute-test-matrix.md`
+
+(These documents were published as of 2026-02-22; checklist entries remain here for traceability but the core content now lives in the security and testing folders.)
 
 ## Phase 5 – CI / Quality & Security
 
@@ -257,7 +260,7 @@ _This section tracks local-llm implementation status while live credentials are 
 ---
 
 _Complete as many of the above items as possible while waiting for compute
-credentials.  When live access arrives, use `TODO.md` and `ROADMAP.md` as the
+credentials. When live access arrives, use `TODO.md` and `ROADMAP.md` as the
 single sources of truth; this document can then be trimmed to a brief
 reference or archived._
 
@@ -265,9 +268,9 @@ reference or archived._
 
 The `documentation/LLM/REMOTE-COMPUTE-LLM` folder previously contained several
 ancillary notes (access research, mock‑LLM plan, remaining‑work summary,
-outreach templates).  Those materials have now been either subsumed into the
+outreach templates). Those materials have now been either subsumed into the
 roadmap/TODO or re‑located to more appropriate locations (e.g. security,
-testing).  Going forward, only the **offline‑work plan** and the
+testing). Going forward, only the **offline‑work plan** and the
 **LLM‑Enhanced job orchestration** design remain as living documents in this
 directory; the others may be archived or deleted to reduce clutter.
 

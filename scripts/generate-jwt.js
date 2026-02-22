@@ -5,7 +5,8 @@
 
 const jwt = require('jsonwebtoken');
 
-const secret = process.env.JWT_SECRET || 'openapi-dev-jwt-secret-32-chars-minimum';
+const secret =
+  process.env.JWT_SECRET || 'openapi-dev-jwt-secret-32-chars-minimum';
 const username = process.argv[2] || 'astro';
 const role = process.argv[3] || 'user';
 

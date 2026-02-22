@@ -32,7 +32,6 @@ export class JobDashboardComponent implements OnInit, OnDestroy {
 
   jobs: JobWithUpdate[] = [];
 
-
   /** container for all subscriptions so we can unsubscribe cleanly */
   private subs = new Subscription();
 
@@ -57,7 +56,6 @@ export class JobDashboardComponent implements OnInit, OnDestroy {
   constructor() {
     // no in‑page mock heartbeat – real-time updates come from the API
   }
-
 
   ngOnInit() {
     // ensure websocket connection is ready (auth handled internally)
@@ -104,16 +102,18 @@ export class JobDashboardComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
-
   /**
    * counts grouped by status for summary display
    */
   get statusCounts(): Record<string, number> {
-    return this.jobs.reduce((acc, j) => {
-      const key = j.status;
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    return this.jobs.reduce(
+      (acc, j) => {
+        const key = j.status;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }
 
   get statusKeys(): string[] {
@@ -136,4 +136,3 @@ export class JobDashboardComponent implements OnInit, OnDestroy {
     });
   }
 }
-

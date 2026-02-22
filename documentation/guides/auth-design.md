@@ -6,7 +6,7 @@ Gateway.
 ## Overview
 
 The gateway must talk to TACC/CosmicAI backends, which require OAuth2 access
-tokens.  To avoid sprinkling token logic throughout the code, we define an
+tokens. To avoid sprinkling token logic throughout the code, we define an
 `AuthProvider` interface:
 
 ```typescript
@@ -15,14 +15,14 @@ export interface AuthProvider {
 }
 ```
 
-Adapters and services request tokens via this provider.  Two concrete
+Adapters and services request tokens via this provider. Two concrete
 implementations exist:
 
-* **DemoAuthProvider**: returns a static string (`'demo-token'`).  Used when
+- **DemoAuthProvider**: returns a static string (`'demo-token'`). Used when
   `TACC_LIVE=false`.
-* **LiveAuthProvider**: reads `TACC_ACCESS_TOKEN` and `TACC_ACCESS_TOKEN_EXPIRY`
-  from configuration.  If the token is close to expiry it triggers a refresh
-  (currently a stub that generates a new pseudorandom string).  In the future
+- **LiveAuthProvider**: reads `TACC_ACCESS_TOKEN` and `TACC_ACCESS_TOKEN_EXPIRY`
+  from configuration. If the token is close to expiry it triggers a refresh
+  (currently a stub that generates a new pseudorandom string). In the future
   this class will implement the OAuth2 client credentials or refresh token flow.
 
 Tokens are not stored in source control; configuration variables should be
@@ -31,7 +31,7 @@ managed via `.env` files, vaults, or CI secrets (see `.env.template`).
 ## Circuit breaker & retry
 
 The adapter wraps network calls with a simple `CircuitBreaker` and
-`fetchWithRetry` helper.  Failures increment the breaker; after a threshold is
+`fetchWithRetry` helper. Failures increment the breaker; after a threshold is
 reached the breaker opens and prevents further requests until a timeout elapses.
 This improves resilience when live endpoints are flaky or credentials are
 invalid.

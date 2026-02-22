@@ -67,8 +67,12 @@ describe('MessagingService (frontend)', () => {
   });
 
   it('connects when authenticated and token available', () => {
-    (auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue('tok123');
+    (
+      auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(true);
+    (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
+      'tok123',
+    );
     service.ensureConnected();
     expect(createdSockets.length).toBe(1);
     const { opts } = createdSockets[0];
@@ -76,8 +80,12 @@ describe('MessagingService (frontend)', () => {
   });
 
   it('clears socket on disconnect and will reconnect on next ensureConnected', () => {
-    (auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue('tk');
+    (
+      auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(true);
+    (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
+      'tk',
+    );
     service.ensureConnected();
     expect(createdSockets.length).toBe(1);
 
@@ -93,8 +101,12 @@ describe('MessagingService (frontend)', () => {
   });
 
   it('warns if token missing even when authenticated', () => {
-    (auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue(null);
+    (
+      auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(true);
+    (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
+      null,
+    );
     service.ensureConnected();
     expect(logger.warn).toHaveBeenCalledWith(
       'messaging',
@@ -104,7 +116,9 @@ describe('MessagingService (frontend)', () => {
   });
 
   it('forwards job_update events through jobUpdate$ observable', async () => {
-    (auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (
+      auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(true);
     (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue('x');
     service.ensureConnected();
 
@@ -119,8 +133,12 @@ describe('MessagingService (frontend)', () => {
   });
 
   it('creates socket with reconnection enabled and proper auth options', () => {
-    (auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue('mytoken');
+    (
+      auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(true);
+    (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
+      'mytoken',
+    );
     service.ensureConnected();
     expect(createdSockets.length).toBe(1);
     const opts = createdSockets[0].opts;
@@ -128,9 +146,10 @@ describe('MessagingService (frontend)', () => {
     expect(opts.auth.token).toBe('mytoken');
   });
 
-
   it('joinJobChannel returns server acknowledgement', async () => {
-    (auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (
+      auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(true);
     (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue('x');
     service.ensureConnected();
 
@@ -145,11 +164,15 @@ describe('MessagingService (frontend)', () => {
   });
 
   it('joinJobChannel rejects when socket not connected', async () => {
-    await expect(service.joinJobChannel('x')).rejects.toThrow('socket not connected');
+    await expect(service.joinJobChannel('x')).rejects.toThrow(
+      'socket not connected',
+    );
   });
 
   it('ensureConnected only creates one socket even if called repeatedly', () => {
-    (auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (
+      auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(true);
     (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue('t');
     service.ensureConnected();
     service.ensureConnected();
@@ -157,7 +180,9 @@ describe('MessagingService (frontend)', () => {
   });
 
   it('ensureConnected skips if socket already exists', () => {
-    (auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (
+      auth.isAuthenticated as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(true);
     (auth.getToken as unknown as ReturnType<typeof vi.fn>).mockReturnValue('t');
     service.ensureConnected();
     // simulate socket lost

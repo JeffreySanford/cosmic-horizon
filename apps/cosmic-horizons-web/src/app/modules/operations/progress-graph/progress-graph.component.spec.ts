@@ -19,7 +19,11 @@ describe('ProgressGraphComponent', () => {
     } as any;
 
     await TestBed.configureTestingModule({
-      imports: [NoopAnimationsModule, HttpClientTestingModule, OperationsModule],
+      imports: [
+        NoopAnimationsModule,
+        HttpClientTestingModule,
+        OperationsModule,
+      ],
       providers: [{ provide: JobOrchestrationService, useValue: jobService }],
     }).compileComponents();
 
@@ -43,4 +47,3 @@ describe('ProgressGraphComponent', () => {
     expect(component.series).toEqual(sample);
   });
 });
-

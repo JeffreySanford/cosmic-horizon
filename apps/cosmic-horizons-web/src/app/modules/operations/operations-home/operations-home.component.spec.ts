@@ -111,4 +111,3 @@ describe('OperationsHomeComponent', () => {
     expect(link.textContent.trim()).toBe('View alerts');
   });
 });
-

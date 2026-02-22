@@ -78,4 +78,3 @@ export const jobsReducer = createReducer(
     error: null,
   })),
 );
-

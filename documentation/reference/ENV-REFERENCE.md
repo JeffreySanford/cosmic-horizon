@@ -54,12 +54,12 @@ Complete reference of all environment variables used by Cosmic Horizons.
 
 ## Logging
 
-| Variable               | Type    | Default | Required | Usage                                 |
-| ---------------------- | ------- | ------- | -------- | ------------------------------------- |
-| `LOG_LEVEL`            | string  | `info`  | No       | Logging level (debug/info/warn/error). Also influences Nest framework logger – set to `warn` to suppress startup logs such as route mapping, `info` to see them. Full console output is still available when needed by raising to `debug`. |
+| Variable    | Type   | Default | Required | Usage                                                                                                                                                                                                                                      |
+| ----------- | ------ | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `LOG_LEVEL` | string | `info`  | No       | Logging level (debug/info/warn/error). Also influences Nest framework logger – set to `warn` to suppress startup logs such as route mapping, `info` to see them. Full console output is still available when needed by raising to `debug`. |
 
-| `LOGS_REDIS_ENABLED`   | boolean | `false` | No       | Enable Redis-based audit logging      |
-| `AUDIT_RETENTION_DAYS` | number  | `90`    | No       | Retention period for audit logs       |
+| `LOGS_REDIS_ENABLED` | boolean | `false` | No | Enable Redis-based audit logging |
+| `AUDIT_RETENTION_DAYS` | number | `90` | No | Retention period for audit logs |
 
 ## Features
 

@@ -6,7 +6,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./node-performance.component.scss'],
   standalone: false,
   // this component is declared in OperationsModule, which supplies necessary imports
-
 })
 export class NodePerformanceComponent {
   showGpu = false;

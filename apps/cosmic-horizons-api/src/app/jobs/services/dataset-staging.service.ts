@@ -1,4 +1,10 @@
-import { Injectable, Logger, OnModuleDestroy, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 
 export interface DatasetInfo {
   id: string;
@@ -9,6 +15,7 @@ export interface DatasetInfo {
   ready_for_processing: boolean;
   staging_location?: string;
   staging_progress?: number; // 0-100
+  files?: string[]; // file list when modeling file manifest
 }
 
 export interface StagingRequest {
@@ -17,14 +24,22 @@ export interface StagingRequest {
   priority: 'normal' | 'high';
 }
 
+export interface ArtifactRef {
+  url: string;
+  checksum: string;
+}
+
 export interface StagingStatus {
   dataset_id: string;
   status: 'pending' | 'in_progress' | 'completed' | 'failed';
   progress: number; // 0-100
   estimated_time_minutes?: number;
-  artifact_url?: string;        // URL of packaged outputs when complete
-  error_code?: string;          // human-readable error identifier
-}
+  artifact_url?: string; // URL of packaged outputs when complete
+  artifact_refs?: ArtifactRef[];
+  output_manifest?: string[]; // list of output files
+  error_code?: string; // human-readable error identifier
+}   
+
 
 /**
  * Manages dataset preparation and staging for TACC processing
@@ -56,8 +71,8 @@ export class DatasetStagingService implements OnModuleDestroy {
       throw new ForbiddenException('Access denied');
     }
 
-    // Simulate dataset lookup
-    return {
+    // Build base info
+    const info: DatasetInfo = {
       id: datasetId,
       name: `Dataset-${datasetId.slice(0, 8)}`,
       size_gb: Math.floor(Math.random() * 500) + 50, // 50-550 GB
@@ -69,6 +84,13 @@ export class DatasetStagingService implements OnModuleDestroy {
       staging_location: `/tacc/scratch/${datasetId}`,
       staging_progress: 100,
     };
+
+    // if the id contains "manifest" return a fake file list
+    if (datasetId.includes('manifest')) {
+      info.files = Array.from({ length: 5 }, (_, i) => `file_${i + 1}.fits`);
+    }
+
+    return info;
   }
 
   /**
@@ -181,8 +203,33 @@ export class DatasetStagingService implements OnModuleDestroy {
         if (status) {
           status.status = 'completed';
           status.progress = 100;
-          // when complete, simulate artifact packaging URL
+          // when complete, simulate artifact packaging URL and optional refs
           status.artifact_url = `https://archive.example.com/${datasetId}.zip`;
+
+          // add artifact refs with checksums
+          status.artifact_refs = [
+            {
+              url: status.artifact_url,
+              checksum: Math.random().toString(36).substring(2, 10),
+            },
+          ];
+
+          // optionally delay output manifest if id contains 'delay'
+          if (datasetId.includes('delay')) {
+            status.status = 'in_progress';
+            status.progress = 100;
+            // schedule second stage to mark complete later
+            setTimeout(() => {
+              const s2 = this.stagingCache.get(datasetId);
+              if (s2) {
+                s2.status = 'completed';
+                s2.output_manifest = ['result1.fits', 'result2.fits'];
+              }
+            }, 10000);
+          } else {
+            status.output_manifest = ['result1.fits', 'result2.fits'];
+            status.status = 'completed';
+          }
         }
         clearInterval(interval);
         this.stagingIntervals.delete(datasetId);

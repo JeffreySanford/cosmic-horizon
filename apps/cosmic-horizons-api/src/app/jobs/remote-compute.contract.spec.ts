@@ -17,10 +17,16 @@ describe('Remote compute contract', () => {
 
   const datasetStaging = {} as jest.Mocked<DatasetStagingService>;
 
-  const controller = new JobsController(taccService, orchestrator, datasetStaging);
+  const controller = new JobsController(
+    taccService,
+    orchestrator,
+    datasetStaging,
+  );
 
   it('submit contract returns a job id-compatible object', async () => {
-    orchestrator.submitJob = jest.fn().mockResolvedValue({ id: 'job-1' } as any);
+    orchestrator.submitJob = jest
+      .fn()
+      .mockResolvedValue({ id: 'job-1' } as any);
 
     const result = await controller.submitJob(
       { user: { id: 'user-1' } } as any,
@@ -33,7 +39,11 @@ describe('Remote compute contract', () => {
   it('status contract returns status payload', async () => {
     orchestrator.getJobStatus = jest
       .fn()
-      .mockResolvedValue({ id: 'job-1', status: 'RUNNING', progress: 0.4 } as any);
+      .mockResolvedValue({
+        id: 'job-1',
+        status: 'RUNNING',
+        progress: 0.4,
+      } as any);
 
     const result = await controller.getJobStatus('job-1');
 
@@ -51,7 +61,9 @@ describe('Remote compute contract', () => {
   it('optimize contract returns array', async () => {
     orchestrator.getOptimizationTips = jest
       .fn()
-      .mockResolvedValue([{ category: 'runtime', severity: 'info', message: 'Tip' }] as any);
+      .mockResolvedValue([
+        { category: 'runtime', severity: 'info', message: 'Tip' },
+      ] as any);
 
     const result = await controller.getOptimizationTips({
       agent: 'AlphaCal',
@@ -63,7 +75,9 @@ describe('Remote compute contract', () => {
   });
 
   it('capabilities contract returns object', async () => {
-    taccService.getCapabilities = jest.fn().mockResolvedValue({ demoMode: true });
+    taccService.getCapabilities = jest
+      .fn()
+      .mockResolvedValue({ demoMode: true });
 
     const result = await controller.getCapabilities();
 

@@ -8,10 +8,10 @@ next actions for TACC/CosmicAI access enablement.
 
 ## Tracking Fields
 
-| Date (UTC) | Contact Org | Contact Name | Channel | Purpose | Outcome | Next Action | Owner | Target Date |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-02-22 | TACC User Services | TBD | Email | Request sandbox/API guidance for remote-compute gateway validation | Draft prepared | Send outreach email using Phase 6 template | TBD | 2026-02-24 |
-| 2026-02-22 | CosmicAI Collaboration | TBD | Email/Slack | Request sponsor introduction and approved test endpoint path | Draft prepared | Confirm collaborator list and send sponsor request | TBD | 2026-02-24 |
+| Date (UTC) | Contact Org            | Contact Name | Channel     | Purpose                                                            | Outcome        | Next Action                                        | Owner | Target Date |
+| ---------- | ---------------------- | ------------ | ----------- | ------------------------------------------------------------------ | -------------- | -------------------------------------------------- | ----- | ----------- |
+| 2026-02-22 | TACC User Services     | TBD          | Email       | Request sandbox/API guidance for remote-compute gateway validation | Draft prepared | Send outreach email using Phase 6 template         | TBD   | 2026-02-24  |
+| 2026-02-22 | CosmicAI Collaboration | TBD          | Email/Slack | Request sponsor introduction and approved test endpoint path       | Draft prepared | Confirm collaborator list and send sponsor request | TBD   | 2026-02-24  |
 
 ## Usage Notes
 

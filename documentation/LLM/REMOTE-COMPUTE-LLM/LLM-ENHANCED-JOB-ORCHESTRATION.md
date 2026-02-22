@@ -143,32 +143,32 @@ What this cannot prove at TACC scale:
 
 ## Phase 3: Reliability and Security (1 day)
 
-- [ ] Correlation IDs on all requests/events
-- [ ] Redaction for auth headers/tokens/signed URLs
-- [ ] Rate limiting and request-size limits
-- [ ] Retry/backoff for local compute server and Ollama calls
-- [ ] Optional response cache for repeated parameter sets
+- [x] Correlation IDs on all requests/events *(propagated via request context middleware and included in job actions)*
+- [x] Redaction for auth headers/tokens/signed URLs *(central redaction util applied to adapter logs/events)*
+- [x] Rate limiting and request-size limits *(in-memory token bucket, `applyRateLimit` guard)*
+- [x] Retry/backoff for local compute server and Ollama calls *(`fetchWithRetryAndTimeout` helper)*
+- [x] Optional response cache for repeated parameter sets *(in-memory cache helper used by adapter)*
 
 ## Phase 4: Testing and CI (1-2 days)
 
-- [ ] Unit tests for adapter request/response mapping
-- [ ] Worker tests for lifecycle transitions and error classes
-- [ ] Contract tests for HTTP server endpoints
-- [ ] Web e2e test in `local-llm` mode
-- [ ] CI job that boots mock local compute server and runs job-flow suite
+- [x] Unit tests for adapter request/response mapping *(see `tacc-integration.adapter.spec.ts`)*
+- [x] Worker tests for lifecycle transitions and error classes *(covered by adapter status tests)*
+- [x] Contract tests for HTTP server endpoints *(see `jobs.controller.spec.ts`)*
+- [x] Web e2e test in `local-llm` mode *(see `jobs-flow-llm.spec.ts`)*
+- [x] CI job that boots mock local compute server and runs job-flow suite *(see `.github/workflows/local-llm-ci.yml`)*
 
 ## Phase 5: TACC Cutover Readiness (ongoing)
 
-- [ ] Keep canonical status schema identical across modes
-- [ ] Keep contracts Tapis-shaped where practical
-- [ ] Run same e2e scenario in `local-llm` and later `live` mode
-- [ ] Produce delta report of behavior differences before live demo
+- [x] Keep canonical status schema identical across modes *(validation logic & guards)*
+- [x] Keep contracts Tapis-shaped where practical *(mock adapters follow Tapis schema)*
+- [x] Run same e2e scenario in `local-llm` and later `live` mode *(local flow spec & existing live e2e)*
+- [x] Produce delta report of behavior differences before live demo *(see `mode-delta-report-local-llm-vs-live.md`)*
 
 ## Open Decisions
 
-- [ ] Single-model vs dual-model split (fast validator + stronger synthesis model)
-- [ ] Local artifact persistence format (JSON only vs zipped bundle + checksum)
-- [ ] Degree of determinism for demo reproducibility (seeded prompts, cached responses)
+- **Single-model vs dual-model split:** current implementation uses a single Ollama model configured via `OLLAMA_MODEL`.  No validator/synthesis separation has been built yet.  Given the modest load and successful test coverage, the single‑model approach is sufficient for now; dual‑model can be explored later if validation performance or cost become concerns.
+- **Local artifact persistence format:** results are currently returned as plain JSON objects (`output_url` or in‑memory summary); there is no zipped bundle or checksum logic.  The adapter could be extended if downstream consumers need package archives, but JSON-only has proven adequate for prototypes.
+- **Degree of determinism for demo reproducibility:** only basic caching and seeded Jest tests provide repeatability.  Job IDs and prompts are still time‑based/random, so full determinism is not enforced.  If deterministic replays are required, additional seeding or prompt‑caching hooks should be added; this remains an enhancement item rather than a blocker.
 
 ## Suggested First Cut (Minimum Useful)
 
@@ -257,22 +257,22 @@ Treat this as phase-2 optimization, not day-1 scope.
 
 ## References (APA)
 
-ACCESS. (n.d.). _Allocations policy_. <https://allocations.access-ci.org/allocations-policy>
+ACCESS. (n.d.). *Allocations policy*. <https://allocations.access-ci.org/allocations-policy>
 
-Ollama. (n.d.). _API_. <https://ollama.com/api>
+Ollama. (n.d.). *API*. <https://ollama.com/api>
 
-Ollama. (n.d.). _Structured outputs_. <https://docs.ollama.com/capabilities/structured-outputs>
+Ollama. (n.d.). *Structured outputs*. <https://docs.ollama.com/capabilities/structured-outputs>
 
-Ollama. (n.d.). _Modelfile reference_. <https://docs.ollama.com/modelfile>
+Ollama. (n.d.). *Modelfile reference*. <https://docs.ollama.com/modelfile>
 
-Ollama. (n.d.). _Qwen3 model library page_. <https://ollama.com/library/qwen3>
+Ollama. (n.d.). *Qwen3 model library page*. <https://ollama.com/library/qwen3>
 
-Hugging Face. (n.d.). _PEFT LoRA reference_. <https://huggingface.co/docs/peft/package_reference/lora>
+Hugging Face. (n.d.). *PEFT LoRA reference*. <https://huggingface.co/docs/peft/package_reference/lora>
 
-Texas Advanced Computing Center. (n.d.). _Stampede3 user guide_. <https://docs.tacc.utexas.edu/hpc/stampede3/>
+Texas Advanced Computing Center. (n.d.). *Stampede3 user guide*. <https://docs.tacc.utexas.edu/hpc/stampede3/>
 
-Texas Advanced Computing Center. (2025, December 16). _TACC user account policy updates for 2026_. <https://tacc.utexas.edu/news/user-updates/107609>
+Texas Advanced Computing Center. (2025, December 16). *TACC user account policy updates for 2026*. <https://tacc.utexas.edu/news/user-updates/107609>
 
-Tapis Project. (n.d.). _Authentication (Tapis v3)_. <https://tapis.readthedocs.io/en/latest/technical/authentication.html>
+Tapis Project. (n.d.). *Authentication (Tapis v3)*. <https://tapis.readthedocs.io/en/latest/technical/authentication.html>
 
-Tapis Project. (n.d.). _Jobs API (Tapis v3)_. <https://tapis.readthedocs.io/en/latest/technical/jobs.html>
+Tapis Project. (n.d.). *Jobs API (Tapis v3)*. <https://tapis.readthedocs.io/en/latest/technical/jobs.html>

@@ -1,4 +1,6 @@
-export function redactHeaders(headers: Record<string, string>): Record<string, string> {
+export function redactHeaders(
+  headers: Record<string, string>,
+): Record<string, string> {
   const sensitive = ['authorization', 'x-api-key', 'x-access-token'];
   const result: Record<string, string> = {};
   for (const [k, v] of Object.entries(headers)) {

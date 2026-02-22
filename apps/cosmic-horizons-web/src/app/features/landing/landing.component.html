@@ -20,7 +20,9 @@
           (click)="toggleSection('capabilities')"
         >
           Core Capabilities
-          <mat-icon>{{ isSectionExpanded('capabilities') ? 'expand_less' : 'expand_more' }}</mat-icon>
+          <mat-icon>{{
+            isSectionExpanded('capabilities') ? 'expand_less' : 'expand_more'
+          }}</mat-icon>
         </button>
         <div class="feature-grid">
           @for (pillar of pillars; track pillar.title) {
@@ -53,7 +55,9 @@
           (click)="toggleSection('mission')"
         >
           Mission Routes
-          <mat-icon>{{ isSectionExpanded('mission') ? 'expand_less' : 'expand_more' }}</mat-icon>
+          <mat-icon>{{
+            isSectionExpanded('mission') ? 'expand_less' : 'expand_more'
+          }}</mat-icon>
         </button>
         <div class="feature-grid">
           @for (link of visibleMissionLinks; track link.title) {
@@ -87,7 +91,9 @@
             (click)="toggleSection('info')"
           >
             Information
-            <mat-icon>{{ isSectionExpanded('info') ? 'expand_less' : 'expand_more' }}</mat-icon>
+            <mat-icon>{{
+              isSectionExpanded('info') ? 'expand_less' : 'expand_more'
+            }}</mat-icon>
           </button>
           <div class="feature-grid">
             @for (link of visibleInfoLinks; track link.title) {

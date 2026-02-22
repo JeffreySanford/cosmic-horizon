@@ -472,7 +472,12 @@ export class MockApiInterceptor implements HttpInterceptor {
     }
 
     if (req.url.endsWith('/api/jobs/capabilities') && req.method === 'GET') {
-      return this.jsonResponse({ demoMode: true, baseUrlReachable: true, oauth2Present: false, jobsEndpoint: true });
+      return this.jsonResponse({
+        demoMode: true,
+        baseUrlReachable: true,
+        oauth2Present: false,
+        jobsEndpoint: true,
+      });
     }
 
     if (req.url.includes('/api/jobs/optimize') && req.method === 'POST') {

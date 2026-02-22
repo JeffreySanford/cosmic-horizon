@@ -78,6 +78,8 @@ pnpm build          # nx run-many --target=build --all
 pnpm lint           # nx run-many --target=lint --all
 
 # Developer note: prefer pnpm for local tooling (use `pnpm exec eslint` or `pnpm run eslint:check` instead of `npx eslint`) to avoid npm/.npmrc warnings.
+
+> **Scripts housekeeping**: Infrequently-used generation/benchmarking/debugging helpers have been moved into `scripts/archived/` to shrink the top-level directory. If you need one of those tools (e.g. websocket-load-test, benchmark-pulsar-vs-rabbitmq, debug-profile-playwright, mock-kafka-metrics) feel free to run it from the archived folder or restore it temporarily.
 ```
 
 ## Projects
@@ -136,7 +138,7 @@ WS_AUTH_TOKEN=<valid-jwt> \
 
 The backend issues JWTs using the NestJS `@nestjs/jwt` module; you can obtain a
 valid token by calling any authenticated endpoint or by manually signing with
-the project's secret (see `apps/cosmic-horizons-api/src/...` config).  A
+the project's secret (see `apps/cosmic-horizons-api/src/...` config). A
 convenience script is provided at `scripts/generate-jwt.js`:
 
 ```bash

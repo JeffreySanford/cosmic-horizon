@@ -59,7 +59,8 @@ describe('SystemMetricsChartComponent', () => {
   });
 
   it('should create chartContainer element and tooltip without errors', () => {
-    const elem: HTMLElement = fixture.nativeElement.querySelector('.chart-container');
+    const elem: HTMLElement =
+      fixture.nativeElement.querySelector('.chart-container');
     expect(elem).toBeTruthy();
     // simulate tooltip usage via bracket access to bypass privacy
     expect(() => (component as any)['hideTooltip']()).not.toThrow();

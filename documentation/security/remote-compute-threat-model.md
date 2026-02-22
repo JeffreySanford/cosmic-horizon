@@ -1,6 +1,6 @@
 # Remote Compute Gateway Security Threat Model
 
-*Status date: 2026-02-22*
+_Status date: 2026-02-22_
 
 This document outlines the security assumptions, threats, and mitigation
 strategies for the Remote Compute Gateway feature set (demo, local-llm,

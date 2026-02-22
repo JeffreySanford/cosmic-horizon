@@ -376,32 +376,39 @@ describe('JobOrchestratorService', () => {
     });
 
     it('should use local-llm response when mode is local-llm and model output is valid', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const values: Record<string, unknown> = {
-          REMOTE_COMPUTE_MODE: 'local-llm',
-          OLLAMA_BASE_URL: 'http://localhost:11435',
-          OLLAMA_MODEL: 'qwen3:8b',
-          OLLAMA_TIMEOUT_MS: 30000,
-        };
-        return values[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const values: Record<string, unknown> = {
+            REMOTE_COMPUTE_MODE: 'local-llm',
+            OLLAMA_BASE_URL: 'http://localhost:11435',
+            OLLAMA_MODEL: 'qwen3:8b',
+            OLLAMA_TIMEOUT_MS: 30000,
+          };
+          return values[key] ?? defaultValue;
+        },
+      );
 
-      const fetchSpy = jest.spyOn(globalThis, 'fetch' as any).mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          response: JSON.stringify({
-            answer: 'LLM says current settings are acceptable.',
-            confidence: 'high',
-            caveats: ['Queue depth may change final start time.'],
+      const fetchSpy = jest
+        .spyOn(globalThis, 'fetch' as any)
+        .mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            response: JSON.stringify({
+              answer: 'LLM says current settings are acceptable.',
+              confidence: 'high',
+              caveats: ['Queue depth may change final start time.'],
+            }),
           }),
-        }),
-      } as Response);
+        } as Response);
 
-      const response = await service.answerPreflightQuestion('What will this do?', {
-        agent: 'ImageReconstruction',
-        dataset_id: 'dataset-2',
-        params: { gpu_count: 2, rfi_strategy: 'medium' },
-      });
+      const response = await service.answerPreflightQuestion(
+        'What will this do?',
+        {
+          agent: 'ImageReconstruction',
+          dataset_id: 'dataset-2',
+          params: { gpu_count: 2, rfi_strategy: 'medium' },
+        },
+      );
 
       expect(response.source).toBe('llm');
       expect(response.confidence).toBe('high');
@@ -411,25 +418,30 @@ describe('JobOrchestratorService', () => {
     });
 
     it('should fall back to heuristic when local-llm call fails', async () => {
-      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
-        const values: Record<string, unknown> = {
-          REMOTE_COMPUTE_MODE: 'local-llm',
-          OLLAMA_BASE_URL: 'http://localhost:11435',
-          OLLAMA_MODEL: 'qwen3:8b',
-          OLLAMA_TIMEOUT_MS: 30000,
-        };
-        return values[key] ?? defaultValue;
-      });
+      configService.get.mockImplementation(
+        (key: string, defaultValue?: unknown) => {
+          const values: Record<string, unknown> = {
+            REMOTE_COMPUTE_MODE: 'local-llm',
+            OLLAMA_BASE_URL: 'http://localhost:11435',
+            OLLAMA_MODEL: 'qwen3:8b',
+            OLLAMA_TIMEOUT_MS: 30000,
+          };
+          return values[key] ?? defaultValue;
+        },
+      );
 
       const fetchSpy = jest
         .spyOn(globalThis, 'fetch' as any)
         .mockRejectedValue(new Error('connection refused'));
 
-      const response = await service.answerPreflightQuestion('Any risk of failure?', {
-        agent: 'AlphaCal',
-        dataset_id: 'dataset-3',
-        params: { gpu_count: 1, rfi_strategy: 'medium' },
-      });
+      const response = await service.answerPreflightQuestion(
+        'Any risk of failure?',
+        {
+          agent: 'AlphaCal',
+          dataset_id: 'dataset-3',
+          params: { gpu_count: 1, rfi_strategy: 'medium' },
+        },
+      );
 
       expect(response.source).toBe('heuristic');
       expect(response.answer.toLowerCase()).toContain('risk');

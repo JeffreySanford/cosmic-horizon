@@ -1,6 +1,9 @@
 import { test, expect, Page } from '@playwright/test';
 
-function createFakeJwt(exp: number, claims: Record<string, string> = {}): string {
+function createFakeJwt(
+  exp: number,
+  claims: Record<string, string> = {},
+): string {
   const header = Buffer.from(
     JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
   ).toString('base64url');
@@ -42,10 +45,18 @@ test('local-llm job flow', async ({ page }: { page: Page }) => {
 
   // stub endpoints as in main spec
   await page.route('**/api/jobs/capabilities', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ localLLM: true, baseUrlReachable: true }) });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ localLLM: true, baseUrlReachable: true }),
+    });
   });
   await page.route('**/api/jobs/submit', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 'llm-1' }) });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ id: 'llm-1' }),
+    });
   });
 
   let count = 0;
@@ -54,11 +65,19 @@ test('local-llm job flow', async ({ page }: { page: Page }) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ id: 'llm-1', status, progress: status === 'COMPLETED' ? 1 : 0 }),
+      body: JSON.stringify({
+        id: 'llm-1',
+        status,
+        progress: status === 'COMPLETED' ? 1 : 0,
+      }),
     });
   });
   await page.route('**/api/jobs/optimize', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(['LLM tip 1', 'LLM tip 2']) });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(['LLM tip 1', 'LLM tip 2']),
+    });
   });
 
   await page.goto('/jobs');

@@ -8,16 +8,16 @@ import { validateLLMOutput } from '@cosmic-horizons/shared/llm-guards';
 import { ConfigService } from '@nestjs/config';
 
 // spies for Redis operations used by CasaTaccAdapter
-let hSetSpy: jest.Mock;
-let lPushSpy: jest.Mock;
-let hGetAllSpy: jest.Mock;
+let hsetSpy: jest.Mock;
+let lpushSpy: jest.Mock;
+let hgetallSpy: jest.Mock;
 
 // mock ioredis at the top level so jest can hoist and intercept imports
 jest.mock('ioredis', () => {
   return jest.fn().mockImplementation(() => ({
-    hSet: hSetSpy = jest.fn(),
-    lPush: lPushSpy = jest.fn(),
-    hGetAll: hGetAllSpy = jest.fn(),
+    hset: (hsetSpy = jest.fn()),
+    lpush: (lpushSpy = jest.fn()),
+    hgetall: (hgetallSpy = jest.fn()),
     ping: jest.fn().mockResolvedValue('PONG'),
   }));
 });
@@ -50,12 +50,6 @@ describe('TaccAdapter modes', () => {
     params: {},
   };
 
-  // mock Redis client used by CasaTaccAdapter
-  let hSetSpy: jest.Mock;
-  let lPushSpy: jest.Mock;
-  let hGetAllSpy: jest.Mock;
-
-
   beforeEach(() => {
     jest.restoreAllMocks();
   });
@@ -75,14 +69,18 @@ describe('TaccAdapter modes', () => {
     it('should submit and return an id', async () => {
       const fetchMock = jest.fn(async (url: string) => {
         if (url.endsWith('/api/generate')) {
-          return new Response(JSON.stringify({ response: '{"planSummary":"ok"}' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          });
+          return new Response(
+            JSON.stringify({ response: '{"planSummary":"ok"}' }),
+            {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          );
         }
         return new Response('{}', { status: 404 });
       });
-      (globalThis as { fetch: typeof fetch }).fetch = fetchMock as unknown as typeof fetch;
+      (globalThis as { fetch: typeof fetch }).fetch =
+        fetchMock as unknown as typeof fetch;
 
       const adapter = new LocalLlmAdapter(makeConfig());
       const result = await adapter.submitJob(dummySubmission);
@@ -93,13 +91,15 @@ describe('TaccAdapter modes', () => {
     });
 
     it('should enforce rate limit', async () => {
-      const fetchMock = jest.fn(async () =>
-        new Response(JSON.stringify({ response: '{"planSummary":"ok"}' }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }),
+      const fetchMock = jest.fn(
+        async () =>
+          new Response(JSON.stringify({ response: '{"planSummary":"ok"}' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }),
       );
-      (globalThis as { fetch: typeof fetch }).fetch = fetchMock as unknown as typeof fetch;
+      (globalThis as { fetch: typeof fetch }).fetch =
+        fetchMock as unknown as typeof fetch;
 
       const adapter = new LocalLlmAdapter(makeConfig());
       const payload = { ...dummySubmission, dataset_id: 'rl1' };
@@ -120,23 +120,24 @@ describe('TaccAdapter modes', () => {
 
   describe('live adapter', () => {
     it('should throw when submit request fails', async () => {
-      (globalThis as { fetch: typeof fetch }).fetch =
-        jest.fn(async () => {
-          throw new Error('network down');
-        }) as unknown as typeof fetch;
+      (globalThis as { fetch: typeof fetch }).fetch = jest.fn(async () => {
+        throw new Error('network down');
+      }) as unknown as typeof fetch;
 
       const adapter = new LiveTaccAdapter(makeConfig());
       await expect(adapter.submitJob(dummySubmission)).rejects.toThrow();
     });
 
     it('should submit and return job id when backend responds', async () => {
-      const fetchMock = jest.fn(async () =>
-        new Response(JSON.stringify({ jobId: 'live-1' }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }),
+      const fetchMock = jest.fn(
+        async () =>
+          new Response(JSON.stringify({ jobId: 'live-1' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }),
       );
-      (globalThis as { fetch: typeof fetch }).fetch = fetchMock as unknown as typeof fetch;
+      (globalThis as { fetch: typeof fetch }).fetch =
+        fetchMock as unknown as typeof fetch;
 
       const adapter = new LiveTaccAdapter(makeConfig());
       const res = await adapter.submitJob(dummySubmission);
@@ -147,29 +148,35 @@ describe('TaccAdapter modes', () => {
 
   describe('casa adapter', () => {
     it('should enqueue job and return id', async () => {
-      const adapter = new (require('./tacc-integration.service').CasaTaccAdapter)(
-        makeConfig({ REDIS_URL: 'redis://fake' }),
-      );
-      hSetSpy.mockResolvedValue('OK');
-      lPushSpy.mockResolvedValue(1);
+      const adapter =
+        new (require('./tacc-integration.service').CasaTaccAdapter)(
+          makeConfig({ REDIS_URL: 'redis://fake' }),
+        );
+      hsetSpy.mockResolvedValue('OK');
+      lpushSpy.mockResolvedValue(1);
 
       const { jobId } = await adapter.submitJob(dummySubmission);
       expect(jobId).toMatch(/^casa-/);
-      expect(hSetSpy).toHaveBeenCalled();
-      expect(lPushSpy).toHaveBeenCalledWith('casa:queue', jobId);
+      expect(hsetSpy).toHaveBeenCalled();
+      expect(lpushSpy).toHaveBeenCalledWith('casa:queue', jobId);
 
-      hGetAllSpy.mockResolvedValue({ status: 'QUEUED', progress: '0' });
+      hgetallSpy.mockResolvedValue({ status: 'QUEUED', progress: '0' });
       const status = await adapter.getJobStatus(jobId);
       expect(status.status).toBe('QUEUED');
     });
     it('should cancel by updating status', async () => {
-      const adapter = new (require('./tacc-integration.service').CasaTaccAdapter)(
-        makeConfig({ REDIS_URL: 'redis://fake' }),
-      );
-      hSetSpy.mockResolvedValue('OK');
+      const adapter =
+        new (require('./tacc-integration.service').CasaTaccAdapter)(
+          makeConfig({ REDIS_URL: 'redis://fake' }),
+        );
+      hsetSpy.mockResolvedValue('OK');
       const ok = await adapter.cancelJob('casa-1');
       expect(ok).toBe(true);
-      expect(hSetSpy).toHaveBeenCalledWith('casa:job:casa-1', 'status', 'CANCELED');
+      expect(hsetSpy).toHaveBeenCalledWith(
+        'casa:job:casa-1',
+        'status',
+        'CANCELED',
+      );
     });
   });
 });

@@ -1,6 +1,6 @@
 export default {
   displayName: 'shared-event-models',
-  preset: '../../../jest.preset.js',
+  preset: '../../../jest.preset.cjs',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]sx?$': 'ts-jest',

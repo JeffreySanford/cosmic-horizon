@@ -1,7 +1,10 @@
 import { test, expect, Page } from '@playwright/test';
 
 // reuse helper from example.spec.ts to set fake authenticated state
-function createFakeJwt(exp: number, claims: Record<string, string> = {}): string {
+function createFakeJwt(
+  exp: number,
+  claims: Record<string, string> = {},
+): string {
   const header = Buffer.from(
     JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
   ).toString('base64url');
@@ -32,7 +35,11 @@ async function loginAsTestUser(page: Page) {
 }
 
 // simple end-to-end job submission flow
-test('can submit a job and see status card', async ({ page }: { page: Page }) => {
+test('can submit a job and see status card', async ({
+  page,
+}: {
+  page: Page;
+}) => {
   // log any console output for debugging
   page.on('console', (msg) => console.log('PAGE LOG>', msg.type(), msg.text()));
   await loginAsTestUser(page);
@@ -49,7 +56,8 @@ test('can submit a job and see status card', async ({ page }: { page: Page }) =>
         id: route.request().url().split('/').pop(),
         status,
         progress: status === 'QUEUED' ? 0 : 1,
-        output_url: status === 'COMPLETED' ? 'https://example.com/out' : undefined,
+        output_url:
+          status === 'COMPLETED' ? 'https://example.com/out' : undefined,
       }),
     });
   });
@@ -80,10 +88,7 @@ test('can submit a job and see status card', async ({ page }: { page: Page }) =>
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify([
-        'Test tip 1',
-        'Test tip 2',
-      ]),
+      body: JSON.stringify(['Test tip 1', 'Test tip 2']),
     });
   });
 
@@ -91,7 +96,10 @@ test('can submit a job and see status card', async ({ page }: { page: Page }) =>
   await expect(page).toHaveURL(/\/jobs$/);
 
   // fill in dataset id to enable the submit button
-  await page.fill('input[placeholder="e.g. VLASS2.1.eb123456"]', 'VLASS2.1.test');
+  await page.fill(
+    'input[placeholder="e.g. VLASS2.1.eb123456"]',
+    'VLASS2.1.test',
+  );
   // submit
   await page.click('button.submit-btn');
 
@@ -100,11 +108,17 @@ test('can submit a job and see status card', async ({ page }: { page: Page }) =>
 
   // job card assertion skipped because backend may be unavailable; focus on toast and tips
   // tips panel should appear with two entries (still produced by stubbed optimize)
-  await page.waitForSelector('.tips-card li', { state: 'attached', timeout: 10000 });
+  await expect(page.locator('.tips-card li').first()).toBeAttached({
+    timeout: 10000,
+  });
   await expect(page.locator('.tips-card li')).toHaveCount(2);
 });
 
-test('can open summary panel and get pre-run QA answer', async ({ page }: { page: Page }) => {
+test('can open summary panel and get pre-run QA answer', async ({
+  page,
+}: {
+  page: Page;
+}) => {
   await loginAsTestUser(page);
 
   await page.route('**/api/jobs/capabilities', async (route) => {
@@ -132,17 +146,27 @@ test('can open summary panel and get pre-run QA answer', async ({ page }: { page
   await expect(page).toHaveURL(/\/jobs$/);
 
   await page.getByRole('button', { name: 'Expand Summary' }).click();
-  await expect(page.getByRole('heading', { name: 'Jobs View Summary' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Jobs View Summary' }),
+  ).toBeVisible();
 
   await page.getByRole('button', { name: 'Have Questions?' }).click();
-  await expect(page.getByRole('heading', { name: 'Pre-Run Q&A' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Pre-Run Q&A' }),
+  ).toBeVisible();
 
-  await page.getByPlaceholder('e.g. Should I increase GPUs for this target?').fill(
-    'Should I change GPUs or runtime before submitting?',
-  );
+  await page
+    .getByPlaceholder('e.g. Should I increase GPUs for this target?')
+    .fill('Should I change GPUs or runtime before submitting?');
   await page.getByRole('button', { name: 'Ask' }).click();
 
-  await expect(page.getByText('Use 1-2 GPUs first, then scale if runtime is too high.')).toBeVisible();
-  await expect(page.locator('.qa-answer').getByText('Confidence: MEDIUM')).toBeVisible();
-  await expect(page.locator('.qa-answer').getByText('(heuristic)')).toBeVisible();
+  await expect(
+    page.getByText('Use 1-2 GPUs first, then scale if runtime is too high.'),
+  ).toBeVisible();
+  await expect(
+    page.locator('.qa-answer').getByText('Confidence: MEDIUM'),
+  ).toBeVisible();
+  await expect(
+    page.locator('.qa-answer').getByText('(heuristic)'),
+  ).toBeVisible();
 });

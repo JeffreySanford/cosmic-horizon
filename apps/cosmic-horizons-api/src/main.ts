@@ -29,25 +29,24 @@ async function bootstrap() {
       'info';
 
     // Map our generic LOG_LEVEL to the array that NestFactory expects
-    const nestLevels: Array<
-      'log' | 'error' | 'warn' | 'debug' | 'verbose'
-    > = (() => {
-      switch (logLevel) {
-        case 'debug':
-          // debug includes everything except verbose (which Nest rarely uses)
-          return ['log', 'error', 'warn', 'debug'];
-        case 'info':
-          // show ordinary operational messages, including route mapping
-          return ['log', 'error', 'warn'];
-        case 'warn':
-          // suppress routine startup noise; only warnings+errors
-          return ['error', 'warn'];
-        case 'error':
-          return ['error'];
-        default:
-          return ['log', 'error', 'warn'];
-      }
-    })();
+    const nestLevels: Array<'log' | 'error' | 'warn' | 'debug' | 'verbose'> =
+      (() => {
+        switch (logLevel) {
+          case 'debug':
+            // debug includes everything except verbose (which Nest rarely uses)
+            return ['log', 'error', 'warn', 'debug'];
+          case 'info':
+            // show ordinary operational messages, including route mapping
+            return ['log', 'error', 'warn'];
+          case 'warn':
+            // suppress routine startup noise; only warnings+errors
+            return ['error', 'warn'];
+          case 'error':
+            return ['error'];
+          default:
+            return ['log', 'error', 'warn'];
+        }
+      })();
 
     // Ensure OAuth env vars are set (required for strategy initialization even if not used)
     if (!process.env['GITHUB_CLIENT_ID']) {

@@ -15,7 +15,10 @@
       </div>
 
       <div class="tile-bottom">
-        <div class="tile-subtitle tile-pill" *ngIf="tile.subtitle$ | async as sub">
+        <div
+          class="tile-subtitle tile-pill"
+          *ngIf="tile.subtitle$ | async as sub"
+        >
           {{ sub }}
         </div>
         <div
@@ -27,10 +30,18 @@
           {{ status }}
         </div>
         <ng-container *ngIf="tile.badge$ | async as badge">
-          <div class="tile-badge tile-pill" [matBadge]="badge" matBadgeOverlap="false">
+          <div
+            class="tile-badge tile-pill"
+            [matBadge]="badge"
+            matBadgeOverlap="false"
+          >
             Jobs
           </div>
-          <a *ngIf="badge > 0" class="alert-link tile-pill" [routerLink]="'alerts'">
+          <a
+            *ngIf="badge > 0"
+            class="alert-link tile-pill"
+            [routerLink]="'alerts'"
+          >
             View alerts
           </a>
         </ng-container>

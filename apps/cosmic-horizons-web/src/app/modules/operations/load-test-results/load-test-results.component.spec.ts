@@ -8,9 +8,12 @@ describe('LoadTestResultsComponent', () => {
 
   beforeEach(async () => {
     // default stub for fetch; tests can override if needed
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      json: () => Promise.resolve({}),
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: () => Promise.resolve({}),
+      }),
+    );
 
     await TestBed.configureTestingModule({
       imports: [OperationsModule],
@@ -30,11 +33,15 @@ describe('LoadTestResultsComponent', () => {
 
   it('loads JSON from assets and assigns results', async () => {
     const fake = { connected: 3, failed: 1 };
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      json: () => Promise.resolve(fake),
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: () => Promise.resolve(fake),
+      }),
+    );
 
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
     expect(component.results).toEqual(fake);
-  });});
+  });
+});

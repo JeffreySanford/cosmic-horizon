@@ -22,10 +22,6 @@ const landingRoutes: Routes = [
 
 @NgModule({
   declarations: [LandingComponent],
-  imports: [
-    CommonModule,
-    MaterialModule,
-    RouterModule.forChild(landingRoutes),
-  ],
+  imports: [CommonModule, MaterialModule, RouterModule.forChild(landingRoutes)],
 })
 export class LandingModule {}

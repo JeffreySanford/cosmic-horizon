@@ -22,7 +22,7 @@ export class PerformanceController {
     const cols = 10;
     // generate a random matrix of numbers 0..100
     const matrix: number[][] = Array.from({ length: rows }, () =>
-      Array.from({ length: cols }, () => Math.random() * 100)
+      Array.from({ length: cols }, () => Math.random() * 100),
     );
     return matrix;
   }
@@ -34,7 +34,7 @@ export class PerformanceController {
     const rows = 10;
     const cols = 10;
     const matrix: number[][] = Array.from({ length: rows }, () =>
-      Array.from({ length: cols }, () => Math.random() * 100)
+      Array.from({ length: cols }, () => Math.random() * 100),
     );
     return matrix;
   }

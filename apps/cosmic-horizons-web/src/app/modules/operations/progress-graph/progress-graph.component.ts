@@ -24,6 +24,4 @@ export class ProgressGraphComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
   }
-
 }
-

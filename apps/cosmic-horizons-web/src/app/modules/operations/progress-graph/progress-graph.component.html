@@ -1,10 +1,13 @@
 <div class="chart-header">
   <span>Job progress over time</span>
-  <mat-icon matTooltip="Each line represents a job, plotting its percentage complete versus elapsed seconds since creation.">info</mat-icon>
+  <mat-icon
+    matTooltip="Each line represents a job, plotting its percentage complete versus elapsed seconds since creation."
+    >info</mat-icon
+  >
 </div>
 <ngx-charts-line-chart
   [results]="series"
-  [view]="[600,300]"
+  [view]="[600, 300]"
   scheme="vivid"
   [gradient]="false"
   [xAxis]="true"

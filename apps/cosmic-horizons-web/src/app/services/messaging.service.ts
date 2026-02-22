@@ -196,9 +196,12 @@ export class MessagingService {
     });
 
     // job updates path (EventsService → gateway → frontend)
-    this.socket.on('job_update', (update: Partial<unknown> & { id: string }) => {
-      this.jobUpdateSubject.next(update);
-    });
+    this.socket.on(
+      'job_update',
+      (update: Partial<unknown> & { id: string }) => {
+        this.jobUpdateSubject.next(update);
+      },
+    );
   }
 
   ensureConnected(): void {
@@ -219,21 +222,25 @@ export class MessagingService {
    * updates are sent to this socket. Returns the acknowledgement response
    * from the server.
    */
-  joinJobChannel(jobId: string): Promise<{ joined: boolean; room?: string; error?: string }> {
+  joinJobChannel(
+    jobId: string,
+  ): Promise<{ joined: boolean; room?: string; error?: string }> {
     if (!this.socket) {
       return Promise.reject(new Error('socket not connected'));
     }
 
     // eslint-disable-next-line no-restricted-syntax -- emission API uses callback
-    return new Promise<{ joined: boolean; room?: string; error?: string }>((resolve) => {
-      const socket = this.socket; // previous guard ensures it exists
-      if (!socket) {
-        return resolve({ joined: false, error: 'not connected' });
-      }
-      socket.emit('join_job_channel', { jobId }, (resp: unknown) => {
-        resolve(resp as { joined: boolean; room?: string; error?: string });
-      });
-    });
+    return new Promise<{ joined: boolean; room?: string; error?: string }>(
+      (resolve) => {
+        const socket = this.socket; // previous guard ensures it exists
+        if (!socket) {
+          return resolve({ joined: false, error: 'not connected' });
+        }
+        socket.emit('join_job_channel', { jobId }, (resp: unknown) => {
+          resolve(resp as { joined: boolean; room?: string; error?: string });
+        });
+      },
+    );
   }
 
   /**

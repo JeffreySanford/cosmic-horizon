@@ -17,7 +17,16 @@ async function processJob(jobId: string) {
     await new Promise<void>((resolve, reject) => {
       const proc = spawn(
         'docker',
-        ['run', '--rm', `-v`, `${dataDir}:${dataDir}`, 'casapy/casa:latest', '--nogui', '-c', scriptPath],
+        [
+          'run',
+          '--rm',
+          `-v`,
+          `${dataDir}:${dataDir}`,
+          'casapy/casa:latest',
+          '--nogui',
+          '-c',
+          scriptPath,
+        ],
         { stdio: 'inherit' },
       );
       proc.on('exit', (code) => {

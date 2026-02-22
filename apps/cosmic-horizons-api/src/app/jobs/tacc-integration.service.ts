@@ -1,6 +1,10 @@
 import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { applyRateLimit, validateLLMOutput, cacheResponse } from '@cosmic-horizons/shared/llm-guards';
+import {
+  applyRateLimit,
+  validateLLMOutput,
+  cacheResponse,
+} from '@cosmic-horizons/shared/llm-guards';
 
 /**
  * Shared types used by all adapters.
@@ -134,7 +138,9 @@ export class DemoTaccAdapter implements TaccAdapter {
         error instanceof Error
           ? error.message
           : 'Unknown error during job submission';
-      this.logger.error(`Failed to submit job to demo adapter: ${errorMessage}`);
+      this.logger.error(
+        `Failed to submit job to demo adapter: ${errorMessage}`,
+      );
       throw error;
     }
   }
@@ -145,7 +151,11 @@ export class DemoTaccAdapter implements TaccAdapter {
     try {
       await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const statuses: TaccJobStatus['status'][] = ['QUEUED', 'RUNNING', 'COMPLETED'];
+      const statuses: TaccJobStatus['status'][] = [
+        'QUEUED',
+        'RUNNING',
+        'COMPLETED',
+      ];
       const randomStatus =
         statuses[Math.floor(Math.random() * statuses.length)];
 
@@ -153,8 +163,8 @@ export class DemoTaccAdapter implements TaccAdapter {
         randomStatus === 'COMPLETED'
           ? 1.0
           : randomStatus === 'FAILED'
-          ? 0.0
-          : Math.random();
+            ? 0.0
+            : Math.random();
 
       return {
         id: jobId,
@@ -239,8 +249,12 @@ export class LocalLlmAdapter implements TaccAdapter {
       'http://localhost:11435',
     );
     this.model = this.configService.get<string>('OLLAMA_MODEL', 'qwen3:8b');
-    this.timeoutMs = Number(this.configService.get<number>('OLLAMA_TIMEOUT_MS', 30000));
-    this.maxRetries = Number(this.configService.get<number>('OLLAMA_MAX_RETRIES', 2));
+    this.timeoutMs = Number(
+      this.configService.get<number>('OLLAMA_TIMEOUT_MS', 30000),
+    );
+    this.maxRetries = Number(
+      this.configService.get<number>('OLLAMA_MAX_RETRIES', 2),
+    );
 
     this.logger.debug(
       `LocalLlmAdapter initialized (${this.baseUrl}, model=${this.model})`,
@@ -419,7 +433,10 @@ export class CasaTaccAdapter implements TaccAdapter {
   private readonly redis: import('ioredis').default;
 
   constructor(private readonly configService: ConfigService) {
-    const url = this.configService.get<string>('REDIS_URL', 'redis://localhost:6379');
+    const url = this.configService.get<string>(
+      'REDIS_URL',
+      'redis://localhost:6379',
+    );
     const Redis = require('ioredis');
     this.redis = new Redis(url);
     this.logger.debug(`Casa adapter connected to Redis at ${url}`);
@@ -470,7 +487,11 @@ export class CasaTaccAdapter implements TaccAdapter {
       await this.redis.ping();
       return { queueAvailable: true, redisConnected: true, jobsEndpoint: true };
     } catch {
-      return { queueAvailable: false, redisConnected: false, jobsEndpoint: true };
+      return {
+        queueAvailable: false,
+        redisConnected: false,
+        jobsEndpoint: true,
+      };
     }
   }
 }
@@ -498,8 +519,16 @@ export class LiveTaccAdapter implements TaccAdapter {
 
   async submitJob(submission: TaccJobSubmission): Promise<{ jobId: string }> {
     const { url, headers, body } = await this.buildSubmitRequest(submission);
-    this.logger.debug(`Live submitJob request ${url} ${body} ${JSON.stringify(headers)}`);
-    const raw = await fetchWithRetry(url, { method: 'POST', headers, body }, 3, 200, this.breaker);
+    this.logger.debug(
+      `Live submitJob request ${url} ${body} ${JSON.stringify(headers)}`,
+    );
+    const raw = await fetchWithRetry(
+      url,
+      { method: 'POST', headers, body },
+      3,
+      200,
+      this.breaker,
+    );
     const json = await raw.json();
     if (json.status) {
       json.status = normalizeStatus(json.status);
@@ -537,7 +566,13 @@ export class LiveTaccAdapter implements TaccAdapter {
   async cancelJob(jobId: string): Promise<boolean> {
     const url = `${this.baseUrl}/v3/jobs/${jobId}/cancel`;
     this.logger.debug(`Live cancelJob request ${url}`);
-    const raw = await fetchWithRetry(url, { method: 'POST' }, 3, 200, this.breaker);
+    const raw = await fetchWithRetry(
+      url,
+      { method: 'POST' },
+      3,
+      200,
+      this.breaker,
+    );
     const json = await raw.json();
     return json.success ?? true;
   }
@@ -582,7 +617,9 @@ export class TaccIntegrationService implements TaccAdapter {
   private readonly resolvedAdapter: TaccAdapter;
 
   constructor(
-    @Optional() @Inject(TACC_ADAPTER) adapterOrConfig?: TaccAdapter | ConfigService,
+    @Optional()
+    @Inject(TACC_ADAPTER)
+    adapterOrConfig?: TaccAdapter | ConfigService,
     @Optional() configService?: ConfigService,
   ) {
     if (this.isAdapter(adapterOrConfig)) {
@@ -592,8 +629,9 @@ export class TaccIntegrationService implements TaccAdapter {
 
     // Backward-compatible fallback for legacy tests that instantiate
     // TaccIntegrationService directly with only ConfigService.
-    const legacyConfig =
-      this.isConfigService(adapterOrConfig) ? adapterOrConfig : configService;
+    const legacyConfig = this.isConfigService(adapterOrConfig)
+      ? adapterOrConfig
+      : configService;
     const safeConfig =
       legacyConfig ??
       ({
@@ -601,7 +639,9 @@ export class TaccIntegrationService implements TaccAdapter {
       } as ConfigService);
 
     this.resolvedAdapter = new DemoTaccAdapter(safeConfig);
-    this.logger.debug('TACC Integration initialized with fallback demo adapter');
+    this.logger.debug(
+      'TACC Integration initialized with fallback demo adapter',
+    );
   }
 
   submitJob(submission: TaccJobSubmission): Promise<{ jobId: string }> {
@@ -689,7 +729,10 @@ class CircuitBreaker {
   private failures = 0;
   private state: 'CLOSED' | 'OPEN' = 'CLOSED';
   private nextAttempt = 0;
-  constructor(private readonly threshold = 3, private readonly timeoutMs = 60000) {}
+  constructor(
+    private readonly threshold = 3,
+    private readonly timeoutMs = 60000,
+  ) {}
   recordSuccess() {
     this.failures = 0;
     this.state = 'CLOSED';

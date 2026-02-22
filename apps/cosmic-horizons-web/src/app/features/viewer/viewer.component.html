@@ -162,11 +162,7 @@
           <div class="label-tools">
             <mat-form-field appearance="outline" class="label-name-field">
               <mat-label>Center Label</mat-label>
-              <input
-                matInput
-                type="text"
-                [(ngModel)]="labelDraft"
-              />
+              <input matInput type="text" [(ngModel)]="labelDraft" />
             </mat-form-field>
             <button mat-stroked-button type="button" (click)="addCenterLabel()">
               Label Center
@@ -233,10 +229,7 @@
             <label class="cutout-label" for="cutout-detail"
               >Cutout Detail</label
             >
-            <select
-              id="cutout-detail"
-              [(ngModel)]="cutoutDetail"
-            >
+            <select id="cutout-detail" [(ngModel)]="cutoutDetail">
               <option value="standard">Standard (1024 px)</option>
               <option value="high">High (2048 px)</option>
               <option value="max">Max (3072 px)</option>

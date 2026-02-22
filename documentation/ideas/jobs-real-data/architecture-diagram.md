@@ -1,10 +1,10 @@
 # Reference Architecture Diagram
 
 Below is a detailed, verbose architecture diagram capturing the key
-components discussed throughout the real‑data jobs idea documents.  It
+components discussed throughout the real‑data jobs idea documents. It
 illustrates the compute gateway pattern, the asynchronous queue, the
 adapter abstraction, and the ancillary services (Redis, Postgres, Kafka,
-metrics, etc.).  The diagram is intentionally complex to highlight all
+metrics, etc.). The diagram is intentionally complex to highlight all
 moving parts and their responsibilities; consider it a conversation piece
 for architecture reviews or hiring panels.
 
@@ -90,7 +90,7 @@ flowchart LR
   classDef external fill:#f9f,stroke:#333,stroke-width:1px;
 
   %% notes
-  click A2 "documentation/ideas/jobs-real-data/backend-adapter-design.md" "Adapter design" 
+  click A2 "documentation/ideas/jobs-real-data/backend-adapter-design.md" "Adapter design"
   click D3 "documentation/ideas/jobs-real-data/backend-adapter-design.md" "CASA adapter notes"
   click Q1 "documentation/ideas/jobs-real-data/phases-and-steps.md" "Queue phase"
   click F2 "documentation/ideas/jobs-real-data/frontend-enhancements.md" "Dataset UI"
@@ -102,7 +102,7 @@ flowchart LR
 
 The following state diagram provides a deep dive into the canonical job
 state machine implemented by the `JobManifestService` and exercised by the
-API & worker.  It documents every transition, the conditions that trigger
+API & worker. It documents every transition, the conditions that trigger
 it, and the behaviour of the status/result/files endpoints.
 
 ```mermaid

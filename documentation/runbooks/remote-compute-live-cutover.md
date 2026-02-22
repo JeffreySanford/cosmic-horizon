@@ -5,14 +5,14 @@ live mode once valid TACC/CosmicAI credentials are available.
 
 1. **Verify credentials**
    - Confirm `TACC_ACCESS_TOKEN`, `TACC_TENANT_BASE_URL`, and other required
-     variables are set in the `.env` or environment.  Use the demo test script
+     variables are set in the `.env` or environment. Use the demo test script
      to perform a simple `GET /v3/jobs` against Tapis.
 2. **Enable live flag**
    - Set `TACC_LIVE=true` (or `REMOTE_COMPUTE_MODE=live`) in configuration.
    - Restart the API service.
 3. **Smoke test**
    - Submit a trivial job via UI or curl: `POST /api/jobs/submit` with known good
-     parameters.  Verify job ID pattern (`tacc-...`).
+     parameters. Verify job ID pattern (`tacc-...`).
    - Poll status until completion.
 4. **Monitor logs and guard metrics**
    - Ensure correlation IDs appear and are consistent across service boundaries.

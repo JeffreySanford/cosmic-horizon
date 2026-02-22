@@ -11,10 +11,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import {
-  Job,
-  JobSubmissionResponse,
-} from '../../../features/jobs/jobs.models';
+import { Job, JobSubmissionResponse } from '../../../features/jobs/jobs.models';
 import { MessagingService } from '../../../services/messaging.service';
 import * as JobsActions from './jobs.actions';
 
@@ -115,4 +112,3 @@ export class JobsEffects {
     ),
   );
 }
-

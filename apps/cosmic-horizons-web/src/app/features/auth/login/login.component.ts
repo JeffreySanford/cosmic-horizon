@@ -1,10 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  Component,
-  inject,
-  OnInit,
-  PLATFORM_ID,
-} from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -56,7 +51,6 @@ export class LoginComponent implements OnInit {
       void this.router.navigateByUrl(returnUrl);
       return;
     }
-
   }
 
   get f() {

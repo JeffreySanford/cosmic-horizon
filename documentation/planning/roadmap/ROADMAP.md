@@ -2,6 +2,8 @@
 
 Status date: 2026-02-22
 
+*(Completed items have been moved to `COMPLETED-ROADMAP.md`.)*
+
 Canonical scope: `documentation/product/PRODUCT-CHARTER.md` and `SCOPE-LOCK.md`.
 Tracking rule: this document is forward-looking only; completed implementation history belongs in `TODO.md`.
 
@@ -12,19 +14,36 @@ Tracking rule: this document is forward-looking only; completed implementation h
 - SSR performance telemetry counters are implemented for bootstrap/TransferState hit-rate tracking.
 - Core local quality gates are green (`lint`, `test`, `e2e`).
 
+## Priority 0: Real‑Data Jobs Integration (astronomy mode)
+
+Objective: build an end-to-end demo that runs actual astronomical measurement set files through a local compute path.  This work can proceed without any external academic or TACC credentials and keeps the team productive while live access is pending.
+
+- Follow the phased plan documented in `documentation/ideas/jobs-real-data/phases-and-steps.md`.
+  - Phase 1: dataset selection, docker profile, adapter stub.
+  - Phase 2: metadata extraction and LLM prompt enrichment.
+  - Later phases: queuing architecture, CASA worker, frontend UX and CI tests.
+- Deliver a working job submission flow that produces a FITS image from sample data and surfaces the result in the Jobs UI.
+
+Exit criteria:
+
+- Sample dataset(s) are available via `astronomy-data/` or helper script.
+- `ASTRO` compose profile boots CASA/WSClean and the API selects a `CasaAdapter` stub.
+- Frontend shows dataset choice and real‑data progress messages.
+- A simple job run completes with a valid FITS artifact.
+
 ## Priority 1: Remote Compute Gateway (v1.2)
 
 ### Sprint 2 (Live Connectivity)
 
 Objective: move from simulation to real remote orchestration while preserving auditability and release safety.  
-*(demo/simulated pathway and UI already in place; this sprint focuses on the live adapter and gating.)*
+_(demo/simulated pathway and UI already in place; this sprint focuses on the live adapter and gating.)_
 
 - Implement TACC Slurm/Tapis live adapter and request/response mapping.
 - Add secure secret/header handling with redaction and operational guardrails.
 - Persist durable job provenance and outcome records in PostgreSQL.
 - Maintain feature-flagged runtime mode split (demo/mock vs live).
 - Complete contract fixtures and parser assertions for Tapis job operations (submit/status/list/files).
-- Continue polishing data staging realism features in demo mode (upload progress, missing inputs, error codes, artifact packaging).
+(completed – see `COMPLETED-ROADMAP.md`)
 
 Exit criteria:
 
@@ -36,20 +55,17 @@ Exit criteria:
 ## Priority 1A: Local LLM Orchestration Completion (v1.2 offline track)
 
 Objective: finish the local-LLM execution path so UI, API, and orchestration behavior are production-shaped before TACC live cutover.  
-*(simulation baseline already implemented; remaining work focuses on guardrails and validation.)*
+_(simulation baseline already implemented; remaining work focuses on guardrails and validation.)_
 
 - Complete reliability/security controls:
-  - Correlation IDs on all LLM job requests/events.  
-  - Header/token/signed-URL redaction in logs.  
-  - [x] Rate limiting and request-size boundaries on local compute endpoints.
-  - Retry/backoff and bounded timeouts across adapter/server/Ollama calls.
+  - (reliability/security controls completed – see `COMPLETED-ROADMAP.md`)
 - Complete contract hardening:
   - Structured JSON schema validation for LLM responses (fail closed + deterministic fallback).
   - Canonical status mapping parity across `demo`, `local-llm`, and `live` modes.
 - Complete validation strategy:
   - Adapter unit tests and worker lifecycle/error-class tests.
   - Local compute HTTP contract tests.
-  - [x] Web e2e coverage in `REMOTE_COMPUTE_MODE=local-llm` and CI shard enablement (build errors corrected, tests now run with local compute server; CI workflow updated to start API service).
+  - (web e2e coverage achieved – see `COMPLETED-ROADMAP.md`)
 - Publish pre-cutover mode-delta report (`local-llm` vs expected `live` behavior).
 
 Exit criteria:
@@ -83,4 +99,4 @@ Exit criteria:
 
 ---
 
-*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*
+_Independent portal using public VLASS data; not affiliated with VLA/NRAO._

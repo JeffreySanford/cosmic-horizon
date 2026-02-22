@@ -599,12 +599,9 @@ export class JobOrchestratorService {
     }
 
     return {
-      answer:
-        `For ${agent} on ${target}, verify dataset ID, RA/Dec, band, runtime limit, and resource settings before submission.`,
+      answer: `For ${agent} on ${target}, verify dataset ID, RA/Dec, band, runtime limit, and resource settings before submission.`,
       confidence: 'medium',
-      caveats: [
-        'This is advisory guidance and not a scheduler guarantee.',
-      ],
+      caveats: ['This is advisory guidance and not a scheduler guarantee.'],
       source: 'heuristic',
     };
   }
@@ -613,9 +610,14 @@ export class JobOrchestratorService {
     question: string,
     submission: TaccJobSubmission,
   ): Promise<PreflightQaResponse | null> {
-    const baseUrl = this.config.get<string>('OLLAMA_BASE_URL', 'http://localhost:11435');
+    const baseUrl = this.config.get<string>(
+      'OLLAMA_BASE_URL',
+      'http://localhost:11435',
+    );
     const model = this.config.get<string>('OLLAMA_MODEL', 'qwen3:8b');
-    const timeoutMs = Number(this.config.get<number>('OLLAMA_TIMEOUT_MS', 30000));
+    const timeoutMs = Number(
+      this.config.get<number>('OLLAMA_TIMEOUT_MS', 30000),
+    );
 
     const prompt = [
       'You are a cautious astronomy operations assistant.',
@@ -650,7 +652,9 @@ export class JobOrchestratorService {
         return null;
       }
 
-      const parsed = JSON.parse(payload.response) as Partial<PreflightQaResponse>;
+      const parsed = JSON.parse(
+        payload.response,
+      ) as Partial<PreflightQaResponse>;
       if (
         typeof parsed.answer !== 'string' ||
         (parsed.confidence !== 'low' &&

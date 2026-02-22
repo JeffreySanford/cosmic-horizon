@@ -20,11 +20,21 @@ table {
   font-weight: 600;
 }
 
-.queued { background: orange; }
-.running { background: dodgerblue; }
-.completed { background: seagreen; }
-.failed { background: crimson; }
-.cancelled { background: gray; }
+.queued {
+  background: orange;
+}
+.running {
+  background: dodgerblue;
+}
+.completed {
+  background: seagreen;
+}
+.failed {
+  background: crimson;
+}
+.cancelled {
+  background: gray;
+}
 
 .summary-cards {
   display: flex;
@@ -50,7 +60,7 @@ tr.updated {
   cursor: pointer;
 }
 .clickable-row:hover {
-  background-color: rgba(0,0,0,0.04);
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 @keyframes highlight {

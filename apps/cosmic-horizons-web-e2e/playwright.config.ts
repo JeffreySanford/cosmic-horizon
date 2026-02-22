@@ -39,8 +39,12 @@ export default defineConfig({
   globalSetup: require.resolve('./global-setup'),
   /* Run your local dev server before starting the tests. Bind to 0.0.0.0 on CI so containerized services can reach it. */
   webServer: {
-    // Start both frontend and API so E2E tests have the real backend available.
-    command: `pnpm exec nx run-many --target=serve --projects=cosmic-horizons-web,cosmic-horizons-api --parallel=2 --skip-nx-cache --host=${process.env['CI'] ? '0.0.0.0' : 'localhost'}`,
+    // Start API first, wait for its health endpoint, then launch frontend.
+    // This prevents the Nx devserver proxy from logging ECONNREFUSED bursts
+    // when the UI requests `/api/*` before the backend listener is ready.
+    // The helper script will keep both processes alive until Playwright
+    // tears down the session.
+    command: `node ${workspaceRoot.replace(/\\/g, '/')}/scripts/e2e-webserver.js`,
     url: baseURL,
     reuseExistingServer: true,
     cwd: workspaceRoot,
@@ -63,7 +67,9 @@ export default defineConfig({
           viewport: { width: 1280, height: 720 },
         }),
         // ensure tests start in local-llm mode by setting env
-        launchOptions: { env: { ...process.env, REMOTE_COMPUTE_MODE: 'local-llm' } },
+        launchOptions: {
+          env: { ...process.env, REMOTE_COMPUTE_MODE: 'local-llm' },
+        },
       },
     },
   ],

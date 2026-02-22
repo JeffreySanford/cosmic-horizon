@@ -101,7 +101,8 @@ export class ProfileComponent implements OnInit {
       this.persistLocationPreference(false);
       this.locationLabel = 'REG ---- | SRC default';
       this.latLonLabel = 'LAT --.---- | LON --.----';
-      this.locationPreferenceMessage = 'Exact location personalization disabled.';
+      this.locationPreferenceMessage =
+        'Exact location personalization disabled.';
       return;
     }
 

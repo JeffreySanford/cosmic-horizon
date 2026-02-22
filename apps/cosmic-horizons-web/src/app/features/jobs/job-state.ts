@@ -16,8 +16,15 @@ export interface JobState {
 // allowed transitions
 const allowed: Record<CanonicalJobStatus, CanonicalJobStatus[]> = {
   [CanonicalJobStatus.SUBMITTED]: [CanonicalJobStatus.QUEUED],
-  [CanonicalJobStatus.QUEUED]: [CanonicalJobStatus.RUNNING, CanonicalJobStatus.CANCELED],
-  [CanonicalJobStatus.RUNNING]: [CanonicalJobStatus.SUCCEEDED, CanonicalJobStatus.FAILED, CanonicalJobStatus.CANCELED],
+  [CanonicalJobStatus.QUEUED]: [
+    CanonicalJobStatus.RUNNING,
+    CanonicalJobStatus.CANCELED,
+  ],
+  [CanonicalJobStatus.RUNNING]: [
+    CanonicalJobStatus.SUCCEEDED,
+    CanonicalJobStatus.FAILED,
+    CanonicalJobStatus.CANCELED,
+  ],
   [CanonicalJobStatus.SUCCEEDED]: [],
   [CanonicalJobStatus.FAILED]: [],
   [CanonicalJobStatus.CANCELED]: [],

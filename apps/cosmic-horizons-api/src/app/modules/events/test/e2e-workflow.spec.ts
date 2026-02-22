@@ -78,7 +78,11 @@ describe('Week 3 E2E Workflow', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockImplementation((_key: string, fallback?: unknown) => fallback),
+            get: jest
+              .fn()
+              .mockImplementation(
+                (_key: string, fallback?: unknown) => fallback,
+              ),
           },
         },
         {

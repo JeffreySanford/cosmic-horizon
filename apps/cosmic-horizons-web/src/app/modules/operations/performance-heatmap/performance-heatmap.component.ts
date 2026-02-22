@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { PerformanceDataService } from '../../../services/performance-data.service';
 import { Subscription } from 'rxjs';
 
@@ -8,7 +14,6 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./performance-heatmap.component.scss'],
   standalone: false,
   // imports are now provided by OperationsModule
-
 })
 export class PerformanceHeatmapComponent implements OnInit, OnDestroy {
   // converted to ngx-charts heatmap format
@@ -57,7 +62,6 @@ export class PerformanceHeatmapComponent implements OnInit, OnDestroy {
       this.perf.setWindow(val);
     }
   }
-
 
   private convert(data: number[][]) {
     return data.map((row, rowIdx) => ({

@@ -81,7 +81,6 @@ Frontend runtime note:
 - Because Mode B is deferred, no heavy rendering tier is required for MVP success.
 
 - Re-introduce a render service only if one of these triggers occurs:
-
   1. Snapshot generation cannot meet quality/performance targets in Node/client path.
 
   2. SSR preview generation becomes CPU-bound in production.
@@ -95,7 +94,8 @@ Mode B planning overview (timing, feasibility, permission assumptions):
 
 ---
 
-*Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*
+_Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved._
 
 ---
-*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*
+
+_Independent portal using public VLASS data; not affiliated with VLA/NRAO._

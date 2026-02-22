@@ -51,4 +51,3 @@ export const jobSelected = createAction(
   '[Jobs] Selected',
   props<{ jobId: string | null }>(),
 );
-

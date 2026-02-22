@@ -49,6 +49,13 @@ describe('DatasetStagingService', () => {
         'Access denied',
       );
     });
+
+    it('should include file list when id contains manifest', async () => {
+      const result = await service.validateDataset('my-manifest-dataset');
+      expect(result.files).toBeDefined();
+      expect(Array.isArray(result.files)).toBe(true);
+      expect(result.files?.length).toBeGreaterThan(0);
+    });
   });
 
   describe('stageDataset', () => {
@@ -118,6 +125,34 @@ describe('DatasetStagingService', () => {
       const status = await service.getStagingStatus('dataset-zip');
       expect(status?.status).toBe('completed');
       expect(status?.artifact_url).toContain('.zip');
+      expect(status?.artifact_refs).toBeDefined();
+      expect(status?.artifact_refs?.[0].checksum).toBeDefined();
+      randomSpy.mockRestore();
+      jest.useRealTimers();
+    });
+
+    it('should delay output manifest when id contains delay', async () => {
+      jest.useFakeTimers();
+      const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(1);
+      const request = {
+        dataset_id: 'dataset-delay',
+        target_resource: 'tacc_scratch' as const,
+        priority: 'normal' as const,
+      };
+      const res = await service.stageDataset(request);
+      expect(res.status).toBe('in_progress');
+
+      jest.advanceTimersByTime(20000);
+      let status = await service.getStagingStatus('dataset-delay');
+      // still in_progress due to artificial delay
+      expect(status?.status).toBe('in_progress');
+      expect(status?.output_manifest).toBeUndefined();
+
+      // advance the additional delay
+      jest.advanceTimersByTime(10000);
+      status = await service.getStagingStatus('dataset-delay');
+      expect(status?.status).toBe('completed');
+      expect(status?.output_manifest).toEqual(['result1.fits', 'result2.fits']);
       randomSpy.mockRestore();
       jest.useRealTimers();
     });

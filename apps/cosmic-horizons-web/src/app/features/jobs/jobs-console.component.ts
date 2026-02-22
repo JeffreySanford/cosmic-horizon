@@ -89,7 +89,13 @@ export class JobsConsoleComponent implements OnInit {
   qaError = '';
   qaResponse: PreflightQaResponse | null = null;
   selectedFilter: JobFilter = 'ALL';
-  readonly filters: JobFilter[] = ['ALL', 'QUEUED', 'RUNNING', 'COMPLETED', 'FAILED'];
+  readonly filters: JobFilter[] = [
+    'ALL',
+    'QUEUED',
+    'RUNNING',
+    'COMPLETED',
+    'FAILED',
+  ];
   readonly qaSuggestedQuestions = [
     'What will this job do for my selected target?',
     'Should I change GPUs or runtime before submitting?',
@@ -140,8 +146,7 @@ export class JobsConsoleComponent implements OnInit {
     // object has an index signature, so accessing a hard‑coded property must use
     // bracket notation to satisfy the Angular compiler/plugin (TS4111).
     return (
-      this.agentWorkflow[this.selectedAgent] ??
-      this.agentWorkflow['AlphaCal']
+      this.agentWorkflow[this.selectedAgent] ?? this.agentWorkflow['AlphaCal']
     );
   }
 
@@ -189,9 +194,11 @@ export class JobsConsoleComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadJobs();
-    this.http.get<Record<string, boolean>>('/api/jobs/capabilities').subscribe((caps) => {
-      this.capabilities = caps;
-    });
+    this.http
+      .get<Record<string, boolean>>('/api/jobs/capabilities')
+      .subscribe((caps) => {
+        this.capabilities = caps;
+      });
   }
 
   loadJobs() {
@@ -211,10 +218,14 @@ export class JobsConsoleComponent implements OnInit {
           const displayId = res.tacc_job_id ?? jobId;
 
           if (!jobId) {
-            this.snackBar.open('Job submitted, but no job ID was returned', 'Close', {
-              duration: 5000,
-              panelClass: ['toast-warn'],
-            });
+            this.snackBar.open(
+              'Job submitted, but no job ID was returned',
+              'Close',
+              {
+                duration: 5000,
+                panelClass: ['toast-warn'],
+              },
+            );
             this.isLoading = false;
             this.cdr.markForCheck();
             return;
@@ -232,11 +243,13 @@ export class JobsConsoleComponent implements OnInit {
             scienceIntent: this.scienceIntentSummary,
           };
           // fetch optimization tips for this submission
-          this.http.post<unknown[]>('/api/jobs/optimize', submission).subscribe((tips) => {
-            this.optimizationTips = this.normalizeOptimizationTips(tips);
-            // mark for check so the async assignment doesn't trigger a change-error
-            this.cdr.markForCheck();
-          });
+          this.http
+            .post<unknown[]>('/api/jobs/optimize', submission)
+            .subscribe((tips) => {
+              this.optimizationTips = this.normalizeOptimizationTips(tips);
+              // mark for check so the async assignment doesn't trigger a change-error
+              this.cdr.markForCheck();
+            });
           this.pollStatus(jobId);
           this.isLoading = false;
           this.cdr.markForCheck();
@@ -293,7 +306,9 @@ export class JobsConsoleComponent implements OnInit {
   tipLabel(tip: OptimizationTip): string {
     const severity = tip.severity.toUpperCase();
     const suggestion =
-      tip.suggestedValue !== undefined ? ` Suggested: ${tip.suggestedValue}.` : '';
+      tip.suggestedValue !== undefined
+        ? ` Suggested: ${tip.suggestedValue}.`
+        : '';
     return `[${severity}] ${tip.message}${suggestion}`;
   }
 

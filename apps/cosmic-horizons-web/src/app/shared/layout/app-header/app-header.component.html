@@ -22,7 +22,9 @@
 
       <div class="app-header__title-group">
         <h1 class="app-header__title">{{ config.title }}</h1>
-        <p *ngIf="config.subtitle" class="app-header__subtitle">{{ config.subtitle }}</p>
+        <p *ngIf="config.subtitle" class="app-header__subtitle">
+          {{ config.subtitle }}
+        </p>
       </div>
 
       <nav
@@ -31,7 +33,11 @@
         *ngIf="config.breadcrumbs.length"
       >
         <ng-container
-          *ngFor="let crumb of config.breadcrumbs; let i = index; trackBy: trackBreadcrumb"
+          *ngFor="
+            let crumb of config.breadcrumbs;
+            let i = index;
+            trackBy: trackBreadcrumb
+          "
         >
           <a
             *ngIf="crumb.route; else currentCrumb"
@@ -43,7 +49,9 @@
           </a>
 
           <ng-template #currentCrumb>
-            <span class="app-header__breadcrumb app-header__breadcrumb--current">
+            <span
+              class="app-header__breadcrumb app-header__breadcrumb--current"
+            >
               <mat-icon *ngIf="crumb.icon">{{ crumb.icon }}</mat-icon>
               <span>{{ crumb.label }}</span>
             </span>
@@ -87,7 +95,10 @@
         (change)="mockMode.toggle()"
         aria-label="Toggle mock mode"
       >
-        <span [class.mock-active]="mockMode.isMock" [class.live-active]="!mockMode.isMock">
+        <span
+          [class.mock-active]="mockMode.isMock"
+          [class.live-active]="!mockMode.isMock"
+        >
           {{ mockMode.isMock ? 'Mock' : 'Live' }}
         </span>
       </mat-slide-toggle>
@@ -121,7 +132,10 @@
   >
     <h2 class="app-header__expanded-title">{{ config.expandLabel }}</h2>
     <div class="app-header__insight-grid">
-      <article class="app-header__insight" *ngFor="let insight of config.insights">
+      <article
+        class="app-header__insight"
+        *ngFor="let insight of config.insights"
+      >
         <mat-icon>{{ insight.icon }}</mat-icon>
         <div>
           <h3>{{ insight.value }}</h3>

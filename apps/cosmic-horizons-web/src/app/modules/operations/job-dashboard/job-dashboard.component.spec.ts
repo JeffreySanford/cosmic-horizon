@@ -13,10 +13,16 @@ class FakeJobOrchestrationService implements Partial<JobOrchestrationService> {
   private jobsSubject = new BehaviorSubject<any[]>([]);
   jobs$ = this.jobsSubject.asObservable();
   progressSeries$ = of([]);
-  getJobCount() { return of(0); }
-  cancelJob(id: string) { return of(undefined); }
+  getJobCount() {
+    return of(0);
+  }
+  cancelJob(id: string) {
+    return of(undefined);
+  }
   // allow tests to push jobs
-  push(jobs: any[]) { this.jobsSubject.next(jobs); }
+  push(jobs: any[]) {
+    this.jobsSubject.next(jobs);
+  }
 }
 
 describe('JobDashboardComponent', () => {
@@ -53,13 +59,19 @@ describe('JobDashboardComponent', () => {
       providers: [
         // substitute our fake service for the real orchestrator via the
         // proper token so the component receives it.
-        { provide: (await import('../../../features/jobs/job-orchestration.service')).JobOrchestrationService, useClass: FakeJobOrchestrationService },
+        {
+          provide: (
+            await import('../../../features/jobs/job-orchestration.service')
+          ).JobOrchestrationService,
+          useClass: FakeJobOrchestrationService,
+        },
         { provide: MessagingService, useValue: msgService },
         // override the performance service with a harmless stub to avoid
         // background timer emissions that threw ExpressionChanged errors in
         // child dashboards during tests
         {
-          provide: (await import('../../../services/performance-data.service')).PerformanceDataService,
+          provide: (await import('../../../services/performance-data.service'))
+            .PerformanceDataService,
           useValue: {
             historyLength$: of(0),
             cpuHeatmap$: of([]),
@@ -71,7 +83,9 @@ describe('JobDashboardComponent', () => {
     }).compileComponents();
 
     // grab the service by its official token and treat it as our fake
-    jobService = TestBed.inject(JobOrchestrationService) as unknown as FakeJobOrchestrationService;
+    jobService = TestBed.inject(
+      JobOrchestrationService,
+    ) as unknown as FakeJobOrchestrationService;
     dialog = TestBed.inject(MatDialog);
   });
 
@@ -83,8 +97,26 @@ describe('JobDashboardComponent', () => {
     fixture = TestBed.createComponent(JobDashboardComponent);
     component = fixture.componentInstance;
     emitJobs([
-      { id: 'job-001', name: 'cal', agentId: '', agentName: '', status: 'queued', parameters: {}, createdAt: new Date(), progress: 0 },
-      { id: 'job-002', name: 'deep', agentId: '', agentName: '', status: 'running', parameters: {}, createdAt: new Date(), progress: 45 },
+      {
+        id: 'job-001',
+        name: 'cal',
+        agentId: '',
+        agentName: '',
+        status: 'queued',
+        parameters: {},
+        createdAt: new Date(),
+        progress: 0,
+      },
+      {
+        id: 'job-002',
+        name: 'deep',
+        agentId: '',
+        agentName: '',
+        status: 'running',
+        parameters: {},
+        createdAt: new Date(),
+        progress: 45,
+      },
     ]);
     fixture.detectChanges();
   });
@@ -99,8 +131,8 @@ describe('JobDashboardComponent', () => {
     // apply filter and force update
     component.filterStatus = 'queued';
     fixture.detectChanges();
-    component.jobs = component.jobs.filter(j => j.status === 'queued');
-    expect(component.jobs.every(j => j.status === 'queued')).toBe(true);
+    component.jobs = component.jobs.filter((j) => j.status === 'queued');
+    expect(component.jobs.every((j) => j.status === 'queued')).toBe(true);
   });
 
   it('subscribes to job updates and applies them', () => {
@@ -121,12 +153,15 @@ describe('JobDashboardComponent', () => {
   });
 
   it('renders agent and ETA columns', () => {
-    const agentCells = fixture.nativeElement.querySelectorAll('td.mat-column-agentName');
+    const agentCells = fixture.nativeElement.querySelectorAll(
+      'td.mat-column-agentName',
+    );
     expect(agentCells.length).toBeGreaterThan(0);
-    const etaCells = fixture.nativeElement.querySelectorAll('td.mat-column-estimatedTimeRemaining');
+    const etaCells = fixture.nativeElement.querySelectorAll(
+      'td.mat-column-estimatedTimeRemaining',
+    );
     expect(etaCells.length).toBeGreaterThan(0);
   });
-
 
   it('calls openDetails when row clicked and opens dialog', () => {
     const row = fixture.nativeElement.querySelector('tr.clickable-row');
@@ -139,6 +174,4 @@ describe('JobDashboardComponent', () => {
   // the remainder of the original spec contained extensive interaction and
   // socket logic which has been trimmed to keep this test suite focused and
   // maintainable. Additional coverage may be reintroduced as needed.
-
 });
-

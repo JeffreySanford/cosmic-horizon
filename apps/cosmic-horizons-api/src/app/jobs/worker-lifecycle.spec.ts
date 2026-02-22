@@ -8,7 +8,7 @@ import { spawn } from 'child_process';
 describe('local LLM worker lifecycle', () => {
   it('should start a dummy worker process and terminate gracefully', async () => {
     // use node -e to simulate a long-running worker
-    const proc = spawn(process.execPath, ['-e', "setTimeout(()=>{},10000)"]);
+    const proc = spawn(process.execPath, ['-e', 'setTimeout(()=>{},10000)']);
     expect(proc.pid).toBeGreaterThan(0);
     proc.kill();
     await new Promise((res) => proc.on('exit', res));

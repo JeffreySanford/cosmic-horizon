@@ -86,7 +86,9 @@ describe('Tacc adapter wiring', () => {
     configValues.REMOTE_COMPUTE_MODE = 'demo';
     moduleRef = await buildModule();
 
-    const service = moduleRef.get<TaccIntegrationService>(TaccIntegrationService);
+    const service = moduleRef.get<TaccIntegrationService>(
+      TaccIntegrationService,
+    );
     const result = await service.submitJob({
       agent: 'AlphaCal',
       dataset_id: 'dataset-1',
@@ -102,8 +104,14 @@ describe('Tacc adapter wiring', () => {
     configValues.REMOTE_COMPUTE_MODE = 'astronomy';
     // ensure redis mock is available so constructor can run
     moduleRef = await buildModule();
-    const service = moduleRef.get<TaccIntegrationService>(TaccIntegrationService);
-    const res = await service.submitJob({ agent: 'AlphaCal', dataset_id: 'ds', params: {} });
+    const service = moduleRef.get<TaccIntegrationService>(
+      TaccIntegrationService,
+    );
+    const res = await service.submitJob({
+      agent: 'AlphaCal',
+      dataset_id: 'ds',
+      params: {},
+    });
     expect(res.jobId).toMatch(/^casa-/);
   });
 
@@ -112,7 +120,9 @@ describe('Tacc adapter wiring', () => {
     const fetchMock = jest.fn(async (url: string) => {
       if (url.endsWith('/api/generate')) {
         return new Response(
-          JSON.stringify({ response: '{"planSummary":"ok","estimatedMinutes":12}' }),
+          JSON.stringify({
+            response: '{"planSummary":"ok","estimatedMinutes":12}',
+          }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
         );
       }
@@ -124,10 +134,13 @@ describe('Tacc adapter wiring', () => {
       }
       return new Response('{}', { status: 404 });
     });
-    (globalThis as { fetch: typeof fetch }).fetch = fetchMock as unknown as typeof fetch;
+    (globalThis as { fetch: typeof fetch }).fetch =
+      fetchMock as unknown as typeof fetch;
 
     moduleRef = await buildModule();
-    const service = moduleRef.get<TaccIntegrationService>(TaccIntegrationService);
+    const service = moduleRef.get<TaccIntegrationService>(
+      TaccIntegrationService,
+    );
 
     const submission = await service.submitJob({
       agent: 'ImageReconstruction',
@@ -147,16 +160,20 @@ describe('Tacc adapter wiring', () => {
   it('falls back to live when legacy TACC_LIVE=true and mode unset', async () => {
     configValues.REMOTE_COMPUTE_MODE = undefined;
     configValues.TACC_LIVE = 'true';
-    const fetchMock = jest.fn(async () =>
-      new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    const fetchMock = jest.fn(
+      async () =>
+        new Response(JSON.stringify({}), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
     );
-    (globalThis as { fetch: typeof fetch }).fetch = fetchMock as unknown as typeof fetch;
+    (globalThis as { fetch: typeof fetch }).fetch =
+      fetchMock as unknown as typeof fetch;
 
     moduleRef = await buildModule();
-    const service = moduleRef.get<TaccIntegrationService>(TaccIntegrationService);
+    const service = moduleRef.get<TaccIntegrationService>(
+      TaccIntegrationService,
+    );
     const caps = await service.getCapabilities();
 
     expect(caps).toHaveProperty('baseUrlReachable');
