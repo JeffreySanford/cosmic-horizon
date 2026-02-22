@@ -122,7 +122,12 @@ async function main() {
         // successful run – report the output/product if present
         const output = final.result?.output_url || final.result?.output;
         if (output) {
-          console.log('job produced output:', output);
+          // demo adapter returns a fake NRAO URL; strip domain for clarity
+          const display = String(output).replace(
+            /^https:\/\/archive\.vla\.nrao\.edu/, 
+            '[demo-host]'
+          );
+          console.log('job produced output:', display);
         }
       }
     }
