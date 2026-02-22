@@ -183,6 +183,34 @@ fits.writeto('${fitsPath}', arr, overwrite=True)
           );
           console.log('generated FITS file', fitsPath);
           await fs.promises.unlink(tmp);
+          // convert FITS -> PNG using Python/astropy & matplotlib
+          try {
+            const pngPath = path.join(outDir, `job-output-${final.id}.png`);
+            const convScript = `
+from astropy.io import fits
+import matplotlib.pyplot as plt
+
+hdu = fits.open('${fitsPath}')[0]
+plt.imsave('${pngPath}', hdu.data, cmap='gray', origin='lower')
+`;
+            const convTmp = path.join(outDir, 'convert_fits.py');
+            await fs.promises.writeFile(convTmp, convScript);
+            await new Promise((res, rej) => {
+              const { exec } = require('child_process');
+              exec(
+                `${process.env.PYTHON || 'python'} ${convTmp}`,
+                { cwd: outDir },
+                (err, stdout, stderr) => {
+                  if (err) return rej(err);
+                  res(stdout);
+                },
+              );
+            });
+            console.log('generated PNG file', pngPath);
+            await fs.promises.unlink(convTmp);
+          } catch (err) {
+            console.error('failed to convert FITS to PNG', err);
+          }
         } catch (err) {
           console.error('failed to create FITS file', err);
         }
