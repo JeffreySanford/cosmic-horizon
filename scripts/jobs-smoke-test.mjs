@@ -112,12 +112,18 @@ async function main() {
     if (jobId) {
       const final = await waitForStatus(jobId, userToken);
       console.log('final job', final);
-      // if job didn't succeed, surface the failure reason and exit non‑zero
       if (final.status !== 'COMPLETED') {
+        // if job didn't succeed, surface the failure reason and exit non‑zero
         const reason =
           final.result?.error_message || final.notes || 'unknown';
         console.error(`job did not complete successfully: ${reason}`);
         process.exit(1);
+      } else {
+        // successful run – report the output/product if present
+        const output = final.result?.output_url || final.result?.output;
+        if (output) {
+          console.log('job produced output:', output);
+        }
       }
     }
   }
