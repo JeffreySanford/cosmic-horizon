@@ -145,6 +145,8 @@ async function main() {
           created_at: final.created_at,
           completed_at: final.completed_at,
           output: output || null,
+          local_fits_path: final.status === 'COMPLETED' ? path.join(outDir, `job-output-${final.id}.fits`) : null,
+          local_png_path: final.status === 'COMPLETED' ? path.join(outDir, `job-output-${final.id}.png`) : null,
         };
         const fileName = path.join(
           outDir,
