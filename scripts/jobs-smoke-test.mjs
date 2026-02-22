@@ -160,20 +160,33 @@ async function main() {
       if (final.status === 'COMPLETED') {
         try {
           const fitsPath = path.join(outDir, `job-output-${final.id}.fits`);
+              // escape backslashes for Python strings
+          const safeFitsPath = fitsPath.replace(/\\/g, '\\\\');
           const script = `
 import numpy as np
 from astropy.io import fits
 
 # simple 100x100 test image
 arr = np.arange(100*100, dtype=np.float32).reshape((100,100))
-fits.writeto('${fitsPath}', arr, overwrite=True)
+fits.writeto(r'${safeFitsPath}', arr, overwrite=True)
 `;
           const tmp = path.join(outDir, 'generate_fits.py');
           await fs.promises.writeFile(tmp, script);
           const { exec } = await import('child_process');
+          // prefer virtualenv python if available
+          let pythonCmd = process.env.PYTHON || 'python';
+          const venvPython = path.join(process.cwd(), '.venv',
+            process.platform === 'win32' ? 'Scripts' : 'bin',
+            'python');
+          if (await fs.promises
+            .access(venvPython)
+            .then(() => true)
+            .catch(() => false)) {
+            pythonCmd = venvPython;
+          }
           await new Promise((res, rej) =>
             exec(
-              `${process.env.PYTHON || 'python'} ${tmp}`,
+              `${pythonCmd} ${tmp}`,
               { cwd: outDir },
               (err, stdout, stderr) => {
                 if (err) return rej(err);
@@ -186,12 +199,14 @@ fits.writeto('${fitsPath}', arr, overwrite=True)
           // convert FITS -> PNG using Python/astropy & matplotlib
           try {
             const pngPath = path.join(outDir, `job-output-${final.id}.png`);
+            const safeFits = fitsPath.replace(/\\/g, '\\\\');
+            const safePng = pngPath.replace(/\\/g, '\\\\');
             const convScript = `
 from astropy.io import fits
 import matplotlib.pyplot as plt
 
-hdu = fits.open('${fitsPath}')[0]
-plt.imsave('${pngPath}', hdu.data, cmap='gray', origin='lower')
+hdu = fits.open(r'${safeFits}')[0]
+plt.imsave(r'${safePng}', hdu.data, cmap='gray', origin='lower')
 `;
             const convTmp = path.join(outDir, 'convert_fits.py');
             await fs.promises.writeFile(convTmp, convScript);
