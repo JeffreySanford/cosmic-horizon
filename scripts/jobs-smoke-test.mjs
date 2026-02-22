@@ -177,7 +177,7 @@ fits.writeto(r'${safeFitsPath}', arr, overwrite=True)
           let pythonCmd = process.env.PYTHON || 'python';
           const venvPython = path.join(process.cwd(), '.venv',
             process.platform === 'win32' ? 'Scripts' : 'bin',
-            'python');
+            process.platform === 'win32' ? 'python.exe' : 'python');
           if (await fs.promises
             .access(venvPython)
             .then(() => true)
