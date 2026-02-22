@@ -112,6 +112,11 @@ async function main() {
     if (jobId) {
       const final = await waitForStatus(jobId, userToken);
       console.log('final job', final);
+      // exit code reflects pass/fail so CI can use this script
+      if (final.status !== 'COMPLETED') {
+        console.error('job did not complete successfully');
+        process.exit(1);
+      }
     }
   }
 
