@@ -21,6 +21,54 @@ async function login(email, password) {
   }
 }
 
+async function probeHistory(token) {
+  const url = `${baseUrl}/api/jobs/history/list`;
+  try {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const res = await axios.get(url, { headers });
+    console.log(`GET /jobs/history/list ${token ? 'with' : 'without'} token ->`, res.status);
+    if (res.status === 200) {
+      console.log('response:', res.data);
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response) {
+      console.log(`GET /jobs/history/list ${token ? 'with' : 'without'} token ->`, err.response.status);
+    } else {
+      console.error('probe error', err);
+    }
+  }
+}
+
+async function submitJob(token, datasetId, params) {
+  const url = `${baseUrl}/api/jobs/submit`;
+  const headers = { Authorization: `Bearer ${token}` };
+  try {
+    const res = await axios.post(url, { agent: 'AlphaCal', dataset_id: datasetId, params }, { headers });
+    console.log(`submitted job ${res.data.id} status ${res.status}`);
+    return res.data.id;
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response) {
+      console.error('job submit error', err.response.status, err.response.data);
+    } else {
+      console.error('job submit error', err);
+    }
+    return null;
+  }
+}
+
+async function waitForStatus(jobId, token) {
+  const headers = { Authorization: `Bearer ${token}` };
+  while (true) {
+    const res = await axios.get(`${baseUrl}/api/jobs/${jobId}/status`, { headers });
+    const status = res.data.status;
+    console.log(`job ${jobId} status ${status}`);
+    if (['COMPLETED','FAILED','CANCELLED'].includes(status)) {
+      return res.data;
+    }
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+}
+
 async function main() {
   // use seeded credentials from env if available
   const userEmail = process.env.USER_EMAIL || process.env.SEED_TEST_EMAIL || 'test@cosmic.local';
@@ -28,21 +76,48 @@ async function main() {
   const adminEmail = process.env.ADMIN_EMAIL || process.env.SEED_ADMIN_EMAIL || 'admin@cosmic.local';
   const adminPass = process.env.ADMIN_PASS || process.env.SEED_ADMIN_PASSWORD || 'AdminPassword123!';
 
+  console.log('Probing history endpoint without token');
+  await probeHistory(null);
+
   console.log('Logging in as regular user...');
+  let userToken = null;
   try {
     const user = await login(userEmail, userPass);
-    console.log('User token:', user.access_token);
+    userToken = user.access_token;
+    console.log('User token:', userToken);
   } catch (err) {
     console.error('User login error:', err.message);
   }
 
+  console.log('Probing history endpoint with user token');
+  await probeHistory(userToken);
+
+  // submit a failing job to observe result
+  console.log('Submitting a failing job');
+  if (userToken) {
+    const jobId = await submitJob(userToken, `quota-trigger-${Date.now()}`, {
+      gpu_count: 1,
+      rfi_strategy: 'medium',
+      target_name: 'M51',
+    });
+    if (jobId) {
+      const final = await waitForStatus(jobId, userToken);
+      console.log('final job', final);
+    }
+  }
+
   console.log('Logging in as admin...');
+  let adminToken = null;
   try {
     const admin = await login(adminEmail, adminPass);
-    console.log('Admin token:', admin.access_token);
+    adminToken = admin.access_token;
+    console.log('Admin token:', adminToken);
   } catch (err) {
     console.error('Admin login error:', err.message);
   }
+
+  console.log('Probing history endpoint with admin token');
+  await probeHistory(adminToken);
 }
 
 main().catch((e) => {
