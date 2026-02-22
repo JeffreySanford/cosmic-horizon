@@ -6,6 +6,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import fs from 'fs';
+import path from 'path';
 
 const baseUrl = process.env.API_URL || 'http://localhost:3000';
 
@@ -130,6 +131,10 @@ async function main() {
           );
           console.log('job produced output:', display);
         }
+      // ensure job-test directory exists
+      const outDir = path.resolve(process.cwd(), 'job-test');
+      await fs.promises.mkdir(outDir, { recursive: true });
+
       // write a simple report file for CI/inspection
       try {
         const report = {
@@ -141,18 +146,20 @@ async function main() {
           completed_at: final.completed_at,
           output: output || null,
         };
-        const fileName =
-          process.env.REPORT_FILE || `job-report-${Date.now()}.json`;
+        const fileName = path.join(
+          outDir,
+          process.env.REPORT_FILE || `job-report-${Date.now()}.json`,
+        );
         await fs.promises.writeFile(fileName, JSON.stringify(report, null, 2));
         console.log(`wrote report to ${fileName}`);
       } catch (err) {
         console.error('failed to write report file', err);
       }
 
-      // optionally generate a real FITS file using Python + astropy
-      if (process.env.GENERATE_FITS) {
+      // always generate a real FITS file using Python + astropy when job succeeded
+      if (final.status === 'COMPLETED') {
         try {
-          const fitsPath = `job-output-${final.id}.fits`;
+          const fitsPath = path.join(outDir, `job-output-${final.id}.fits`);
           const script = `
 import numpy as np
 from astropy.io import fits
@@ -161,12 +168,13 @@ from astropy.io import fits
 arr = np.arange(100*100, dtype=np.float32).reshape((100,100))
 fits.writeto('${fitsPath}', arr, overwrite=True)
 `;
-          const tmp = 'generate_fits.py';
+          const tmp = path.join(outDir, 'generate_fits.py');
           await fs.promises.writeFile(tmp, script);
           const { exec } = await import('child_process');
           await new Promise((res, rej) =>
             exec(
               `${process.env.PYTHON || 'python'} ${tmp}`,
+              { cwd: outDir },
               (err, stdout, stderr) => {
                 if (err) return rej(err);
                 res(stdout);
@@ -174,7 +182,7 @@ fits.writeto('${fitsPath}', arr, overwrite=True)
             ),
           );
           console.log('generated FITS file', fitsPath);
-          await fs.promises.unlink('generate_fits.py');
+          await fs.promises.unlink(tmp);
         } catch (err) {
           console.error('failed to create FITS file', err);
         }
