@@ -12,6 +12,7 @@ services:
       - cosmic-horizons-network
     restart: unless-stopped
 
+  # legacy Node worker (optional).  The new `astro-service` is preferred.
   cosmic-horizons-worker:
     build:
       context: ./apps/cosmic-horizons-api
@@ -28,6 +29,27 @@ services:
     depends_on:
       - cosmic-horizons-redis
       - cosmic-horizons-casa
+    networks:
+      - cosmic-horizons-network
+    restart: unless-stopped
+
+  # new Python-based astronomy microservice (renamed to avoid confusion with Nest API)
+  cosmic-horizon-data:
+    build:
+      context: ./apps/cosmic-horizons-api
+      dockerfile: docker/astronomy-worker.Dockerfile
+    container_name: cosmic-horizon-data
+    environment:
+      - REDIS_URL=redis://cosmic-horizons-redis:6379
+      - ASTRO_DATA_DIR=/data
+      - CASA_QUEUE_NAME=casa:queue
+    volumes:
+      - ./astronomy-data:/data
+    depends_on:
+      - cosmic-horizons-redis
+      - cosmic-horizons-casa
+    ports:
+      - "8080:8080"
     networks:
       - cosmic-horizons-network
     restart: unless-stopped

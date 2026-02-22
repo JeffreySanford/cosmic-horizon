@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+astropy
+redis
+fakeredis
+pytest
+httpx

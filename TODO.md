@@ -15,14 +15,36 @@ This file is the active execution checklist and near-term operating journal.
 ## Active Priority (Now)
 
 - **Real‑Data Jobs Integration (astronomy mode)**
-  - Phase 1 – Preparation
-    - [ ] Select one or two small public MS files and make them available under `astronomy-data/` (or add `scripts/fetch-demo-data.mjs`).
-    - [ ] Add `docker-compose.astronomy.yml` with CASA/WSClean services; ensure `start:infra` supports an `ASTRO=true` flag.
-    - [ ] Create a `CasaAdapter` stub implementing the existing demo interface and gate it on `REMOTE_COMPUTE_MODE === 'astronomy'`.
-  - Phase 2 – Metadata & LLM
-    - [ ] Write a helper that runs `casa -c "print(listobs('/data/sample.ms'))"` inside the CASA container and parses useful fields.
-    - [ ] Enrich `local-llm` prompts (and demo text) with dataset metadata so jobs read like “calibrating VLASS J1347+1217…”.
-  - Later phases (queue, CASA worker, frontend UX, CI) will be added here as they move from ideas into execution.
+  - Phase 1 – Preparation (completed)
+    - [x] Select one or two small public MS files and make them available under `astronomy-data/` (or add `scripts/fetch-demo-data.mjs`).
+    - [x] Add `docker-compose.astronomy.yml` with CASA/WSClean services; ensure `start:infra` supports an `ASTRO=true` flag.
+    - [x] Create a `CasaAdapter` stub implementing the existing demo interface and gate it on `REMOTE_COMPUTE_MODE === 'astronomy'`.
+  - Phase 2 – Metadata & LLM (completed)
+    - [x] Write a helper that runs `casa -c "print(listobs('/data/sample.ms'))" inside the CASA container and parses useful fields.
+    - [x] Enrich `local-llm` prompts (and demo text) with dataset metadata so jobs read like “calibrating VLASS J1347+1217…”.
+  - Architectural drawings (ideas/jobs-real-data/architecture-diagram.md)
+    - [x] Draft and finalise detailed reference architecture diagrams.
+
+  - Phase 3 – Real processing (queued architecture)
+    - [x] Sandbox prep: pull/build CASA & WSClean images, document GPU requirements, create smoke test script.
+    - [x] Implement scheduling/throttling (enqueue, Redis semaphore or external scheduler) with simple rate limit.
+    - [x] Add CI test that kills a running worker and verifies correct failure/resume behavior.
+    - [x] Develop minimal CASA imaging script and worker container (Node/Nest) polling the queue.
+    - [x] Define `CasaAdapter.submit()` to enqueue and `status()` to query persistent job records.
+    - [ ] Add CI job that spins up the `ASTRO` compose profile, submits a job, polls until completion, and checks FITS output (current test uses simulated CASA; real-compose variant pending).
+    - [ ] Build CASA‑Astropy FastAPI microservice container and add it to the `ASTRO` compose profile.
+    - [x] Update or retire the Node worker to call the service via HTTP (code moved to `jobs/archived/worker.ts`).
+
+  - Phase 4 – Frontend UX
+    - [ ] Update jobs-console.component with dataset selector and display of chosen dataset in summary.
+    - [ ] Add optional "Fetch latest data" button to refresh sample directory.
+
+  - Phase 5 – Scaling & polish
+    - [ ] Support multiple datasets with pre-download & selection logic.
+    - [ ] Add throttling/caching policies to reduce repeated downloads.
+    - [ ] Document `ASTRO_DATA_DIR`, `ASTRO_MODE`, and log CASA runtime errors correctly.
+
+- Phase 0 items have been moved to `documentation/planning/roadmap/COMPLETE-TODO.md`.
 
 ## Deferred / Awaiting credentials
 

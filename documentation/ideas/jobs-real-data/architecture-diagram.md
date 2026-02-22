@@ -1,169 +1,262 @@
-# Reference Architecture Diagram
+# Cosmic Horizon Real-Data Jobs Architecture
 
-Below is a detailed, verbose architecture diagram capturing the key
-components discussed throughout the real‑data jobs idea documents. It
-illustrates the compute gateway pattern, the asynchronous queue, the
-adapter abstraction, and the ancillary services (Redis, Postgres, Kafka,
-metrics, etc.). The diagram is intentionally complex to highlight all
-moving parts and their responsibilities; consider it a conversation piece
-for architecture reviews or hiring panels.
+This document integrates the real-data jobs architecture into one reference
+view for `documentation/ideas/jobs-real-data/`. It combines the gateway
+topology, the job lifecycle state machine, and an HPC-grade control-plane
+overlay that introduces policy, auditability, and streaming updates.
+
+## Scope and Intent
+
+- This is a **reference architecture prototype**, not production.
+- The design keeps the existing NestJS + Angular stack and `TaccAdapter` contract.
+- It supports mode-based backends (`demo`, `local-llm`, `astronomy`) without UI rewrites.
+- It prioritizes async orchestration, persistent state, and safe artifact serving.
+
+## Diagram 1: End-to-End Compute Gateway
+
+This view shows runtime components and data/control flows across frontend,
+API, adapters, queue/worker, storage, and external systems.
 
 ```mermaid
 flowchart LR
-  %% nodes
-  subgraph Frontend["Frontend (Angular - NgRx)"]
-    F1(Submit form)
-    F2(Dataset selector)
-    F3(Job list & cancel)
-    F4(Metrics panel)
+  %% ---------- Frontend ----------
+  subgraph FE["Frontend (Angular + NgRx)"]
+    FE1[Jobs Console]
+    FE2[Dataset Selector]
+    FE3[Job List + Cancel]
+    FE4[Telemetry Tiles]
   end
 
-  subgraph API [API (NestJS)]
-    A1[JobsController]
-    A2[TaccIntegrationService]
-    A3[DatasetController]
-    A4[JobRepository<br>(Postgres)]
-    A5[EventsModule / Kafka]
-    A6[Redis cache / queue]
-    A7[Metrics endpoint]
+  %% ---------- API ----------
+  subgraph API["NestJS API Gateway"]
+    AP1[JobsController]
+    AP2[DatasetsController]
+    AP3[TaccIntegrationService]
+    AP4[Adapter Factory]
+    AP5[JobManifestService]
+    AP6[EventsModule]
+    AP7[File Serving Module]
+    AP8[Metrics Endpoint]
   end
 
-  subgraph Adapters [Adapter layer]
-    D1(DemoAdapter)
-    D2(LocalLLMAdapter)
-    D3(CasaAdapter)
+  %% ---------- Adapters ----------
+  subgraph ADP["Adapter Layer"]
+    AD1[DemoTaccAdapter]
+    AD2[LocalLlmAdapter]
+    AD3[CasaAdapter]
   end
 
-  subgraph Queue [Asynchronous queue]
-    Q1[Redis list / stream]
+  %% ---------- Queue + Worker ----------
+  subgraph QW["Queue and Worker Plane"]
+    Q1[Redis Stream or List]
+    Q2[Worker Runner]
+    Q3[Retry and Backoff]
+    Q4[Heartbeat Updater]
   end
 
-  subgraph Worker [Worker container]
-    W1[Job runner process]
-    W2[Docker run --rm CASA]
-    W3[Retry & backoff logic]
-    W4[Prometheus metrics]
+  %% ---------- Compute ----------
+  subgraph CMP["Compute Runtime"]
+    C1[docker run --rm CASA]
+    C2[Optional WSClean]
+    C3[Astro Metadata Helper]
   end
 
-  subgraph Storage [Result Storage]
-    S1[/data/results/*.fits]
-    S2[Postgres job history]
+  %% ---------- Data ----------
+  subgraph DATA["State and Artifacts"]
+    D1[(Redis Job Manifest)]
+    D2[(Postgres Job History)]
+    D3["astronomy-data (measurement sets)"]
+    D4["results (FITS artifacts)"]
   end
 
-  subgraph External [External services]
-    X1[Kafka/RabbitMQ]:::external
-    X2[TACC/Slurm/Cloud]:::external
+  %% ---------- External ----------
+  subgraph EXT["External Systems"]
+    X1[Kafka or RabbitMQ]
+    X2[TACC Slurm Cloud Adapter Target]
   end
 
-  %% flows
-  F1 -->|POST /jobs/submit| A1
-  F2 --> F1
-  F3 -->|DELETE /jobs/:id| A1
-  F4 -->|GET /metrics| A1
+  FE1 -->|POST /jobs/submit| AP1
+  FE2 -->|GET /api/datasets| AP2
+  FE3 -->|DELETE /jobs/:id| AP1
+  FE4 -->|GET /metrics| AP8
 
-  A1 --> A2
-  A2 --> A3
-  A2 -->|writes| A4
-  A2 -->|enqueue| Q1
-  A2 -->|emit event| A5
-  A2 -->|GET /datasets| A3
+  AP1 --> AP3
+  AP2 --> AP3
+  AP3 --> AP4
+  AP3 --> AP5
+  AP3 --> AP6
+  AP3 --> AP7
 
-  A2 --> D1
-  A2 --> D2
-  A2 --> D3
+  AP4 --> AD1
+  AP4 --> AD2
+  AP4 --> AD3
 
-  Q1 --> W1
-  W1 --> W2
-  W1 --> W3
-  W1 -->|update status| A4
-  W1 -->|update status| Q1
-  W1 -->|write output| S1
-  W1 --> W4
+  AD3 -->|enqueue job| Q1
+  AD3 -->|persist queued state| D1
+  AD3 -->|mirror summary| D2
 
-  D3 -->|access MS| S1
-  D3 -->|store metadata| A4
+  Q1 --> Q2
+  Q2 --> Q3
+  Q2 --> Q4
+  Q2 --> C1
+  Q2 --> C2
+  Q2 --> C3
 
-  A5 --> X1
-  A4 --> X1
-  A2 --> X2
+  C1 -->|read input| D3
+  C1 -->|write outputs| D4
+  Q4 -->|status/progress| D1
+  Q2 -->|final state| D2
 
-  classDef external fill:#f9f,stroke:#333,stroke-width:1px;
+  AP5 --> D1
+  AP5 --> D2
+  AP7 -->|allowlisted stream| D4
+  AP6 --> X1
+  AD3 --> X2
 
-  %% notes
-  click A2 "documentation/ideas/jobs-real-data/backend-adapter-design.md" "Adapter design"
-  click D3 "documentation/ideas/jobs-real-data/backend-adapter-design.md" "CASA adapter notes"
-  click Q1 "documentation/ideas/jobs-real-data/phases-and-steps.md" "Queue phase"
-  click F2 "documentation/ideas/jobs-real-data/frontend-enhancements.md" "Dataset UI"
+  click AP3 "documentation/ideas/jobs-real-data/backend-adapter-design.md" "Adapter orchestration details"
+  click FE2 "documentation/ideas/jobs-real-data/frontend-enhancements.md" "Dataset UI details"
+  click D3 "documentation/ideas/jobs-real-data/dataset-acquisition.md" "Dataset acquisition details"
+  click Q1 "documentation/ideas/jobs-real-data/phases-and-steps.md" "Queue and worker rollout"
 ```
 
----
+## Diagram 2: Job Lifecycle and Endpoint Behavior
 
-## Job Lifecycle State Machine
-
-The following state diagram provides a deep dive into the canonical job
-state machine implemented by the `JobManifestService` and exercised by the
-API & worker. It documents every transition, the conditions that trigger
-it, and the behaviour of the status/result/files endpoints.
+This state machine defines deterministic transitions for status, timeout,
+failure, cancellation, and result/file endpoint behavior.
 
 ```mermaid
 stateDiagram-v2
-  %% ==========================================================
-  %% JOB LIFECYCLE + STATE MACHINE (DEEP DIVE)
-  %% ==========================================================
-
   [*] --> VALIDATING: POST /jobs/submit
 
-  VALIDATING: Validate payload\n- datasetId exists\n- disk space thresholds\n- mode enabled\n- param schema
-  VALIDATING --> REJECTED: invalid payload / missing dataset / low disk
-  VALIDATING --> REGISTERED: create JobManifest\njobId assigned
+  VALIDATING: validate request\ndataset exists\nmode enabled\nschema valid\ndisk threshold check
+  VALIDATING --> REJECTED: validation fails
+  VALIDATING --> REGISTERED: jobId assigned\nmanifest created
 
-  REGISTERED: JobManifest\n- jobId\n- mode\n- datasetId\n- createdAt\n- state=QUEUED
-  REGISTERED --> QUEUED: enqueue JobSpec
+  REGISTERED --> QUEUED: push queue message
 
-  QUEUED: Queue\n- concurrency control\n- retry/backoff\n- cancel token
-  QUEUED --> RUNNING: worker claims job
+  QUEUED: queue depth tracked\nretry budget initialized\ncancel token watch
+  QUEUED --> RUNNING: worker claims lock
+  QUEUED --> CANCELED: user cancels before start
 
-  RUNNING: Worker\n- marks state RUNNING\n- writes heartbeat\n- spawns container process\n- captures stdout/stderr
-  RUNNING --> FAILED: non-zero exit\nor exception\nor missing outputs
-  RUNNING --> TIMED_OUT: exceeded max runtime\nor no heartbeat
-  RUNNING --> CANCELED: cancel token observed\nkills process/container
-  RUNNING --> COMPLETED: output verified\nFITS + metadata registered
+  RUNNING: container launched\nheartbeat updates\nstdout stderr capture
+  RUNNING --> COMPLETED: outputs validated\nchecksums recorded
+  RUNNING --> FAILED: non-zero exit or exception
+  RUNNING --> TIMED_OUT: runtime budget exceeded
+  RUNNING --> CANCELED: cancel signal observed
 
-  FAILED: JobManifest\n- errorCode\n- errorSummary\n- logs pointers
-  TIMED_OUT: JobManifest\n- timeout details\n- partial logs
-  CANCELED: JobManifest\n- canceledBy\n- cleanup status
-  COMPLETED: JobManifest\n- outputs[]\n- result_url\n- checksums(optional)
+  COMPLETED: result URL set\nartifacts registered
+  FAILED: error code/message\nlog pointers recorded
+  TIMED_OUT: timeout reason\npartial logs recorded
+  CANCELED: canceledBy and cleanup status
+  REJECTED: validation errors returned
 
-  %% status polling behavior
-  state "GET /jobs/status/:jobId" as STATUS {
+  state "GET /jobs/status/:id" as STATUS {
     [*] --> READ_MANIFEST
-    READ_MANIFEST --> RENDER_STATUS: map state -> UI contract\nprogress + message
-    RENDER_STATUS --> [*]
+    READ_MANIFEST --> MAP_TO_API
+    MAP_TO_API --> [*]
   }
 
-  %% result behavior
-  state "GET /jobs/result/:jobId" as RESULT {
+  state "GET /jobs/result/:id" as RESULT {
     [*] --> CHECK_COMPLETED
-    CHECK_COMPLETED --> RETURN_404: not completed\n(or return informative error)
-    CHECK_COMPLETED --> RETURN_URL: completed\nreturn /files/<jobId>.fits
-    RETURN_404 --> [*]
-    RETURN_URL --> [*]
+    CHECK_COMPLETED --> RETURN_READY: state is COMPLETED
+    CHECK_COMPLETED --> RETURN_NOT_READY: state is not COMPLETED
+    RETURN_READY --> [*]
+    RETURN_NOT_READY --> [*]
   }
 
-  %% file serving behavior
-  state "GET /files/:jobId" as FILES {
-    [*] --> LOOKUP_ALLOWLIST
-    LOOKUP_ALLOWLIST --> DENY: no mapping / unsafe path
-    LOOKUP_ALLOWLIST --> STREAM_FILE: stream + range support\ncontent-type FITS\nsize limits
+  state "GET /files/:id" as FILES {
+    [*] --> ALLOWLIST_LOOKUP
+    ALLOWLIST_LOOKUP --> STREAM_FITS: safe mapping exists
+    ALLOWLIST_LOOKUP --> DENY: invalid mapping
+    STREAM_FITS --> [*]
     DENY --> [*]
-    STREAM_FILE --> [*]
   }
 
-  %% tie-ins
   COMPLETED --> STATUS
   FAILED --> STATUS
   TIMED_OUT --> STATUS
   CANCELED --> STATUS
+  REJECTED --> STATUS
   COMPLETED --> RESULT
   COMPLETED --> FILES
 ```
+
+## Diagram 3: HPC-Grade Control Plane Overlay
+
+This overlay adds the extra control-plane components needed for stronger
+operational parity with HPC gateway patterns: policy enforcement, audit log,
+streaming job updates, and artifact registry/provenance.
+
+```mermaid
+flowchart TB
+  subgraph UX["User Experience Plane"]
+    U1[Angular Jobs UI]
+    U2[Realtime Job Timeline]
+    U3[Dataset Governance Panel]
+  end
+
+  subgraph CTRL["Control Plane (NestJS)"]
+    C1[Gateway API]
+    C2[Policy Engine]
+    C3[AuthN AuthZ and Quotas]
+    C4[Audit Event Emitter]
+    C5[SSE or WebSocket Stream]
+  end
+
+  subgraph ORCH["Orchestration Plane"]
+    O1[Adapter Factory]
+    O2[Queue Broker]
+    O3[Worker Pool]
+    O4[Scheduler Bridge]
+  end
+
+  subgraph DATA["Data and Provenance Plane"]
+    D1[(Job Manifest Store)]
+    D2[(Audit Log - append only)]
+    D3[(Artifact Registry)]
+    D4[/FITS + metadata + hash/]
+    D5[/MS dataset manifest + attribution/]
+  end
+
+  subgraph HPC["Execution Targets"]
+    H1[Local CASA Containers]
+    H2[Kubernetes Jobs]
+    H3[Slurm or TACC]
+  end
+
+  U1 --> C1
+  U2 --> C5
+  U3 --> C1
+
+  C1 --> C2
+  C2 --> C3
+  C1 --> O1
+  C1 --> C4
+  C1 --> C5
+
+  O1 --> O2
+  O2 --> O3
+  O3 --> O4
+  O4 --> H1
+  O4 --> H2
+  O4 --> H3
+
+  C1 --> D1
+  C4 --> D2
+  O3 --> D1
+  O3 --> D3
+  D3 --> D4
+  C1 --> D5
+
+  D1 --> C5
+  D2 --> U2
+  D3 --> U1
+```
+
+## Implementation Notes
+
+- Avoid synchronous `docker exec` in API request flow; use queue + worker.
+- Treat job manifest as source-of-truth for status, progress, and errors.
+- Keep artifact serving allowlisted to mapped outputs only.
+- Keep dataset attribution metadata alongside manifest records.
+- Keep CI paths lightweight by default; gate heavy astronomy tests behind opt-in flags.

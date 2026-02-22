@@ -18,6 +18,7 @@ interface MockConfig {
   OLLAMA_TIMEOUT_MS?: number;
   OLLAMA_MAX_RETRIES?: number;
   TACC_TENANT_BASE_URL?: string;
+  CASA_QUEUE_LIMIT?: number;
 }
 
 describe('Tacc adapter wiring', () => {
@@ -113,6 +114,61 @@ describe('Tacc adapter wiring', () => {
       params: {},
     });
     expect(res.jobId).toMatch(/^casa-/);
+  });
+
+  it('enforces queue length limit configured via CASA_QUEUE_LIMIT', async () => {
+    configValues.REMOTE_COMPUTE_MODE = 'astronomy';
+    configValues.CASA_QUEUE_LIMIT = 1 as any;
+    moduleRef = await buildModule();
+    const service = moduleRef.get<TaccIntegrationService>(
+      TaccIntegrationService,
+    );
+    // direct access to underlying adapter to manipulate redis state
+    const adapter = (
+      service as unknown as { resolvedAdapter: CasaTaccAdapter }
+    ).resolvedAdapter as CasaTaccAdapter;
+    // clear any existing keys
+    await adapter['redis'].flushall();
+    // push a dummy job to hit the limit
+    await adapter['redis'].lpush('casa:queue', 'existing-id');
+
+    await expect(
+      service.submitJob({ agent: 'AlphaCal', dataset_id: 'ds', params: {} }),
+    ).rejects.toMatchObject({ code: 'QUEUE_FULL' });
+  });
+
+  it('can run a job end-to-end with simulated CASA worker', async () => {
+    configValues.REMOTE_COMPUTE_MODE = 'astronomy';
+    configValues.CASA_QUEUE_LIMIT = 5 as any;
+    moduleRef = await buildModule();
+    const service = moduleRef.get<TaccIntegrationService>(
+      TaccIntegrationService,
+    );
+    const adapter = (
+      service as unknown as { resolvedAdapter: CasaTaccAdapter }
+    ).resolvedAdapter as CasaTaccAdapter;
+
+    await adapter['redis'].flushall();
+    // start worker process with simulation flag
+    const workerProc = spawn(
+      process.execPath,
+      ['-r', 'ts-node/register', 'apps/cosmic-horizons-api/src/app/jobs/worker.ts'],
+      { shell: true, env: { ...process.env, SIMULATE_CASA: 'true' } },
+    );
+
+    const { jobId } = await service.submitJob({
+      agent: 'AlphaCal',
+      dataset_id: 'ds',
+      params: {},
+    });
+    let status;
+    for (let i = 0; i < 50; i++) {
+      status = await adapter['redis'].hget(`casa:job:${jobId}`, 'status');
+      if (status === 'COMPLETED' || status === 'FAILED') break;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    expect(status).toBe('COMPLETED');
+    workerProc.kill();
   });
 
   it('uses LocalLlm adapter when mode is local-llm', async () => {

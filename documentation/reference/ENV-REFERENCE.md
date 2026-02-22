@@ -23,6 +23,7 @@ Complete reference of all environment variables used by Cosmic Horizons.
 | `REDIS_AUTH_ENABLED` | boolean | `false`     | No       | Enable Redis password auth in local/prod-like runs |
 | `REDIS_DB`           | number  | `0`         | No       | Redis database number                              |
 | `REDIS_CACHE_TTL`    | number  | `86400`     | No       | Default time‑to‑live (seconds) for cache entries   |
+| `CASA_QUEUE_LIMIT`   | number  | `10`        | No       | Maximum number of jobs allowed in the CASA queue before rejecting new submissions |
 
 ## Server
 

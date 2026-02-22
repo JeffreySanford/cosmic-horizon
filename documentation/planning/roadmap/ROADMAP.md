@@ -14,29 +14,25 @@ Tracking rule: this document is forward-looking only; completed implementation h
 - SSR performance telemetry counters are implemented for bootstrap/TransferState hit-rate tracking.
 - Core local quality gates are green (`lint`, `test`, `e2e`).
 
-## Priority 0: Real‑Data Jobs Integration (astronomy mode)
+## Priority 0: Real‑Data Jobs Integration (astronomy mode) **(completed)**
 
-Objective: build an end-to-end demo that runs actual astronomical measurement set files through a local compute path.  This work can proceed without any external academic or TACC credentials and keeps the team productive while live access is pending.
+Work completed: dataset staging, CASA compose profile, adapter stub, metadata extraction, prompt enrichment, and reference architecture diagrams.  See `COMPLETED-ROADMAP.md` and `COMPLETE-TODO.md` for details.
 
-- Follow the phased plan documented in `documentation/ideas/jobs-real-data/phases-and-steps.md`.
-  - Phase 1: dataset selection, docker profile, adapter stub.
-  - Phase 2: metadata extraction and LLM prompt enrichment.
-  - Later phases: queuing architecture, CASA worker, frontend UX and CI tests.
-- Deliver a working job submission flow that produces a FITS image from sample data and surfaces the result in the Jobs UI.
-
-Exit criteria:
+Exit criteria met:
 
 - Sample dataset(s) are available via `astronomy-data/` or helper script.
 - `ASTRO` compose profile boots CASA/WSClean and the API selects a `CasaAdapter` stub.
 - Frontend shows dataset choice and real‑data progress messages.
 - A simple job run completes with a valid FITS artifact.
 
+(Phase 0 has been archived.)
+
 ## Priority 1: Remote Compute Gateway (v1.2)
 
 ### Sprint 2 (Live Connectivity)
 
 Objective: move from simulation to real remote orchestration while preserving auditability and release safety.  
-_(demo/simulated pathway and UI already in place; this sprint focuses on the live adapter and gating.)_
+*(demo/simulated pathway and UI already in place; this sprint focuses on the live adapter and gating.)*
 
 - Implement TACC Slurm/Tapis live adapter and request/response mapping.
 - Add secure secret/header handling with redaction and operational guardrails.
@@ -55,7 +51,7 @@ Exit criteria:
 ## Priority 1A: Local LLM Orchestration Completion (v1.2 offline track)
 
 Objective: finish the local-LLM execution path so UI, API, and orchestration behavior are production-shaped before TACC live cutover.  
-_(simulation baseline already implemented; remaining work focuses on guardrails and validation.)_
+*(simulation baseline already implemented; remaining work focuses on guardrails and validation.)*
 
 - Complete reliability/security controls:
   - (reliability/security controls completed – see `COMPLETED-ROADMAP.md`)
@@ -99,4 +95,4 @@ Exit criteria:
 
 ---
 
-_Independent portal using public VLASS data; not affiliated with VLA/NRAO._
+*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*

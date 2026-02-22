@@ -13,6 +13,15 @@ Use it as an archive of what’s already been done; `TODO.md` should now contain
 - Docs policy checks pass (`pnpm nx run docs-policy:check`).
 - Baseline Nx quality gates pass locally (`lint`, `test`, `e2e`).
 
+## Phase 0 – Real‑Data Jobs Integration
+
+- Dataset staging and sample MS selection.
+- `docker-compose.astronomy.yml` profile with CASA/WSClean.
+- `CasaAdapter` stub implementation and runtime gating.
+- Metadata extraction helper (`casa listobs`).
+- Prompt enrichment with dataset metadata.
+- Reference architecture diagrams drafted in `ideas/jobs-real-data/architecture-diagram.md`.
+
 ## CI / Quality Follow-up
 
 - Fix webpack compilation error caused by relocated guard module and SCSS unmatched brace (2026-02-22).

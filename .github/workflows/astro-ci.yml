@@ -1,0 +1,68 @@
+name: Astro CI
+
+on:
+  workflow_dispatch: {}
+  push:
+    paths:
+      - 'apps/cosmic-horizons-api/astro_service/**'
+      - 'docker/docker-compose.astronomy.yml'
+      - 'docker-compose.events.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install python dependencies
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          pip install -r apps/cosmic-horizons-api/astro_service/requirements.txt
+          pip install mypy pytest
+
+      - name: Lint Python code
+        run: |
+          . venv/bin/activate
+          black --check apps/cosmic-horizons-api/astro_service
+          flake8 apps/cosmic-horizons-api/astro_service
+          mypy --strict apps/cosmic-horizons-api/astro_service
+
+      - name: Run Python unit tests
+        run: |
+          . venv/bin/activate
+          pytest -q apps/cosmic-horizons-api/astro_service/tests
+
+      - name: Build docker images
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.events.yml build --pull cosmic-horizon-data
+
+      - name: Start infra with astro profile
+        run: |
+          echo "Starting infra"
+          docker compose -f docker-compose.yml -f docker-compose.events.yml --profile astro up -d --wait
+
+      - name: Wait for API to be ready
+        run: |
+          until curl -s http://localhost:3000/api/health; do sleep 1; done
+
+      - name: Run astro smoke script
+        run: |
+          export API_URL=http://localhost:3000/api
+          node scripts/test-astro-phase3.mjs
+
+      - name: Tear down infra
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.events.yml down --remove-orphans --volumes

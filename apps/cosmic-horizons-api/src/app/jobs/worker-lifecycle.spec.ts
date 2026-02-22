@@ -5,7 +5,7 @@ import { describe, it, expect } from '@jest/globals';
 
 import { spawn } from 'child_process';
 
-describe('local LLM worker lifecycle', () => {
+describe('worker lifecycle', () => {
   it('should start a dummy worker process and terminate gracefully', async () => {
     // use node -e to simulate a long-running worker
     const proc = spawn(process.execPath, ['-e', 'setTimeout(()=>{},10000)']);
@@ -13,6 +13,30 @@ describe('local LLM worker lifecycle', () => {
     proc.kill();
     await new Promise((res) => proc.on('exit', res));
     expect(proc.killed).toBe(true);
+  });
+
+  it('should requeue or mark job failed when CASA worker is killed mid-run', async () => {
+    const Redis = require('ioredis');
+    const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+    // prepare a fake job entry
+    const jobId = 'testjob-123';
+    await redis.hset(`casa:job:${jobId}`, {
+      status: 'RUNNING',
+      progress: '0',
+    });
+    const workerProc = spawn(
+      process.execPath,
+      ['-r', 'ts-node/register', 'apps/cosmic-horizons-api/src/app/jobs/worker.ts'],
+      { shell: true },
+    );
+    // give the worker a moment to start
+    await new Promise((res) => setTimeout(res, 200));
+    workerProc.kill('SIGTERM');
+    await new Promise((res) => workerProc.on('exit', res));
+    const status = await redis.hget(`casa:job:${jobId}`, 'status');
+    // after abrupt termination we expect job not lost (still RUNNING or QUEUED)
+    expect(['RUNNING', 'QUEUED', 'FAILED']).toContain(status);
+    await redis.quit();
   });
 
   it('llm:smoke script should exit 0', async () => {

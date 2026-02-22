@@ -68,6 +68,30 @@ pnpm start:web      # nx serve cosmic-horizons-web
 pnpm start:api      # nx serve cosmic-horizons-api
 pnpm start:all      # free ports + start infra (no teardown) + web/api serve
 pnpm start:all:reset # full infra reset (down --volumes + rebuild) + web/api serve
+
+## Astronomy mode
+
+Set `ASTRO=true` before running `start:infra` or `start:all` to include the
+`docker-compose.astronomy.yml` profile, which brings up the CASA/\
+`cosmic-horizon-data` microservice plus (optionally) the legacy Node worker
+so real‑data jobs can be processed.
+
+## Manual Phase 3 smoke test
+
+Once the infrastructure is running with `ASTRO=true` you can validate the
+queue‑and‑service flow as follows (or simply run `pnpm run test:astro`):
+
+```bash
+# start everything
+ASTRO=true pnpm run start:all
+
+# in another shell
+ASTRO=true pnpm run test:astro
+```bash
+
+The test script will submit a job, poll status until completion, and
+report whether a FITS file was produced under `astronomy-data/`.  The same
+script is used by CI eventually.
 pnpm test           # nx run-many --target=test --all
 pnpm test:web       # nx test cosmic-horizons-web
 pnpm test:api       # nx test cosmic-horizons-api
@@ -77,9 +101,10 @@ pnpm lighthouse:summary # text/json summary for CI + AI consumers
 pnpm build          # nx run-many --target=build --all
 pnpm lint           # nx run-many --target=lint --all
 
-# Developer note: prefer pnpm for local tooling (use `pnpm exec eslint` or `pnpm run eslint:check` instead of `npx eslint`) to avoid npm/.npmrc warnings.
+# Developer note: prefer pnpm for local tooling (use `pnpm exec eslint` or `pnpm run eslint:check` instead of `npx eslint`) to avoid npm/.npmrc warnings
 
 > **Scripts housekeeping**: Infrequently-used generation/benchmarking/debugging helpers have been moved into `scripts/archived/` to shrink the top-level directory. If you need one of those tools (e.g. websocket-load-test, benchmark-pulsar-vs-rabbitmq, debug-profile-playwright, mock-kafka-metrics) feel free to run it from the archived folder or restore it temporarily.
+
 ```
 
 ## Projects

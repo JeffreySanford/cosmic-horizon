@@ -264,6 +264,12 @@
     "sourcePath": "documentation/ideas/jobs-real-data/backend-adapter-design.md"
   },
   {
+    "id": "documentation--ideas--jobs-real-data--casa-astropy-service",
+    "label": "Casa Astropy Service",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/jobs-real-data/casa-astropy-service.md"
+  },
+  {
     "id": "documentation--ideas--jobs-real-data--dataset-acquisition",
     "label": "Dataset Acquisition",
     "section": "Ideas",
@@ -280,6 +286,12 @@
     "label": "Frontend Enhancements",
     "section": "Ideas",
     "sourcePath": "documentation/ideas/jobs-real-data/frontend-enhancements.md"
+  },
+  {
+    "id": "documentation--ideas--jobs-real-data--language-considerations",
+    "label": "Language Considerations",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/jobs-real-data/language-considerations.md"
   },
   {
     "id": "documentation--ideas--jobs-real-data--overview",
@@ -376,6 +388,18 @@
     "label": "Mode Delta Report Local Llm Vs Live",
     "section": "Planning",
     "sourcePath": "documentation/planning/mode-delta-report-local-llm-vs-live.md"
+  },
+  {
+    "id": "documentation--planning--roadmap--complete-todo",
+    "label": "COMPLETE TODO",
+    "section": "Planning",
+    "sourcePath": "documentation/planning/roadmap/COMPLETE-TODO.md"
+  },
+  {
+    "id": "documentation--planning--roadmap--completed-roadmap",
+    "label": "COMPLETED ROADMAP",
+    "section": "Planning",
+    "sourcePath": "documentation/planning/roadmap/COMPLETED-ROADMAP.md"
   },
   {
     "id": "documentation--planning--roadmap--roadmap",

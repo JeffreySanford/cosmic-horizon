@@ -12,6 +12,11 @@ Tasks have been removed from `ROADMAP.md` and are preserved here for reference.
 - SSR performance telemetry counters are implemented for bootstrap/TransferState hit‑rate tracking.
 - Core local quality gates are green (`lint`, `test`, `e2e`).
 
+## Priority 0: Real‑Data Jobs Integration (astronomy mode)
+
+- Phase 1 & Phase 2 preparation tasks completed: dataset staging, CASA profile, adapter stub, metadata extraction, and prompt enrichment.
+- Architectural drawings produced (`ideas/jobs-real-data/architecture-diagram.md`).
+
 ## Priority 1: Remote Compute Gateway (v1.2)
 
 - Continue polishing data staging realism features in demo mode (upload progress, missing inputs, error codes, artifact packaging).  _(demo service now supports these conditions and file manifest modeling)_

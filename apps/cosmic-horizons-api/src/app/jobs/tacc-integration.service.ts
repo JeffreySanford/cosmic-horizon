@@ -443,6 +443,17 @@ export class CasaTaccAdapter implements TaccAdapter {
   }
 
   async submitJob(submission: TaccJobSubmission): Promise<{ jobId: string }> {
+    // simple rate-limit: do not allow queue length exceed configured limit
+    const maxLen = this.configService.get<number>('CASA_QUEUE_LIMIT', 10);
+    const currentLen = await this.redis.llen('casa:queue');
+    if (currentLen >= maxLen) {
+      const msg = 'CASA queue is full';
+      this.logger.warn(msg);
+      const err = new Error(msg) as Error & { code?: string };
+      err.code = 'QUEUE_FULL';
+      throw err;
+    }
+
     // persist job metadata
     const jobId = `casa-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
     const key = `casa:job:${jobId}`;
