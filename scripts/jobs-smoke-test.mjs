@@ -5,6 +5,7 @@
 
 import 'dotenv/config';
 import axios from 'axios';
+import fs from 'fs';
 
 const baseUrl = process.env.API_URL || 'http://localhost:3000';
 
@@ -129,6 +130,24 @@ async function main() {
           );
           console.log('job produced output:', display);
         }
+      // write a simple report file for CI/inspection
+      try {
+        const report = {
+          id: final.id,
+          dataset: datasetId,
+          status: final.status,
+          result: final.result,
+          created_at: final.created_at,
+          completed_at: final.completed_at,
+          output: output || null,
+        };
+        const fileName =
+          process.env.REPORT_FILE || `job-report-${Date.now()}.json`;
+        await fs.promises.writeFile(fileName, JSON.stringify(report, null, 2));
+        console.log(`wrote report to ${fileName}`);
+      } catch (err) {
+        console.error('failed to write report file', err);
+      }
       }
     }
   }
