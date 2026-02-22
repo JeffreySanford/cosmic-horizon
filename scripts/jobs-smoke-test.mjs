@@ -112,9 +112,11 @@ async function main() {
     if (jobId) {
       const final = await waitForStatus(jobId, userToken);
       console.log('final job', final);
-      // exit code reflects pass/fail so CI can use this script
+      // if job didn't succeed, surface the failure reason and exit non‑zero
       if (final.status !== 'COMPLETED') {
-        console.error('job did not complete successfully');
+        const reason =
+          final.result?.error_message || final.notes || 'unknown';
+        console.error(`job did not complete successfully: ${reason}`);
         process.exit(1);
       }
     }
