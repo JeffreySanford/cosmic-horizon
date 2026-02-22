@@ -62,3 +62,6 @@ test-output-*.txt
 test-results.txt
 lint-results.txt
 e2e-results.txt
+
+# astronomy dataset cache
+astronomy-data/
