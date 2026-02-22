@@ -1,6 +1,7 @@
 {
   "name": "@cosmic-horizons/source",
   "version": "1.0.0",
+  "type": "module",
   "description": "Scientific operations platform for AI-driven radio astronomy, supporting ngVLA data orchestration and CosmicAI infrastructure.",
   "license": "MIT",
   "keywords": [
