@@ -148,6 +148,37 @@ async function main() {
       } catch (err) {
         console.error('failed to write report file', err);
       }
+
+      // optionally generate a real FITS file using Python + astropy
+      if (process.env.GENERATE_FITS) {
+        try {
+          const fitsPath = `job-output-${final.id}.fits`;
+          const script = `
+import numpy as np
+from astropy.io import fits
+
+# simple 100x100 test image
+arr = np.arange(100*100, dtype=np.float32).reshape((100,100))
+fits.writeto('${fitsPath}', arr, overwrite=True)
+`;
+          const tmp = 'generate_fits.py';
+          await fs.promises.writeFile(tmp, script);
+          const { exec } = await import('child_process');
+          await new Promise((res, rej) =>
+            exec(
+              `${process.env.PYTHON || 'python'} ${tmp}`,
+              (err, stdout, stderr) => {
+                if (err) return rej(err);
+                res(stdout);
+              },
+            ),
+          );
+          console.log('generated FITS file', fitsPath);
+          await fs.promises.unlink('generate_fits.py');
+        } catch (err) {
+          console.error('failed to create FITS file', err);
+        }
+      }
       }
     }
   }
