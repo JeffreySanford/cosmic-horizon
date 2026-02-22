@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { EachMessagePayload } from 'kafkajs';
 import { JobOrchestratorService } from '../../../jobs/services/job-orchestrator.service';
 import { JobRepository } from '../../../jobs/repositories/job.repository';
@@ -72,6 +73,12 @@ describe('Week 3 E2E Workflow', () => {
               .fn()
               .mockResolvedValue({ status: 'RUNNING', progress: 0.5 }),
             cancelJob: jest.fn().mockResolvedValue(true),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockImplementation((_key: string, fallback?: unknown) => fallback),
           },
         },
         {

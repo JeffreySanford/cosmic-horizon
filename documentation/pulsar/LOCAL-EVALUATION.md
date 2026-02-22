@@ -46,7 +46,6 @@ This lets you:
 
 - **Quickstart Guide**: [QUICKSTART.md](QUICKSTART.md)
 - **Full Index & Setup Checklist**: [README.md](README.md)
-- **Original Integration Docs**: [../integration/PULSAR-LOCAL-EVALUATION.md](../integration/PULSAR-LOCAL-EVALUATION.md)
 - [Apache Pulsar Documentation](https://pulsar.apache.org/docs/concepts-architecture/)
 - [Pulsar vs Kafka Comparison](https://pulsar.apache.org/docs/migration-kafka/)
 - [StreamNative Cloud (free tier)](https://www.streamnative.io/cloud)

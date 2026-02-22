@@ -475,42 +475,8 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'jobs-orchestration',
-    loadChildren: () =>
-      import('./features/job-orchestration/job-orchestration.module').then(
-        (m) => m.JobOrchestrationModule,
-      ),
-    canActivate: [AuthGuard],
-    data: {
-      header: {
-        title: 'Job Orchestration',
-        icon: 'lan',
-        iconTone: 'aurora',
-        subtitle: 'Launch and supervise distributed processing',
-        allowExpand: true,
-        expandLabel: 'Orchestration Focus',
-        insights: [
-          {
-            icon: 'playlist_add_check_circle',
-            value: 'Submission Control',
-            label: 'Create and validate reprocessing jobs',
-          },
-          {
-            icon: 'dns',
-            value: 'Resource Routing',
-            label: 'Coordinate agent workloads across services',
-          },
-          {
-            icon: 'monitor_heart',
-            value: 'Execution Health',
-            label: 'Track lifecycle and failure conditions',
-          },
-        ],
-        breadcrumbs: [
-          { label: 'Home', route: '/landing', icon: 'home' },
-          { label: 'Job Orchestration', icon: 'lan' },
-        ],
-      },
-    },
+    redirectTo: 'jobs',
+    pathMatch: 'full',
   },
   {
     path: 'community',

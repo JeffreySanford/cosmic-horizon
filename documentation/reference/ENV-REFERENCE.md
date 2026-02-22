@@ -56,7 +56,8 @@ Complete reference of all environment variables used by Cosmic Horizons.
 
 | Variable               | Type    | Default | Required | Usage                                 |
 | ---------------------- | ------- | ------- | -------- | ------------------------------------- |
-| `LOG_LEVEL`            | string  | `info`  | No       | Logging level (debug/info/warn/error) |
+| `LOG_LEVEL`            | string  | `info`  | No       | Logging level (debug/info/warn/error). Also influences Nest framework logger – set to `warn` to suppress startup logs such as route mapping, `info` to see them. Full console output is still available when needed by raising to `debug`. |
+
 | `LOGS_REDIS_ENABLED`   | boolean | `false` | No       | Enable Redis-based audit logging      |
 | `AUDIT_RETENTION_DAYS` | number  | `90`    | No       | Retention period for audit logs       |
 
@@ -95,6 +96,22 @@ Complete reference of all environment variables used by Cosmic Horizons.
 | `PULSAR_MANAGER_URL` | string  | `http://localhost:9527` | No       | Pulsar manager UI URL                                |
 | `PULSAR_NAMESPACES`  | string  | (none)                  | No       | Comma-separated list of Pulsar namespaces used       |
 | `PULSAR_TOPICS`      | string  | (none)                  | No       | Comma-separated list of Pulsar topics for evaluation |
+
+### Local LLM / Remote Compute Mock
+
+| Variable                     | Type   | Default                  | Required | Usage                                                          |
+| ---------------------------- | ------ | ------------------------ | -------- | -------------------------------------------------------------- |
+| `REMOTE_COMPUTE_MODE`        | string | `demo`                   | No       | Gateway mode selector: `demo`, `local-llm`, `live`             |
+| `OLLAMA_BASE_URL`            | string | `http://localhost:11435` | No       | Ollama HTTP endpoint used by local LLM utilities/integration   |
+| `OLLAMA_PORT`                | number | `11435`                  | No       | Host port mapped to Ollama container in compose                |
+| `OLLAMA_MODEL`               | string | `qwen3:8b`               | No       | Model name used by warmup/pull/smoke flows                     |
+| `OLLAMA_TIMEOUT_MS`          | number | `30000`                  | No       | Timeout for fast endpoint checks (tags/model-list operations)  |
+| `OLLAMA_GENERATE_TIMEOUT_MS` | number | `120000`                 | No       | Timeout for generation checks and model pull helper operations |
+| `OLLAMA_MAX_RETRIES`         | number | `2`                      | No       | Reserved retry budget for local-llm integration path           |
+| `OLLAMA_KEEP_ALIVE`          | string | `10m`                    | No       | Ollama model keep-alive hint from docker runtime               |
+| `OLLAMA_WARMUP_TIMEOUT_MS`   | number | `600000`                 | No       | Timeout for `llm:warmup` completion checks                     |
+| `OLLAMA_LOG_TAIL_LINES`      | number | `120`                    | No       | Number of lines shown by `llm:logs`                            |
+| `OLLAMA_LOG_CONTAINER`       | string | `cosmic-horizons-ollama` | No       | Container name targeted by `llm:logs`                          |
 
 ## Features
 

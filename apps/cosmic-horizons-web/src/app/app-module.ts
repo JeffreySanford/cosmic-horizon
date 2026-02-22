@@ -7,6 +7,7 @@ import {
 import {
   BrowserModule,
   provideClientHydration,
+  withHttpTransferCacheOptions,
 } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
@@ -75,7 +76,11 @@ function startupWarmupFactory(
   providers: [
     provideRouter(appRoutes),
     provideBrowserGlobalErrorListeners(),
-    provideClientHydration(),
+    provideClientHydration(
+      withHttpTransferCacheOptions({
+        includeHeaders: ['x-correlation-id', 'content-length'],
+      }),
+    ),
     provideHttpClient(withFetch(), withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,

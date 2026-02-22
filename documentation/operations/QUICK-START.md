@@ -96,6 +96,24 @@ pnpm nx run-many --target=lint --all
 | `pnpm run start:all`                    | Start infra + web/api without resetting Docker volumes |
 | `pnpm run start:all:reset`              | Reset infra, then start web/api                        |
 | `pnpm run start:ports:free`             | Free up used ports                                     |
+| `pnpm run llm:warmup`                   | Pull/warm local Ollama model and wait for completion   |
+| `pnpm run llm:doctor`                   | Run LLM readiness suite (models + quick + full smoke)  |
+| `pnpm run llm:ready`                    | One-command LLM readiness (`warmup -> doctor`)         |
+| `pnpm run llm:status`                   | Show Ollama container status + port bindings           |
+| `pnpm run llm:logs`                     | Tail Ollama logs (`OLLAMA_LOG_TAIL_LINES` supported)   |
+
+## Local LLM Readiness
+
+After infrastructure starts, verify local LLM runtime readiness:
+
+```bash
+pnpm run llm:ready
+```
+
+This command runs:
+
+1. `llm:warmup` to ensure model availability.
+2. `llm:doctor` to run consolidated readiness checks.
 
 ## Project Structure
 

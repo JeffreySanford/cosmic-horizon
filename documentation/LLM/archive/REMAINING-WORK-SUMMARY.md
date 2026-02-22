@@ -232,7 +232,7 @@ Target: 20 publishing tests + 18 baseline = 38 total passing
 - ✅ Generates realistic results
 - ✅ Validates job parameter handling
 
-**Detailed Spec**: See [LLM-ENHANCED-JOB-ORCHESTRATION.md](documentation/ideas/LLM-ENHANCED-JOB-ORCHESTRATION.md)
+**Detailed Spec**: See [LLM-ENHANCED-JOB-ORCHESTRATION.md](documentation/LLM/REMOTE-COMPUTE-LLM/LLM-ENHANCED-JOB-ORCHESTRATION.md)
 
 ---
 

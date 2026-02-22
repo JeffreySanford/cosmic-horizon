@@ -2,7 +2,8 @@
 
 **Complete reference for collecting, analyzing, and improving code coverage across projects.**
 
-Status: ✅ Implemented 2026-02-12
+Status date: 2026-02-12
+Status: Implemented
 
 ## Quick Start
 
@@ -84,10 +85,10 @@ pnpm run test:coverage:thresholds
 
 ```bash
 # Run with Nx (respects coverage configuration)
-nx run cosmic-horizons-api:test --coverage --watch=false
+pnpm nx run cosmic-horizons-api:test --coverage --watch=false
 
 # Run multiple projects
-nx run-many --target=test --all --coverage --watch=false
+pnpm nx run-many --target=test --all --coverage --watch=false
 ```
 
 ## Coverage Reports & Artifacts
@@ -298,15 +299,14 @@ Then open any source file and coverage highlights will show.
 
 ## Performance Notes
 
-- 🚀 Coverage collection adds ~10-15% to test time
-- 💾 Reports consume ~5-10MB disk space per project
-- 🔄 Reports cache well - use `--cache` flag in CI
+- Coverage collection adds ~10-15% to test time.
+- Reports consume ~5-10 MB disk space per project.
+- Reports cache well; use `--cache` in CI.
 
 ## Related Documentation
 
 - [TESTING-STRATEGY.md](TESTING-STRATEGY.md) - Testing approach
 - [E2E_CODE_COVERAGE_GUIDE.md](E2E_CODE_COVERAGE_GUIDE.md) - E2E coverage details
-- [NX_COVERAGE_CONFIG.md](NX_COVERAGE_CONFIG.md) - Nx-specific setup
 
 ## Support
 

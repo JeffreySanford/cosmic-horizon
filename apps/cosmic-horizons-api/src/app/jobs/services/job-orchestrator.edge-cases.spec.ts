@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   JobOrchestratorService,
   BatchJobRequest,
@@ -7,8 +8,11 @@ import { Job } from '../entities/job.entity';
 
 describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage)', () => {
   let service: JobOrchestratorService;
+  let configService: any;
   let taccService: any;
   let jobRepository: any;
+  let eventsService: any;
+  let kafkaService: any;
 
   beforeEach(() => {
     jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
@@ -20,6 +24,18 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
       getJobStatus: jest.fn(),
       cancelJob: jest.fn(),
     };
+
+    configService = {
+      get: jest.fn((key: string, defaultValue?: unknown) => {
+        const values: Record<string, unknown> = {
+          REMOTE_COMPUTE_MODE: 'demo',
+          OLLAMA_BASE_URL: 'http://localhost:11435',
+          OLLAMA_MODEL: 'qwen3:8b',
+          OLLAMA_TIMEOUT_MS: 30000,
+        };
+        return values[key] ?? defaultValue;
+      }),
+    } satisfies Partial<ConfigService>;
 
     jobRepository = {
       create: jest.fn(),
@@ -34,7 +50,22 @@ describe('JobOrchestratorService - Edge Cases & Error Scenarios (Branch Coverage
       delete: jest.fn(),
     };
 
-    service = new JobOrchestratorService(taccService, jobRepository);
+    eventsService = {
+      publishJobEvent: jest.fn().mockResolvedValue(undefined),
+    };
+
+    kafkaService = {
+      publishJobLifecycleEvent: jest.fn().mockResolvedValue(undefined),
+      publishJobMetrics: jest.fn().mockResolvedValue(undefined),
+    };
+
+    service = new JobOrchestratorService(
+      configService,
+      taccService,
+      jobRepository,
+      eventsService,
+      kafkaService,
+    );
   });
 
   afterEach(() => {

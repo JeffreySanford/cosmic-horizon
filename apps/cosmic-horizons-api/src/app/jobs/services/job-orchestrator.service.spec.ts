@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { JobRepository } from '../repositories/job.repository';
 import { JobOrchestratorService } from '../services/job-orchestrator.service';
 import { TaccIntegrationService } from '../tacc-integration.service';
@@ -16,6 +17,7 @@ describe('JobOrchestratorService', () => {
   let service: JobOrchestratorService;
   let jobRepository: jest.Mocked<JobRepository>;
   let taccService: jest.Mocked<TaccIntegrationService>;
+  let configService: jest.Mocked<ConfigService>;
   let eventsService: jest.Mocked<EventsService>;
   let kafkaService: jest.Mocked<KafkaService>;
 
@@ -35,6 +37,20 @@ describe('JobOrchestratorService', () => {
     testingModule = await Test.createTestingModule({
       providers: [
         JobOrchestratorService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string, defaultValue?: unknown) => {
+              const defaults: Record<string, unknown> = {
+                REMOTE_COMPUTE_MODE: 'demo',
+                OLLAMA_BASE_URL: 'http://localhost:11435',
+                OLLAMA_MODEL: 'qwen3:8b',
+                OLLAMA_TIMEOUT_MS: 30000,
+              };
+              return defaults[key] ?? defaultValue;
+            }),
+          },
+        },
         {
           provide: JobRepository,
           useValue: {
@@ -86,6 +102,9 @@ describe('JobOrchestratorService', () => {
     taccService = testingModule.get(
       TaccIntegrationService,
     ) as jest.Mocked<TaccIntegrationService>;
+    configService = testingModule.get(
+      ConfigService,
+    ) as jest.Mocked<ConfigService>;
     eventsService = testingModule.get(
       EventsService,
     ) as jest.Mocked<EventsService>;
@@ -340,6 +359,82 @@ describe('JobOrchestratorService', () => {
 
       expect(result.jobs).toBeDefined();
       expect(result.total).toBeDefined();
+    });
+  });
+
+  describe('answerPreflightQuestion', () => {
+    it('should return low-confidence guidance for empty question', async () => {
+      const response = await service.answerPreflightQuestion('   ', {
+        agent: 'AlphaCal',
+        dataset_id: 'dataset-1',
+        params: { gpu_count: 1, rfi_strategy: 'medium' },
+      });
+
+      expect(response.source).toBe('heuristic');
+      expect(response.confidence).toBe('low');
+      expect(response.caveats[0]).toContain('No question content');
+    });
+
+    it('should use local-llm response when mode is local-llm and model output is valid', async () => {
+      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
+        const values: Record<string, unknown> = {
+          REMOTE_COMPUTE_MODE: 'local-llm',
+          OLLAMA_BASE_URL: 'http://localhost:11435',
+          OLLAMA_MODEL: 'qwen3:8b',
+          OLLAMA_TIMEOUT_MS: 30000,
+        };
+        return values[key] ?? defaultValue;
+      });
+
+      const fetchSpy = jest.spyOn(globalThis, 'fetch' as any).mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          response: JSON.stringify({
+            answer: 'LLM says current settings are acceptable.',
+            confidence: 'high',
+            caveats: ['Queue depth may change final start time.'],
+          }),
+        }),
+      } as Response);
+
+      const response = await service.answerPreflightQuestion('What will this do?', {
+        agent: 'ImageReconstruction',
+        dataset_id: 'dataset-2',
+        params: { gpu_count: 2, rfi_strategy: 'medium' },
+      });
+
+      expect(response.source).toBe('llm');
+      expect(response.confidence).toBe('high');
+      expect(response.answer).toContain('LLM says');
+      expect(fetchSpy).toHaveBeenCalled();
+      fetchSpy.mockRestore();
+    });
+
+    it('should fall back to heuristic when local-llm call fails', async () => {
+      configService.get.mockImplementation((key: string, defaultValue?: unknown) => {
+        const values: Record<string, unknown> = {
+          REMOTE_COMPUTE_MODE: 'local-llm',
+          OLLAMA_BASE_URL: 'http://localhost:11435',
+          OLLAMA_MODEL: 'qwen3:8b',
+          OLLAMA_TIMEOUT_MS: 30000,
+        };
+        return values[key] ?? defaultValue;
+      });
+
+      const fetchSpy = jest
+        .spyOn(globalThis, 'fetch' as any)
+        .mockRejectedValue(new Error('connection refused'));
+
+      const response = await service.answerPreflightQuestion('Any risk of failure?', {
+        agent: 'AlphaCal',
+        dataset_id: 'dataset-3',
+        params: { gpu_count: 1, rfi_strategy: 'medium' },
+      });
+
+      expect(response.source).toBe('heuristic');
+      expect(response.answer.toLowerCase()).toContain('risk');
+      expect(fetchSpy).toHaveBeenCalled();
+      fetchSpy.mockRestore();
     });
   });
 

@@ -1,4 +1,134 @@
 <div class="jobs-container">
+  <button
+    class="summary-toggle"
+    mat-flat-button
+    color="primary"
+    type="button"
+    (click)="summaryExpanded = !summaryExpanded"
+    [attr.aria-expanded]="summaryExpanded"
+    matTooltip="Open or collapse a detailed explanation of this Jobs view"
+  >
+    <mat-icon>{{ summaryExpanded ? 'chevron_right' : 'menu_open' }}</mat-icon>
+    {{ summaryExpanded ? 'Collapse Summary' : 'Expand Summary' }}
+  </button>
+
+  <aside class="summary-sidebar" [class.expanded]="summaryExpanded">
+    <div class="summary-sidebar__header">
+      <h3>Jobs View Summary</h3>
+      <button
+        mat-icon-button
+        type="button"
+        (click)="summaryExpanded = false"
+        aria-label="Close summary sidebar"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="summary-sidebar__content">
+      <p>
+        This view is the operational launch and monitoring console for AI-assisted
+        radio astronomy jobs. It captures science intent, submits jobs to the
+        configured backend mode, and tracks status to completion.
+      </p>
+      <h4>What Happens On Submit</h4>
+      <ul>
+        <li>Form inputs are converted into a structured job payload.</li>
+        <li>The API accepts the submission and returns a canonical job ID.</li>
+        <li>The UI requests optimization tips for the chosen parameters.</li>
+        <li>Polling begins on the job status endpoint until terminal state.</li>
+      </ul>
+      <h4>Modes and Backends</h4>
+      <ul>
+        <li><strong>Demo:</strong> simulated behavior for offline validation.</li>
+        <li><strong>Local-LLM:</strong> local inference-backed orchestration path.</li>
+        <li><strong>Live:</strong> remote execution against approved infrastructure.</li>
+      </ul>
+      <h4>How To Use This Panel</h4>
+      <ul>
+        <li>Define target and observation context before submit.</li>
+        <li>Use filter chips to isolate active failures/running jobs.</li>
+        <li>Inspect details and cancel in-progress runs if needed.</li>
+        <li>Use optimization tips to tune runtime, GPU usage, and RFI policy.</li>
+      </ul>
+      <h4>Science Context</h4>
+      <p>
+        For reconstruction scenarios, select <strong>ImageReconstruction</strong>
+        with appropriate RA/Dec, band, and product goal to generate
+        science-ready image artifacts from calibrated visibility workflows.
+      </p>
+
+      <div class="qa-launch">
+        <button
+          mat-flat-button
+          color="accent"
+          type="button"
+          (click)="qaPanelOpen = !qaPanelOpen"
+          matTooltip="Ask pre-run questions using current job form context"
+        >
+          <mat-icon>quiz</mat-icon>
+          {{ qaPanelOpen ? 'Hide Questions' : 'Have Questions?' }}
+        </button>
+      </div>
+
+      <div class="qa-panel" *ngIf="qaPanelOpen">
+        <h4>Pre-Run Q&A</h4>
+        <p class="qa-help">
+          Ask about runtime, cost, risks, or workflow order before submitting.
+          Answers use your current form values.
+        </p>
+        <div class="qa-suggested">
+          <button
+            mat-stroked-button
+            type="button"
+            *ngFor="let q of qaSuggestedQuestions"
+            (click)="askQuestion(q)"
+          >
+            {{ q }}
+          </button>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your question</mat-label>
+          <input
+            matInput
+            [(ngModel)]="qaQuestion"
+            name="qaQuestion"
+            placeholder="e.g. Should I increase GPUs for this target?"
+          />
+        </mat-form-field>
+        <div class="qa-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="askQuestion()"
+            [disabled]="qaLoading"
+          >
+            <mat-icon>send</mat-icon>
+            Ask
+          </button>
+          <button mat-stroked-button type="button" (click)="clearQa()">
+            Clear
+          </button>
+        </div>
+        <p class="qa-loading" *ngIf="qaLoading">Generating answer...</p>
+        <p class="qa-error" *ngIf="qaError">{{ qaError }}</p>
+        <div class="qa-answer" *ngIf="qaResponse">
+          <p><strong>Answer:</strong> {{ qaResponse.answer }}</p>
+          <p>
+            <strong>Confidence:</strong> {{ qaResponse.confidence | uppercase }}
+            <span class="qa-source">({{ qaResponse.source }})</span>
+          </p>
+          <div *ngIf="qaResponse.caveats.length">
+            <p><strong>Caveats:</strong></p>
+            <ul>
+              <li *ngFor="let caveat of qaResponse.caveats">{{ caveat }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
   <div class="header-nav">
     <a mat-button routerLink="/landing">
       <mat-icon>arrow_back</mat-icon>
@@ -6,26 +136,67 @@
     </a>
   </div>
 
-  <div class="content-area">
-    <mat-card class="job-form-card">
+  <mat-card class="job-form-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>hub</mat-icon>
         <mat-card-title>CosmicAI TACC Orchestration</mat-card-title>
         <mat-card-subtitle
           >Enterprise-scale remote compute gateway</mat-card-subtitle
         >
+        <!-- runtime mode badge -->
+        <ng-container *ngIf="capabilities['demoMode'] !== undefined">
+          <div class="mode-badge">
+            <mat-chip
+              color="warn"
+              selected
+              *ngIf="capabilities['demoMode']"
+              >DEMO MODE</mat-chip
+            >
+            <mat-chip
+              color="accent"
+              selected
+              *ngIf="!capabilities['demoMode']"
+              >LIVE MODE</mat-chip
+            >
+          </div>
+        </ng-container>
       </mat-card-header>
 
       <mat-card-content>
+        <div class="controls-header">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="showControlGuide = !showControlGuide"
+            matTooltip="Show quick guidance for form controls and workflow choices"
+          >
+            <mat-icon>help_outline</mat-icon>
+            {{ showControlGuide ? 'Hide Control Guide' : 'Show Control Guide' }}
+          </button>
+        </div>
+        <div class="control-guide" *ngIf="showControlGuide">
+          <p><strong>Agent:</strong> Choose whether you are calibrating, reconstructing, or detecting anomalies.</p>
+          <p><strong>Target/RA/Dec:</strong> Define the sky field so job intent can be audited and replayed.</p>
+          <p><strong>Band/Duration:</strong> Approximate workload and scientific context for runtime/resource planning.</p>
+          <p><strong>Product Goal:</strong> Declares expected output artifact type for downstream review.</p>
+        </div>
+        <div class="workflow-brief">
+          <h3>What This Job Does</h3>
+          <p><strong>Objective:</strong> {{ selectedAgentSummary.objective }}</p>
+          <p><strong>Output:</strong> {{ selectedAgentSummary.output }}</p>
+          <p class="workflow-note">{{ selectedAgentSummary.note }}</p>
+        </div>
         <form class="job-form">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Autonomous Agent</mat-label>
-            <mat-select [(ngModel)]="selectedAgent" name="agent">
-              @for (agent of agents; track agent) {
-                <mat-option [value]="agent">
-                  <mat-icon>smart_toy</mat-icon> {{ agent }}
-                </mat-option>
-              }
+            <mat-select
+              [(ngModel)]="selectedAgent"
+              name="agent"
+              matTooltip="Select the workflow engine to run"
+            >
+              <mat-option *ngFor="let agent of agents" [value]="agent">
+                <mat-icon>smart_toy</mat-icon> {{ agent }}
+              </mat-option>
             </mat-select>
           </mat-form-field>
 
@@ -36,13 +207,29 @@
               [(ngModel)]="datasetId"
               name="datasetId"
               placeholder="e.g. VLASS2.1.eb123456"
+              matTooltip="Source dataset identifier to stage and process"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Science Target Label</mat-label>
+            <input
+              matInput
+              [(ngModel)]="targetName"
+              name="targetName"
+              placeholder="e.g. M87 Core Field"
+              matTooltip="Human-readable label for science target field"
             />
           </mat-form-field>
 
           <div class="params-row">
             <mat-form-field appearance="outline">
               <mat-label>RFI Strategy</mat-label>
-              <mat-select [(ngModel)]="rfiStrategy" name="rfi">
+              <mat-select
+                [(ngModel)]="rfiStrategy"
+                name="rfi"
+                matTooltip="Higher sensitivity improves quality but increases runtime"
+              >
                 <mat-option value="low">Low Impact</mat-option>
                 <mat-option value="medium">Medium Policy</mat-option>
                 <mat-option value="high">High Sensitivity</mat-option>
@@ -61,11 +248,97 @@
                 name="gpus"
                 min="1"
                 max="16"
+                matTooltip="Requested GPU parallelism for remote execution"
               />
               <mat-hint>Max 16 for current quota</mat-hint>
             </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Right Ascension (hours)</mat-label>
+              <input
+                matInput
+                type="number"
+                [(ngModel)]="rightAscensionHours"
+                name="rightAscensionHours"
+                min="0"
+                max="24"
+                step="0.0001"
+                matTooltip="Target right ascension in hours (0-24)"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Declination (degrees)</mat-label>
+              <input
+                matInput
+                type="number"
+                [(ngModel)]="declinationDegrees"
+                name="declinationDegrees"
+                min="-90"
+                max="90"
+                step="0.0001"
+                matTooltip="Target declination in degrees (-90 to +90)"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Frequency Band</mat-label>
+              <mat-select
+                [(ngModel)]="frequencyBand"
+                name="frequencyBand"
+                matTooltip="Observing frequency band driving calibration/imaging behavior"
+              >
+                <mat-option *ngFor="let band of frequencyBands" [value]="band">
+                  {{ band }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Observation Duration (hours)</mat-label>
+              <input
+                matInput
+                type="number"
+                [(ngModel)]="observationDurationHours"
+                name="observationDurationHours"
+                min="1"
+                max="24"
+                matTooltip="Planned observation window used for runtime expectation"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Science Product Goal</mat-label>
+              <mat-select
+                [(ngModel)]="productGoal"
+                name="productGoal"
+                matTooltip="Primary artifact requested from this run"
+              >
+                <mat-option
+                  *ngFor="let goal of scienceProductOptions"
+                  [value]="goal"
+                >
+                  {{ goal }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Max Runtime</mat-label>
+              <input
+                matInput
+                [(ngModel)]="maxRuntime"
+                name="maxRuntime"
+                placeholder="e.g. 48h"
+                matTooltip="Scheduler runtime ceiling for this job"
+              />
+            </mat-form-field>
           </div>
         </form>
+        <div class="science-intent">
+          <h4>Submission Intent</h4>
+          <p>{{ scienceIntentSummary }}</p>
+        </div>
       </mat-card-content>
 
       <mat-card-actions align="end">
@@ -80,22 +353,65 @@
           INITIALIZE REMOTE COMPUTE
         </button>
       </mat-card-actions>
-    </mat-card>
+      </mat-card>
 
-    @if (activeJobs.length > 0) {
-      <div class="active-jobs">
+      <div class="stats-grid" *ngIf="activeJobs.length">
+        <mat-card class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-value">{{ totalJobs }}</div>
+        </mat-card>
+        <mat-card class="stat-card">
+          <div class="stat-label">Queued</div>
+          <div class="stat-value">{{ queuedJobs }}</div>
+        </mat-card>
+        <mat-card class="stat-card">
+          <div class="stat-label">Running</div>
+          <div class="stat-value running">{{ runningJobs }}</div>
+        </mat-card>
+        <mat-card class="stat-card">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value completed">{{ completedJobs }}</div>
+        </mat-card>
+        <mat-card class="stat-card">
+          <div class="stat-label">Failed</div>
+          <div class="stat-value failed">{{ failedJobs }}</div>
+        </mat-card>
+      </div>
+
+      <mat-card *ngIf="optimizationTips.length" class="tips-card">
+        <mat-card-header>
+          <mat-card-title>Optimization Tips</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ul>
+            <li *ngFor="let tip of optimizationTips">{{ tipLabel(tip) }}</li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+
+    <div *ngIf="activeJobs.length > 0" class="active-jobs">
         <h3>
           <mat-icon>pending_actions</mat-icon>
           Active Job Queue
         </h3>
-        @for (job of activeJobs; track job.id) {
-          <mat-card
+        <div class="filter-chips">
+          <button
+            mat-stroked-button
+            type="button"
+            *ngFor="let filter of filters"
+            [class.active-filter]="selectedFilter === filter"
+            (click)="selectedFilter = filter"
+          >
+            {{ filterLabel(filter) }}
+          </button>
+        </div>
+        <mat-card *ngFor="let job of filteredJobs" 
             class="job-item"
             [class.status-running]="job.status === 'RUNNING'"
             [class.status-completed]="job.status === 'COMPLETED'"
           >
             <div class="job-header">
-              <span class="job-id">{{ job.id }}</span>
+              <span class="job-id">{{ getJobDisplayId(job) }}</span>
               <mat-chip-listbox>
                 <mat-chip
                   [color]="
@@ -107,12 +423,18 @@
                   "
                   selected
                 >
-                  @if (job.status === 'RUNNING') {
+                  <ng-container *ngIf="job.status === 'RUNNING'">
                     <mat-icon matChipAvatar>sync</mat-icon>
-                  }
+                  </ng-container>
                   {{ job.status }}
                 </mat-chip>
               </mat-chip-listbox>
+            </div>
+            <div class="job-meta">
+              <span><strong>Submitted:</strong> {{ getSubmittedLabel(job.id) }}</span>
+              <span *ngIf="getMeta(job.id) as meta"><strong>Agent:</strong> {{ meta.agent }}</span>
+              <span *ngIf="getMeta(job.id) as meta"><strong>Target:</strong> {{ meta.targetName }}</span>
+              <span *ngIf="getMeta(job.id) as meta"><strong>Dataset:</strong> {{ meta.datasetId }}</span>
             </div>
 
             <div class="progress-container">
@@ -128,7 +450,7 @@
               ></mat-progress-bar>
             </div>
 
-            @if (job.output_url) {
+            <ng-container *ngIf="job.output_url">
               <div class="job-actions">
                 <a
                   mat-stroked-button
@@ -139,11 +461,29 @@
                   <mat-icon>cloud_download</mat-icon>
                   DOWNLOAD SRDP ASSETS
                 </a>
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  type="button"
+                  (click)="showJobDetails(job)"
+                  matTooltip="Open quick metadata summary for this job"
+                >
+                  <mat-icon>info</mat-icon>
+                  DETAILS
+                </button>
+                <button
+                  mat-stroked-button
+                  color="warn"
+                  type="button"
+                  (click)="cancelJob(job)"
+                  *ngIf="!isTerminalStatus(job.status)"
+                  matTooltip="Cancel queued or running job"
+                >
+                  <mat-icon>cancel</mat-icon>
+                  CANCEL
+                </button>
               </div>
-            }
-          </mat-card>
-        }
-      </div>
-    }
+          </ng-container>
+        </mat-card>
   </div>
 </div>

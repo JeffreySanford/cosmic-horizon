@@ -471,8 +471,26 @@ export class MockApiInterceptor implements HttpInterceptor {
       return this.jsonResponse({ jobId }, 200, 500);
     }
 
-    if (req.url.includes('/api/jobs/status/') && req.method === 'GET') {
-      const jobId = req.url.split('/').pop();
+    if (req.url.endsWith('/api/jobs/capabilities') && req.method === 'GET') {
+      return this.jsonResponse({ demoMode: true, baseUrlReachable: true, oauth2Present: false, jobsEndpoint: true });
+    }
+
+    if (req.url.includes('/api/jobs/optimize') && req.method === 'POST') {
+      return this.jsonResponse([
+        'Consider lowering GPU count to 2 for small datasets',
+        'Use RFI strategy "high" for best sensitivity',
+      ]);
+    }
+
+    if (
+      req.method === 'GET' &&
+      (req.url.includes('/api/jobs/status/') ||
+        /\/api\/jobs\/[^/]+\/status(?:\?|$)/.test(req.url))
+    ) {
+      const urlParts = req.url.split('/');
+      const statusIndex = urlParts.findIndex((part) => part === 'status');
+      const jobId =
+        statusIndex > 0 ? urlParts[statusIndex - 1] : req.url.split('/').pop();
       const statuses: Array<'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED'> = [
         'QUEUED',
         'RUNNING',

@@ -1,0 +1,86 @@
+openapi: 3.0.3
+info:
+  title: Remote Compute Gateway API
+  version: 0.1.0
+  description: |
+    Mini-spec for the subset of endpoints used by the Cosmic Horizons UI and
+    backend.  Mirrors key Tapis job operations.
+servers:
+  - url: /api
+paths:
+  /jobs/capabilities:
+    get:
+      summary: Get backend capabilities (demo vs live)
+      responses:
+        '200':
+          description: Capability matrix
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+  /jobs/submit:
+    post:
+      summary: Submit a new compute job
+      requestBody:
+        description: Job submission payload
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobSubmission'
+      responses:
+        '200':
+          description: Submission accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+  /jobs/{id}/status:
+    get:
+      summary: Retrieve job status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+components:
+  schemas:
+    JobSubmission:
+      type: object
+      required:
+        - agent
+        - dataset_id
+      properties:
+        agent:
+          type: string
+        dataset_id:
+          type: string
+        params:
+          type: object
+          additionalProperties: true
+    JobStatus:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED]
+        progress:
+          type: number
+        output_url:
+          type: string
+          nullable: true

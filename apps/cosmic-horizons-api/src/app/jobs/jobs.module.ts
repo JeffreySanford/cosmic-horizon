@@ -1,6 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TaccIntegrationService } from './tacc-integration.service';
+import { ConfigService } from '@nestjs/config';
+import {
+  TaccIntegrationService,
+  DemoTaccAdapter,
+  LocalLlmAdapter,
+  LiveTaccAdapter,
+  TACC_ADAPTER,
+  TaccAdapter,
+} from './tacc-integration.service';
 import { JobsController } from './jobs.controller';
 import { JobRepository } from './repositories/job.repository';
 import { JobOrchestratorService } from './services/job-orchestrator.service';
@@ -18,6 +26,29 @@ import { RepositoryModule } from '../repositories/repository.module';
   ],
   controllers: [JobsController],
   providers: [
+    {
+      provide: TACC_ADAPTER,
+      useFactory: (config: ConfigService): TaccAdapter => {
+        const mode = (
+          config.get<string>('REMOTE_COMPUTE_MODE') ??
+          (config.get('TACC_LIVE') === 'true' ? 'live' : 'demo')
+        ).toLowerCase();
+
+        if (mode === 'live') {
+          return new LiveTaccAdapter(config);
+        }
+
+        if (mode === 'local-llm') {
+          return new LocalLlmAdapter(config);
+        }
+
+        return new DemoTaccAdapter(config);
+      },
+      inject: [ConfigService],
+    },
+    DemoTaccAdapter,
+    LocalLlmAdapter,
+    LiveTaccAdapter,
     TaccIntegrationService,
     JobRepository,
     JobOrchestratorService,

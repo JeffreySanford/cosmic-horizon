@@ -55,6 +55,7 @@ describe('JobsController', () => {
             getJobHistory: jest.fn(),
             searchJobs: jest.fn(),
             getOptimizationTips: jest.fn(),
+            answerPreflightQuestion: jest.fn(),
             getResourceMetrics: jest.fn(),
             getAvailableResourcePools: jest.fn(),
           },
@@ -377,6 +378,34 @@ describe('JobsController', () => {
     });
   });
 
+  describe('answerPreflightQa - POST /jobs/preflight-qa', () => {
+    it('should return pre-run answer with confidence and caveats', async () => {
+      const request = {
+        question: 'Should I change GPUs before submit?',
+        jobContext: {
+          agent: 'AlphaCal',
+          dataset_id: 'dataset-789',
+          params: { gpu_count: 2, rfi_strategy: 'medium' },
+        },
+      };
+      const response = {
+        answer: 'Keep 2 GPUs for a balanced baseline run.',
+        confidence: 'medium' as const,
+        caveats: ['Queue wait and policy can affect effective runtime.'],
+        source: 'heuristic' as const,
+      };
+      orchestrator.answerPreflightQuestion.mockResolvedValue(response);
+
+      const result = await controller.answerPreflightQa(request as any);
+
+      expect(result).toEqual(response);
+      expect(orchestrator.answerPreflightQuestion).toHaveBeenCalledWith(
+        request.question,
+        request.jobContext,
+      );
+    });
+  });
+
   describe('getResourceMetrics - GET /jobs/metrics', () => {
     it('should retrieve resource metrics for user', async () => {
       const metrics = {
@@ -447,9 +476,9 @@ describe('JobsController', () => {
   describe('stageDataset - POST /jobs/dataset/stage', () => {
     it('should stage dataset for processing', async () => {
       const request = {
-        datasetId: 'dataset-789',
-        source: 'archive',
-        destination: 'compute-node',
+        dataset_id: 'dataset-789',
+        target_resource: 'tacc_scratch',
+        priority: 'normal' as const,
       };
       const status = {
         dataset_id: 'dataset-789',
@@ -467,9 +496,9 @@ describe('JobsController', () => {
 
     it('should handle dataset already staged', async () => {
       const request = {
-        datasetId: 'dataset-staged',
-        source: 'archive',
-        destination: 'compute-node',
+        dataset_id: 'dataset-staged',
+        target_resource: 'tacc_scratch',
+        priority: 'normal' as const,
       };
       const status = {
         dataset_id: 'dataset-staged',
@@ -481,6 +510,25 @@ describe('JobsController', () => {
       const result = await controller.stageDataset(request as any);
 
       expect(result.status).toBe('completed');
+    });
+
+    it('should propagate failed staging status from service', async () => {
+      const request = {
+        dataset_id: 'error-123',
+        target_resource: 'tacc_scratch',
+        priority: 'normal' as const,
+      };
+      const status = {
+        dataset_id: 'error-123',
+        status: 'failed' as const,
+        progress: 0,
+        error_code: 'SIMULATED_FAILURE',
+      };
+      datasetStaging.stageDataset.mockResolvedValue(status);
+
+      const result = await controller.stageDataset(request as any);
+      expect(result.status).toBe('failed');
+      expect(result.error_code).toBe('SIMULATED_FAILURE');
     });
   });
 

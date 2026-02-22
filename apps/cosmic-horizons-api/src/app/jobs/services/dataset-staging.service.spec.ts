@@ -37,6 +37,18 @@ describe('DatasetStagingService', () => {
       expect(result.staging_location).toBeDefined();
       expect(result.staging_location).toContain('/tacc/scratch/');
     });
+
+    it('should throw NotFoundException for missing dataset', async () => {
+      await expect(service.validateDataset('notfound-123')).rejects.toThrow(
+        'Dataset not found',
+      );
+    });
+
+    it('should throw ForbiddenException for forbidden dataset', async () => {
+      await expect(service.validateDataset('forbidden-xyz')).rejects.toThrow(
+        'Access denied',
+      );
+    });
   });
 
   describe('stageDataset', () => {
@@ -76,6 +88,38 @@ describe('DatasetStagingService', () => {
       const result = await service.stageDataset(request);
 
       expect(result.estimated_time_minutes).toBeGreaterThan(30);
+    });
+
+    it('should immediately fail staging for error dataset', async () => {
+      const request = {
+        dataset_id: 'error-123',
+        target_resource: 'tacc_scratch' as const,
+        priority: 'normal' as const,
+      };
+
+      const result = await service.stageDataset(request);
+      expect(result.status).toBe('failed');
+      expect(result.error_code).toBe('SIMULATED_FAILURE');
+    });
+
+    it('should eventually complete and set artifact_url', async () => {
+      jest.useFakeTimers();
+      const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(1);
+      const request = {
+        dataset_id: 'dataset-zip',
+        target_resource: 'tacc_scratch' as const,
+        priority: 'normal' as const,
+      };
+      const res = await service.stageDataset(request);
+      expect(res.status).toBe('in_progress');
+
+      // fast-forward enough time to finish
+      jest.advanceTimersByTime(20000);
+      const status = await service.getStagingStatus('dataset-zip');
+      expect(status?.status).toBe('completed');
+      expect(status?.artifact_url).toContain('.zip');
+      randomSpy.mockRestore();
+      jest.useRealTimers();
     });
   });
 

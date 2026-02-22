@@ -492,8 +492,7 @@ Sprint 5.4: Benchmark Pulsar
 - [EVENT-STREAMING-TOPOLOGY.md](EVENT-STREAMING-TOPOLOGY.md) - Infrastructure setup
 - [documentation/pulsar/](../pulsar/) - Pulsar quickstart & setup guides
 - [scripts/benchmark-pulsar-vs-rabbitmq.mjs](../../scripts/benchmark-pulsar-vs-rabbitmq.mjs) - Benchmarking harness
-- [docker-compose.events.yml](../../docker-compose.events.yml) - RabbitMQ + Kafka
-- [docker-compose.pulsar.yml](../../docker-compose.pulsar.yml) - Pulsar cluster
+- [docker-compose.events.yml](../../docker-compose.events.yml) - RabbitMQ + Kafka + Pulsar
 
 ---
 

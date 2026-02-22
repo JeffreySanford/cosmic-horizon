@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
+import { JobOrchestrationService } from '../../../features/jobs/job-orchestration.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -26,3 +26,4 @@ export class ProgressGraphComponent implements OnInit, OnDestroy {
   }
 
 }
+

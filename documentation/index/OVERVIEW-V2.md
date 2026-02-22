@@ -160,7 +160,7 @@ Required CI signals:
 
 - Admin API: `GET /api/admin/logs` (paged feed) and `GET /api/admin/logs/summary` (tile counts).
 
-- Storage: in-memory buffer by default; optional Redis list for durability. Runtime logs are never committed; see `documentation/operations/LOGGING.md`.
+- Storage: in-memory buffer by default; optional Redis list for durability. Runtime logs are never committed; see `documentation/backend/LOGGING-SYSTEM-DESIGN.md`.
 
 ## Security and Compliance Guardrails
 

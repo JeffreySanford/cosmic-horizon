@@ -14,7 +14,7 @@ import {
 import {
   Job,
   JobSubmissionResponse,
-} from '../../../features/job-orchestration/job.models';
+} from '../../../features/jobs/jobs.models';
 import { MessagingService } from '../../../services/messaging.service';
 import * as JobsActions from './jobs.actions';
 
@@ -115,3 +115,4 @@ export class JobsEffects {
     ),
   );
 }
+

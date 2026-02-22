@@ -15,6 +15,7 @@ import { JobOrchestratorService } from './services/job-orchestrator.service';
 import type {
   BatchJobRequest,
   OptimizationTip,
+  PreflightQaResponse,
 } from './services/job-orchestrator.service';
 import { DatasetStagingService } from './services/dataset-staging.service';
 import type {
@@ -25,6 +26,11 @@ import type { TaccJobSubmission } from './tacc-integration.service';
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 import type { AuthenticatedRequest } from '../types/http.types';
 import { Job } from './entities/job.entity';
+
+interface PreflightQaRequest {
+  question: string;
+  jobContext: TaccJobSubmission;
+}
 
 @Controller('jobs')
 export class JobsController {
@@ -128,6 +134,21 @@ export class JobsController {
   }
 
   /**
+   * Answer pre-run questions before submission using LLM mode (when available)
+   * with deterministic fallback guidance.
+   */
+  @Post('preflight-qa')
+  @UseGuards(AuthenticatedGuard)
+  async answerPreflightQa(
+    @Body() request: PreflightQaRequest,
+  ): Promise<PreflightQaResponse> {
+    return this.orchestrator.answerPreflightQuestion(
+      request.question,
+      request.jobContext,
+    );
+  }
+
+  /**
    * Get resource metrics and cost estimation for user
    */
   @Get('metrics')
@@ -146,7 +167,15 @@ export class JobsController {
   }
 
   /**
-   * Stage dataset for processing (Phase 2: GLOBUS integration)
+   * Return adapter/backend capabilities (demo vs live) so frontend can badge
+   */
+  @Get('capabilities')
+  async getCapabilities(): Promise<Record<string, boolean>> {
+    return this.taccService.getCapabilities();
+  }
+
+  /**
+   * Stage dataset to compute resources before job execution
    */
   @Post('dataset/stage')
   @UseGuards(AuthenticatedGuard)

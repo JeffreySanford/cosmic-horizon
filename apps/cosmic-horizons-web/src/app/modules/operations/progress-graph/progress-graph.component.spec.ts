@@ -4,7 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Subject } from 'rxjs';
 import { OperationsModule } from '../operations.module';
 import { ProgressGraphComponent } from './progress-graph.component';
-import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
+import { JobOrchestrationService } from '../../../features/jobs/job-orchestration.service';
 
 describe('ProgressGraphComponent', () => {
   let component: ProgressGraphComponent;
@@ -43,3 +43,4 @@ describe('ProgressGraphComponent', () => {
     expect(component.series).toEqual(sample);
   });
 });
+

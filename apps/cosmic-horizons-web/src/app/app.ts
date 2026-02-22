@@ -165,7 +165,6 @@ export class App implements OnInit {
       'logs',
       'alerts',
       'jobs',
-      'jobs-orchestration',
       'array-telemetry',
     ]);
     const expressiveRoots = new Set([

@@ -1,0 +1,10 @@
+{
+  "job_id": "123e4567-e89b-12d3-a456-426614174000",
+  "status": "QUEUED",
+  "created": "2026-02-21T12:34:56Z",
+  "app_id": "alphacal",
+  "parameters": {
+    "gpu_count": 2,
+    "max_runtime": "04:00:00"
+  }
+}

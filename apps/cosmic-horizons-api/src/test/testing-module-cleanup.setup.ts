@@ -7,6 +7,9 @@ import {
 const trackedModules = new Set<TestingModule>();
 const originalCreateTestingModule = Test.createTestingModule.bind(Test);
 
+// Avoid noisy ioredis warnings in tests when local Redis has no password.
+delete process.env['REDIS_PASSWORD'];
+
 jest
   .spyOn(Test, 'createTestingModule')
   .mockImplementation(

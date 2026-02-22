@@ -63,7 +63,12 @@ export class RequestLoggerInterceptor implements NestInterceptor {
             request_bytes: this.parseNumber(req.headers['content-length']),
           };
 
-          this.logger.log(JSON.stringify(log));
+          // we used to mirror every request/response to the default
+          // Nest logger which prints to stdout.  those messages flood the
+          // console (especially during `star:all`) and are not useful there
+          // because we already persist them via `LoggingService`. keep them
+          // off the console by only writing to our log backend.
+          // this.logger.log(JSON.stringify(log));
           void this.logging.add({
             type: 'http',
             severity: 'info',
@@ -90,7 +95,8 @@ export class RequestLoggerInterceptor implements NestInterceptor {
             request_bytes: this.parseNumber(req.headers['content-length']),
           };
 
-          this.logger.error(JSON.stringify(log));
+          // likewise, errors are already tracked; avoid spamming stderr.
+          // this.logger.error(JSON.stringify(log));
           void this.logging.add({
             type: 'http',
             severity: 'error',

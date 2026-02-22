@@ -55,5 +55,16 @@ export default defineConfig({
         }),
       },
     },
+    {
+      name: 'chromium-local-llm',
+      use: {
+        ...devices['Desktop Chrome'],
+        ...(enableCoverage && {
+          viewport: { width: 1280, height: 720 },
+        }),
+        // ensure tests start in local-llm mode by setting env
+        launchOptions: { env: { ...process.env, REMOTE_COMPUTE_MODE: 'local-llm' } },
+      },
+    },
   ],
 });

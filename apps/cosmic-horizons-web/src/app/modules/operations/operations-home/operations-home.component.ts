@@ -3,7 +3,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { MessagingService } from '../../../services/messaging.service';
 import { PerformanceDataService } from '../../../services/performance-data.service';
 import { startWith, map } from 'rxjs/operators';
-import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
+import { JobOrchestrationService } from '../../../features/jobs/job-orchestration.service';
 
 interface OperationTile {
   title: string;
@@ -147,3 +147,4 @@ export class OperationsHomeComponent {
     ];
   }
 }
+

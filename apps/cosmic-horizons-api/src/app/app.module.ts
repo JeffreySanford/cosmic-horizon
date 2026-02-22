@@ -1,4 +1,9 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
@@ -82,6 +87,9 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // apply correlation middleware globally so every request gets an
     // ID and the context is initialized.
-    consumer.apply(CorrelationMiddleware).forRoutes('*');
+    consumer.apply(CorrelationMiddleware).forRoutes({
+      path: '*path',
+      method: RequestMethod.ALL,
+    });
   }
 }

@@ -6,6 +6,7 @@
 # - RabbitMQ: Ephemeral real-time messaging (<10ms latency)
 # - Kafka: Durable audit trail (90-day retention, immutable log)
 # - Pulsar: Alternative async broker with distributed ledger storage
+# - Ollama: Local LLM runtime for remote-compute local-llm mode
 
 services:
   # ============================================================================
@@ -62,7 +63,11 @@ services:
           - kafka
     restart: unless-stopped
     healthcheck:
-      test: ['CMD', 'sh', '-c', 'nc -z localhost 9092']
+      test:
+        [
+          'CMD-SHELL',
+          'KAFKA_JMX_OPTS="" kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1',
+        ]
       interval: 5s
       timeout: 10s
       retries: 20
@@ -170,6 +175,47 @@ services:
       retries: 5
       start_period: 15s
 
+  # ============================================================================
+  # OLLAMA (Local LLM Runtime for local-llm gateway mode)
+  # ============================================================================
+  cosmic-horizons-ollama:
+    image: ollama/ollama:latest
+    container_name: cosmic-horizons-ollama
+    ports:
+      - '127.0.0.1:${OLLAMA_PORT:-11435}:11434'
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-10m}
+    volumes:
+      - cosmic-horizons-ollama-models:/root/.ollama
+    gpus: all
+    networks:
+      - cosmic-horizons-network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'ollama', 'list']
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # ============================================================================
+  # OLLAMA MODEL WARMUP (one-shot model pull)
+  # ============================================================================
+  cosmic-horizons-ollama-warmup:
+    profiles: ['llm-warmup']
+    image: ollama/ollama:latest
+    container_name: cosmic-horizons-ollama-warmup
+    depends_on:
+      cosmic-horizons-ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://cosmic-horizons-ollama:11434
+    command: ['pull', '${OLLAMA_MODEL:-qwen3:8b}']
+    networks:
+      - cosmic-horizons-network
+    restart: 'no'
+
 volumes:
   cosmic-horizons-zookeeper-data:
     driver: local
@@ -178,6 +224,8 @@ volumes:
   cosmic-horizons-kafka-data:
     driver: local
   pulsar-standalone-data:
+    driver: local
+  cosmic-horizons-ollama-models:
     driver: local
 
 networks:

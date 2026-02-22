@@ -36,7 +36,13 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
+        // Vite prints proxy errors (ECONNREFUSED) while the API is starting.
+        // normal dev workflow already tolerates those – silence them unless
+        // the user explicitly wants debug output by setting VITE_PROXY_LOG
+        logLevel: process.env['VITE_PROXY_LOG'] || 'silent',
       },
     },
+    // avoid clearing the terminal on rebuild, helps keep earlier diagnostics
+    clearScreen: false,
   },
 });

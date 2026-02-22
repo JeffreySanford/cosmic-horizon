@@ -17,6 +17,10 @@ module.exports = {
       ),
       '@cosmic-horizons/shared': join(__dirname, '../../libs/shared/src'),
     },
+    // ensure modules imported from libs/shared (or other packages) can
+    // resolve workspace root dependencies like zod when pnpm uses a
+    // flattened node_modules structure.
+    modules: [join(__dirname, '../../node_modules'), 'node_modules'],
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
   plugins: [

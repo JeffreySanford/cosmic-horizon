@@ -8,7 +8,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { MessagingService } from '../../../services/messaging.service';
 import { OperationsHomeComponent } from './operations-home.component';
 import { PerformanceDataService } from '../../../services/performance-data.service';
-import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
+import { JobOrchestrationService } from '../../../features/jobs/job-orchestration.service';
 
 class MockMessagingService {
   jobUpdate$ = of(0);
@@ -111,3 +111,4 @@ describe('OperationsHomeComponent', () => {
     expect(link.textContent.trim()).toBe('View alerts');
   });
 });
+

@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { JobsRoutingModule } from './jobs-routing.module';
 import { JobsConsoleComponent } from './jobs-console.component';
@@ -29,6 +30,7 @@ import { JobsConsoleComponent } from './jobs-console.component';
     MatProgressBarModule,
     MatChipsModule,
     MatSnackBarModule,
+    MatTooltipModule,
   ],
 })
 export class JobsModule {}

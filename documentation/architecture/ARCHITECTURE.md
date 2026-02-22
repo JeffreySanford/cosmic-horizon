@@ -16,12 +16,6 @@ Affiliation note:
 
 **Related Documentation**:
 
-- Target resolution & ephemeris architecture: [TARGET-RESOLUTION-EPHEMERIS.md](TARGET-RESOLUTION-EPHEMERIS.md)
-
-- Scope decision (MVP vs. scientific): [EPHEMERIS-SCOPE-DECISION.md](EPHEMERIS-SCOPE-DECISION.md)
-
-- Debugging guide for planet resolution: [MARS-RESOLUTION-DEBUGGING.md](MARS-RESOLUTION-DEBUGGING.md)
-
 - ngVLA tri-broker operating pattern: [NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md](NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md)
 
 - CosmicAI docking and AI control-plane integration: [COSMICAI-INTEGRATION-OVERLAY.md](COSMICAI-INTEGRATION-OVERLAY.md)
@@ -44,7 +38,7 @@ The Cosmic Horizon serves as the **AI Control Plane** for autonomous agents deve
 - **Backend Orchestration**: `TaccIntegrationService` manages job submission, status polling, and result retrieval from TACC resources.
 - **Explainability**: Integration of agent-generated Science Ready Data Products (SRDPs) into Aladin snapshots for auditable results.
 
-````mermaid
+```mermaid
 flowchart LR
     U[Browser Client] --> W[Angular SSR Web<br/>apps/cosmic-horizons-web]
     W --> A[NestJS API<br/>apps/cosmic-horizons-api]
@@ -52,8 +46,7 @@ flowchart LR
     A --> R[(Redis)]
     W --> V[Aladin HiPS Viewer]
     V --> E[External VLASS/HiPS Sources]
-
-```text
+```
 
 Frontend runtime note:
 
@@ -97,7 +90,8 @@ Frontend runtime note:
 
 Mode B planning overview (timing, feasibility, permission assumptions):
 
-## - `documentation/architecture/VIEWER-MODE-B-INTEGRATION-OVERVIEW.md`
+- Mode B documentation is deferred; publish a dedicated architecture addendum
+  if Mode B is reactivated.
 
 ---
 
@@ -105,4 +99,3 @@ Mode B planning overview (timing, feasibility, permission assumptions):
 
 ---
 *Independent portal using public VLASS data; not affiliated with VLA/NRAO.*
-````

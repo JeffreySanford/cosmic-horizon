@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExecutionContext, CallHandler } from '@nestjs/common';
+import { ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { RequestLoggerInterceptor } from './request-logger.interceptor';
 import { RequestContextService } from '../context/request-context.service';
 import { LoggingService } from '../logging/logging.service';
@@ -18,7 +18,15 @@ describe('RequestLoggerInterceptor', () => {
   let executionContext: jest.Mocked<ExecutionContext>;
   let callHandler: jest.Mocked<CallHandler>;
 
+  let loggerLogSpy: jest.SpyInstance;
+  let loggerErrorSpy: jest.SpyInstance;
+
   beforeEach(async () => {
+    // intercept native Logger output; we continue to mirror in prod with
+    // LoggingService, so the console logger should no longer be hit.
+    loggerLogSpy = jest.spyOn(Logger.prototype, 'log');
+    loggerErrorSpy = jest.spyOn(Logger.prototype, 'error');
+
     loggingService = {
       add: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<LoggingService>;
@@ -44,6 +52,9 @@ describe('RequestLoggerInterceptor', () => {
     interceptor = testingModule.get<RequestLoggerInterceptor>(
       RequestLoggerInterceptor,
     );
+    // Ignore framework bootstrap logs emitted while building the test module.
+    loggerLogSpy.mockClear();
+    loggerErrorSpy.mockClear();
 
     executionContext = {
       switchToHttp: jest.fn(),
@@ -74,7 +85,7 @@ describe('RequestLoggerInterceptor', () => {
 
       callHandler.handle.mockReturnValue(of(mockResponse));
 
-      await firstValueFrom(
+        await firstValueFrom(
         interceptor.intercept(executionContext, callHandler),
       );
       expect(loggingService.add).toHaveBeenCalledWith(
@@ -93,6 +104,8 @@ describe('RequestLoggerInterceptor', () => {
           }),
         }),
       );
+      expect(loggerLogSpy).not.toHaveBeenCalled();
+      expect(loggerErrorSpy).not.toHaveBeenCalled();
     });
 
     it('should log POST request with request body size', async () => {
@@ -157,6 +170,7 @@ describe('RequestLoggerInterceptor', () => {
           }),
         }),
       );
+      expect(loggerLogSpy).not.toHaveBeenCalled();
     });
 
     it('should include duration in milliseconds', async () => {
@@ -187,6 +201,7 @@ describe('RequestLoggerInterceptor', () => {
           }),
         }),
       );
+      expect(loggerLogSpy).not.toHaveBeenCalled();
     });
 
     it('should handle different HTTP methods', async () => {

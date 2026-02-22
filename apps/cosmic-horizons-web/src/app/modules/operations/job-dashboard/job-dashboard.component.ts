@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
-import { Job } from '../../../features/job-orchestration/job.models';
+import { JobOrchestrationService } from '../../../features/jobs/job-orchestration.service';
+import { Job } from '../../../features/jobs/jobs.models';
 import { MessagingService } from '../../../services/messaging.service';
 import { JobDetailsDialogComponent } from './job-details-dialog.component';
 // this component is declared in OperationsModule
@@ -136,3 +136,4 @@ export class JobDashboardComponent implements OnInit, OnDestroy {
     });
   }
 }
+

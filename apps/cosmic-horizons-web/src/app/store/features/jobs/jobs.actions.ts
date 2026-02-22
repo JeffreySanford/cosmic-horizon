@@ -3,7 +3,7 @@ import {
   Job,
   JobSubmissionRequest,
   JobSubmissionResponse,
-} from '../../../features/job-orchestration/job.models';
+} from '../../../features/jobs/jobs.models';
 
 export const jobsInitialize = createAction('[Jobs] Initialize');
 export const jobsLoadRequested = createAction('[Jobs] Load Requested');
@@ -51,3 +51,4 @@ export const jobSelected = createAction(
   '[Jobs] Selected',
   props<{ jobId: string | null }>(),
 );
+

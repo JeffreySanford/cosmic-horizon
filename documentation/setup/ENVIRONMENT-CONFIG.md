@@ -219,5 +219,5 @@ Example for `DB_PASSWORD`:
 
 ## See Also
 
-- [Backend Configuration](../apps/cosmic-horizons-api/src/config/)
-- [Environment Variables Reference](./ENV-REFERENCE.md)
+- [Backend Configuration](../../apps/cosmic-horizons-api/src/config/)
+- [Environment Variables Reference](../reference/ENV-REFERENCE.md)

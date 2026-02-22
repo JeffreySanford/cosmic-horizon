@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, NotFoundException, ForbiddenException } from '@nestjs/common';
 
 export interface DatasetInfo {
   id: string;
@@ -22,6 +22,8 @@ export interface StagingStatus {
   status: 'pending' | 'in_progress' | 'completed' | 'failed';
   progress: number; // 0-100
   estimated_time_minutes?: number;
+  artifact_url?: string;        // URL of packaged outputs when complete
+  error_code?: string;          // human-readable error identifier
 }
 
 /**
@@ -43,6 +45,16 @@ export class DatasetStagingService implements OnModuleDestroy {
    */
   async validateDataset(datasetId: string): Promise<DatasetInfo> {
     this.logger.log(`Validating dataset: ${datasetId}`);
+
+    // simulate error conditions based on dataset id to support tests/demo realism
+    if (datasetId.includes('notfound')) {
+      this.logger.warn(`Dataset ${datasetId} not found`);
+      throw new NotFoundException('Dataset not found');
+    }
+    if (datasetId.includes('forbidden')) {
+      this.logger.warn(`Access to dataset ${datasetId} forbidden`);
+      throw new ForbiddenException('Access denied');
+    }
 
     // Simulate dataset lookup
     return {
@@ -68,8 +80,19 @@ export class DatasetStagingService implements OnModuleDestroy {
       `Staging dataset ${dataset_id} to ${target_resource} (priority: ${priority})`,
     );
 
-    // In phase 1, simulate staging
-    // In phase 2, initiate actual GLOBUS transfer
+    // simulate immediate failures for certain ids
+    if (dataset_id.includes('error')) {
+      const failStatus: StagingStatus = {
+        dataset_id,
+        status: 'failed',
+        progress: 0,
+        estimated_time_minutes: 0,
+        error_code: 'SIMULATED_FAILURE',
+      };
+      this.stagingCache.set(dataset_id, failStatus);
+      return failStatus;
+    }
+
     const stagingStatus: StagingStatus = {
       dataset_id,
       status: 'in_progress',
@@ -158,6 +181,8 @@ export class DatasetStagingService implements OnModuleDestroy {
         if (status) {
           status.status = 'completed';
           status.progress = 100;
+          // when complete, simulate artifact packaging URL
+          status.artifact_url = `https://archive.example.com/${datasetId}.zip`;
         }
         clearInterval(interval);
         this.stagingIntervals.delete(datasetId);

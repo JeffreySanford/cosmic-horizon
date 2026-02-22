@@ -7,6 +7,7 @@ import {
   Admin,
   EachMessagePayload,
   CompressionTypes,
+  logLevel,
 } from 'kafkajs';
 import {
   EventBase,
@@ -64,6 +65,7 @@ export class KafkaService implements OnModuleDestroy {
       this.kafka = new Kafka({
         clientId: 'cosmic-horizons-api',
         brokers,
+        logLevel: this.resolveKafkaLogLevel(),
         connectionTimeout: 5000,
         requestTimeout: 10000,
         retry: {
@@ -74,9 +76,11 @@ export class KafkaService implements OnModuleDestroy {
       });
 
       // Initialize producer with idempotence
+      const idempotentProducer =
+        this.configService.get('KAFKA_IDEMPOTENT_PRODUCER', 'false') === 'true';
       this.producer = this.kafka.producer({
         transactionTimeout: 60000,
-        idempotent: true, // Enable idempotent producer (exactly-once semantics)
+        idempotent: idempotentProducer,
         maxInFlightRequests: 5,
       });
 
@@ -96,6 +100,25 @@ export class KafkaService implements OnModuleDestroy {
     } catch (error) {
       this.logger.error('Failed to connect to Kafka', error);
       throw error;
+    }
+  }
+
+  private resolveKafkaLogLevel(): number {
+    const configured = this.configService
+      .get('KAFKA_LOG_LEVEL', 'error')
+      .toLowerCase();
+    switch (configured) {
+      case 'debug':
+        return logLevel.DEBUG;
+      case 'info':
+        return logLevel.INFO;
+      case 'warn':
+        return logLevel.WARN;
+      case 'nothing':
+        return logLevel.NOTHING;
+      case 'error':
+      default:
+        return logLevel.ERROR;
     }
   }
 

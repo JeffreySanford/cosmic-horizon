@@ -1,6 +1,6 @@
 # Roadmap
 
-Status date: 2026-02-21
+Status date: 2026-02-22
 
 This file is a convenience pointer. The canonical roadmap is:
 

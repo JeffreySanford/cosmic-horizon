@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MessagingService } from '../../../services/messaging.service';
 import { Subject, of, BehaviorSubject } from 'rxjs';
 import { OperationsModule } from '../operations.module';
-import { JobOrchestrationService } from '../../../features/job-orchestration/job-orchestration.service';
+import { JobOrchestrationService } from '../../../features/jobs/job-orchestration.service';
 
 // lightweight fake to avoid real HTTP calls
 class FakeJobOrchestrationService implements Partial<JobOrchestrationService> {
@@ -53,7 +53,7 @@ describe('JobDashboardComponent', () => {
       providers: [
         // substitute our fake service for the real orchestrator via the
         // proper token so the component receives it.
-        { provide: (await import('../../../features/job-orchestration/job-orchestration.service')).JobOrchestrationService, useClass: FakeJobOrchestrationService },
+        { provide: (await import('../../../features/jobs/job-orchestration.service')).JobOrchestrationService, useClass: FakeJobOrchestrationService },
         { provide: MessagingService, useValue: msgService },
         // override the performance service with a harmless stub to avoid
         // background timer emissions that threw ExpressionChanged errors in
@@ -141,3 +141,4 @@ describe('JobDashboardComponent', () => {
   // maintainable. Additional coverage may be reintroduced as needed.
 
 });
+

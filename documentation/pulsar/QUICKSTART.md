@@ -1,6 +1,7 @@
-# 🚀 Quick Start: Pulsar Local Evaluation
+# Quick Start: Pulsar Local Evaluation
 
-**Status**: All infrastructure files created ✓
+Status date: 2026-02-15
+Status: Infrastructure files created
 
 See [README.md](README.md) for complete setup index and [LOCAL-EVALUATION.md](LOCAL-EVALUATION.md) for full documentation.
 

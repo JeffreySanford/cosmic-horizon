@@ -1,12 +1,12 @@
 # Pulsar Local Evaluation Setup - Complete Index
 
-**Created**: 2026-02-15  
-**Status**: ✓ Ready to use  
-**Total Setup Time**: ~5 minutes
+Status date: 2026-02-15
+Status: Ready to use
+Total setup time: ~5 minutes
 
 ---
 
-## 📋 Documentation
+## Documentation
 
 ### [QUICKSTART.md](QUICKSTART.md) - Start Here ⭐
 
@@ -18,7 +18,7 @@ Complete reference with setup, monitoring, performance interpretation, cost anal
 
 ---
 
-## 📦 What Was Created
+## What Was Created
 
 ### 1. Docker Infrastructure
 
@@ -72,7 +72,7 @@ Complete reference with setup, monitoring, performance interpretation, cost anal
 
 ---
 
-## 🎯 Expected Benchmark Results
+## Expected Benchmark Results
 
 ### Typical Output (Your Hardware May Vary)
 
@@ -95,7 +95,7 @@ For your **1000 events/sec** job coordinator:
 
 ---
 
-## 📂 Full Directory Structure
+## Full Directory Structure
 
 ```text
 cosmic-horizons/
@@ -116,11 +116,6 @@ cosmic-horizons/
 │   │   ├── README.md                      ← This file
 │   │   ├── QUICKSTART.md                  ← 5-minute start guide
 │   │   └── LOCAL-EVALUATION.md            ← Full reference guide
-│   └── integration/
-│       ├── PULSAR-LOCAL-EVALUATION.md     ← Original (kept for reference)
-│       ├── PULSAR-QUICKSTART.md           ← Original (kept for reference)
-│       └── PULSAR-SETUP-INDEX.md          ← Original (kept for reference)
-│
 ├── test-output/
 │   └── benchmark-results/                 ← NEW: Benchmark outputs
 │       └── benchmark-TIMESTAMP.json
@@ -130,7 +125,7 @@ cosmic-horizons/
 
 ---
 
-## 🧹 Cleanup Options
+## Cleanup Options
 
 ### Option 1: Just stop (keep data for inspection)
 
@@ -160,7 +155,7 @@ node scripts/pulsar-setup.mjs  # Re-initialize
 
 ---
 
-## 💰 Cost Breakdown
+## Cost Breakdown
 
 ### Local Development (Now)
 
@@ -182,7 +177,7 @@ node scripts/pulsar-setup.mjs  # Re-initialize
 
 ---
 
-## 🔗 Quick Links
+## Quick Links
 
 | Resource             | Location                                                                         |
 | -------------------- | -------------------------------------------------------------------------------- |
@@ -196,7 +191,7 @@ node scripts/pulsar-setup.mjs  # Re-initialize
 
 ---
 
-## ✅ What You Get
+## What You Get
 
 ### Immediate
 
@@ -220,5 +215,5 @@ node scripts/pulsar-setup.mjs  # Re-initialize
 
 ---
 
-**Created**: 2026-02-15  
-**Status**: Complete & Ready to Use ✓
+Status date: 2026-02-15
+Status: Complete and ready to use

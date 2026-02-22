@@ -1,6 +1,6 @@
 import { createEntityAdapter, EntityState } from '@ngrx/entity';
 import { createReducer, on } from '@ngrx/store';
-import { Job } from '../../../features/job-orchestration/job.models';
+import { Job } from '../../../features/jobs/jobs.models';
 import * as JobsActions from './jobs.actions';
 
 export const jobsFeatureKey = 'jobs';
@@ -78,3 +78,4 @@ export const jobsReducer = createReducer(
     error: null,
   })),
 );
+

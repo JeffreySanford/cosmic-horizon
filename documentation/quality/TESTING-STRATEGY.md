@@ -66,7 +66,9 @@ These three commands are the minimum quality bar for merge readiness.
 
 - New behavior should include tests in the closest relevant layer.
 
-## - SSR performance is tracked via product KPIs and operational monitoring
+## Performance Tracking
+
+- SSR performance is tracked via product KPIs and operational monitoring.
 ---
 
 *Cosmic Horizon Development - (c) 2026 Jeffrey Sanford. All rights reserved.*

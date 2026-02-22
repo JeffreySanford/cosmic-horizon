@@ -23,6 +23,32 @@ const passport =
 
 async function bootstrap() {
   try {
+    // make sure env is loaded so LOG_LEVEL is available
+    const logLevel =
+      (process.env['LOG_LEVEL'] as 'debug' | 'info' | 'warn' | 'error') ||
+      'info';
+
+    // Map our generic LOG_LEVEL to the array that NestFactory expects
+    const nestLevels: Array<
+      'log' | 'error' | 'warn' | 'debug' | 'verbose'
+    > = (() => {
+      switch (logLevel) {
+        case 'debug':
+          // debug includes everything except verbose (which Nest rarely uses)
+          return ['log', 'error', 'warn', 'debug'];
+        case 'info':
+          // show ordinary operational messages, including route mapping
+          return ['log', 'error', 'warn'];
+        case 'warn':
+          // suppress routine startup noise; only warnings+errors
+          return ['error', 'warn'];
+        case 'error':
+          return ['error'];
+        default:
+          return ['log', 'error', 'warn'];
+      }
+    })();
+
     // Ensure OAuth env vars are set (required for strategy initialization even if not used)
     if (!process.env['GITHUB_CLIENT_ID']) {
       process.env['GITHUB_CLIENT_ID'] = 'placeholder-for-openapi-generation';
@@ -32,7 +58,7 @@ async function bootstrap() {
         'placeholder-for-openapi-generation';
     }
 
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, { logger: nestLevels });
     app.useWebSocketAdapter(new MessagingSocketIoAdapter(app));
     const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);

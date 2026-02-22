@@ -1,9 +1,21 @@
 [
   {
+    "id": "documentation--adr--adr-remote-compute-tapis-vs-slurm",
+    "label": "ADR Remote Compute Tapis Vs Slurm",
+    "section": "Adr",
+    "sourcePath": "documentation/adr/ADR-remote-compute-tapis-vs-slurm.md"
+  },
+  {
     "id": "documentation--architecture--adr-event-streaming",
     "label": "ADR EVENT STREAMING",
     "section": "Architecture",
     "sourcePath": "documentation/architecture/ADR-EVENT-STREAMING.md"
+  },
+  {
+    "id": "documentation--architecture--adr--002-auth-design",
+    "label": "002 Auth Design",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/adr/002-auth-design.md"
   },
   {
     "id": "documentation--architecture--architecture",
@@ -156,10 +168,34 @@
     "sourcePath": "documentation/guides/AI-SKILLS-SETUP.md"
   },
   {
+    "id": "documentation--guides--auth-design",
+    "label": "Auth Design",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/auth-design.md"
+  },
+  {
     "id": "documentation--guides--community-discoveries",
     "label": "COMMUNITY DISCOVERIES",
     "section": "Guides",
     "sourcePath": "documentation/guides/COMMUNITY-DISCOVERIES.md"
+  },
+  {
+    "id": "documentation--guides--faq",
+    "label": "Faq",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/faq.md"
+  },
+  {
+    "id": "documentation--guides--glossary",
+    "label": "Glossary",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/glossary.md"
+  },
+  {
+    "id": "documentation--guides--remote-compute-adapter",
+    "label": "Remote Compute Adapter",
+    "section": "Guides",
+    "sourcePath": "documentation/guides/remote-compute-adapter.md"
   },
   {
     "id": "documentation--guides--skills--angular-skill",
@@ -216,22 +252,64 @@
     "sourcePath": "documentation/hardening/README.md"
   },
   {
-    "id": "documentation--ideas--llm-enhanced-job-orchestration",
-    "label": "LLM ENHANCED JOB ORCHESTRATION",
+    "id": "documentation--ideas--jobs-real-data--backend-adapter-design",
+    "label": "Backend Adapter Design",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/LLM-ENHANCED-JOB-ORCHESTRATION.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/backend-adapter-design.md"
   },
   {
-    "id": "documentation--ideas--remaining-work-summary",
-    "label": "REMAINING WORK SUMMARY",
+    "id": "documentation--ideas--jobs-real-data--dataset-acquisition",
+    "label": "Dataset Acquisition",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/REMAINING-WORK-SUMMARY.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/dataset-acquisition.md"
+  },
+  {
+    "id": "documentation--ideas--jobs-real-data--drawbacks",
+    "label": "Drawbacks",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/jobs-real-data/drawbacks.md"
+  },
+  {
+    "id": "documentation--ideas--jobs-real-data--frontend-enhancements",
+    "label": "Frontend Enhancements",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/jobs-real-data/frontend-enhancements.md"
+  },
+  {
+    "id": "documentation--ideas--jobs-real-data--overview",
+    "label": "Overview",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/jobs-real-data/overview.md"
+  },
+  {
+    "id": "documentation--ideas--jobs-real-data--phases-and-steps",
+    "label": "Phases And Steps",
+    "section": "Ideas",
+    "sourcePath": "documentation/ideas/jobs-real-data/phases-and-steps.md"
   },
   {
     "id": "documentation--index--overview-v2",
     "label": "OVERVIEW V2",
     "section": "Index",
     "sourcePath": "documentation/index/OVERVIEW-V2.md"
+  },
+  {
+    "id": "documentation--llm--remote-compute-llm--jobs-pre-run-llm-qa-plan",
+    "label": "JOBS PRE RUN LLM QA PLAN",
+    "section": "LLM",
+    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/JOBS-PRE-RUN-LLM-QA-PLAN.md"
+  },
+  {
+    "id": "documentation--llm--remote-compute-llm--llm-enhanced-job-orchestration",
+    "label": "LLM ENHANCED JOB ORCHESTRATION",
+    "section": "LLM",
+    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/LLM-ENHANCED-JOB-ORCHESTRATION.md"
+  },
+  {
+    "id": "documentation--llm--remote-compute-llm--remote-compute-gateway-offline-work",
+    "label": "REMOTE COMPUTE GATEWAY OFFLINE WORK",
+    "section": "LLM",
+    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/REMOTE-COMPUTE-GATEWAY-OFFLINE-WORK.md"
   },
   {
     "id": "documentation--ngrx--ngrx-implementation-migration",
@@ -286,6 +364,12 @@
     "label": "OVERVIEW ASSET ALIGNMENT AUDIT 2026 02 11",
     "section": "Overview",
     "sourcePath": "documentation/overview/OVERVIEW-ASSET-ALIGNMENT-AUDIT-2026-02-11.md"
+  },
+  {
+    "id": "documentation--planning--mode-delta-report-local-llm-vs-live",
+    "label": "Mode Delta Report Local Llm Vs Live",
+    "section": "Planning",
+    "sourcePath": "documentation/planning/mode-delta-report-local-llm-vs-live.md"
   },
   {
     "id": "documentation--planning--roadmap--roadmap",
@@ -366,6 +450,18 @@
     "sourcePath": "documentation/release-notes/v1.1.0.md"
   },
   {
+    "id": "documentation--runbooks--remote-compute-live-cutover",
+    "label": "Remote Compute Live Cutover",
+    "section": "Runbooks",
+    "sourcePath": "documentation/runbooks/remote-compute-live-cutover.md"
+  },
+  {
+    "id": "documentation--security--remote-compute-threat-model",
+    "label": "Remote Compute Threat Model",
+    "section": "Security",
+    "sourcePath": "documentation/security/remote-compute-threat-model.md"
+  },
+  {
     "id": "documentation--setup--environment-config",
     "label": "ENVIRONMENT CONFIG",
     "section": "Setup",
@@ -382,6 +478,12 @@
     "label": "README",
     "section": "Styling",
     "sourcePath": "documentation/styling/README.md"
+  },
+  {
+    "id": "documentation--testing--remote-compute-test-matrix",
+    "label": "Remote Compute Test Matrix",
+    "section": "Testing",
+    "sourcePath": "documentation/testing/remote-compute-test-matrix.md"
   },
   {
     "id": "readme",

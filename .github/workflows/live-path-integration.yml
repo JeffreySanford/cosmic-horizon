@@ -1,0 +1,23 @@
+name: Live Path Integration
+
+on: [push, pull_request]
+
+jobs:
+  mock-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Start mock Tapis server
+        run: node tools/mock-tapis-server.js &
+      - name: Run adapter live-mode smoke
+        env:
+          TACC_LIVE: 'true'
+          TACC_TENANT_BASE_URL: 'http://localhost:4000'
+          TACC_ACCESS_TOKEN: 'dummy'
+        run: pnpm test -- --testPathPattern=jobs/tacc-integration.adapter.spec.ts

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   TaccIntegrationService,
   TaccJobSubmission,
@@ -32,6 +33,13 @@ export interface ResourceMetrics {
   successRate: number;
 }
 
+export interface PreflightQaResponse {
+  answer: string;
+  confidence: 'low' | 'medium' | 'high';
+  caveats: string[];
+  source: 'llm' | 'heuristic';
+}
+
 interface CompletedJobWithTimestamp extends Job {
   completed_at: Date;
 }
@@ -41,6 +49,7 @@ export class JobOrchestratorService {
   private readonly logger = new Logger(JobOrchestratorService.name);
 
   constructor(
+    private readonly config: ConfigService,
     private readonly taccService: TaccIntegrationService,
     private readonly jobRepository: JobRepository,
     private readonly eventsService: EventsService,
@@ -501,5 +510,170 @@ export class JobOrchestratorService {
     }
 
     return true;
+  }
+
+  async answerPreflightQuestion(
+    question: string,
+    submission: TaccJobSubmission,
+  ): Promise<PreflightQaResponse> {
+    const trimmedQuestion = question.trim();
+    if (!trimmedQuestion) {
+      return {
+        answer:
+          'Ask a specific question about runtime, cost, failure modes, or workflow order.',
+        confidence: 'low',
+        caveats: ['No question content was provided.'],
+        source: 'heuristic',
+      };
+    }
+
+    const mode = (
+      this.config.get<string>('REMOTE_COMPUTE_MODE') ??
+      (this.config.get('TACC_LIVE') === 'true' ? 'live' : 'demo')
+    ).toLowerCase();
+
+    if (mode === 'local-llm') {
+      const llmResponse = await this.tryLocalLlmPreflightAnswer(
+        trimmedQuestion,
+        submission,
+      );
+      if (llmResponse) {
+        return llmResponse;
+      }
+    }
+
+    return this.buildHeuristicPreflightAnswer(trimmedQuestion, submission);
+  }
+
+  private buildHeuristicPreflightAnswer(
+    question: string,
+    submission: TaccJobSubmission,
+  ): PreflightQaResponse {
+    const q = question.toLowerCase();
+    const gpu = Number(submission.params.gpu_count ?? 1);
+    const rfi = String(submission.params.rfi_strategy ?? 'medium');
+    const productGoal = String(submission.params.product_goal ?? 'unspecified');
+    const agent = String(submission.agent);
+    const target = String(submission.params.target_name ?? 'target field');
+
+    if (q.includes('what') && q.includes('do')) {
+      return {
+        answer:
+          `${agent} will process ${submission.dataset_id} for ${target} with goal "${productGoal}". ` +
+          `Current configuration requests ${gpu} GPU(s) and RFI strategy "${rfi}".`,
+        confidence: 'high',
+        caveats: [
+          'This summarizes intent; final runtime behavior depends on backend mode and queue conditions.',
+        ],
+        source: 'heuristic',
+      };
+    }
+
+    if (q.includes('gpu') || q.includes('cost')) {
+      const advice =
+        gpu <= 1
+          ? 'Start with 1-2 GPUs for cost control, then scale only if runtime is too high.'
+          : gpu > 4
+            ? 'GPU count above 4 may increase cost with diminishing returns for smaller datasets.'
+            : 'GPU allocation is in a balanced range for most pre-production runs.';
+      return {
+        answer: advice,
+        confidence: 'medium',
+        caveats: [
+          'Actual cost depends on queue policy, walltime, and allocation accounting rules.',
+        ],
+        source: 'heuristic',
+      };
+    }
+
+    if (q.includes('fail') || q.includes('risk')) {
+      return {
+        answer:
+          'Most common risks are invalid dataset references, overly aggressive runtime/resource requests, and mode/backend mismatches.',
+        confidence: 'medium',
+        caveats: [
+          'Live-mode risks include credential, tenant, or endpoint failures not visible in demo mode.',
+        ],
+        source: 'heuristic',
+      };
+    }
+
+    return {
+      answer:
+        `For ${agent} on ${target}, verify dataset ID, RA/Dec, band, runtime limit, and resource settings before submission.`,
+      confidence: 'medium',
+      caveats: [
+        'This is advisory guidance and not a scheduler guarantee.',
+      ],
+      source: 'heuristic',
+    };
+  }
+
+  private async tryLocalLlmPreflightAnswer(
+    question: string,
+    submission: TaccJobSubmission,
+  ): Promise<PreflightQaResponse | null> {
+    const baseUrl = this.config.get<string>('OLLAMA_BASE_URL', 'http://localhost:11435');
+    const model = this.config.get<string>('OLLAMA_MODEL', 'qwen3:8b');
+    const timeoutMs = Number(this.config.get<number>('OLLAMA_TIMEOUT_MS', 30000));
+
+    const prompt = [
+      'You are a cautious astronomy operations assistant.',
+      'Answer pre-run job questions with concise practical guidance.',
+      'Always include uncertainty and avoid guarantees.',
+      `Question: ${question}`,
+      `Job context JSON: ${JSON.stringify(submission)}`,
+      'Return strict JSON: {"answer":"...","confidence":"low|medium|high","caveats":["..."]}',
+    ].join('\n');
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(`${baseUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          stream: false,
+          format: 'json',
+          prompt,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const payload = (await response.json()) as { response?: string };
+      if (!payload.response) {
+        return null;
+      }
+
+      const parsed = JSON.parse(payload.response) as Partial<PreflightQaResponse>;
+      if (
+        typeof parsed.answer !== 'string' ||
+        (parsed.confidence !== 'low' &&
+          parsed.confidence !== 'medium' &&
+          parsed.confidence !== 'high')
+      ) {
+        return null;
+      }
+
+      const caveats = Array.isArray(parsed.caveats)
+        ? parsed.caveats.filter((c): c is string => typeof c === 'string')
+        : ['Model response did not include explicit caveats.'];
+
+      return {
+        answer: parsed.answer,
+        confidence: parsed.confidence,
+        caveats,
+        source: 'llm',
+      };
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 }
