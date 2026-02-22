@@ -405,6 +405,76 @@ export class LocalLlmAdapter implements TaccAdapter {
  * HTTP calls here (Tapis, SSH/Slurm, etc.).  For now it simply throws errors
  * to make it obvious if accidentally invoked.
  */
+
+/**
+ * CASA adapter that enqueues jobs onto a Redis queue and stores state in a
+ * hash.  A separate worker container (see documentation) will consume the
+ * `casa:queue` list, perform the real CASA run with `docker run --rm …`, and
+ * update the job hash with progress/output_url/error.  This keeps the API
+ * process lightweight and resilient to restarts.
+ */
+@Injectable()
+export class CasaTaccAdapter implements TaccAdapter {
+  private readonly logger = new Logger(CasaTaccAdapter.name);
+  private readonly redis: import('ioredis').default;
+
+  constructor(private readonly configService: ConfigService) {
+    const url = this.configService.get<string>('REDIS_URL', 'redis://localhost:6379');
+    const Redis = require('ioredis');
+    this.redis = new Redis(url);
+    this.logger.debug(`Casa adapter connected to Redis at ${url}`);
+  }
+
+  async submitJob(submission: TaccJobSubmission): Promise<{ jobId: string }> {
+    // persist job metadata
+    const jobId = `casa-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+    const key = `casa:job:${jobId}`;
+    await this.redis.hset(key, {
+      status: 'QUEUED',
+      createdAt: Date.now().toString(),
+      agent: submission.agent,
+      dataset_id: submission.dataset_id,
+      params: JSON.stringify(submission.params || {}),
+    });
+    // push to queue for worker to pick up
+    await this.redis.lpush('casa:queue', jobId);
+    this.logger.log(`Enqueued CASA job ${jobId}`);
+    return { jobId };
+  }
+
+  async getJobStatus(jobId: string): Promise<TaccJobStatus> {
+    const key = `casa:job:${jobId}`;
+    const data = await this.redis.hgetall(key);
+    if (!data || Object.keys(data).length === 0) {
+      return { id: jobId, status: 'FAILED', progress: 0 };
+    }
+    return {
+      id: jobId,
+      status: (data.status as TaccJobStatus['status']) || 'UNKNOWN',
+      progress: Number(data.progress) || 0,
+      output_url: data.output_url,
+      // optionally return error field
+    };
+  }
+
+  async cancelJob(jobId: string): Promise<boolean> {
+    const key = `casa:job:${jobId}`;
+    await this.redis.hset(key, 'status', 'CANCELED');
+    // worker should observe the status change and abort if running
+    return true;
+  }
+
+  async getCapabilities(): Promise<Record<string, boolean>> {
+    // simple liveness probe
+    try {
+      await this.redis.ping();
+      return { queueAvailable: true, redisConnected: true, jobsEndpoint: true };
+    } catch {
+      return { queueAvailable: false, redisConnected: false, jobsEndpoint: true };
+    }
+  }
+}
+
 @Injectable()
 export class LiveTaccAdapter implements TaccAdapter {
   private readonly logger = new Logger(LiveTaccAdapter.name);
@@ -412,10 +482,18 @@ export class LiveTaccAdapter implements TaccAdapter {
   private readonly auth: AuthProvider;
   private readonly breaker = new CircuitBreaker();
 
-  constructor(private readonly configService: ConfigService) {
-    this.baseUrl = this.configService.get<string>('TACC_TENANT_BASE_URL', 'https://tacc.tapis.io');
+  constructor(private readonly configService?: ConfigService) {
+    const safeConfig =
+      this.configService ??
+      ({
+        get: <T>(_: string, defaultValue?: T) => defaultValue as T,
+      } as ConfigService);
+    this.baseUrl = safeConfig.get<string>(
+      'TACC_TENANT_BASE_URL',
+      'https://tacc.tapis.io',
+    );
     this.logger.debug('Live adapter initialized (skeleton)');
-    this.auth = new LiveAuthProvider(configService);
+    this.auth = new LiveAuthProvider(safeConfig);
   }
 
   async submitJob(submission: TaccJobSubmission): Promise<{ jobId: string }> {
