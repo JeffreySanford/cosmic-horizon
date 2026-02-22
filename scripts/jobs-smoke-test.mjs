@@ -92,10 +92,12 @@ async function main() {
   console.log('Probing history endpoint with user token');
   await probeHistory(userToken);
 
-  // submit a failing job to observe result
-  console.log('Submitting a failing job');
+  // determine dataset to use for submission; env var overrides
+  const datasetId =
+    process.env.DATASET_ID || `quota-trigger-${Date.now()}`; // include "quota" in id to force simulated failure
+  console.log(`Submitting job against dataset: ${datasetId}`);
   if (userToken) {
-    const jobId = await submitJob(userToken, `quota-trigger-${Date.now()}`, {
+    const jobId = await submitJob(userToken, datasetId, {
       gpu_count: 1,
       rfi_strategy: 'medium',
       target_name: 'M51',
