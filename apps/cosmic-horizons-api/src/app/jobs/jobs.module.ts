@@ -6,6 +6,7 @@ import {
   DemoTaccAdapter,
   LocalLlmAdapter,
   LiveTaccAdapter,
+  CasaTaccAdapter,
   TACC_ADAPTER,
   TaccAdapter,
 } from './tacc-integration.service';
@@ -42,6 +43,10 @@ import { RepositoryModule } from '../repositories/repository.module';
           return new LocalLlmAdapter(config);
         }
 
+        if (mode === 'astronomy' || mode === 'casa') {
+          return new CasaTaccAdapter(config);
+        }
+
         return new DemoTaccAdapter(config);
       },
       inject: [ConfigService],
@@ -49,6 +54,7 @@ import { RepositoryModule } from '../repositories/repository.module';
     DemoTaccAdapter,
     LocalLlmAdapter,
     LiveTaccAdapter,
+    CasaTaccAdapter,
     TaccIntegrationService,
     JobRepository,
     JobOrchestratorService,

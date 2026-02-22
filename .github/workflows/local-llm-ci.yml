@@ -9,13 +9,22 @@ jobs:
   llm-e2e:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.8.0
+          run_install: false
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+      - name: Start infra
+        run: pnpm run start:infra:ci
+      - name: Start Ollama
+        run: docker compose -f docker-compose.yml -f docker-compose.events.yml --profile llm up -d --wait cosmic-horizons-ollama
       - name: Start local compute & Ollama
         run: |
           # use existing helper scripts to pull and verify the LLM service
@@ -33,3 +42,6 @@ jobs:
         run: pnpm nx run cosmic-horizons-web-e2e:e2e --grep llm
       - name: Secret scan
         run: pnpm run scan-secrets || true
+      - name: Stop infra
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.events.yml down --remove-orphans --volumes

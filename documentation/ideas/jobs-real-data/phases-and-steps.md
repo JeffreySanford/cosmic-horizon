@@ -44,19 +44,47 @@ matures.
      progress messages like “calibrating VLASS J1347+1217…” instead of the
      generic `demo-job` text.
 
-## Phase 3 – Real processing
+## Phase 3 – Real processing (queued architecture)
 
-1. **CASA script**
+Transition from the simple synchronous model to a proper compute gateway:
+
+* **Phase 0 – Sandbox preparation** (inserted earlier)
+  * Pull or build the CASA/WSClean container images (`docker pull casapy/casa:latest`) and verify they run on each developer’s hardware.
+  * Document any GPU/driver requirements and provide a smoke‑test script (`docker run --rm casapy/casa --version`).
+
+* **Phase 3.5 – Scheduling & throttling** (after implementing queuing)
+  * Implement simple rate limits or a leaky‑bucket algorithm in the API or
+    worker so that no more than `N` jobs run concurrently.  This can be
+    controlled via a Redis semaphore or by integrating with an external
+    scheduler (Slurm, Kubernetes job queue) in later phases.
+
+* **CI test case improvements**
+  * Add a test that kills the worker mid‑job and restarts it, verifying the
+    job status transitions to `FAILED` or resumes correctly based on state.
+  * Assert that queue length increments and decrements appropriately and that
+    `/datasets/refresh` returns free‑space/last‑updated fields.
+  * Include a cancellation flow: submit a job, immediately cancel it, and
+    ensure the worker detects the status change and aborts the container.
+
+1. **CASA script & worker**
    * Develop a minimal imaging script (`/tmp/run-image.py`) that performs a
      quick `tclean` on `/data/sample.ms` and writes output to `/data/out.fits`.
-   * Ensure the CASA container remains running so the API adapter can `docker exec`
-     into it.
+   * Implement a worker container image (`apps/cosmic-horizons-api/docker/worker.Dockerfile`)
+     that runs a small Node process or Nest module which polls the Redis queue,
+     pulls the job record, runs CASA via `docker run --rm casapy/casa …` and
+     updates the status/progress fields in Redis/Mongo.
+   * Ensure the queue service (Redis/Kafka/RabbitMQ) and worker are defined in
+     `docker-compose.astronomy.yml` so they can be started alongside the main
+     API.  This decouples job execution from the stateless API process.
 
 2. **Adapter implementation**
-   * Update `CasaAdapter.submit()` to create the script, `docker exec` CASA,
-     capture stdout/stderr and report status back to the caller.
-   * Implement `CasaAdapter.status()` by checking for the existence of
-     `/data/out.fits` and returning progress (e.g. 0,50,100).
+   * Update `CasaAdapter.submit()` to store the job in Redis/Mongo and push the
+     ID onto the queue instead of calling CASA directly.
+   * Modify `CasaAdapter.status()` to look up the persistent job record rather
+     than checking local files.
+   * Add retry logic and error handling: if the worker reports a failure, the
+     record should include an `error` message and `status='failed'`; the
+     adapter can then surface this to the API consumer.
 
 3. **CI test case**
    * Add a Jest/e2e test that starts the `ASTRO` compose profile, submits a job

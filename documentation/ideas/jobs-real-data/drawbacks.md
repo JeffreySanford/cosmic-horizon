@@ -79,6 +79,55 @@ team working on a prototype gateway.
   measurement set metadata pulls developers into a very different domain which
   is outside their core competencies and will likely slow overall progress.
 
+## 6. Architectural weak points
+
+When we began, the ‘CASA adapter’ was little more than a thin shell that
+invoked `docker exec` and kept an in‑memory map of job IDs.  Several critical
+weaknesses of that approach became apparent during the planning phase:
+
+* **No job queue.**  `submit → docker exec` is fundamentally sequential and
+  breaks under concurrency.  A proper compute gateway should enqueue requests
+  in Kafka/RabbitMQ/Redis and allow a pool of workers to process them.  Without
+  that, a single slow job blocks the API thread and rapid successive
+  submissions will either overwhelm the container or simply fail.
+* **No persistent job storage.**  Relying on an in‑memory map means that all
+  job state vanishes on API restart.  In production you'd use Redis, MongoDB,
+  or another durable store to track status, progress, output URLs, and
+  errors.
+* **No compute isolation.**  `docker exec` piggy‑backs on the API container
+  itself; a misbehaving CASA process can consume CPU, memory or even kill the
+  host container.  Real gateways launch a new container per job (`docker run
+  --rm`) or leverage an HPC scheduler, ensuring jobs don’t interfere with the
+  front‑end service.
+* **No resource scheduling.**  The current model runs jobs immediately, which
+  means a burst of submissions could saturate CPU/GPU.  Production systems
+  queue jobs and throttle or schedule them onto available resources.
+* **No failure handling.**  CASA inevitably fails or crashes.  The adapter
+  needs retry logic, exponential backoff, explicit error states in the job
+  record, and meaningful failure reporting so the frontend can surface the
+  problem.  Simply logging the error and letting the process die isn’t
+  sufficient.
+* **Security & isolation concerns.**  Executing arbitrary CASA scripts in a
+  container can expose the API host to path traversal and privilege escalation.
+  Sandboxing or running jobs in a separate Kubernetes namespace may be safer.
+* **Resource hogging.**  A malicious or even curious developer could queue
+  dozens of multi‑GB jobs and starve the host of CPU/GPU, degrading the
+  experience for others.  Rate limits or quotas are essential.
+* **Dependency drift.**  CASA/WSClean images are large (>10 GB) and change
+  frequently; maintaining captures of known‑good versions adds overhead.
+* **Credential/maintenance risk.**  If the gateway eventually uses real TACC
+  credentials, those must be vault‑protected and audited to prevent leaks.
+
+These shortcomings are not merely theoretical; they are the reason we shifted
+toward the asynchronous queued architecture described in other documents.  If
+we don’t address them, the “real data” demo will collapse as soon as more
+than one user or test tries to run jobs concurrently.
+
+These shortcomings are not merely theoretical; they are the reason we shifted
+toward the asynchronous queued architecture described in other documents.  If
+we don’t address them, the “real data” demo will collapse as soon as more
+than one user or test tries to run jobs concurrently.
+
 ## 6. User expectations
 
 * If the jobs page starts showing real images or processing results, users

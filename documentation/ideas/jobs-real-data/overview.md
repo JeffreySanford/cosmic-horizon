@@ -14,6 +14,12 @@ local‑LLM, and real‑software implementations.  Work can be performed entirel
 inside the current repository – no external environment is required beyond
 docker and a handful of sample files.
 
+> Note: the motivation for this effort is to address five architectural
+> weaknesses of the original synchronous `docker exec` adapter:
+> queueing, persistent state, compute isolation, scheduling, and failure
+> handling.  The new design resolves these and positions the API as a true
+> compute gateway.
+
 ## Key components
 
 * **Sample datasets** – small (hundreds of MB to a few GB) measurement sets
@@ -24,8 +30,11 @@ docker and a handful of sample files.
   development machine (e.g. i9 with 24 virtual cores, 64 GB RAM, 10 GB
   Nvidia GPU) can host several of these images concurrently; the API adapter
   will simply `docker exec` into the appropriate service to run a job script.
-  This allows a single developer to exercise multiple real‑data pipelines
-  without leaving the existing workflow.
+  Initially this was synchronous, but later phases convert the adapter to
+  enqueue requests on a Redis/RabbitMQ/Kafka queue and hand them off to
+  a pool of worker containers.  This “gateway” pattern ensures the API stays
+  responsive even under load and gives us room to add persistence, retry
+  logic, and error handling.
 * **`CasaAdapter`** – a new concrete implementation of the jobs interface
   in `apps/cosmic-horizons-api` that launches the CASA container, runs a
   minimal imaging script, and returns status updates consistent with the

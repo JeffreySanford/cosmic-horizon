@@ -31,7 +31,7 @@ jobs:
       - run: pnpm exec playwright install --with-deps
       - run: pnpm run start:ports:free
       - name: Start infra
-        run: pnpm run start:infra:jmx
+        run: pnpm run start:infra:ci
       - name: Verify infra readiness
         shell: bash
         run: |

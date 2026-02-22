@@ -7,6 +7,21 @@ import {
 import { validateLLMOutput } from '@cosmic-horizons/shared/llm-guards';
 import { ConfigService } from '@nestjs/config';
 
+// spies for Redis operations used by CasaTaccAdapter
+let hSetSpy: jest.Mock;
+let lPushSpy: jest.Mock;
+let hGetAllSpy: jest.Mock;
+
+// mock ioredis at the top level so jest can hoist and intercept imports
+jest.mock('ioredis', () => {
+  return jest.fn().mockImplementation(() => ({
+    hSet: hSetSpy = jest.fn(),
+    lPush: lPushSpy = jest.fn(),
+    hGetAll: hGetAllSpy = jest.fn(),
+    ping: jest.fn().mockResolvedValue('PONG'),
+  }));
+});
+
 type ConfigMap = Record<string, string | number | undefined>;
 
 function makeConfig(overrides: ConfigMap = {}): ConfigService {
@@ -34,6 +49,12 @@ describe('TaccAdapter modes', () => {
     dataset_id: 'test-ds',
     params: {},
   };
+
+  // mock Redis client used by CasaTaccAdapter
+  let hSetSpy: jest.Mock;
+  let lPushSpy: jest.Mock;
+  let hGetAllSpy: jest.Mock;
+
 
   beforeEach(() => {
     jest.restoreAllMocks();
@@ -121,6 +142,34 @@ describe('TaccAdapter modes', () => {
       const res = await adapter.submitJob(dummySubmission);
       expect(res.jobId).toBe('live-1');
       expect(fetchMock).toHaveBeenCalled();
+    });
+  });
+
+  describe('casa adapter', () => {
+    it('should enqueue job and return id', async () => {
+      const adapter = new (require('./tacc-integration.service').CasaTaccAdapter)(
+        makeConfig({ REDIS_URL: 'redis://fake' }),
+      );
+      hSetSpy.mockResolvedValue('OK');
+      lPushSpy.mockResolvedValue(1);
+
+      const { jobId } = await adapter.submitJob(dummySubmission);
+      expect(jobId).toMatch(/^casa-/);
+      expect(hSetSpy).toHaveBeenCalled();
+      expect(lPushSpy).toHaveBeenCalledWith('casa:queue', jobId);
+
+      hGetAllSpy.mockResolvedValue({ status: 'QUEUED', progress: '0' });
+      const status = await adapter.getJobStatus(jobId);
+      expect(status.status).toBe('QUEUED');
+    });
+    it('should cancel by updating status', async () => {
+      const adapter = new (require('./tacc-integration.service').CasaTaccAdapter)(
+        makeConfig({ REDIS_URL: 'redis://fake' }),
+      );
+      hSetSpy.mockResolvedValue('OK');
+      const ok = await adapter.cancelJob('casa-1');
+      expect(ok).toBe(true);
+      expect(hSetSpy).toHaveBeenCalledWith('casa:job:casa-1', 'status', 'CANCELED');
     });
   });
 });

@@ -23,6 +23,22 @@ files.
   imaging or feeding into CASA’s `tclean` script; the file sizes are modest
   enough that even first‑generation dev PCs can handle them.
 
+### Additional considerations
+
+* **Checksum/ETag validation** – compute a hash or store the HTTP ETag so tests
+  can quickly detect corrupt or partial downloads.  The fetch script can
+  re‑download if the existing file fails validation.
+* **Synthetic micro‑dataset** – for CI we might generate a tiny fake MS (e.g.
+  a few kilobytes) and commit it to the repo or host it as a Git LFS artifact
+  so the pipeline never depends on external networks.
+* **Policy check** – remind developers that archive data is public but licensed;
+  include a note about attribution and avoid embedding proprietary/PI data.
+* **Rotation/expiration** – if the manifest grows past a threshold, evict old
+  entries or provide a periodic cleanup cron job to reclaim disk space.
+* **Remote storage option** – support mounting an S3/GCS bucket or a network
+  share so machines with limited local disk can still participate without
+  downloading tens of gigabytes.
+
 The helper script below automates the download of one example (replace the
 URL with whichever dataset you prefer).  It does not rely on external tools
 like `curl` or `wget` – it uses Node's `https` module and exposes a simple

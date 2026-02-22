@@ -4,6 +4,7 @@ import {
   DemoTaccAdapter,
   LiveTaccAdapter,
   LocalLlmAdapter,
+  CasaTaccAdapter,
   TACC_ADAPTER,
   TaccAdapter,
   TaccIntegrationService,
@@ -69,6 +70,9 @@ describe('Tacc adapter wiring', () => {
             if (mode === 'local-llm') {
               return new LocalLlmAdapter(config);
             }
+            if (mode === 'astronomy' || mode === 'casa') {
+              return new CasaTaccAdapter(config);
+            }
             return new DemoTaccAdapter(config);
           },
           inject: [ConfigService],
@@ -92,6 +96,15 @@ describe('Tacc adapter wiring', () => {
     expect(result.jobId).toMatch(/^tacc-/);
     const caps = await service.getCapabilities();
     expect(caps.demoMode).toBe(true);
+  });
+
+  it('uses Casa adapter when mode is astronomy', async () => {
+    configValues.REMOTE_COMPUTE_MODE = 'astronomy';
+    // ensure redis mock is available so constructor can run
+    moduleRef = await buildModule();
+    const service = moduleRef.get<TaccIntegrationService>(TaccIntegrationService);
+    const res = await service.submitJob({ agent: 'AlphaCal', dataset_id: 'ds', params: {} });
+    expect(res.jobId).toMatch(/^casa-/);
   });
 
   it('uses LocalLlm adapter when mode is local-llm', async () => {

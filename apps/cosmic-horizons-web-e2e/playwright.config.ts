@@ -25,7 +25,7 @@ if (enableCoverage && !fs.existsSync(coverageDir)) {
  * - coverage reports available in coverage/browser/
  */
 export default defineConfig({
-  ...nxE2EPreset(__filename, { testDir: './src' }),
+  ...nxE2EPreset(__filename, { testDir: './src', generateBlobReports: true }),
   retries: process.env['CI'] ? 2 : 0,
   workers: 1,
   fullyParallel: false,

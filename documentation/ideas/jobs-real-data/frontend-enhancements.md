@@ -1,5 +1,11 @@
 # Frontend Enhancements for Real‑Data Mode
 
+The choice between using plain Promises or migrating the job-related
+workflow to NgRx is orthogonal to these UI changes.  In an NgRx-based setup
+an effect can handle the HTTP call to `/jobs/submit` and another can poll
+`/jobs/status`, with the store holding the `jobs` slice.  All of the selectors
+and component bindings shown below work equally well with or without a store.
+
 To make the jobs interface aware of actual sky data and to expose the
 capability of selecting or downloading real measurement sets, a few targeted
 changes are required in the jobs console component and its template.
@@ -45,6 +51,20 @@ changes are required in the jobs console component and its template.
   less than a configurable threshold (say 10 GB) is available.  This ensures
   we don’t inadvertently try to download "nine petraflops" of data and blow the
   developer machine up.
+
+* **Queue length & status** – display the current Redis queue depth (via
+  `/queue/length`) and show a spinner or "waiting" badge when jobs are
+  pending.  This gives the user visibility into back-pressure and lets them
+  decide whether to submit another job or wait.
+
+* **Cancel control** – add a cancel button next to each running job; when
+  clicked dispatch a `cancelJob` action (NgRx) or call `/jobs/cancel`.  The
+  effect should also handle the case where the job is already completed or
+  failed.
+
+* **Prometheus/Telemetry** – optionally display basic metrics collected from
+  the backend (submitted, active, failed jobs) in a small dashboard tile or
+  on the jobs console header.
 
 * **Purge button** – provide a control labelled `Purge datasets` (perhaps in
   the same panel) that calls `DELETE /datasets/purge`.  When pressed it

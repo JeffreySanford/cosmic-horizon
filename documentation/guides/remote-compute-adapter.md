@@ -35,6 +35,17 @@ export interface TaccAdapter {
 - Forwards requests to a local compute-compatible HTTP surface backed by Ollama.
 - Shares the same contract so UI and tests remain unchanged.
 
+### CASA / Astronomy Adapter
+
+- Enqueues jobs into a Redis/RabbitMQ/Kafka queue and persists state.
+- A separate worker container pulls jobs from the queue, runs CASA in an
+  isolated `docker run --rm` container, and updates the record with progress
+  or failure.  This decouples the API from heavy compute and supports
+  concurrency, retries, and persistent job history.
+- Selected by `REMOTE_COMPUTE_MODE=astronomy` (or `casa`).
+- Requires a running queue service (the base `docker-compose.yml` already
+  includes Redis) and at least one `cosmic-horizons-worker` instance.
+
 ### Feature Flagging
 
 The workspace uses a factory provider in `jobs.module.ts`:
