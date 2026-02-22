@@ -28,7 +28,7 @@ async function probeHistory(token) {
     const res = await axios.get(url, { headers });
     console.log(`GET /jobs/history/list ${token ? 'with' : 'without'} token ->`, res.status);
     if (res.status === 200) {
-      console.log('response:', res.data);
+      console.log('response:\n', JSON.stringify(res.data, null, 2));
     }
   } catch (err) {
     if (axios.isAxiosError(err) && err.response) {
