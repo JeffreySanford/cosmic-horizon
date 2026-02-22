@@ -98,15 +98,32 @@ weaknesses of that approach became apparent during the planning phase:
   itself; a misbehaving CASA process can consume CPU, memory or even kill the
   host container.  Real gateways launch a new container per job (`docker run
   --rm`) or leverage an HPC scheduler, ensuring jobs don’t interfere with the
-  front‑end service.
+  front‑end service.  The “single always-on CASA container” approach also
+  means concurrent jobs compete for the same filesystem and may corrupt each
+  other’s temporary state.
 * **No resource scheduling.**  The current model runs jobs immediately, which
   means a burst of submissions could saturate CPU/GPU.  Production systems
-  queue jobs and throttle or schedule them onto available resources.
+  queue jobs and throttle or schedule them onto available resources.  Without
+  queuing, a malicious or careless user can DOS a developer workstation by
+  flooding it with 20‑minute CASA runs.
 * **No failure handling.**  CASA inevitably fails or crashes.  The adapter
   needs retry logic, exponential backoff, explicit error states in the job
   record, and meaningful failure reporting so the frontend can surface the
   problem.  Simply logging the error and letting the process die isn’t
   sufficient.
+* **Injection surface.**  Generating Python scripts by concatenating strings
+  introduces opportunities for parameter injection, quoting bugs, and
+  nondeterminism.  A safer design is to use a fixed entrypoint that reads a
+  small JSON configuration file.
+* **Dataset licensing & attribution.**  Public archives still carry
+  attribution requirements and sometimes redistribution restrictions; storing
+  real MS files in Git LFS or distributing them with the demo may violate
+  terms of use.  The system should track provenance and display proper
+  citations.
+* **File‑serving security.**  Exposing `/files/<jobId>.fits` without strict
+  allowlisting or signed URLs risks directory traversal and accidental
+  disclosure of arbitrary host files.  Implement range requests and enforce
+  a maximum served size.
 * **Security & isolation concerns.**  Executing arbitrary CASA scripts in a
   container can expose the API host to path traversal and privilege escalation.
   Sandboxing or running jobs in a separate Kubernetes namespace may be safer.

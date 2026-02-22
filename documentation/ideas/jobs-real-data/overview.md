@@ -12,7 +12,11 @@ The existing `jobs` feature is the only user‑visible UI affected; the
 backend adapter abstraction makes it trivial to swap between simulator,
 local‑LLM, and real‑software implementations.  Work can be performed entirely
 inside the current repository – no external environment is required beyond
-docker and a handful of sample files.
+docker and a handful of sample files.  **Note:** in practice the demo path
+is best supported on a Linux host with sufficient disk (≥10 GB) and, if
+GPU acceleration is desired, matching Nvidia drivers; Windows/WSL2 may work
+but is not officially tested.  We call this a *reference architecture
+prototype*, not a production system.
 
 > Note: the motivation for this effort is to address five architectural
 > weaknesses of the original synchronous `docker exec` adapter:

@@ -29,9 +29,23 @@ export interface TaccAdapter {
 * **submit**
   * persist the job parameters and dataset metadata into a durable store
     (Redis hash or MongoDB document).  Include a `status: 'queued'` field and
-    a `createdAt` timestamp.  For auditability also mirror key fields into the
-    PostgreSQL `jobs` table so the job history survives Redis flushes and can
-    be queried by the retention service.
+    a `createdAt` timestamp and record all state transitions (`queued`,
+    `running`, `completed`, `failed`, `canceled`, `timed_out`).  For auditability
+    also mirror key fields into the PostgreSQL `jobs` table so the job history
+    survives Redis flushes and can be queried by the retention service.  This
+    structured “job manifest” is the single source of truth for status,
+    progress, failure reasons and output URLs; the earlier in‑memory map is
+    abandoned entirely.
+  * enqueue a job ID onto a Redis/RabbitMQ/Kafka queue that a pool of worker
+    containers will consume.  At this point the API call returns a `jobId`
+    immediately – the job has been accepted but not yet executed.
+  * the worker will later pull the job off the queue, perform the CASA run in
+    an isolated container (`docker run --rm casapy/casa …`), and update the
+    persistent record with progress and final status.
+  * avoid templating raw Python when generating CASA scripts; treat the
+    script as a fixed entrypoint that reads a small JSON configuration file
+    mounted into the container.  string‑based templates are an injection
+    surface and are notoriously brittle during parameter escaping.
   * enqueue a job ID onto a Redis/RabbitMQ/Kafka queue that a pool of worker
     containers will consume.  At this point the API call returns a `jobId`
     immediately – the job has been accepted but not yet executed.

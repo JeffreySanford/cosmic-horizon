@@ -69,6 +69,13 @@ The workspace uses a factory provider in `jobs.module.ts`:
 Switching between adapters is therefore just a configuration change and
 safely exercised by both unit tests and the live-path CI workflow.
 
+> **Architectural note:** the adapter interface defined above is intentionally
+> minimal and mirrors mature HPC gateway designs (TACC TAPIS, NASA Pleiades).
+> By keeping the contract to `submit/status/result/cancel`, the system cleanly
+> separates frontend, API orchestration, adapter logic, and compute backends.
+> This abstraction is the core strength of the project and makes the codebase
+> backend‑agnostic and extensible.
+
 ## Configuration
 
 See `.env.template` for all relevant environment variables including

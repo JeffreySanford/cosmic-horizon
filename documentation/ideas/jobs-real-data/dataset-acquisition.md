@@ -44,6 +44,15 @@ URL with whichever dataset you prefer).  It does not rely on external tools
 like `curl` or `wget` – it uses Node's `https` module and exposes a simple
 promise API that can be call from tests or from the server-side endpoint.
 
+A production-ready version should also handle HTTP redirects and retries,
+write to a temporary file (`.partial` suffix) and checksum/ETag verification
+before renaming to the final path.  Doing this avoids corrupted caches and
+makes CI runs deterministic.  The endpoint that invokes the script must
+check free disk space first and supply attribution details for each dataset
+(e.g. survey name, archive URL, retrieval date) to satisfy licensing
+requirements.  Never commit raw MS files to Git; keep only metadata and
+checksums.
+
 ```js
 #!/usr/bin/env node
 import { existsSync, statSync } from 'fs';

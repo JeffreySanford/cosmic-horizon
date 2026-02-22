@@ -46,6 +46,10 @@ matures.
 
 ## Phase 3 – Real processing (queued architecture)
 
+Before implementing real CASA jobs, make sure the orchestration layer is
+robust (manifest, states, timeouts, failure handling).  Only then add the
+actual compute workload.
+
 Transition from the simple synchronous model to a proper compute gateway:
 
 * **Phase 0 – Sandbox preparation** (inserted earlier)
