@@ -214,7 +214,7 @@ plt.imsave(r'${safePng}', hdu.data, cmap='gray', origin='lower')
             await fs.promises.writeFile(convTmp, convScript);
             await new Promise((res, rej) => {
               exec(
-                `${process.env.PYTHON || 'python'} ${convTmp}`,
+                `${pythonCmd} ${convTmp}`,
                 { cwd: outDir },
                 (err, stdout, stderr) => {
                   if (err) return rej(err);
