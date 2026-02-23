@@ -176,14 +176,15 @@ async function main() {
 import numpy as np
 from astropy.io import fits
 
-# higher-resolution synthetic "star" image: sharp Gaussian blob 512x512
-size = 512
+# very high-resolution synthetic "star" image: sharp Gaussian blob filling ~75%
+size = 4096
 cx, cy = size//2, size//2
-sigma = 8.0
+# choose sigma so that 3*sigma ~ 0.75*size -> sigma ~ size*0.25
+sigma = size * 0.25
 arr = np.zeros((size, size), dtype=np.float32)
 for i in range(size):
     for j in range(size):
-        # Gaussian centred in image with narrow sigma
+        # Gaussian centred in image with large sigma
         arr[j,i] = np.exp(-((i-cx)**2+(j-cy)**2) / (2*sigma**2))
 
 hdu = fits.PrimaryHDU(arr)
