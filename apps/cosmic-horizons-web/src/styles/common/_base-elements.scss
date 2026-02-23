@@ -6,8 +6,16 @@
 html,
 body {
   min-height: 100%;
-  background: linear-gradient(180deg, #000022 0%, #000000 100%);
+  background: linear-gradient(180deg, #000022 0%, #000000 100%) !important;
   color: var(--md3-color-on-background);
+}
+
+// ensure app-level container inherits same mood; some views set their own
+// backgrounds so we repeatedly reinforce the gradient here
+#app-root,
+.app-layout,
+.app-main {
+  background: linear-gradient(180deg, #000022 0%, #000000 100%) !important;
 }
 
 input,

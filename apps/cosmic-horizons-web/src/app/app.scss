@@ -46,28 +46,11 @@
   filter: blur(14px);
 }
 
-.app-background--aurora {
-  top: -120px;
-  left: -120px;
-  width: 360px;
-  height: 360px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #38bdf8, #1d4ed8 65%, transparent 72%);
-  opacity: var(--app-aurora-opacity);
-  animation: pulseDrift calc(9s * var(--ch-motion-scale)) ease-in-out infinite
-    alternate;
-}
-
+.app-background--aurora,
 .app-background--sunrise {
-  right: -160px;
-  top: 120px;
-  width: 420px;
-  height: 420px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fb7185, #f97316 62%, transparent 75%);
-  opacity: var(--app-sunrise-opacity);
-  animation: pulseDrift calc(11s * var(--ch-motion-scale)) ease-in-out infinite
-    alternate-reverse;
+  /* decorative gradients removed so root background shows cleanly */
+  background: none !important;
+  opacity: 0 !important;
 }
 
 .app-main {
