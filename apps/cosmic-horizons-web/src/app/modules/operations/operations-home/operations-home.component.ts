@@ -62,6 +62,11 @@ export class OperationsHomeComponent {
   }
 
   constructor() {
+    // initialize job subsystem when the operations homepage is created; this
+    // covers the case where user navigates to operations but doesn't open the
+    // dashboard immediately.
+    this.jobService.initialize();
+
     const brokerStatus$ = this.messaging.stats$.pipe(
       map((s) => {
         if (!s) return 'unknown';

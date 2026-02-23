@@ -23,7 +23,7 @@ export class AppEffects {
         of(
           AuthActions.authHydrateRequested(),
           UiActions.mockModeHydrateRequested(),
-          JobsActions.jobsInitialize(),
+          // jobsInitialize is now triggered lazily by the job console itself
           AlertsActions.alertsInitialize(),
           TelemetryActions.telemetryInitialize(),
         ),

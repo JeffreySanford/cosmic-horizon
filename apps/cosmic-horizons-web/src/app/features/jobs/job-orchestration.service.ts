@@ -46,6 +46,19 @@ export class JobOrchestrationService {
   constructor() {
     this.jobs$ = this.store.select(selectAllJobs);
     this.progressSeries$ = this.store.select(selectProgressSeries);
+    // initialization is no longer automatic; callers must call `initialize()`
+    // when the jobs UI is actually displayed.  This prevents anonymous
+    // polling when unrelated pages are visited.
+  }
+
+  /**
+   * Kick off the jobs subsystem.  This was previously done in the
+   * constructor and on application start, but that caused 401s on every
+   * page load when the user was not authenticated.  Consumers (e.g. the job
+   * dashboard) should invoke this method when the jobs feature becomes
+   * active.
+   */
+  initialize(): void {
     this.store.dispatch(JobsActions.jobsInitialize());
   }
 

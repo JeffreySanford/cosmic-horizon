@@ -13,6 +13,7 @@ class FakeJobOrchestrationService implements Partial<JobOrchestrationService> {
   private jobsSubject = new BehaviorSubject<any[]>([]);
   jobs$ = this.jobsSubject.asObservable();
   progressSeries$ = of([]);
+  initialize = vi.fn();
   getJobCount() {
     return of(0);
   }
@@ -86,6 +87,7 @@ describe('JobDashboardComponent', () => {
     jobService = TestBed.inject(
       JobOrchestrationService,
     ) as unknown as FakeJobOrchestrationService;
+    jobService.initialize = vi.fn();
     dialog = TestBed.inject(MatDialog);
   });
 
@@ -96,6 +98,10 @@ describe('JobDashboardComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(JobDashboardComponent);
     component = fixture.componentInstance;
+
+    // dashboard should kick off job initialization automatically
+    expect(jobService.initialize).toHaveBeenCalled();
+
     emitJobs([
       {
         id: 'job-001',

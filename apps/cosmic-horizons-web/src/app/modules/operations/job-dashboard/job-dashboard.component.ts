@@ -58,6 +58,11 @@ export class JobDashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // initialize jobs subsystem when the dashboard is loaded (see note in
+    // JobOrchestrationService).  this replaces the old global startup dispatch
+    // and avoids unwanted polling on unrelated pages.
+    this.jobService.initialize();
+
     // ensure websocket connection is ready (auth handled internally)
     this.messaging.ensureConnected();
 
