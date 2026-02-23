@@ -49,7 +49,9 @@ async function ensureCleanDir(dir) {
 async function login(email, password) {
   const res = await http.post('/api/auth/login', { email, password });
   if (!isOk(res)) {
-    throw new Error(`login failed (${res.status}): ${JSON.stringify(res.data)}`);
+    throw new Error(
+      `login failed (${res.status}): ${JSON.stringify(res.data)}`,
+    );
   }
   return res.data;
 }
@@ -58,11 +60,13 @@ async function submitJob(token, datasetId, params) {
   const res = await http.post(
     '/api/jobs/submit',
     { agent: 'AlphaCal', dataset_id: datasetId, params },
-    { headers: authHeaders(token) }
+    { headers: authHeaders(token) },
   );
 
   if (!isOk(res)) {
-    throw new Error(`job submit failed (${res.status}): ${JSON.stringify(res.data)}`);
+    throw new Error(
+      `job submit failed (${res.status}): ${JSON.stringify(res.data)}`,
+    );
   }
 
   if (!res.data?.id) {
@@ -74,9 +78,13 @@ async function submitJob(token, datasetId, params) {
 }
 
 async function getJobStatus(jobId, token) {
-  const res = await http.get(`/api/jobs/${jobId}/status`, { headers: authHeaders(token) });
+  const res = await http.get(`/api/jobs/${jobId}/status`, {
+    headers: authHeaders(token),
+  });
   if (!isOk(res)) {
-    throw new Error(`status check failed (${res.status}): ${JSON.stringify(res.data)}`);
+    throw new Error(
+      `status check failed (${res.status}): ${JSON.stringify(res.data)}`,
+    );
   }
   return res.data;
 }
@@ -101,10 +109,15 @@ async function waitForTerminalStatus(jobId, token) {
     }
 
     if (Date.now() - start > POLL_TIMEOUT_MS) {
-      throw new Error(`poll timeout after ${Math.round(POLL_TIMEOUT_MS / 1000)}s for job ${jobId}`);
+      throw new Error(
+        `poll timeout after ${Math.round(POLL_TIMEOUT_MS / 1000)}s for job ${jobId}`,
+      );
     }
 
-    const delay = Math.min(POLL_INTERVAL_MS * Math.max(1, Math.floor(attempt / 5)), 10_000);
+    const delay = Math.min(
+      POLL_INTERVAL_MS * Math.max(1, Math.floor(attempt / 5)),
+      10_000,
+    );
     await sleep(delay);
   }
 }
@@ -118,11 +131,20 @@ async function writeReport(outDir, final, datasetId, output) {
     created_at: final.created_at,
     completed_at: final.completed_at,
     output: output || null,
-    local_fits_path: final.status === 'COMPLETED' ? path.join(outDir, `job-output-${final.id}.fits`) : null,
-    local_png_path: final.status === 'COMPLETED' ? path.join(outDir, `job-output-${final.id}.png`) : null,
+    local_fits_path:
+      final.status === 'COMPLETED'
+        ? path.join(outDir, `job-output-${final.id}.fits`)
+        : null,
+    local_png_path:
+      final.status === 'COMPLETED'
+        ? path.join(outDir, `job-output-${final.id}.png`)
+        : null,
   };
 
-  const fileName = path.join(outDir, process.env.REPORT_FILE || `job-report-${Date.now()}.json`);
+  const fileName = path.join(
+    outDir,
+    process.env.REPORT_FILE || `job-report-${Date.now()}.json`,
+  );
   await fs.promises.writeFile(fileName, JSON.stringify(report, null, 2));
   console.log(`wrote report to ${fileName}`);
 }
@@ -134,7 +156,7 @@ async function pickPython() {
     process.cwd(),
     '.venv',
     process.platform === 'win32' ? 'Scripts' : 'bin',
-    process.platform === 'win32' ? 'python.exe' : 'python'
+    process.platform === 'win32' ? 'python.exe' : 'python',
   );
 
   const venvExists = await fs.promises
@@ -174,7 +196,9 @@ async function generateFitsAndPng({ outDir, jobId, targetName }) {
   const requirePy = !!process.env.REQUIRE_PY;
   const requirePng = !!process.env.REQUIRE_PNG;
 
-  const hasFitsDeps = await ensurePythonDeps(pythonCmd, ['numpy', 'astropy'], { hardFail: requirePy });
+  const hasFitsDeps = await ensurePythonDeps(pythonCmd, ['numpy', 'astropy'], {
+    hardFail: requirePy,
+  });
   if (!hasFitsDeps) return;
 
   const fitsPath = path.join(outDir, `job-output-${jobId}.fits`);
@@ -223,7 +247,9 @@ hdu.writeto(out_fits, overwrite=True)
   await fs.promises.unlink(genTmp);
   console.log('generated FITS file', fitsPath);
 
-  const hasPngDeps = await ensurePythonDeps(pythonCmd, ['matplotlib'], { hardFail: requirePng });
+  const hasPngDeps = await ensurePythonDeps(pythonCmd, ['matplotlib'], {
+    hardFail: requirePng,
+  });
   if (!hasPngDeps) {
     console.warn('skipping PNG generation (matplotlib missing).');
     return;
@@ -249,7 +275,12 @@ plt.savefig(out_png, bbox_inches="tight", pad_inches=0)
   await fs.promises.writeFile(convTmp, convScript);
 
   await exec(`${pythonCmd} ${convTmp}`, {
-    env: { ...process.env, TARGET_NAME: targetName, IN_FITS: fitsPath, OUT_PNG: pngPath },
+    env: {
+      ...process.env,
+      TARGET_NAME: targetName,
+      IN_FITS: fitsPath,
+      OUT_PNG: pngPath,
+    },
     cwd: outDir,
     maxBuffer: 10 * 1024 * 1024,
   });
@@ -258,10 +289,20 @@ plt.savefig(out_png, bbox_inches="tight", pad_inches=0)
 }
 
 async function main() {
-  const userEmail = process.env.USER_EMAIL || process.env.SEED_TEST_EMAIL || 'test@cosmic.local';
-  const userPass = process.env.USER_PASS || process.env.SEED_TEST_PASSWORD || 'Password123!';
-  const adminEmail = process.env.ADMIN_EMAIL || process.env.SEED_ADMIN_EMAIL || 'admin@cosmic.local';
-  const adminPass = process.env.ADMIN_PASS || process.env.SEED_ADMIN_PASSWORD || 'AdminPassword123!';
+  const userEmail =
+    process.env.USER_EMAIL ||
+    process.env.SEED_TEST_EMAIL ||
+    'test@cosmic.local';
+  const userPass =
+    process.env.USER_PASS || process.env.SEED_TEST_PASSWORD || 'Password123!';
+  const adminEmail =
+    process.env.ADMIN_EMAIL ||
+    process.env.SEED_ADMIN_EMAIL ||
+    'admin@cosmic.local';
+  const adminPass =
+    process.env.ADMIN_PASS ||
+    process.env.SEED_ADMIN_PASSWORD ||
+    'AdminPassword123!';
 
   await ensureCleanDir(OUT_DIR);
 
@@ -279,11 +320,15 @@ async function main() {
 
   const datasetId =
     process.env.DATASET_ID ||
-    (process.env.FAILURE ? `quota-trigger-${Date.now()}` : `e2e-pass-dataset-${Date.now()}`);
+    (process.env.FAILURE
+      ? `quota-trigger-${Date.now()}`
+      : `e2e-pass-dataset-${Date.now()}`);
 
   const targetName = process.env.TARGET || 'M51';
 
-  console.log(`Submitting job against dataset: ${datasetId} target: ${targetName}`);
+  console.log(
+    `Submitting job against dataset: ${datasetId} target: ${targetName}`,
+  );
 
   const jobId = await submitJob(userToken, datasetId, {
     gpu_count: 1,
@@ -296,7 +341,10 @@ async function main() {
 
   const output = final.result?.output_url || final.result?.output || null;
   if (output) {
-    const display = String(output).replace(/^https:\/\/archive\.vla\.nrao\.edu/, '[demo-host]');
+    const display = String(output).replace(
+      /^https:\/\/archive\.vla\.nrao\.edu/,
+      '[demo-host]',
+    );
     console.log('job produced output:', display);
   }
 

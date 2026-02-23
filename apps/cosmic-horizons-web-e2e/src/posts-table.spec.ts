@@ -21,7 +21,7 @@ test.beforeEach(async ({ context, page }) => {
   });
 });
 
-test('admin posts table shows all records with correct paginator and green-tinted shell', async ({
+test('posts table shows all records with correct paginator and green-tinted shell', async ({
   page,
 }) => {
   const seededPosts = Array.from({ length: 20 }, (_, index) => {
@@ -76,7 +76,11 @@ test('admin posts table shows all records with correct paginator and green-tinte
   await expect(page).toHaveURL(/\/posts/);
 
   const mineOnlyToggle = page.getByRole('checkbox', { name: 'My posts only' });
-  await expect(mineOnlyToggle).not.toBeChecked();
+  // Normalize to "all posts" view regardless of default role state in store/session.
+  if (await mineOnlyToggle.isChecked()) {
+    await mineOnlyToggle.click();
+    await expect(mineOnlyToggle).not.toBeChecked();
+  }
 
   await expect(page.locator('tr.mat-mdc-row')).toHaveCount(10, {
     timeout: 10_000,

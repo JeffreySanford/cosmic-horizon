@@ -1,0 +1,13 @@
+{
+  "id": "63ec2476-0da7-4309-829d-387c654d5dab",
+  "dataset": "e2e-pass-dataset-1771808460228",
+  "status": "COMPLETED",
+  "result": {
+    "output_url": "https://archive.vla.nrao.edu/results/job-123.fits"
+  },
+  "created_at": "2026-02-23T07:01:00.288Z",
+  "completed_at": "2026-02-23T01:01:05.755Z",
+  "output": "https://archive.vla.nrao.edu/results/job-123.fits",
+  "local_fits_path": "C:\\repos\\cosmic-horizons\\job-test\\job-output-63ec2476-0da7-4309-829d-387c654d5dab.fits",
+  "local_png_path": "C:\\repos\\cosmic-horizons\\job-test\\job-output-63ec2476-0da7-4309-829d-387c654d5dab.png"
+}
