@@ -108,9 +108,22 @@ export class ViewerApiService {
       limit: limit.toString(),
     });
 
-    return this.http.get<NearbyCatalogLabelModel[]>(
-      `${this.apiBaseUrl}/api/view/labels/nearby?${params.toString()}`,
-    );
+    // request full response so we can inspect headers for diagnostic warnings
+    return this.http
+      .get<NearbyCatalogLabelModel[]>(
+        `${this.apiBaseUrl}/api/view/labels/nearby?${params.toString()}`,
+        { observe: 'response' },
+      )
+      .pipe(
+        tap((resp) => {
+          const warn = resp.headers.get('X-Viewer-Simbad-Warn');
+          if (warn) {
+            console.warn('SIMBAD warning from server:', warn);
+          }
+        }),
+        // map back to body for the existing callers
+        map((resp) => resp.body ?? []),
+      );
   }
 
   getCutoutTelemetry(): Observable<CutoutTelemetryModel> {

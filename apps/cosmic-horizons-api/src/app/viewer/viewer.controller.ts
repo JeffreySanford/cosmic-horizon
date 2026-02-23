@@ -119,12 +119,19 @@ export class ViewerController {
       throw new BadRequestException('limit must be between 1 and 25.');
     }
 
-    return this.viewerService.getNearbyLabels(
+    const labels = await this.viewerService.getNearbyLabels(
       ra,
       dec,
       radius,
       Math.floor(limit),
     );
+    // if the service recorded a warning (e.g. SIMBAD query failure), forward
+    // it to the client as a response header for visibility.
+    const warn = this.viewerService.consumePendingNearbyLabelsHeader?.();
+    if (res && warn) {
+      res.setHeader('X-Viewer-Simbad-Warn', warn);
+    }
+    return labels;
   }
 
   @Get('telemetry')

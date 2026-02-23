@@ -94,6 +94,9 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
   private redisEnabled = false;
   private lastNearbyLabelsWarnAt = 0;
   private lastNearbyLabelsWarnMessage = '';
+
+  // last message that should be surfaced to the caller as a header
+  private pendingNearbyLabelsHeader: string | null = null;
   private readonly cutoutTelemetry: {
     requestsTotal: number;
     successTotal: number;
@@ -932,6 +935,18 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     this.lastNearbyLabelsWarnAt = now;
     this.lastNearbyLabelsWarnMessage = message;
     this.logger.warn(message);
+    // also remember for HTTP response header so clients can log it
+    this.pendingNearbyLabelsHeader = message;
+  }
+
+  /**
+   * Called by controllers to retrieve and clear any header-worthy warning from
+   * the last nearby-labels query.
+   */
+  consumePendingNearbyLabelsHeader(): string | null {
+    const msg = this.pendingNearbyLabelsHeader;
+    this.pendingNearbyLabelsHeader = null;
+    return msg;
   }
 
   private degToRad(value: number): number {
