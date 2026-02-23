@@ -169,6 +169,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly tilePrefetch = inject(HipsTilePrefetchService);
   private readonly appLogger = inject(AppLoggerService);
   private readonly authSessionService = inject(AuthSessionService);
+
+  // helper to provide a properly typed FormControl to templates
+  get surveyControl(): import('@angular/forms').FormControl {
+    return this.stateForm.get('survey') as import('@angular/forms').FormControl;
+  }
   private readonly http = inject(HttpClient);
   private readonly ngZone = inject(NgZone);
   private readonly ssrTelemetry = inject(ViewerSsrTelemetryService);
@@ -962,7 +967,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
             });
           },
         });
-    }, this.cursorLookupDebounceMs); // short debounce for cursor label lookups (150 ms)
+    }, this.cursorLookupDebounceMs); // short debounce for cursor label lookups (150 ms)
   }
 
   private hydrateStateFromRoute(): void {
