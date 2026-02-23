@@ -11,6 +11,8 @@ import { KafkaService } from '../../modules/events/kafka.service';
 import {
   createEventBase,
   generateCorrelationId,
+  generateEventId,
+  EventBase,
 } from '@cosmic-horizons/event-models';
 
 export interface BatchJobRequest {
@@ -66,15 +68,27 @@ export class JobOrchestratorService {
     payload: Record<string, unknown>,
   ): Promise<void> {
     try {
-      await this.kafkaService.publishJobLifecycleEvent(
-        {
-          event_type: eventType,
+      // make sure we have correlation id for headers (payload may include it)
+      const correlation =
+        (payload as any).correlation_id ||
+        (payload as any).correlationId ||
+        generateCorrelationId();
+      const user = (payload as any).user_id || (payload as any).userId || '';
+
+      const event: EventBase = {
+        event_id: generateEventId(),
+        event_type: eventType,
+        timestamp: new Date().toISOString(),
+        correlation_id: correlation,
+        user_id: user,
+        schema_version: 1,
+        payload: {
           job_id: jobId,
           ...payload,
-          timestamp: new Date().toISOString(),
         },
-        jobId, // partition key for ordering
-      );
+      };
+
+      await this.kafkaService.publishJobLifecycleEvent(event, jobId);
     } catch (error) {
       this.logger.warn(
         `Failed to publish ${eventType} to Kafka: ${error instanceof Error ? error.message : String(error)}`,
