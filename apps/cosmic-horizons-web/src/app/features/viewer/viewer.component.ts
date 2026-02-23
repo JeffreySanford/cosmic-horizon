@@ -960,8 +960,16 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const radius = this.lookupRadiusForState(state);
     const key = this.lookupKeyForState(state, radius);
-    if (key === this.lastCursorLookupKey) {
-      return; // already fetched this position
+    // avoid redundant lookups when we already know there are no nearby objects
+    // and the cursor tooltip is clear.  if either the panel or tooltip still
+    // has data we must allow another request, because providers can return
+    // an empty result later that needs to clear the UI.
+    if (
+      key === this.lastCursorLookupKey &&
+      this.catalogLabels.length === 0 &&
+      this.cursorLabel === null
+    ) {
+      return; // nothing has changed since last lookup
     }
 
     // Debounce cursor lookups with a shorter timer

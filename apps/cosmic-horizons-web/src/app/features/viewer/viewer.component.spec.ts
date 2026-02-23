@@ -415,11 +415,19 @@ describe('ViewerComponent', () => {
     ];
     expect(component.centerCatalogLabel?.name).toBe('Center Match');
 
+    // set up a fake cursor state and spy the cursor lookup helper so that we
+    // can confirm toggleLabelsOverlay(true) triggers it
+    const fakeState: any = { ra: 219.91, dec: -60.84, fov: 0.5, survey: 'VLASS' };
+    (component as any).lastCursorState = fakeState;
+    const cursorSpy = vi.spyOn(component as any, 'scheduleNearbyLabelLookupAtCursor');
+
     component.toggleLabelsOverlay(false);
     expect(component.centerCatalogLabel).toBeNull();
     expect(component.catalogLabels).toEqual([]);
+    expect(component.cursorLabel).toBeNull();
 
     component.toggleLabelsOverlay(true);
+    expect(cursorSpy).toHaveBeenCalledWith(fakeState);
     await vi.advanceTimersByTimeAsync(1000);
     await fixture.whenStable();
 
@@ -453,6 +461,30 @@ describe('ViewerComponent', () => {
 
     // panel labels should remain intact, only the tooltip cleared
     expect(component.catalogLabels.map((l) => l.name)).toContain('Keep Me');
+    expect(component.cursorLabel).toBeNull();
+  });
+
+  it('tooltip clears when subsequent lookup for same position returns no labels', async () => {
+    const state = (component as any).currentState();
+    state.fov = 0.5;
+
+    // first call returns one object under cursor
+    viewerApiService.getNearbyLabels.mockReturnValueOnce(
+      of([
+        { name: 'Alpha', ra: 0, dec: 0, object_type: 'Star', angular_distance_deg: 0.001, confidence: 0.9 },
+      ]),
+    );
+
+    (component as any)['scheduleNearbyLabelLookupAtCursor'](state);
+    await vi.advanceTimersByTimeAsync((component as any).cursorLookupDebounceMs + 10);
+    await fixture.whenStable();
+    expect(component.cursorLabel?.name).toBe('Alpha');
+
+    // second call returns empty array but same key
+    viewerApiService.getNearbyLabels.mockReturnValueOnce(of([]));
+    (component as any)['scheduleNearbyLabelLookupAtCursor'](state);
+    await vi.advanceTimersByTimeAsync((component as any).cursorLookupDebounceMs + 10);
+    await fixture.whenStable();
     expect(component.cursorLabel).toBeNull();
   });
 
