@@ -176,8 +176,15 @@ async function main() {
 import numpy as np
 from astropy.io import fits
 
-# simple 100x100 test image
-arr = np.arange(100*100, dtype=np.float32).reshape((100,100))
+# simple 100x100 synthetic "star" image: Gaussian blob
+size = 100
+cx, cy = size//2, size//2
+arr = np.zeros((size, size), dtype=np.float32)
+for i in range(size):
+    for j in range(size):
+        # Gaussian centred in image
+        arr[j,i] = np.exp(-((i-cx)**2+(j-cy)**2) / (2*10.0))
+
 hdu = fits.PrimaryHDU(arr)
 hdu.header['OBJECT'] = '${targetName}'
 hdu.writeto(r'${safeFitsPath}', overwrite=True)
