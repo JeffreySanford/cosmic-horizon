@@ -19,13 +19,18 @@ export class TelemetryEffects {
   private readonly http = inject(HttpClient);
 
   // telemetry is a debugging feature; polling every second churns the
-  // network and GPU heatmap data even when the user isn't looking.  switch
-  // to a more conservative interval (5 s) and keep the effect easy to tweak.
+  // network and GPU heatmap data even when the user isn't looking.  a 500 ms
+  // interval feels snappy for the views that actually display it, and we
+  // only start the effect when a consuming service is instantiated.
+  //
+  // The previous default of 5 s was chosen when telemetry was active
+  // globally; we removed that initialization so we can crank the rate back
+  // up without costing background noise.
   initialize$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TelemetryActions.telemetryInitialize),
       switchMap(() =>
-        interval(5000).pipe(
+        interval(500).pipe(
           startWith(0),
           map(() => TelemetryActions.telemetryLoadRequested()),
         ),

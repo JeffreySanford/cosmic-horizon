@@ -9,7 +9,7 @@ import { mergeMap, of } from 'rxjs';
 import * as AuthActions from './features/auth/auth.actions';
 import * as UiActions from './features/ui/ui.actions';
 import * as AlertsActions from './features/alerts/alerts.actions';
-import * as TelemetryActions from './features/telemetry/telemetry.actions';
+// TelemetryActions no longer used in this file; removed to keep lint happy
 
 @Injectable()
 export class AppEffects {
@@ -24,7 +24,8 @@ export class AppEffects {
           UiActions.mockModeHydrateRequested(),
           // jobsInitialize is now triggered lazily by the job console itself
           AlertsActions.alertsInitialize(),
-          TelemetryActions.telemetryInitialize(),
+          // telemetryInitialize is now dispatched lazily by
+          // PerformanceDataService (and only in views that care about it)
         ),
       ),
     ),

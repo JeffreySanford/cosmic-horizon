@@ -32,6 +32,8 @@ import {
   tap,
   throwError,
 } from 'rxjs';
+// operators that are not bound to a specific observable bundle
+import { throttleTime } from 'rxjs/operators';
 import {
   CutoutTelemetryModel,
   NearbyCatalogLabelModel,
@@ -122,6 +124,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   cursorLabel: NearbyCatalogLabelModel | null = null;
   cursorX = 0;
   cursorY = 0;
+  // remember the last converted sky coordinates under the mouse
+  private lastCursorState: ViewerStateModel | null = null;
+  private lastCursorLookupKey = '';
   controlPanelCollapsed = false;
   keyboardHelpVisible = false;
   readonly surveyOptions = [
@@ -341,8 +346,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
             const host = this.aladinHost?.nativeElement;
             if (host) {
               fromEvent<MouseEvent>(host, 'mousemove')
-                .pipe(takeUntilDestroyed(this.destroyRef))
-                .subscribe((e) => this.onCanvasMouseMove(e));
+                .pipe(
+                  throttleTime<MouseEvent>(200, undefined, { leading: true, trailing: true }),
+                  takeUntilDestroyed(this.destroyRef),
+                )
+                .subscribe((e: MouseEvent) => this.onCanvasMouseMove(e));
 
               fromEvent(host, 'mouseleave')
                 .pipe(takeUntilDestroyed(this.destroyRef))
@@ -825,8 +833,14 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!enabled) {
       this.catalogLabels = [];
+      this.cursorLabel = null;
       this.lastNearbyLookupKey = '';
       return;
+    }
+
+    // perform an immediate lookup over the last cursor position if we have one.
+    if (this.lastCursorState) {
+      this.scheduleNearbyLabelLookupAtCursor(this.lastCursorState);
     }
 
     this.scheduleNearbyLabelLookup(this.currentState(), { force: true });
@@ -912,6 +926,9 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         survey: state.survey,
       };
 
+      // remember coordinates in case overlay toggles
+      this.lastCursorState = cursorState;
+
       // Schedule a nearby lookup at the cursor position
       this.scheduleNearbyLabelLookupAtCursor(cursorState);
     } catch {
@@ -941,17 +958,23 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    const radius = this.lookupRadiusForState(state);
+    const key = this.lookupKeyForState(state, radius);
+    if (key === this.lastCursorLookupKey) {
+      return; // already fetched this position
+    }
+
     // Debounce cursor lookups with a shorter timer
     if (this.cursorLookupTimer) {
       clearTimeout(this.cursorLookupTimer);
     }
 
     this.cursorLookupTimer = setTimeout(() => {
-      const radius = this.lookupRadiusForState(state);
       this.viewerApi
         .getNearbyLabels(state.ra, state.dec, radius, 16)
         .subscribe({
           next: (labels) => {
+            this.lastCursorLookupKey = key;
             this.ngZone.run(() => {
               const nearby = this.selectNearbyLabels(labels);
               this.catalogLabels = nearby;
@@ -968,19 +991,17 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
                 if (nearest.angular_distance_deg <= matchThresholdDeg) {
                   this.cursorLabel = nearest;
                 } else {
-                  // cursor is over empty sky; clear only the hover tooltip.  do
-                  // not wipe the shared `catalogLabels` array since that is used
-                  // by the side panel and by other lookups.
                   this.cursorLabel = null;
                 }
               } else {
                 this.cursorLabel = null;
+                console.debug('viewer: lookup returned 0 labels', { state, radius });
               }
             });
           },
-          error: () => {
+          error: (err) => {
+            console.error('viewer: nearby label error', err);
             this.ngZone.run(() => {
-              // Silently ignore errors for cursor lookups and clear any tooltip
               this.catalogLabels = [];
               this.cursorLabel = null;
             });

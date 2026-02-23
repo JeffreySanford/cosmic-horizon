@@ -33,6 +33,10 @@ describe('PerformanceDataService', () => {
       { name: 'window 0', series: [{ name: 'avg', value: 7 }] },
     ]);
     store.refreshState();
+
+    // the constructor dispatches initialize; verify with a spy so we can
+    // detect accidental removal in future refactors
+    vi.spyOn(store, 'dispatch');
     service = TestBed.inject(PerformanceDataService);
   });
 
@@ -57,6 +61,12 @@ describe('PerformanceDataService', () => {
     service.setWindow(4);
     expect(dispatchSpy).toHaveBeenCalledWith(
       TelemetryActions.telemetryWindowSelected({ index: 4 }),
+    );
+  });
+
+  it('initializes telemetry on construction', () => {
+    expect(store.dispatch).toHaveBeenCalledWith(
+      TelemetryActions.telemetryInitialize(),
     );
   });
 });
