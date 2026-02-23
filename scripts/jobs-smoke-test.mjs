@@ -1,108 +1,269 @@
 #!/usr/bin/env node
-// simple script to exercise the login endpoint for a user and admin account
 // usage: node scripts/auth-test.mjs
-// environment variables override defaults; .env.local is loaded automatically
-
+// improved version with reliability, safety, and vectorized FITS generation
 import 'dotenv/config';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
-import { exec } from 'child_process';
+import os from 'os';
+import { exec as execCb, execFile as execFileCb } from 'child_process';
+import { promisify } from 'util';
+
+const exec = promisify(execCb);
+const execFile = promisify(execFileCb);
 
 const baseUrl = process.env.API_URL || 'http://localhost:3000';
+const POLL_INTERVAL_MS = Number(process.env.POLL_INTERVAL_MS || 2000);
+const POLL_TIMEOUT_MS = Number(process.env.POLL_TIMEOUT_MS || 5 * 60_000);
+const OUT_DIR = process.env.OUT_DIR || path.resolve(process.cwd(), 'job-test');
+
+const http = axios.create({
+  baseURL: baseUrl,
+  timeout: Number(process.env.HTTP_TIMEOUT_MS || 15_000),
+  validateStatus: () => true,
+});
 
 function maskToken(tok) {
   if (!tok || typeof tok !== 'string') return tok;
   if (tok.length <= 10) return tok;
-  return `${tok.slice(0,6)}...${tok.slice(-4)}`;
+  return `${tok.slice(0, 6)}...${tok.slice(-4)}`;
+}
+
+function authHeaders(token) {
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function isOk(res) {
+  return res.status >= 200 && res.status < 300;
+}
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function ensureCleanDir(dir) {
+  await fs.promises.rm(dir, { recursive: true, force: true });
+  await fs.promises.mkdir(dir, { recursive: true });
 }
 
 async function login(email, password) {
-  const url = `${baseUrl}/api/auth/login`;
-  try {
-    const res = await axios.post(url, { email, password });
-    return res.data;
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response) {
-      throw new Error(`login failed (${err.response.status}): ${JSON.stringify(err.response.data)}`);
-    }
-    throw err;
+  const res = await http.post('/api/auth/login', { email, password });
+  if (!isOk(res)) {
+    throw new Error(`login failed (${res.status}): ${JSON.stringify(res.data)}`);
   }
-}
-
-async function probeHistory(token) {
-  const url = `${baseUrl}/api/jobs/history/list`;
-  try {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const res = await axios.get(url, { headers });
-    console.log(`GET /jobs/history/list ${token ? 'with' : 'without'} token ->`, res.status);
-    if (res.status === 200) {
-      console.log('response:\n', JSON.stringify(res.data, null, 2));
-    }
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response) {
-      console.log(`GET /jobs/history/list ${token ? 'with' : 'without'} token ->`, err.response.status);
-    } else {
-      console.error('probe error', err);
-    }
-  }
+  return res.data;
 }
 
 async function submitJob(token, datasetId, params) {
-  const url = `${baseUrl}/api/jobs/submit`;
-  const headers = { Authorization: `Bearer ${token}` };
-  try {
-    const res = await axios.post(url, { agent: 'AlphaCal', dataset_id: datasetId, params }, { headers });
-    console.log(`submitted job ${res.data.id} status ${res.status}`);
-    return res.data.id;
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response) {
-      console.error('job submit error', err.response.status, err.response.data);
-    } else {
-      console.error('job submit error', err);
+  const res = await http.post(
+    '/api/jobs/submit',
+    { agent: 'AlphaCal', dataset_id: datasetId, params },
+    { headers: authHeaders(token) }
+  );
+
+  if (!isOk(res)) {
+    throw new Error(`job submit failed (${res.status}): ${JSON.stringify(res.data)}`);
+  }
+
+  if (!res.data?.id) {
+    throw new Error(`job submit returned no id: ${JSON.stringify(res.data)}`);
+  }
+
+  console.log(`submitted job ${res.data.id} status ${res.status}`);
+  return res.data.id;
+}
+
+async function getJobStatus(jobId, token) {
+  const res = await http.get(`/api/jobs/${jobId}/status`, { headers: authHeaders(token) });
+  if (!isOk(res)) {
+    throw new Error(`status check failed (${res.status}): ${JSON.stringify(res.data)}`);
+  }
+  return res.data;
+}
+
+async function waitForTerminalStatus(jobId, token) {
+  const start = Date.now();
+  let attempt = 0;
+
+  while (true) {
+    attempt += 1;
+
+    try {
+      const data = await getJobStatus(jobId, token);
+      const status = data.status;
+      console.log(`job ${jobId} status ${status}`);
+
+      if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(status)) {
+        return data;
+      }
+    } catch (e) {
+      console.warn(`poll attempt ${attempt} error: ${e?.message || e}`);
     }
-    return null;
+
+    if (Date.now() - start > POLL_TIMEOUT_MS) {
+      throw new Error(`poll timeout after ${Math.round(POLL_TIMEOUT_MS / 1000)}s for job ${jobId}`);
+    }
+
+    const delay = Math.min(POLL_INTERVAL_MS * Math.max(1, Math.floor(attempt / 5)), 10_000);
+    await sleep(delay);
   }
 }
 
-async function waitForStatus(jobId, token) {
-  const headers = { Authorization: `Bearer ${token}` };
-  while (true) {
-    const res = await axios.get(`${baseUrl}/api/jobs/${jobId}/status`, { headers });
-    const status = res.data.status;
-    console.log(`job ${jobId} status ${status}`);
-    if (['COMPLETED','FAILED','CANCELLED'].includes(status)) {
-      return res.data;
+async function writeReport(outDir, final, datasetId, output) {
+  const report = {
+    id: final.id,
+    dataset: datasetId,
+    status: final.status,
+    result: final.result,
+    created_at: final.created_at,
+    completed_at: final.completed_at,
+    output: output || null,
+    local_fits_path: final.status === 'COMPLETED' ? path.join(outDir, `job-output-${final.id}.fits`) : null,
+    local_png_path: final.status === 'COMPLETED' ? path.join(outDir, `job-output-${final.id}.png`) : null,
+  };
+
+  const fileName = path.join(outDir, process.env.REPORT_FILE || `job-report-${Date.now()}.json`);
+  await fs.promises.writeFile(fileName, JSON.stringify(report, null, 2));
+  console.log(`wrote report to ${fileName}`);
+}
+
+async function pickPython() {
+  let pythonCmd = process.env.PYTHON || 'python';
+
+  const venvPython = path.join(
+    process.cwd(),
+    '.venv',
+    process.platform === 'win32' ? 'Scripts' : 'bin',
+    process.platform === 'win32' ? 'python.exe' : 'python'
+  );
+
+  const venvExists = await fs.promises
+    .access(venvPython)
+    .then(() => true)
+    .catch(() => false);
+
+  if (venvExists) pythonCmd = venvPython;
+  return pythonCmd;
+}
+
+async function ensurePythonDeps(pythonCmd, modules, { hardFail = false } = {}) {
+  const check = async (m) => {
+    try {
+      await exec(`${pythonCmd} -c "import ${m}"`);
+      return true;
+    } catch {
+      return false;
     }
-    await new Promise((r) => setTimeout(r, 2000));
+  };
+
+  for (const m of modules) {
+    const ok = await check(m);
+    if (!ok) {
+      const msg = `missing python module "${m}" (python=${pythonCmd}).`;
+      if (hardFail) throw new Error(msg);
+      console.warn(msg);
+      return false;
+    }
   }
+  return true;
+}
+
+async function generateFitsAndPng({ outDir, jobId, targetName }) {
+  const pythonCmd = await pickPython();
+
+  const requirePy = !!process.env.REQUIRE_PY;
+  const requirePng = !!process.env.REQUIRE_PNG;
+
+  const hasFitsDeps = await ensurePythonDeps(pythonCmd, ['numpy', 'astropy'], { hardFail: requirePy });
+  if (!hasFitsDeps) return;
+
+  const fitsPath = path.join(outDir, `job-output-${jobId}.fits`);
+  const pngPath = path.join(outDir, `job-output-${jobId}.png`);
+
+  const genScript = `
+import os
+import numpy as np
+from astropy.io import fits
+
+target = os.environ.get("TARGET_NAME", "M51")
+out_fits = os.environ["OUT_FITS"]
+
+size = int(os.environ.get("FITS_SIZE", "2048"))
+yy, xx = np.indices((size, size), dtype=np.float32)
+cx = (size - 1) / 2.0
+cy = (size - 1) / 2.0
+x = xx - cx
+y = yy - cy
+r = np.hypot(x, y)
+theta = np.arctan2(y, x)
+
+obj = target.lower()
+
+if ("galaxy" in obj) or ("andromeda" in obj) or ("m31" in obj):
+    img = np.exp(-r/ (size * 0.20)) * (1.0 + 0.5*np.cos(4*theta + r/(size * 0.03)))
+elif "mars" in obj:
+    img = (r < (size * 0.40)).astype(np.float32)
+else:
+    sigma = size * 0.25
+    img = np.exp(-((x*x + y*y) / (2.0 * sigma*sigma))).astype(np.float32)
+
+hdu = fits.PrimaryHDU(img.astype(np.float32))
+hdu.header["OBJECT"] = target
+hdu.writeto(out_fits, overwrite=True)
+`;
+
+  const genTmp = path.join(outDir, `generate_fits_${Date.now()}.py`);
+  await fs.promises.writeFile(genTmp, genScript);
+
+  await exec(`${pythonCmd} ${genTmp}`, {
+    env: { ...process.env, TARGET_NAME: targetName, OUT_FITS: fitsPath },
+    cwd: outDir,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  await fs.promises.unlink(genTmp);
+  console.log('generated FITS file', fitsPath);
+
+  const hasPngDeps = await ensurePythonDeps(pythonCmd, ['matplotlib'], { hardFail: requirePng });
+  if (!hasPngDeps) {
+    console.warn('skipping PNG generation (matplotlib missing).');
+    return;
+  }
+
+  const convScript = `
+import os
+from astropy.io import fits
+import matplotlib.pyplot as plt
+
+in_fits = os.environ["IN_FITS"]
+out_png = os.environ["OUT_PNG"]
+target = os.environ.get("TARGET_NAME", "")
+
+hdu = fits.open(in_fits)[0]
+plt.imshow(hdu.data, cmap="gray", origin="lower")
+plt.title(f"OBJECT: {target}")
+plt.axis("off")
+plt.savefig(out_png, bbox_inches="tight", pad_inches=0)
+`;
+
+  const convTmp = path.join(outDir, `convert_fits_${Date.now()}.py`);
+  await fs.promises.writeFile(convTmp, convScript);
+
+  await exec(`${pythonCmd} ${convTmp}`, {
+    env: { ...process.env, TARGET_NAME: targetName, IN_FITS: fitsPath, OUT_PNG: pngPath },
+    cwd: outDir,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  await fs.promises.unlink(convTmp);
+  console.log('generated PNG file', pngPath);
 }
 
 async function main() {
-  // use seeded credentials from env if available
   const userEmail = process.env.USER_EMAIL || process.env.SEED_TEST_EMAIL || 'test@cosmic.local';
   const userPass = process.env.USER_PASS || process.env.SEED_TEST_PASSWORD || 'Password123!';
   const adminEmail = process.env.ADMIN_EMAIL || process.env.SEED_ADMIN_EMAIL || 'admin@cosmic.local';
   const adminPass = process.env.ADMIN_PASS || process.env.SEED_ADMIN_PASSWORD || 'AdminPassword123!';
 
-  // clean previous artifacts so only a single job's files remain
-  const outDir = path.resolve(process.cwd(), 'job-test');
-  await fs.promises.rm(outDir, { recursive: true, force: true });
-  await fs.promises.mkdir(outDir, { recursive: true });
-
-  // helper: list all files under a directory (recursively)
-  async function listFiles(dir) {
-    let results = [];
-    for (const entry of await fs.promises.readdir(dir, { withFileTypes: true })) {
-      const res = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        results = results.concat(await listFiles(res));
-      } else {
-        results.push(res);
-      }
-    }
-    return results;
-  }
+  await ensureCleanDir(OUT_DIR);
 
   console.log('Logging in as regular user...');
   let userToken = null;
@@ -110,251 +271,56 @@ async function main() {
     const user = await login(userEmail, userPass);
     userToken = user.access_token;
     console.log('User token:', maskToken(userToken));
-  } catch (err) {
-    console.error('User login error:', err.message);
+  } catch (e) {
+    console.error('User login error:', e.message || e);
+    process.exitCode = 1;
+    return;
   }
 
-  // skip listing history; demo should focus on the single submitted job
-
-  // determine dataset to use for submission; env vars control outcome
-  // - DATASET_ID: explicit dataset identifier (takes precedence)
-  // - FAILURE: when truthy the script will pick a "quota" dataset to
-  //   exercise the failure path in the demo adapter.
-  // - TARGET: object name to include in job params and FITS header
-  // Default behaviour is to submit a working job (e2e-pass-dataset...).
   const datasetId =
     process.env.DATASET_ID ||
-    (process.env.FAILURE
-      ? `quota-trigger-${Date.now()}`
-      : `e2e-pass-dataset-${Date.now()}`);
+    (process.env.FAILURE ? `quota-trigger-${Date.now()}` : `e2e-pass-dataset-${Date.now()}`);
+
   const targetName = process.env.TARGET || 'M51';
+
   console.log(`Submitting job against dataset: ${datasetId} target: ${targetName}`);
-  if (userToken) {
-    const jobId = await submitJob(userToken, datasetId, {
-      gpu_count: 1,
-      rfi_strategy: 'medium',
-      target_name: targetName,
-    });
-    if (jobId) {
-      const final = await waitForStatus(jobId, userToken);
-      console.log('final job', final);
-      if (final.status !== 'COMPLETED') {
-        // if job didn't succeed, surface the failure reason and exit non‑zero
-        const reason =
-          final.result?.error_message || final.notes || 'unknown';
-        console.error(`job did not complete successfully: ${reason}`);
-        process.exit(1);
-      } else {
-        // successful run – report the output/product if present
-        const output = final.result?.output_url || final.result?.output;
-        if (output) {
-          // demo adapter returns a fake NRAO URL; strip domain for clarity
-          const display = String(output).replace(
-            /^https:\/\/archive\.vla\.nrao\.edu/, 
-            '[demo-host]'
-          );
-          console.log('job produced output:', display);
-        }
-      }
 
-      // when running with real data we can attempt to locate a FITS in astronomy-data
-      const useReal = !!process.env.USE_REAL_DATA;
-      let realFits = null;
-      if (useReal) {
-        try {
-          const all = await listFiles(path.resolve(process.cwd(), 'astronomy-data'));
-          const targ = targetName.toLowerCase();
-          for (const f of all) {
-            if (f.toLowerCase().endsWith('.fits') || f.toLowerCase().endsWith('.ms')) {
-              if (f.toLowerCase().includes(targ)) {
-                realFits = f;
-                break;
-              }
-            }
-          }
-          if (realFits) {
-            console.log('found real dataset:', realFits);
-          } else {
-            console.log('no matching real dataset found in astronomy-data');
-          }
-        } catch (err) {
-          console.error('error scanning astronomy-data', err);
-        }
-      }
-      // outDir was already prepared at script start
+  const jobId = await submitJob(userToken, datasetId, {
+    gpu_count: 1,
+    rfi_strategy: 'medium',
+    target_name: targetName,
+  });
 
-      // write a simple report file for CI/inspection
-      try {
-        const report = {
-          id: final.id,
-          dataset: datasetId,
-          status: final.status,
-          result: final.result,
-          created_at: final.created_at,
-          completed_at: final.completed_at,
-          output: output || null,
-          local_fits_path: final.status === 'COMPLETED' ? path.join(outDir, `job-output-${final.id}.fits`) : null,
-          local_png_path: final.status === 'COMPLETED' ? path.join(outDir, `job-output-${final.id}.png`) : null,
-        };
-        const fileName = path.join(
-          outDir,
-          process.env.REPORT_FILE || `job-report-${Date.now()}.json`,
-        );
-        await fs.promises.writeFile(fileName, JSON.stringify(report, null, 2));
-        console.log(`wrote report to ${fileName}`);
-      } catch (err) {
-        console.error('failed to write report file', err);
-      }
+  const final = await waitForTerminalStatus(jobId, userToken);
+  console.log('final job', final);
 
-      // always generate a real FITS file using Python + astropy when job succeeded
-      if (final.status === 'COMPLETED') {
-        try {
-          const fitsPath = path.join(outDir, `job-output-${final.id}.fits`);
-          if (useReal && realFits) {
-            // copy the real dataset rather than generate
-            await fs.promises.copyFile(realFits, fitsPath);
-            console.log('copied real FITS to', fitsPath);
-          } else {
-            // escape backslashes for Python strings
-            const safeFitsPath = fitsPath.replace(/\\/g, '\\\\');
-            const script = `
-import numpy as np
-from astropy.io import fits
-
-# synthetic image selection based on object name
-size = 4096
-arr = np.zeros((size, size), dtype=np.float32)
-obj = '${targetName}'.lower()
-if 'galaxy' in obj or 'andromeda' in obj or 'm31' in obj:
-    # simple spiral galaxy using polar coordinates
-    cx, cy = size//2, size//2
-    for i in range(size):
-        for j in range(size):
-            x = i - cx
-            y = j - cy
-            r = np.hypot(x, y)
-            theta = np.arctan2(y, x)
-            arr[j,i] = np.exp(-r/800.0) * (1 + 0.5*np.cos(4*theta + r/100.0))
-elif 'mars' in obj:
-    # a red planet disk
-    cx, cy = size//2, size//2
-    for i in range(size):
-        for j in range(size):
-            r = np.hypot(i-cx, j-cy)
-            arr[j,i] = np.where(r < size*0.4, 1.0, 0.0)
-else:
-    # default: sharp Gaussian blob filling ~75%
-    cx, cy = size//2, size//2
-    sigma = size * 0.25
-    for i in range(size):
-        for j in range(size):
-            arr[j,i] = np.exp(-((i-cx)**2+(j-cy)**2) / (2*sigma**2))
-
-hdu = fits.PrimaryHDU(arr)
-hdu.header['OBJECT'] = '${targetName}'
-hdu.writeto(r'${safeFitsPath}', overwrite=True)
-`;
-          const tmp = path.join(outDir, 'generate_fits.py');
-          await fs.promises.writeFile(tmp, script);
-          const { exec } = await import('child_process');
-          // prefer virtualenv python if available
-          let pythonCmd = process.env.PYTHON || 'python';
-          const venvPython = path.join(process.cwd(), '.venv',
-            process.platform === 'win32' ? 'Scripts' : 'bin',
-            process.platform === 'win32' ? 'python.exe' : 'python');
-          if (await fs.promises
-            .access(venvPython)
-            .then(() => true)
-            .catch(() => false)) {
-            pythonCmd = venvPython;
-          }
-          await new Promise((res, rej) =>
-            exec(
-              `${pythonCmd} ${tmp}`,
-              { cwd: outDir },
-              (err, stdout, stderr) => {
-                if (err) return rej(err);
-                res(stdout);
-              },
-            ),
-          );
-          console.log('generated FITS file', fitsPath);
-          await fs.promises.unlink(tmp);
-          // convert FITS -> PNG using Python/astropy & matplotlib
-          try {
-            // ensure matplotlib installed in the venv
-            try {
-              await new Promise((res, rej) => {
-                exec(
-                  `${pythonCmd} -c "import matplotlib"`,
-                  (err) => {
-                    if (err) return rej(err);
-                    res();
-                  },
-                );
-              });
-            } catch {
-              console.log('matplotlib not present, installing in venv');
-              await new Promise((res, rej) => {
-                exec(
-                  `${pythonCmd} -m pip install matplotlib`,
-                  (err, stdout, stderr) => {
-                    if (err) return rej(err);
-                    console.log(stdout, stderr);
-                    res();
-                  },
-                );
-              });
-            }
-
-            const pngPath = path.join(outDir, `job-output-${final.id}.png`);
-            const safeFits = fitsPath.replace(/\\/g, '\\\\');
-            const safePng = pngPath.replace(/\\/g, '\\\\');
-            const convScript = `
-from astropy.io import fits
-import matplotlib.pyplot as plt
-
-hdu = fits.open(r'${safeFits}')[0]
-plt.imshow(hdu.data, cmap='gray', origin='lower')
-plt.title('OBJECT: ${targetName}')
-plt.axis('off')
-plt.savefig(r'${safePng}', bbox_inches='tight', pad_inches=0)
-`;
-            const convTmp = path.join(outDir, 'convert_fits.py');
-            await fs.promises.writeFile(convTmp, convScript);
-            await new Promise((res, rej) => {
-              exec(
-                `${pythonCmd} ${convTmp}`,
-                { cwd: outDir },
-                (err, stdout, stderr) => {
-                  if (err) return rej(err);
-                  res(stdout);
-                },
-              );
-            });
-            console.log('generated PNG file', pngPath);
-            await fs.promises.unlink(convTmp);
-          } catch (err) {
-            console.error('failed to convert FITS to PNG', err);
-          }
-        } catch (err) {
-          console.error('failed to create FITS file', err);
-        }
-      }
-
-  let adminToken = null;
-  try {
-    const admin = await login(adminEmail, adminPass);
-    adminToken = admin.access_token;
-    console.log('Admin token:', maskToken(adminToken));
-  } catch (err) {
-    console.error('Admin login error:', err.message);
+  const output = final.result?.output_url || final.result?.output || null;
+  if (output) {
+    const display = String(output).replace(/^https:\/\/archive\.vla\.nrao\.edu/, '[demo-host]');
+    console.log('job produced output:', display);
   }
 
-  // admin probe omitted in demo run
+  await writeReport(OUT_DIR, final, datasetId, output);
+
+  if (final.status !== 'COMPLETED') {
+    const reason = final.result?.error_message || final.notes || 'unknown';
+    console.error(`job did not complete successfully: ${reason}`);
+    process.exitCode = 1;
+    return;
+  }
+
+  await generateFitsAndPng({ outDir: OUT_DIR, jobId: final.id, targetName });
+
+  console.log('Logging in as admin...');
+  try {
+    const admin = await login(adminEmail, adminPass);
+    console.log('Admin token:', maskToken(admin.access_token));
+  } catch (e) {
+    console.warn('Admin login failed (non-fatal for demo):', e.message || e);
+  }
 }
 
 main().catch((e) => {
-  console.error('Unexpected error:', e);
-  process.exit(1);
+  console.error('Unexpected error:', e?.stack || e);
+  process.exitCode = 1;
 });
