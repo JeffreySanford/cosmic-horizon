@@ -563,3 +563,15 @@
     gap: 0.5rem;
   }
 }
+/* tooltip for hover label */
+.cursor-label {
+  position: absolute;
+  pointer-events: none;
+  padding: 0.2rem 0.4rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  transform: translate(-50%, -120%);
+  white-space: nowrap;
+}

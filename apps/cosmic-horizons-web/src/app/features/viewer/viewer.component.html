@@ -32,6 +32,11 @@
           class="aladin-host"
           aria-label="Aladin sky viewer"
         ></div>
+        <!-- tooltip that follows cursor when a catalog object is found -->
+        <div class="cursor-label" *ngIf="cursorLabel"
+             [style.left.px]="cursorX" [style.top.px]="cursorY">
+          {{ cursorLabel.name }} ({{ cursorLabel.object_type }})
+        </div>
         <div class="center-indicator" aria-hidden="true">
           <span class="crosshair"></span>
           @if (centerCatalogLabel) {

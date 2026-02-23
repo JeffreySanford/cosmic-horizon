@@ -118,6 +118,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   cutoutDetail: 'standard' | 'high' | 'max' = 'max';
   gridOverlayEnabled = false;
   labelsOverlayEnabled = true;
+  // When user hovers over sky, nearest catalog label is shown in a tooltip
+  cursorLabel: NearbyCatalogLabelModel | null = null;
+  cursorX = 0;
+  cursorY = 0;
+  cursorLookupDebounceMs = 250; // faster debounce for hover
   pdssColorEnabled = false;
   controlPanelCollapsed = false;
   keyboardHelpVisible = false;
@@ -879,6 +884,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
+    // save for tooltip positioning
+    this.cursorX = x;
+    this.cursorY = y;
+
     const pix2world =
       this.aladinView.pix2world ??
       (
@@ -927,6 +936,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       // Immediately clear catalog labels for responsive UX
       this.catalogLabels = [];
+      this.cursorLabel = null;
     });
   }
 
@@ -951,7 +961,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         .subscribe({
           next: (labels) => {
             this.ngZone.run(() => {
-              this.catalogLabels = this.selectNearbyLabels(labels);
+              const nearby = this.selectNearbyLabels(labels);
+              this.catalogLabels = nearby;
+              // update hover tooltip with closest label if any
+              this.cursorLabel = nearby.length > 0 ? nearby[0] : null;
             });
           },
           error: () => {
