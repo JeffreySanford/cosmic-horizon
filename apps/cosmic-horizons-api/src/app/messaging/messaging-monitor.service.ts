@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Kafka, logLevel } from 'kafkajs';
+import snappy from 'kafkajs-snappy';
 import Redis from 'ioredis';
 import { Pool } from 'pg';
 import type { MessagingInfraSnapshot } from './messaging.types';
@@ -115,6 +116,7 @@ export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
       brokers: [`${kafkaHost}:${kafkaPort}`],
       logLevel: logLevel.NOTHING,
     });
+    snappy(kafka);
     this.kafkaAdmin = kafka.admin();
 
     const redisHost = this.config.get<string>('REDIS_HOST') ?? 'localhost';

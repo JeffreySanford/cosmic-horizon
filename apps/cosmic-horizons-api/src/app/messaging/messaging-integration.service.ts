@@ -19,6 +19,7 @@ import { LoggingService } from '../logging/logging.service';
 import { MessagingStatsService } from './messaging-stats.service';
 import { firstValueFrom, Subscription, timeout } from 'rxjs';
 import { Kafka, Partitioners } from 'kafkajs';
+import snappy from 'kafkajs-snappy';
 import { connect } from 'amqplib';
 
 @Injectable()
@@ -310,6 +311,7 @@ export class MessagingIntegrationService
         `${this.configService.get('KAFKA_HOST') || 'localhost'}:${this.configService.get('KAFKA_PORT') || '9092'}`,
       ],
     });
+    snappy(kafka);
     const admin = kafka.admin();
 
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

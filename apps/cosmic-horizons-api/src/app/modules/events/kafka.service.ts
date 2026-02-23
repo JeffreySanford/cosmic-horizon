@@ -9,6 +9,7 @@ import {
   CompressionTypes,
   logLevel,
 } from 'kafkajs';
+import snappy from 'kafkajs-snappy';
 import {
   EventBase,
   KAFKA_TOPICS,
@@ -74,6 +75,8 @@ export class KafkaService implements OnModuleDestroy {
           maxRetryTime: 1000,
         },
       });
+      // enable snappy compression support
+      snappy(this.kafka);
 
       // Initialize producer with idempotence
       const idempotentProducer =
