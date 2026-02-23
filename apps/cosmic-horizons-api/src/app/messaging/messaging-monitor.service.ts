@@ -111,12 +111,16 @@ export class MessagingMonitorService implements OnModuleInit, OnModuleDestroy {
   private initializeClients(): void {
     const kafkaHost = this.config.get<string>('KAFKA_HOST') ?? 'localhost';
     const kafkaPort = this.config.get<string>('KAFKA_PORT') ?? '9092';
+    // register snappy codec globally
+    {
+      const { CompressionTypes, CompressionCodecs } = require('kafkajs');
+      CompressionCodecs[CompressionTypes.Snappy] = snappy;
+    }
     const kafka = new Kafka({
       clientId: 'cosmic-horizons-monitor',
       brokers: [`${kafkaHost}:${kafkaPort}`],
       logLevel: logLevel.NOTHING,
     });
-    snappy(kafka);
     this.kafkaAdmin = kafka.admin();
 
     const redisHost = this.config.get<string>('REDIS_HOST') ?? 'localhost';

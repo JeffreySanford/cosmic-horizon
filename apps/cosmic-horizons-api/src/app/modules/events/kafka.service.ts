@@ -63,6 +63,10 @@ export class KafkaService implements OnModuleDestroy {
         .split(',')
         .map((b: string) => b.trim());
 
+      // register codec globally for snappy (per plugin instructions)
+      const { CompressionTypes, CompressionCodecs } = require('kafkajs');
+      CompressionCodecs[CompressionTypes.Snappy] = snappy;
+
       this.kafka = new Kafka({
         clientId: 'cosmic-horizons-api',
         brokers,
@@ -75,8 +79,6 @@ export class KafkaService implements OnModuleDestroy {
           maxRetryTime: 1000,
         },
       });
-      // enable snappy compression support
-      snappy(this.kafka);
 
       // Initialize producer with idempotence
       const idempotentProducer =

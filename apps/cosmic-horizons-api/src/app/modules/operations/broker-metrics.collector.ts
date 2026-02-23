@@ -216,6 +216,11 @@ export class BrokerMetricsCollector {
   private async collectKafkaMetricsNative(): Promise<BrokerMetricsDTO> {
     const brokersEnv = process.env['KAFKA_BROKERS'] ?? 'localhost:9092';
     const brokers = brokersEnv.split(',').map((b) => b.trim());
+    // register snappy codec globally for this instance (and others)
+    {
+      const { CompressionTypes, CompressionCodecs } = require('kafkajs');
+      CompressionCodecs[CompressionTypes.Snappy] = require('kafkajs-snappy');
+    }
     const kafka = new Kafka({ clientId: 'broker-metrics-collector', brokers });
     const admin = kafka.admin();
 

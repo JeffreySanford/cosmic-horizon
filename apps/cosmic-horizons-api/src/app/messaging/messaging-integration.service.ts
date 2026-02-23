@@ -305,13 +305,17 @@ export class MessagingIntegrationService
   }
 
   private async ensureKafkaTopicsWithRetry(maxAttempts = 5): Promise<void> {
+    // register snappy codec globally
+    {
+      const { CompressionTypes, CompressionCodecs } = require('kafkajs');
+      CompressionCodecs[CompressionTypes.Snappy] = snappy;
+    }
     const kafka = new Kafka({
       clientId: 'cosmic-horizons-admin',
       brokers: [
         `${this.configService.get('KAFKA_HOST') || 'localhost'}:${this.configService.get('KAFKA_PORT') || '9092'}`,
       ],
     });
-    snappy(kafka);
     const admin = kafka.admin();
 
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
