@@ -7,10 +7,9 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background:
-    radial-gradient(circle at 12% -18%, #1d4ed8 0%, transparent 48%),
-    radial-gradient(circle at 92% 2%, #f97316 0%, transparent 42%),
-    linear-gradient(180deg, #050a16, #081225 42%, #0b1730);
+  // simplified dark-leaning gradient (blue→black).  radial accents removed
+  // to avoid accidental orange tones.
+  background: linear-gradient(180deg, #000022 0%, #000000 100%);
   color: #e6eefc;
 }
 
