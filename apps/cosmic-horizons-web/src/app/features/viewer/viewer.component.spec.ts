@@ -427,6 +427,35 @@ describe('ViewerComponent', () => {
     expect(component.centerCatalogLabel?.name).toBe('Center Match');
   });
 
+  it('cursor lookup does not erase existing catalogLabels', async () => {
+    // pre-populate panel list
+    component.catalogLabels = [
+      { name: 'Keep Me', ra: 0, dec: 0, object_type: 'Star', angular_distance_deg: 0.5, confidence: 0.5 },
+    ];
+
+    // arrange for the API to return a label that lies outside the threshold
+    viewerApiService.getNearbyLabels.mockReturnValue(
+      of([
+        { name: 'Far Away', ra: 0, dec: 0, object_type: 'Galaxy', angular_distance_deg: 1.0, confidence: 0.1 },
+      ]),
+    );
+
+    // call the cursor lookup helper directly with a state whose fov makes
+    // threshold smaller than 1.0
+    // access private helpers via bracket notation
+    const state = (component as any).currentState();
+    state.fov = 1.5;
+    (component as any)['scheduleNearbyLabelLookupAtCursor'](state);
+
+    // run timers and allow async
+    await vi.advanceTimersByTimeAsync((component as any).cursorLookupDebounceMs + 10);
+    await fixture.whenStable();
+
+    // panel labels should remain intact, only the tooltip cleared
+    expect(component.catalogLabels.map((l) => l.name)).toContain('Keep Me');
+    expect(component.cursorLabel).toBeNull();
+  });
+
   it('clears stale catalog labels immediately when center moves', () => {
     component.catalogLabels = [
       {

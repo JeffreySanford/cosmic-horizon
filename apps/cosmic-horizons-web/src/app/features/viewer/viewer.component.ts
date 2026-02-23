@@ -955,8 +955,27 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
             this.ngZone.run(() => {
               const nearby = this.selectNearbyLabels(labels);
               this.catalogLabels = nearby;
-              // update hover tooltip with closest label if any
-              this.cursorLabel = nearby.length > 0 ? nearby[0] : null;
+              // apply a tighter threshold for what counts as "under the cursor";
+              // reuse the same formula we use for center label matching.  if the
+              // nearest object sits outside this radius then treat the cursor as
+              // being over empty sky and clear the tooltip.
+              if (nearby.length > 0) {
+                const nearest = nearby[0];
+                const matchThresholdDeg = Math.max(
+                  0.0015,
+                  Math.min(0.03, state.fov * 0.06),
+                );
+                if (nearest.angular_distance_deg <= matchThresholdDeg) {
+                  this.cursorLabel = nearest;
+                } else {
+                  // cursor is over empty sky; clear only the hover tooltip.  do
+                  // not wipe the shared `catalogLabels` array since that is used
+                  // by the side panel and by other lookups.
+                  this.cursorLabel = null;
+                }
+              } else {
+                this.cursorLabel = null;
+              }
             });
           },
           error: () => {
