@@ -122,10 +122,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   cursorLabel: NearbyCatalogLabelModel | null = null;
   cursorX = 0;
   cursorY = 0;
-  pdssColorEnabled = false;
   controlPanelCollapsed = false;
   keyboardHelpVisible = false;
-  private previousSurvey = 'VLASS'; // Track survey when disabling P/DSS
   readonly surveyOptions = [
     { label: 'VLASS', value: 'VLASS' },
     { label: 'DSS2 Color', value: 'DSS2' },
@@ -313,12 +311,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.stateForm.valid) {
           this.syncAladinFromForm();
         }
-        // Sync P/DSS toggle with survey selection
-        if (value.survey === 'DSS2') {
-          this.pdssColorEnabled = true;
-        } else if (this.pdssColorEnabled && value.survey !== 'DSS2') {
-          this.pdssColorEnabled = false;
-        }
+        // no automatic switching between surveys; user picks explicitly from
+        // dropdown.  remove legacy P/DSS2 toggle logic entirely.
       });
   }
 
@@ -335,7 +329,6 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.logViewerEvent('viewer_load_complete', {
             duration_ms: Math.round(performance.now() - startAt),
             grid_enabled: this.gridOverlayEnabled,
-            pdss_enabled: this.pdssColorEnabled,
           });
 
           // Set up mouse interaction outside Angular zone to avoid excessive change detection
@@ -834,28 +827,6 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.scheduleNearbyLabelLookup(this.currentState(), { force: true });
   }
 
-  togglePdssColor(enabled: boolean): void {
-    const previous = this.pdssColorEnabled;
-    this.pdssColorEnabled = enabled;
-
-    if (enabled) {
-      // Save current survey before switching to DSS2
-      this.previousSurvey = this.stateForm.value.survey || 'VLASS';
-      this.stateForm.patchValue({ survey: 'DSS2' }, { emitEvent: true });
-    } else {
-      // Switch back to previous survey when disabling P/DSS
-      this.stateForm.patchValue(
-        { survey: this.previousSurvey },
-        { emitEvent: true },
-      );
-    }
-
-    this.logViewerEvent('pdss_toggle_requested', {
-      previous_enabled: previous,
-      next_enabled: enabled,
-      target_survey: enabled ? 'DSS2' : this.previousSurvey,
-    });
-  }
 
   toggleControlPanel(): void {
     this.controlPanelCollapsed = !this.controlPanelCollapsed;
@@ -1193,7 +1164,6 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.logViewerEvent('aladin_initialized', {
             duration_ms: Math.round(performance.now() - startedAt),
             grid_enabled: this.gridOverlayEnabled,
-            pdss_enabled: this.pdssColorEnabled,
           });
         }
 

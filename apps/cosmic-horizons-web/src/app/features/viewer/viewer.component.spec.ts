@@ -249,6 +249,13 @@ describe('ViewerComponent', () => {
     );
   });
 
+  it('exposes survey options for dropdown selection', () => {
+    // at minimum the list should contain our default surveys
+    const values = component.surveyOptions.map((o) => o.value);
+    expect(values).toContain('VLASS');
+    expect(values).toContain('DSS2');
+  });
+
   it('syncs form values when Aladin emits position and zoom events', async () => {
     vi.useFakeTimers();
     mockAladinView.getRaDec.mockReturnValue([199.1234, -12.3456]);
