@@ -176,16 +176,34 @@ async function main() {
 import numpy as np
 from astropy.io import fits
 
-# very high-resolution synthetic "star" image: sharp Gaussian blob filling ~75%
+# synthetic image selection based on object name
 size = 4096
-cx, cy = size//2, size//2
-# choose sigma so that 3*sigma ~ 0.75*size -> sigma ~ size*0.25
-sigma = size * 0.25
 arr = np.zeros((size, size), dtype=np.float32)
-for i in range(size):
-    for j in range(size):
-        # Gaussian centred in image with large sigma
-        arr[j,i] = np.exp(-((i-cx)**2+(j-cy)**2) / (2*sigma**2))
+obj = '${targetName}'.lower()
+if 'galaxy' in obj or 'andromeda' in obj or 'm31' in obj:
+    # simple spiral galaxy using polar coordinates
+    cx, cy = size//2, size//2
+    for i in range(size):
+        for j in range(size):
+            x = i - cx
+            y = j - cy
+            r = np.hypot(x, y)
+            theta = np.arctan2(y, x)
+            arr[j,i] = np.exp(-r/800.0) * (1 + 0.5*np.cos(4*theta + r/100.0))
+elif 'mars' in obj:
+    # a red planet disk
+    cx, cy = size//2, size//2
+    for i in range(size):
+        for j in range(size):
+            r = np.hypot(i-cx, j-cy)
+            arr[j,i] = np.where(r < size*0.4, 1.0, 0.0)
+else:
+    # default: sharp Gaussian blob filling ~75%
+    cx, cy = size//2, size//2
+    sigma = size * 0.25
+    for i in range(size):
+        for j in range(size):
+            arr[j,i] = np.exp(-((i-cx)**2+(j-cy)**2) / (2*sigma**2))
 
 hdu = fits.PrimaryHDU(arr)
 hdu.header['OBJECT'] = '${targetName}'
