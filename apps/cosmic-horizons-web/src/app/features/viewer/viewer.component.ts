@@ -122,7 +122,6 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   cursorLabel: NearbyCatalogLabelModel | null = null;
   cursorX = 0;
   cursorY = 0;
-  cursorLookupDebounceMs = 250; // faster debounce for hover
   pdssColorEnabled = false;
   controlPanelCollapsed = false;
   keyboardHelpVisible = false;
@@ -867,16 +866,19 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCanvasMouseMove(event: MouseEvent): void {
-    // clear any previous hover while we determine the new object under cursor;
-    // this makes the tooltip disappear immediately when the pointer moves off a
-    // target instead of waiting for the debounced lookup to complete.
-    this.cursorLabel = null;
-
+    // if we're not in a state where label lookups make sense, clear any
+    // existing tooltip and bail out early.  without this the previous cursor
+    // label can stick around when the form is invalid or the overlay is
+    // disabled.
     if (
       !this.labelsOverlayEnabled ||
       !this.aladinView ||
       !this.stateForm.valid
     ) {
+      this.ngZone.run(() => {
+        this.cursorLabel = null;
+        this.catalogLabels = [];
+      });
       return;
     }
 
@@ -902,12 +904,21 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       ).A?.pix2world;
 
     if (!pix2world) {
+      // we can't convert to sky coordinates, so clear the label
+      this.ngZone.run(() => {
+        this.cursorLabel = null;
+        this.catalogLabels = [];
+      });
       return;
     }
 
     try {
       const skyCoords = pix2world(x, y);
       if (!skyCoords || skyCoords.length < 2) {
+        this.ngZone.run(() => {
+          this.cursorLabel = null;
+          this.catalogLabels = [];
+        });
         return;
       }
 
@@ -974,12 +985,13 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           },
           error: () => {
             this.ngZone.run(() => {
-              // Silently ignore errors for cursor lookups
+              // Silently ignore errors for cursor lookups and clear any tooltip
               this.catalogLabels = [];
+              this.cursorLabel = null;
             });
           },
         });
-    }, this.cursorLookupDebounceMs); // 1-second debounce for cursor label lookups
+    }, this.cursorLookupDebounceMs); // short debounce for cursor label lookups (150 ms)
   }
 
   private hydrateStateFromRoute(): void {
