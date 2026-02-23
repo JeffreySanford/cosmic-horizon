@@ -17,6 +17,8 @@ jobs:
       SESSION_SECRET: 'e2e-test-session-secret-min-32-characters'
       NODE_ENV: 'development'
       BASE_URL: 'http://localhost:4200'
+      RABBITMQ_HOST: 'cosmic-horizons-rabbitmq'
+      RABBITMQ_PORT: '5672'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
