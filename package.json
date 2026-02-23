@@ -47,7 +47,7 @@
     "stop:infra": "docker compose -f docker-compose.yml -f docker-compose.events.yml down",
     "monitor:messaging": "node scripts/monitor-messaging.mjs",
     "start": "pnpm start:web",
-    "test": "pnpm standalone:check && pnpm nx run-many --target=test --all",
+    "test": "pnpm standalone:check && pnpm nx run-many --target=test --all --",
     "test:web": "pnpm nx test cosmic-horizons-web",
     "test:api": "pnpm nx test cosmic-horizons-api",
     "test:coverage": "pnpm nx run-many --target=test --all --coverage --watch=false",

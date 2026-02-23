@@ -25,4 +25,5 @@ jobs:
           TACC_LIVE: 'true'
           TACC_TENANT_BASE_URL: 'http://localhost:4000'
           TACC_ACCESS_TOKEN: 'dummy'
-        run: pnpm test -- --testPathPattern=jobs/tacc-integration.adapter.spec.ts
+        # invoke the specific project directly and pass the pattern after -- so Nx forwards it to Jest/Vitest
+        run: pnpm nx run cosmic-horizons-api:test -- --testPathPattern=jobs/tacc-integration.adapter.spec.ts

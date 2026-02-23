@@ -1,5 +1,5 @@
-// simple express server to mimic a subset of Tapis endpoints for CI
-const express = require('express');
+// simple express server to mimic a subset of Tapis endpoints for CI (ES module)
+import express from 'express';
 const app = express();
 app.use(express.json());
 
