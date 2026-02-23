@@ -90,6 +90,20 @@ async function main() {
   await fs.promises.rm(outDir, { recursive: true, force: true });
   await fs.promises.mkdir(outDir, { recursive: true });
 
+  // helper: list all files under a directory (recursively)
+  async function listFiles(dir) {
+    let results = [];
+    for (const entry of await fs.promises.readdir(dir, { withFileTypes: true })) {
+      const res = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        results = results.concat(await listFiles(res));
+      } else {
+        results.push(res);
+      }
+    }
+    return results;
+  }
+
   console.log('Logging in as regular user...');
   let userToken = null;
   try {
@@ -141,6 +155,31 @@ async function main() {
           );
           console.log('job produced output:', display);
         }
+
+      // when running with real data we can attempt to locate a FITS in astronomy-data
+      const useReal = !!process.env.USE_REAL_DATA;
+      let realFits = null;
+      if (useReal) {
+        try {
+          const all = await listFiles(path.resolve(process.cwd(), 'astronomy-data'));
+          const targ = targetName.toLowerCase();
+          for (const f of all) {
+            if (f.toLowerCase().endsWith('.fits') || f.toLowerCase().endsWith('.ms')) {
+              if (f.toLowerCase().includes(targ)) {
+                realFits = f;
+                break;
+              }
+            }
+          }
+          if (realFits) {
+            console.log('found real dataset:', realFits);
+          } else {
+            console.log('no matching real dataset found in astronomy-data');
+          }
+        } catch (err) {
+          console.error('error scanning astronomy-data', err);
+        }
+      }
       // outDir was already prepared at script start
 
       // write a simple report file for CI/inspection
@@ -170,9 +209,14 @@ async function main() {
       if (final.status === 'COMPLETED') {
         try {
           const fitsPath = path.join(outDir, `job-output-${final.id}.fits`);
-              // escape backslashes for Python strings
-          const safeFitsPath = fitsPath.replace(/\\/g, '\\\\');
-          const script = `
+          if (useReal && realFits) {
+            // copy the real dataset rather than generate
+            await fs.promises.copyFile(realFits, fitsPath);
+            console.log('copied real FITS to', fitsPath);
+          } else {
+            // escape backslashes for Python strings
+            const safeFitsPath = fitsPath.replace(/\\/g, '\\\\');
+            const script = `
 import numpy as np
 from astropy.io import fits
 
