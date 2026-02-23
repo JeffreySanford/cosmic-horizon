@@ -39,14 +39,26 @@
         // console noise we were seeing.
         var passiveEvents = ['wheel', 'touchstart', 'touchmove'];
           if (passiveEvents.indexOf(type) !== -1) {
-            if (typeof options === 'boolean') {
-              options = { capture: options, passive: true };
-            } else if (typeof options === 'object') {
-              if (options.passive === undefined) {
-                options.passive = true;
+            // for elements inside the aladin host we want to preserve the
+            // original passive setting so that the viewer can zoom via wheel
+            // instead of scrolling the page.  Aladin registers its own wheel
+            // handler on the host element and expects to be able to call
+            // preventDefault(); if we force passive there the event cannot be
+            // cancelled and the page scrolls instead.
+            const isAladinHost =
+              this instanceof HTMLElement &&
+              this.classList.contains('aladin-host');
+
+            if (!isAladinHost) {
+              if (typeof options === 'boolean') {
+                options = { capture: options, passive: true };
+              } else if (typeof options === 'object') {
+                if (options.passive === undefined) {
+                  options.passive = true;
+                }
+              } else if (options === undefined) {
+                options = { passive: true };
               }
-            } else if (options === undefined) {
-              options = { passive: true };
             }
 
             // if we are adding a passive touch listener, wrap the callback

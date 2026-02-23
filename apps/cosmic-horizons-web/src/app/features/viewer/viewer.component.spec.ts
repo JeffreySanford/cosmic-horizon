@@ -79,6 +79,10 @@ describe('ViewerComponent', () => {
 
   beforeEach(async () => {
     eventCallbacks = {};
+    // intercept console.log so tests can assert on empty-lookups without
+    // polluting output
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+
     mockAladinView = {
       gotoRaDec: vi.fn(),
       setFoV: vi.fn(),
@@ -254,6 +258,13 @@ describe('ViewerComponent', () => {
     const values = component.surveyOptions.map((o) => o.value);
     expect(values).toContain('VLASS');
     expect(values).toContain('DSS2');
+  });
+
+  it('prevents page from scrolling when wheel over viewer host', () => {
+    const hostEl = fixture.nativeElement.querySelector('.aladin-host');
+    const event = new WheelEvent('wheel', { bubbles: true, cancelable: true });
+    hostEl.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
   });
 
   it('syncs form values when Aladin emits position and zoom events', async () => {
@@ -462,6 +473,11 @@ describe('ViewerComponent', () => {
     // panel labels should remain intact, only the tooltip cleared
     expect(component.catalogLabels.map((l) => l.name)).toContain('Keep Me');
     expect(component.cursorLabel).toBeNull();
+    // and we logged the empty lookup so devs can diagnose
+    expect(console.log).toHaveBeenCalledWith(
+      'viewer: lookup returned 0 labels',
+      expect.any(Object),
+    );
   });
 
   it('tooltip clears when subsequent lookup for same position returns no labels', async () => {
@@ -513,6 +529,13 @@ describe('ViewerComponent', () => {
     });
 
     expect(component.catalogLabels).toEqual([]);
+  });
+
+  it('prevents page scroll when mouse wheel is over the viewer', () => {
+    const hostEl = fixture.nativeElement.querySelector('.aladin-host');
+    const evt = new WheelEvent('wheel', { bubbles: true, cancelable: true });
+    hostEl.dispatchEvent(evt);
+    expect(evt.defaultPrevented).toBe(true);
   });
 
   it('opens backend cutout path for science data download', () => {

@@ -355,6 +355,18 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
               fromEvent(host, 'mouseleave')
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe(() => this.onCanvasMouseLeave());
+
+              // prevent page scrolling when wheel occurs over the viewer. the
+              // global passive-shim skips aladin-host elements, so this listener
+              // can safely cancel the event.  we still forward the event to
+              // Aladin, which handles zooming internally.
+              host.addEventListener(
+                'wheel',
+                (e: WheelEvent) => {
+                  e.preventDefault();
+                },
+                { passive: false },
+              );
             }
           });
 
@@ -1003,7 +1015,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
               } else {
                 this.cursorLabel = null;
-                console.debug('viewer: lookup returned 0 labels', { state, radius });
+                // use log instead of debug so developers see the message when
+                // inspecting the console; false negatives are the common pain
+                // point that triggered this issue.
+                console.log('viewer: lookup returned 0 labels', { state, radius });
               }
             });
           },

@@ -508,6 +508,11 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
           ...row,
           confidence: this.computeCatalogConfidence(row, normalizedRadius),
         }));
+      // log result length for telemetry; higher volumes typically mean the API
+      // should show labels and cursor tooltip lookups should succeed.
+      this.logger.log(
+        `SIMBAD returned ${normalized.length} nearby labels (r=${normalizedRadius} limit=${normalizedLimit})`,
+      );
       await this.setNearbyLabelsCache(nearbyCacheKey, normalized);
       return normalized;
     } catch (error) {
