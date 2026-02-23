@@ -2,6 +2,14 @@
 @use 'material/typography' as *;
 @use 'material/variables' as *;
 
+// dark gradient background for all pages
+html,
+body {
+  min-height: 100%;
+  background: linear-gradient(180deg, #000022 0%, #000000 100%);
+  color: var(--md3-color-on-background);
+}
+
 input,
 textarea,
 select,
