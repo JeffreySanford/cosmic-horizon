@@ -1,9 +1,11 @@
 name: Local LLM CI
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
+  workflow_dispatch:
+# disable automatic runs; this workflow is heavy and should be triggered manually only
+#  push:
+#    branches: [main, develop]
+#  pull_request:
 
 jobs:
   llm-e2e:
