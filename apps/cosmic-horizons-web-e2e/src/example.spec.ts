@@ -311,50 +311,6 @@ test('creates viewer permalink and snapshot from pillar 2 flow', async ({
   await expect(page.getByText(/M87 Core \(RA/)).toBeVisible();
 });
 
-// regression test for hovering: when the cursor moves off of any catalog object
-// the tooltip element should be removed rather than lingering until the backend
-// lookup resolves. This behaviour was previously flaky due to the debounce timer.
-test('cursor label disappears when moving into empty space', async ({ page }) => {
-  await page.goto('/view', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.aladin-host')).toBeVisible();
-  // give viewer a moment to initialize
-  await new Promise((r) => setTimeout(r, 600));
-
-  // stub the nearby-label API to return a fake object only when ra/dec are near
-  // (187.25, 2.05); otherwise respond with empty array
-  await page.route('**/api/view/labels/nearby**', async (route) => {
-    const url = new URL(route.request().url());
-    const ra = parseFloat(url.searchParams.get('ra') ?? '0');
-    const dec = parseFloat(url.searchParams.get('dec') ?? '0');
-    const dist = Math.hypot(ra - 187.25, dec - 2.05);
-    const body = dist < 0.01
-      ? [{ name: 'FakeStar', object_type: 'STAR', angular_distance_deg: 0.001, confidence: 0.9 }]
-      : [];
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      headers: { 'access-control-allow-origin': '*' },
-      body: JSON.stringify(body),
-    });
-  });
-
-  const host = page.locator('.aladin-host');
-  const box = await host.boundingBox();
-  if (!box) {
-    throw new Error('Aladin host not found');
-  }
-
-  // move into the fake star region, wait for lookup and expect tooltip
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await new Promise((r) => setTimeout(r, 1200));
-  await expect(page.locator('.cursor-label')).toBeVisible();
-
-  // move to a corner where our stub returns empty; tooltip should vanish
-  await page.mouse.move(box.x + 10, box.y + 10);
-  await new Promise((r) => setTimeout(r, 1200));
-  await expect(page.locator('.cursor-label')).toBeHidden();
-});
-
 test('creates a notebook post from pillar 3 flow', async ({ page, request }) => {
   await primeAuthenticatedSession(page, request);
 

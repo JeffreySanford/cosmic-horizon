@@ -64,7 +64,7 @@
           </mat-slide-toggle>
           <mat-form-field appearance="outline" class="survey-select">
           <mat-label>Survey</mat-label>
-          <mat-select [formControl]="stateForm.controls.survey">
+          <mat-select [formControl]="surveyControl">
             <mat-option *ngFor="let option of surveyOptions" [value]="option.value">
               {{ option.label }}
             </mat-option>
