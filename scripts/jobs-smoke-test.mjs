@@ -155,6 +155,7 @@ async function main() {
           );
           console.log('job produced output:', display);
         }
+      }
 
       // when running with real data we can attempt to locate a FITS in astronomy-data
       const useReal = !!process.env.USE_REAL_DATA;
