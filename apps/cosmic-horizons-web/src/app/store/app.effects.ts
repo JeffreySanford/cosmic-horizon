@@ -8,7 +8,6 @@ import {
 import { mergeMap, of } from 'rxjs';
 import * as AuthActions from './features/auth/auth.actions';
 import * as UiActions from './features/ui/ui.actions';
-import * as JobsActions from './features/jobs/jobs.actions';
 import * as AlertsActions from './features/alerts/alerts.actions';
 import * as TelemetryActions from './features/telemetry/telemetry.actions';
 
