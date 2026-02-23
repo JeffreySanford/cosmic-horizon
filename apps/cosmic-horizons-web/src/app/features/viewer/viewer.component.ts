@@ -867,6 +867,11 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCanvasMouseMove(event: MouseEvent): void {
+    // clear any previous hover while we determine the new object under cursor;
+    // this makes the tooltip disappear immediately when the pointer moves off a
+    // target instead of waiting for the debounced lookup to complete.
+    this.cursorLabel = null;
+
     if (
       !this.labelsOverlayEnabled ||
       !this.aladinView ||
