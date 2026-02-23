@@ -341,11 +341,7 @@ plt.savefig(r'${safePng}', bbox_inches='tight', pad_inches=0)
           console.error('failed to create FITS file', err);
         }
       }
-      }
-    }
-  }
 
-  console.log('Logging in as admin...');
   let adminToken = null;
   try {
     const admin = await login(adminEmail, adminPass);
