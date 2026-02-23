@@ -38,6 +38,6 @@ test('labeling center should not emit Aladin logger CORS/fetch or passive-event 
 
   const joined = logs.join('\n');
   expect(joined).not.toMatch(
-    /AladinLiteLogger|Failed to fetch|Unable to preventDefault/i,
+    /AladinLiteLogger|Failed to fetch|Unable to preventDefault|\[Violation\]/i,
   );
 });
