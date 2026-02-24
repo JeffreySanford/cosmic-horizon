@@ -60,6 +60,11 @@ function collectChangedFiles() {
     if (lastDot < 0) {
       return false;
     }
+    // Ignore CI-generated job test reports and other generated artifacts
+    if (file.startsWith('job-test/') || file.includes('/job-test/')) {
+      return false;
+    }
+
     return PRETTIER_EXTENSIONS.has(file.slice(lastDot));
   });
 }
