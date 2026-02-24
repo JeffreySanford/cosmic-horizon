@@ -106,7 +106,7 @@ export class AppController {
           id: 'documentation--architecture--architecture',
           label: 'Architecture',
           section: 'Architecture',
-          sourcePath: 'documentation/architecture/ARCHITECTURE.md',
+          sourcePath: 'documentation/architecture/core/ARCHITECTURE.md',
         },
         {
           id: 'documentation--planning--roadmap--roadmap',

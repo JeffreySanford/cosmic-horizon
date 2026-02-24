@@ -273,7 +273,7 @@ Within Cosmic Horizons Repository:
 - **Backend API**: `documentation/backend/API-ROUTES.md` — All API endpoints
 - **Logging**: `documentation/backend/LOGGING-SYSTEM-DESIGN.md` — Audit trail integration
 - **Rate Limiting**: `documentation/backend/RATE-LIMITING.md` — Messaging API quotas
-- **Architecture**: `documentation/architecture/ARCHITECTURE.md` — System-wide design
+- **Architecture**: `documentation/architecture/core/ARCHITECTURE.md` — System-wide design
 - **Testing**: `documentation/guides/TESTING_GUIDE.md` — Unit & E2E test patterns
 - **Environment**: `documentation/reference/ENV-REFERENCE.md` — Configuration reference
 

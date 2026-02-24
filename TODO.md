@@ -22,7 +22,7 @@ This file is the active execution checklist and near-term operating journal.
   - Phase 2 – Metadata & LLM (completed)
     - [x] Write a helper that runs `casa -c "print(listobs('/data/sample.ms'))" inside the CASA container and parses useful fields.
     - [x] Enrich `local-llm` prompts (and demo text) with dataset metadata so jobs read like “calibrating VLASS J1347+1217…”.
-  - Architectural drawings (ideas/jobs-real-data/architecture-diagram.md)
+  - Architectural drawings (ideas/jobs-real-data/ARCHITECTURE-DIAGRAM.MD)
     - [x] Draft and finalise detailed reference architecture diagrams.
 
   - Phase 3 – Real processing (queued architecture)

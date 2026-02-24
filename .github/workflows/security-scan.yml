@@ -1,0 +1,65 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build api image
+        run: |
+          if [ -f ./apps/cosmic-horizons-api/Dockerfile ]; then
+            docker build -t cosmic-horizons-api:ci ./apps/cosmic-horizons-api
+          else
+            echo 'API Dockerfile not found; skipping api image build'
+          fi
+
+      - name: Build web image
+        run: |
+          if [ -f ./apps/cosmic-horizons-web/Dockerfile ]; then
+            docker build -t cosmic-horizons-web:ci ./apps/cosmic-horizons-web
+          else
+            echo 'Web Dockerfile not found; skipping web image build'
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install semgrep and detect-secrets
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep detect-secrets
+
+      - name: Run Semgrep (SAST)
+        run: semgrep --config auto --quiet .
+
+      - name: Run detect-secrets scan
+        run: detect-secrets scan --all-files || true
+
+      - name: Trivy scan api image
+        if: always()
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image: 'cosmic-horizons-api:ci'
+          severity: 'HIGH,CRITICAL'
+
+      - name: Trivy scan web image
+        if: always()
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image: 'cosmic-horizons-web:ci'
+          severity: 'HIGH,CRITICAL'

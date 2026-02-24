@@ -123,6 +123,19 @@ pnpm nx run-many --target=test --all
 pnpm nx run mvp-gates:e2e
 ```
 
+## Local Secrets
+
+- Copy `.env.local.example` to `.env.local` and fill in any secrets needed for local development. `.env.local` is gitignored; do NOT commit real tokens.
+
+- For Nx Cloud (local dev):
+
+```bash
+cp .env.local.example .env.local
+# edit .env.local and set NX_CLOUD_AUTH_TOKEN=
+```
+
+- For CI (recommended): add `NX_CLOUD_AUTH_TOKEN` as a repository secret (GitHub Actions → Settings → Secrets) and reference it in workflows as shown in `documentation/ci/nx-cloud-setup.md`.
+
 ## Key Docs
 
 - `documentation/product/PRODUCT-CHARTER.md`

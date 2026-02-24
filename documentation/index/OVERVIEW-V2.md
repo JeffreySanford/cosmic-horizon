@@ -220,7 +220,7 @@ Required CI signals:
 - Agent operating and strategic control-plane context: `AGENTS.md`
 - Phase 3 CosmicAI federation strategy: see `documentation/planning/roadmap/ROADMAP.md` (planning consolidated)
 
-- Current architecture: `documentation/architecture/ARCHITECTURE.md`
+- Current architecture: `documentation/architecture/core/ARCHITECTURE.md`
 
 - Tri-broker reference pattern (RabbitMQ + Kafka + Pulsar): `documentation/architecture/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md`
 

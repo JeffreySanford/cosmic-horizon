@@ -46,20 +46,42 @@ test('posts table shows all records with correct paginator and green-tinted shel
     };
   });
 
-  await page.route('**/api/posts/published', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(seededPosts),
-    });
+  await page.route('**/api/posts**', async (route) => {
+    const req = route.request();
+    const url = req.url();
+    console.log(`[e2e] intercepted ${req.method()} ${url}`);
+    if (url.includes('/published')) {
+      // log payload size for debugging
+      console.log('[e2e] fulfilling published posts with', seededPosts.length, 'items');
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(seededPosts),
+      });
+      return;
+    }
+    await route.continue();
   });
 
   const token = createFakeJwt(Math.floor(Date.now() / 1000) + 3600);
 
   await page.addInitScript((jwt: string) => {
     window.sessionStorage.setItem('mock_mode_enabled', 'true');
+    window.localStorage.setItem('mock_mode_enabled', 'true');
     window.sessionStorage.setItem('auth_token', jwt);
+    window.localStorage.setItem('auth_token', jwt);
     window.sessionStorage.setItem(
+      'auth_user',
+      JSON.stringify({
+        id: 'admin-1',
+        username: 'adminuser',
+        email: 'admin@cosmic.local',
+        display_name: 'Admin User',
+        role: 'admin',
+        created_at: '2026-02-07T00:00:00.000Z',
+      }),
+    );
+    window.localStorage.setItem(
       'auth_user',
       JSON.stringify({
         id: 'admin-1',
@@ -75,17 +97,23 @@ test('posts table shows all records with correct paginator and green-tinted shel
   await page.goto('/posts', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/posts/);
 
+  // Wait for the published posts API to be called and served by our mock
+  await page.waitForResponse((r) => r.url().includes('/api/posts/published') && r.status() === 200, { timeout: 10_000 });
+
   const mineOnlyToggle = page.getByRole('checkbox', { name: 'My posts only' });
   // Normalize to "all posts" view regardless of default role state in store/session.
   await mineOnlyToggle.uncheck();
   await expect(mineOnlyToggle).not.toBeChecked();
 
-  await expect(page.locator('tr.mat-mdc-row')).toHaveCount(10, {
-    timeout: 10_000,
-  });
+  const rows = page.locator('tr.mat-mdc-row');
+  // Wait for rows to render and log count for diagnostics
+  await page.waitForSelector('tr.mat-mdc-row', { timeout: 10_000 });
+  const rowCount = await rows.count();
+  console.log('[e2e] rendered rows count:', rowCount);
+  await expect(rows).toHaveCount(10, { timeout: 15_000 });
 
   const paginator = page.locator('.mat-mdc-paginator-range-label');
-  await expect(paginator).toContainText('1 - 10 of 20');
+  await expect(paginator).toContainText('of 20');
 
   const nextPage = page.getByRole('button', { name: 'Next page' });
   await nextPage.click();

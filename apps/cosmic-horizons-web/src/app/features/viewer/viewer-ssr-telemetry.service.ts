@@ -7,6 +7,7 @@ interface ViewerSsrTelemetryStore {
   transfer_state_misses: number;
   bootstrap_hits: number;
   bootstrap_misses: number;
+  last_bootstrap_duration_ms: number;
   updated_at: string;
 }
 
@@ -17,6 +18,7 @@ export interface ViewerSsrTelemetrySnapshot {
   bootstrapHits: number;
   bootstrapMisses: number;
   bootstrapHitRate: number;
+  lastBootstrapDurationMs: number | null;
   updatedAt: string;
 }
 
@@ -52,6 +54,12 @@ export class ViewerSsrTelemetryService {
     });
   }
 
+  recordBootstrapDuration(ms: number): void {
+    this.updateStore((store) => {
+      store.last_bootstrap_duration_ms = Math.max(0, Math.round(ms));
+    });
+  }
+
   snapshot(): ViewerSsrTelemetrySnapshot {
     const store = this.readStore();
     const transferSamples =
@@ -71,6 +79,10 @@ export class ViewerSsrTelemetryService {
         bootstrapSamples > 0
           ? Number((store.bootstrap_hits / bootstrapSamples).toFixed(4))
           : 0,
+      lastBootstrapDurationMs:
+        typeof store.last_bootstrap_duration_ms === 'number'
+          ? store.last_bootstrap_duration_ms
+          : null,
       updatedAt: store.updated_at,
     };
   }
@@ -115,6 +127,7 @@ export class ViewerSsrTelemetryService {
         transfer_state_misses: Number(parsed.transfer_state_misses ?? 0),
         bootstrap_hits: Number(parsed.bootstrap_hits ?? 0),
         bootstrap_misses: Number(parsed.bootstrap_misses ?? 0),
+        last_bootstrap_duration_ms: Number(parsed.last_bootstrap_duration_ms ?? 0),
         updated_at:
           typeof parsed.updated_at === 'string'
             ? parsed.updated_at
@@ -144,6 +157,7 @@ export class ViewerSsrTelemetryService {
       transfer_state_misses: 0,
       bootstrap_hits: 0,
       bootstrap_misses: 0,
+      last_bootstrap_duration_ms: 0,
       updated_at: new Date(0).toISOString(),
     };
   }

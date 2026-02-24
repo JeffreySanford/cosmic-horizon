@@ -17,7 +17,7 @@ describe('documentation paths validation', () => {
     'TODO.md',
     'SCOPE-LOCK.md',
     'documentation/index/OVERVIEW-V2.md',
-    'documentation/architecture/ARCHITECTURE.md',
+    'documentation/architecture/core/ARCHITECTURE.md',
     'documentation/quality/TESTING-STRATEGY.md',
     'documentation/planning/roadmap/ROADMAP.md',
   ];
@@ -54,7 +54,7 @@ describe('documentation paths validation', () => {
     const expectedPaths = [
       'governance/SOURCE-OF-TRUTH.md',
       'index/OVERVIEW-V2.md',
-      'architecture/ARCHITECTURE.md',
+      'architecture/core/ARCHITECTURE.md',
       'operations/QUICK-START.md',
       'quality/TESTING-STRATEGY.md',
       'backend/API-ROUTES.md',

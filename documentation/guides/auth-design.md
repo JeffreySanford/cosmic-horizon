@@ -67,5 +67,5 @@ TACC_LIVE=false pnpm start:api
 TACC_LIVE=true TACC_ACCESS_TOKEN=dummy TACC_ACCESS_TOKEN_EXPIRY=$(( $(date +%s) + 300 )) pnpm test
 ```
 
-Refer to `documentation/architecture/adr/002-auth-design.md` for the formal
+Refer to `documentation/architecture/adr/002-AUTH-DESIGN.MD` for the formal
 architectural decision record.

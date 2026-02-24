@@ -7,6 +7,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { ViewerApiService, ViewerStateModel } from './viewer-api.service';
 import { ViewerComponent } from './viewer.component';
 import { AuthSessionService } from '../../services/auth-session.service';
@@ -23,7 +25,7 @@ interface MockAladinView {
   on: ReturnType<typeof vi.fn>;
 }
 
-describe.skip('ViewerComponent', () => {
+describe('ViewerComponent', () => {
   let fixture: ComponentFixture<ViewerComponent>;
   let component: ViewerComponent;
   let mockAladinView: MockAladinView;
@@ -142,6 +144,8 @@ describe.skip('ViewerComponent', () => {
         RouterTestingModule,
         NoopAnimationsModule,
         HttpClientTestingModule,
+        MatInputModule,
+        MatSelectModule,
       ],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
@@ -174,6 +178,7 @@ describe.skip('ViewerComponent', () => {
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
+    // Use fake timers for tests that advance timers
     fixture.detectChanges();
   });
 
@@ -457,6 +462,7 @@ describe.skip('ViewerComponent', () => {
   });
 
   it('cursor lookup does not erase existing catalogLabels', async () => {
+    vi.useFakeTimers();
     // pre-populate panel list
     component.catalogLabels = [
       {
@@ -507,6 +513,7 @@ describe.skip('ViewerComponent', () => {
   });
 
   it('tooltip clears when subsequent lookup for same position returns no labels', async () => {
+    vi.useFakeTimers();
     const state = (component as any).currentState();
     state.fov = 0.5;
 

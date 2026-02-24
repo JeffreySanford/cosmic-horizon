@@ -1,519 +1,525 @@
 [
   {
     "id": "documentation--adr--adr-remote-compute-tapis-vs-slurm",
-    "label": "ADR Remote Compute Tapis Vs Slurm",
+    "label": "ADR REMOTE COMPUTE TAPIS VS SLURM",
     "section": "Adr",
-    "sourcePath": "documentation/adr/ADR-remote-compute-tapis-vs-slurm.md"
-  },
-  {
-    "id": "documentation--architecture--adr-event-streaming",
-    "label": "ADR EVENT STREAMING",
-    "section": "Architecture",
-    "sourcePath": "documentation/architecture/ADR-EVENT-STREAMING.md"
+    "sourcePath": "documentation/adr/ADR-REMOTE-COMPUTE-TAPIS-VS-SLURM.MD"
   },
   {
     "id": "documentation--architecture--adr--002-auth-design",
-    "label": "002 Auth Design",
+    "label": "002 AUTH DESIGN",
     "section": "Architecture",
-    "sourcePath": "documentation/architecture/adr/002-auth-design.md"
+    "sourcePath": "documentation/architecture/adr/002-AUTH-DESIGN.MD"
   },
   {
-    "id": "documentation--architecture--architecture",
-    "label": "ARCHITECTURE",
+    "id": "documentation--architecture--brokers--adr-event-streaming",
+    "label": "ADR EVENT STREAMING",
     "section": "Architecture",
-    "sourcePath": "documentation/architecture/ARCHITECTURE.md"
+    "sourcePath": "documentation/architecture/brokers/ADR-EVENT-STREAMING.MD"
   },
   {
-    "id": "documentation--architecture--audit-strategy-sitewide",
-    "label": "AUDIT STRATEGY SITEWIDE",
-    "section": "Architecture",
-    "sourcePath": "documentation/architecture/AUDIT-STRATEGY-SITEWIDE.md"
-  },
-  {
-    "id": "documentation--architecture--broker-comparison-strategy",
+    "id": "documentation--architecture--brokers--broker-comparison-strategy",
     "label": "BROKER COMPARISON STRATEGY",
     "section": "Architecture",
-    "sourcePath": "documentation/architecture/BROKER-COMPARISON-STRATEGY.md"
+    "sourcePath": "documentation/architecture/brokers/BROKER-COMPARISON-STRATEGY.MD"
   },
   {
-    "id": "documentation--architecture--cosmicai-integration-overlay",
-    "label": "COSMICAI INTEGRATION OVERLAY",
+    "id": "documentation--architecture--brokers--message-brokers",
+    "label": "MESSAGE BROKERS",
     "section": "Architecture",
-    "sourcePath": "documentation/architecture/COSMICAI-INTEGRATION-OVERLAY.md"
+    "sourcePath": "documentation/architecture/brokers/MESSAGE-BROKERS.MD"
   },
   {
-    "id": "documentation--architecture--event-schema-definitions",
-    "label": "EVENT SCHEMA DEFINITIONS",
-    "section": "Architecture",
-    "sourcePath": "documentation/architecture/EVENT-SCHEMA-DEFINITIONS.md"
-  },
-  {
-    "id": "documentation--architecture--event-streaming-topology",
-    "label": "EVENT STREAMING TOPOLOGY",
-    "section": "Architecture",
-    "sourcePath": "documentation/architecture/EVENT-STREAMING-TOPOLOGY.md"
-  },
-  {
-    "id": "documentation--architecture--ngvla-tri-broker-reference-architecture",
+    "id": "documentation--architecture--brokers--ngvla-tri-broker-reference-architecture",
     "label": "NGVLA TRI BROKER REFERENCE ARCHITECTURE",
     "section": "Architecture",
-    "sourcePath": "documentation/architecture/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md"
+    "sourcePath": "documentation/architecture/brokers/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.MD"
   },
   {
-    "id": "documentation--architecture--pulsar-evaluation-results",
+    "id": "documentation--architecture--brokers--pulsar-evaluation-results",
     "label": "PULSAR EVALUATION RESULTS",
     "section": "Architecture",
-    "sourcePath": "documentation/architecture/PULSAR-EVALUATION-RESULTS.md"
+    "sourcePath": "documentation/architecture/brokers/PULSAR-EVALUATION-RESULTS.md"
+  },
+  {
+    "id": "documentation--architecture--core--architecture",
+    "label": "ARCHITECTURE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/core/ARCHITECTURE.MD"
+  },
+  {
+    "id": "documentation--architecture--core--event-schema-definitions",
+    "label": "EVENT SCHEMA DEFINITIONS",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/core/EVENT-SCHEMA-DEFINITIONS.MD"
+  },
+  {
+    "id": "documentation--architecture--core--event-streaming-topology",
+    "label": "EVENT STREAMING TOPOLOGY",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/core/EVENT-STREAMING-TOPOLOGY.MD"
+  },
+  {
+    "id": "documentation--architecture--governance--audit-strategy-sitewide",
+    "label": "AUDIT STRATEGY SITEWIDE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/governance/AUDIT-STRATEGY-SITEWIDE.MD"
+  },
+  {
+    "id": "documentation--architecture--integration--cosmicai-integration-overlay",
+    "label": "COSMICAI INTEGRATION OVERLAY",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/integration/COSMICAI-INTEGRATION-OVERLAY.MD"
+  },
+  {
+    "id": "documentation--architecture--storage--storage",
+    "label": "STORAGE",
+    "section": "Architecture",
+    "sourcePath": "documentation/architecture/storage/STORAGE.MD"
   },
   {
     "id": "documentation--backend--api-routes",
     "label": "API ROUTES",
     "section": "Backend",
-    "sourcePath": "documentation/backend/API-ROUTES.md"
+    "sourcePath": "documentation/backend/API-ROUTES.MD"
   },
   {
     "id": "documentation--backend--logging-system-design",
     "label": "LOGGING SYSTEM DESIGN",
     "section": "Backend",
-    "sourcePath": "documentation/backend/LOGGING-SYSTEM-DESIGN.md"
+    "sourcePath": "documentation/backend/LOGGING-SYSTEM-DESIGN.MD"
   },
   {
     "id": "documentation--backend--messaging--array-monitoring-api",
     "label": "ARRAY MONITORING API",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/ARRAY-MONITORING-API.md"
+    "sourcePath": "documentation/backend/messaging/ARRAY-MONITORING-API.MD"
   },
   {
     "id": "documentation--backend--messaging--configuration-fix-guide",
     "label": "CONFIGURATION FIX GUIDE",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/CONFIGURATION-FIX-GUIDE.md"
+    "sourcePath": "documentation/backend/messaging/CONFIGURATION-FIX-GUIDE.MD"
   },
   {
     "id": "documentation--backend--messaging--implementation-guide",
     "label": "IMPLEMENTATION GUIDE",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/IMPLEMENTATION-GUIDE.md"
+    "sourcePath": "documentation/backend/messaging/IMPLEMENTATION-GUIDE.MD"
   },
   {
     "id": "documentation--backend--messaging--kafka-setup",
     "label": "KAFKA SETUP",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/KAFKA-SETUP.md"
+    "sourcePath": "documentation/backend/messaging/KAFKA-SETUP.MD"
   },
   {
     "id": "documentation--backend--messaging--live-statistics-feb-2026",
     "label": "LIVE STATISTICS FEB 2026",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/LIVE-STATISTICS-FEB-2026.md"
+    "sourcePath": "documentation/backend/messaging/LIVE-STATISTICS-FEB-2026.MD"
   },
   {
     "id": "documentation--backend--messaging--messaging-architecture",
     "label": "MESSAGING ARCHITECTURE",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/MESSAGING-ARCHITECTURE.md"
+    "sourcePath": "documentation/backend/messaging/MESSAGING-ARCHITECTURE.MD"
   },
   {
     "id": "documentation--backend--messaging--rabbitmq-setup",
     "label": "RABBITMQ SETUP",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/RABBITMQ-SETUP.md"
+    "sourcePath": "documentation/backend/messaging/RABBITMQ-SETUP.MD"
   },
   {
     "id": "documentation--backend--messaging--readme",
     "label": "README",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/README.md"
+    "sourcePath": "documentation/backend/messaging/README.MD"
   },
   {
     "id": "documentation--backend--messaging--troubleshooting",
     "label": "TROUBLESHOOTING",
     "section": "Backend",
-    "sourcePath": "documentation/backend/messaging/TROUBLESHOOTING.md"
+    "sourcePath": "documentation/backend/messaging/TROUBLESHOOTING.MD"
   },
   {
     "id": "documentation--backend--rate-limiting",
     "label": "RATE LIMITING",
     "section": "Backend",
-    "sourcePath": "documentation/backend/RATE-LIMITING.md"
+    "sourcePath": "documentation/backend/RATE-LIMITING.MD"
+  },
+  {
+    "id": "documentation--ci--artifacts-checklist",
+    "label": "ARTIFACTS CHECKLIST",
+    "section": "Ci",
+    "sourcePath": "documentation/ci/ARTIFACTS_CHECKLIST.MD"
+  },
+  {
+    "id": "documentation--ci--ci-playbook",
+    "label": "CI PLAYBOOK",
+    "section": "Ci",
+    "sourcePath": "documentation/ci/CI_PLAYBOOK.MD"
   },
   {
     "id": "documentation--database--data-dictionary",
     "label": "DATA DICTIONARY",
     "section": "Database",
-    "sourcePath": "documentation/database/DATA-DICTIONARY.md"
+    "sourcePath": "documentation/database/DATA-DICTIONARY.MD"
   },
   {
     "id": "documentation--database--erd",
     "label": "ERD",
     "section": "Database",
-    "sourcePath": "documentation/database/ERD.md"
+    "sourcePath": "documentation/database/ERD.MD"
   },
   {
     "id": "documentation--database--migrations",
     "label": "MIGRATIONS",
     "section": "Database",
-    "sourcePath": "documentation/database/MIGRATIONS.md"
+    "sourcePath": "documentation/database/MIGRATIONS.MD"
   },
   {
     "id": "documentation--governance--source-of-truth",
     "label": "SOURCE OF TRUTH",
     "section": "Governance",
-    "sourcePath": "documentation/governance/SOURCE-OF-TRUTH.md"
+    "sourcePath": "documentation/governance/SOURCE-OF-TRUTH.MD"
   },
   {
     "id": "documentation--guides--ai-skills-setup",
     "label": "AI SKILLS SETUP",
     "section": "Guides",
-    "sourcePath": "documentation/guides/AI-SKILLS-SETUP.md"
+    "sourcePath": "documentation/guides/AI-SKILLS-SETUP.MD"
   },
   {
     "id": "documentation--guides--auth-design",
-    "label": "Auth Design",
+    "label": "AUTH DESIGN",
     "section": "Guides",
-    "sourcePath": "documentation/guides/auth-design.md"
+    "sourcePath": "documentation/guides/AUTH-DESIGN.MD"
   },
   {
     "id": "documentation--guides--community-discoveries",
     "label": "COMMUNITY DISCOVERIES",
     "section": "Guides",
-    "sourcePath": "documentation/guides/COMMUNITY-DISCOVERIES.md"
+    "sourcePath": "documentation/guides/COMMUNITY-DISCOVERIES.MD"
   },
   {
     "id": "documentation--guides--faq",
-    "label": "Faq",
+    "label": "FAQ",
     "section": "Guides",
-    "sourcePath": "documentation/guides/faq.md"
+    "sourcePath": "documentation/guides/FAQ.MD"
   },
   {
     "id": "documentation--guides--glossary",
-    "label": "Glossary",
+    "label": "GLOSSARY",
     "section": "Guides",
-    "sourcePath": "documentation/guides/glossary.md"
+    "sourcePath": "documentation/guides/GLOSSARY.MD"
   },
   {
     "id": "documentation--guides--remote-compute-adapter",
-    "label": "Remote Compute Adapter",
+    "label": "REMOTE COMPUTE ADAPTER",
     "section": "Guides",
-    "sourcePath": "documentation/guides/remote-compute-adapter.md"
+    "sourcePath": "documentation/guides/REMOTE-COMPUTE-ADAPTER.MD"
   },
   {
     "id": "documentation--guides--skills--angular-skill",
     "label": "ANGULAR SKILL",
     "section": "Guides",
-    "sourcePath": "documentation/guides/skills/ANGULAR-SKILL.md"
+    "sourcePath": "documentation/guides/skills/ANGULAR-SKILL.MD"
   },
   {
     "id": "documentation--guides--skills--docker-skill",
     "label": "DOCKER SKILL",
     "section": "Guides",
-    "sourcePath": "documentation/guides/skills/DOCKER-SKILL.md"
+    "sourcePath": "documentation/guides/skills/DOCKER-SKILL.MD"
   },
   {
     "id": "documentation--guides--skills--go-skill",
     "label": "GO SKILL",
     "section": "Guides",
-    "sourcePath": "documentation/guides/skills/GO-SKILL.md"
+    "sourcePath": "documentation/guides/skills/GO-SKILL.MD"
   },
   {
     "id": "documentation--guides--skills--material-md3-skill",
     "label": "MATERIAL MD3 SKILL",
     "section": "Guides",
-    "sourcePath": "documentation/guides/skills/MATERIAL-MD3-SKILL.md"
+    "sourcePath": "documentation/guides/skills/MATERIAL-MD3-SKILL.MD"
   },
   {
     "id": "documentation--guides--skills--nest-skill",
     "label": "NEST SKILL",
     "section": "Guides",
-    "sourcePath": "documentation/guides/skills/NEST-SKILL.md"
+    "sourcePath": "documentation/guides/skills/NEST-SKILL.MD"
   },
   {
     "id": "documentation--guides--skills--nx-workspace-skill",
     "label": "NX WORKSPACE SKILL",
     "section": "Guides",
-    "sourcePath": "documentation/guides/skills/NX-WORKSPACE-SKILL.md"
+    "sourcePath": "documentation/guides/skills/NX-WORKSPACE-SKILL.MD"
   },
   {
     "id": "documentation--guides--testing-guide",
     "label": "TESTING GUIDE",
     "section": "Guides",
-    "sourcePath": "documentation/guides/TESTING_GUIDE.md"
+    "sourcePath": "documentation/guides/TESTING_GUIDE.MD"
   },
   {
     "id": "documentation--hardening--hardening-plan",
     "label": "HARDENING PLAN",
     "section": "Hardening",
-    "sourcePath": "documentation/hardening/HARDENING-PLAN.md"
+    "sourcePath": "documentation/hardening/HARDENING-PLAN.MD"
   },
   {
     "id": "documentation--hardening--readme",
     "label": "README",
     "section": "Hardening",
-    "sourcePath": "documentation/hardening/README.md"
+    "sourcePath": "documentation/hardening/README.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--architecture-diagram",
-    "label": "Architecture Diagram",
+    "label": "ARCHITECTURE DIAGRAM",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/architecture-diagram.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/ARCHITECTURE-DIAGRAM.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--backend-adapter-design",
-    "label": "Backend Adapter Design",
+    "label": "BACKEND ADAPTER DESIGN",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/backend-adapter-design.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/BACKEND-ADAPTER-DESIGN.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--casa-astropy-service",
-    "label": "Casa Astropy Service",
+    "label": "CASA ASTROPY SERVICE",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/casa-astropy-service.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/CASA-ASTROPY-SERVICE.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--dataset-acquisition",
-    "label": "Dataset Acquisition",
+    "label": "DATASET ACQUISITION",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/dataset-acquisition.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/DATASET-ACQUISITION.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--drawbacks",
-    "label": "Drawbacks",
+    "label": "DRAWBACKS",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/drawbacks.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/DRAWBACKS.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--frontend-enhancements",
-    "label": "Frontend Enhancements",
+    "label": "FRONTEND ENHANCEMENTS",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/frontend-enhancements.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/FRONTEND-ENHANCEMENTS.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--language-considerations",
-    "label": "Language Considerations",
+    "label": "LANGUAGE CONSIDERATIONS",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/language-considerations.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/LANGUAGE-CONSIDERATIONS.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--overview",
-    "label": "Overview",
+    "label": "OVERVIEW",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/overview.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/OVERVIEW.MD"
   },
   {
     "id": "documentation--ideas--jobs-real-data--phases-and-steps",
-    "label": "Phases And Steps",
+    "label": "PHASES AND STEPS",
     "section": "Ideas",
-    "sourcePath": "documentation/ideas/jobs-real-data/phases-and-steps.md"
+    "sourcePath": "documentation/ideas/jobs-real-data/PHASES-AND-STEPS.MD"
   },
   {
     "id": "documentation--index--overview-v2",
     "label": "OVERVIEW V2",
     "section": "Index",
-    "sourcePath": "documentation/index/OVERVIEW-V2.md"
+    "sourcePath": "documentation/index/OVERVIEW-V2.MD"
   },
   {
     "id": "documentation--llm--remote-compute-llm--jobs-pre-run-llm-qa-plan",
     "label": "JOBS PRE RUN LLM QA PLAN",
     "section": "LLM",
-    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/JOBS-PRE-RUN-LLM-QA-PLAN.md"
+    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/JOBS-PRE-RUN-LLM-QA-PLAN.MD"
   },
   {
     "id": "documentation--llm--remote-compute-llm--llm-enhanced-job-orchestration",
     "label": "LLM ENHANCED JOB ORCHESTRATION",
     "section": "LLM",
-    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/LLM-ENHANCED-JOB-ORCHESTRATION.md"
+    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/LLM-ENHANCED-JOB-ORCHESTRATION.MD"
   },
   {
     "id": "documentation--llm--remote-compute-llm--remote-compute-gateway-offline-work",
     "label": "REMOTE COMPUTE GATEWAY OFFLINE WORK",
     "section": "LLM",
-    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/REMOTE-COMPUTE-GATEWAY-OFFLINE-WORK.md"
+    "sourcePath": "documentation/LLM/REMOTE-COMPUTE-LLM/REMOTE-COMPUTE-GATEWAY-OFFLINE-WORK.MD"
   },
   {
     "id": "documentation--ngrx--ngrx-implementation-migration",
     "label": "NGRX IMPLEMENTATION MIGRATION",
     "section": "NGRX",
-    "sourcePath": "documentation/NGRX/NGRX-IMPLEMENTATION-MIGRATION.md"
+    "sourcePath": "documentation/NGRX/NGRX-IMPLEMENTATION-MIGRATION.MD"
   },
   {
     "id": "documentation--operations--github-actions-monitoring",
     "label": "GITHUB ACTIONS MONITORING",
     "section": "Operations",
-    "sourcePath": "documentation/operations/GITHUB-ACTIONS-MONITORING.md"
+    "sourcePath": "documentation/operations/GITHUB-ACTIONS-MONITORING.MD"
   },
   {
     "id": "documentation--operations--local-broker-inspect",
-    "label": "Local Broker Inspect",
+    "label": "LOCAL BROKER INSPECT",
     "section": "Operations",
-    "sourcePath": "documentation/operations/local-broker-inspect.md"
+    "sourcePath": "documentation/operations/LOCAL-BROKER-INSPECT.MD"
   },
   {
     "id": "documentation--operations--quick-start",
     "label": "QUICK START",
     "section": "Operations",
-    "sourcePath": "documentation/operations/QUICK-START.md"
+    "sourcePath": "documentation/operations/QUICK-START.MD"
   },
   {
     "id": "documentation--operations--upstream-resilience-runbook",
     "label": "UPSTREAM RESILIENCE RUNBOOK",
     "section": "Operations",
-    "sourcePath": "documentation/operations/UPSTREAM-RESILIENCE-RUNBOOK.md"
+    "sourcePath": "documentation/operations/UPSTREAM-RESILIENCE-RUNBOOK.MD"
   },
   {
     "id": "documentation--overview--exascale-deck-wording-patch-2026-02-11",
     "label": "EXASCALE DECK WORDING PATCH 2026 02 11",
     "section": "Overview",
-    "sourcePath": "documentation/overview/EXASCALE-DECK-WORDING-PATCH-2026-02-11.md"
+    "sourcePath": "documentation/overview/EXASCALE-DECK-WORDING-PATCH-2026-02-11.MD"
   },
   {
     "id": "documentation--overview--external-asset-metadata-2026-02-11",
     "label": "EXTERNAL ASSET METADATA 2026 02 11",
     "section": "Overview",
-    "sourcePath": "documentation/overview/EXTERNAL-ASSET-METADATA-2026-02-11.md"
+    "sourcePath": "documentation/overview/EXTERNAL-ASSET-METADATA-2026-02-11.MD"
   },
   {
     "id": "documentation--overview--external-claims-references-appendix-2026-02-11",
     "label": "EXTERNAL CLAIMS REFERENCES APPENDIX 2026 02 11",
     "section": "Overview",
-    "sourcePath": "documentation/overview/EXTERNAL-CLAIMS-REFERENCES-APPENDIX-2026-02-11.md"
+    "sourcePath": "documentation/overview/EXTERNAL-CLAIMS-REFERENCES-APPENDIX-2026-02-11.MD"
   },
   {
     "id": "documentation--overview--overview-asset-alignment-audit-2026-02-11",
     "label": "OVERVIEW ASSET ALIGNMENT AUDIT 2026 02 11",
     "section": "Overview",
-    "sourcePath": "documentation/overview/OVERVIEW-ASSET-ALIGNMENT-AUDIT-2026-02-11.md"
+    "sourcePath": "documentation/overview/OVERVIEW-ASSET-ALIGNMENT-AUDIT-2026-02-11.MD"
   },
   {
     "id": "documentation--planning--mode-delta-report-local-llm-vs-live",
-    "label": "Mode Delta Report Local Llm Vs Live",
+    "label": "MODE DELTA REPORT LOCAL LLM VS LIVE",
     "section": "Planning",
-    "sourcePath": "documentation/planning/mode-delta-report-local-llm-vs-live.md"
+    "sourcePath": "documentation/planning/MODE-DELTA-REPORT-LOCAL-LLM-VS-LIVE.MD"
   },
   {
     "id": "documentation--planning--roadmap--complete-todo",
     "label": "COMPLETE TODO",
     "section": "Planning",
-    "sourcePath": "documentation/planning/roadmap/COMPLETE-TODO.md"
+    "sourcePath": "documentation/planning/roadmap/COMPLETE-TODO.MD"
   },
   {
     "id": "documentation--planning--roadmap--completed-roadmap",
     "label": "COMPLETED ROADMAP",
     "section": "Planning",
-    "sourcePath": "documentation/planning/roadmap/COMPLETED-ROADMAP.md"
+    "sourcePath": "documentation/planning/roadmap/COMPLETED-ROADMAP.MD"
   },
   {
     "id": "documentation--planning--roadmap--roadmap",
     "label": "ROADMAP",
     "section": "Planning",
-    "sourcePath": "documentation/planning/roadmap/ROADMAP.md"
+    "sourcePath": "documentation/planning/roadmap/ROADMAP.MD"
   },
   {
     "id": "documentation--product--affiliation",
     "label": "AFFILIATION",
     "section": "Product",
-    "sourcePath": "documentation/product/AFFILIATION.md"
+    "sourcePath": "documentation/product/AFFILIATION.MD"
   },
   {
     "id": "documentation--product--product-charter",
     "label": "PRODUCT CHARTER",
     "section": "Product",
-    "sourcePath": "documentation/product/PRODUCT-CHARTER.md"
-  },
-  {
-    "id": "documentation--pulsar--local-evaluation",
-    "label": "LOCAL EVALUATION",
-    "section": "Pulsar",
-    "sourcePath": "documentation/pulsar/LOCAL-EVALUATION.md"
-  },
-  {
-    "id": "documentation--pulsar--quickstart",
-    "label": "QUICKSTART",
-    "section": "Pulsar",
-    "sourcePath": "documentation/pulsar/QUICKSTART.md"
-  },
-  {
-    "id": "documentation--pulsar--readme",
-    "label": "README",
-    "section": "Pulsar",
-    "sourcePath": "documentation/pulsar/README.md"
+    "sourcePath": "documentation/product/PRODUCT-CHARTER.MD"
   },
   {
     "id": "documentation--quality--coding-standards",
     "label": "CODING STANDARDS",
     "section": "Quality",
-    "sourcePath": "documentation/quality/CODING-STANDARDS.md"
+    "sourcePath": "documentation/quality/CODING-STANDARDS.MD"
   },
   {
     "id": "documentation--quality--coverage-setup",
     "label": "COVERAGE SETUP",
     "section": "Quality",
-    "sourcePath": "documentation/quality/COVERAGE-SETUP.md"
+    "sourcePath": "documentation/quality/COVERAGE-SETUP.MD"
   },
   {
     "id": "documentation--quality--e2e-code-coverage-guide",
     "label": "E2E CODE COVERAGE GUIDE",
     "section": "Quality",
-    "sourcePath": "documentation/quality/E2E_CODE_COVERAGE_GUIDE.md"
+    "sourcePath": "documentation/quality/E2E_CODE_COVERAGE_GUIDE.MD"
   },
   {
     "id": "documentation--quality--testing-strategy",
     "label": "TESTING STRATEGY",
     "section": "Quality",
-    "sourcePath": "documentation/quality/TESTING-STRATEGY.md"
+    "sourcePath": "documentation/quality/TESTING-STRATEGY.MD"
   },
   {
     "id": "documentation--reference--cosmic-datasets",
     "label": "COSMIC DATASETS",
     "section": "Reference",
-    "sourcePath": "documentation/reference/COSMIC-DATASETS.md"
+    "sourcePath": "documentation/reference/COSMIC-DATASETS.MD"
   },
   {
     "id": "documentation--reference--env-reference",
     "label": "ENV REFERENCE",
     "section": "Reference",
-    "sourcePath": "documentation/reference/ENV-REFERENCE.md"
+    "sourcePath": "documentation/reference/ENV-REFERENCE.MD"
   },
   {
     "id": "documentation--release-notes--v1-1-0",
     "label": "V1.1.0",
     "section": "Release Notes",
-    "sourcePath": "documentation/release-notes/v1.1.0.md"
+    "sourcePath": "documentation/release-notes/V1.1.0.MD"
   },
   {
     "id": "documentation--runbooks--remote-compute-live-cutover",
-    "label": "Remote Compute Live Cutover",
+    "label": "REMOTE COMPUTE LIVE CUTOVER",
     "section": "Runbooks",
-    "sourcePath": "documentation/runbooks/remote-compute-live-cutover.md"
+    "sourcePath": "documentation/runbooks/REMOTE-COMPUTE-LIVE-CUTOVER.MD"
   },
   {
     "id": "documentation--security--remote-compute-threat-model",
-    "label": "Remote Compute Threat Model",
+    "label": "REMOTE COMPUTE THREAT MODEL",
     "section": "Security",
-    "sourcePath": "documentation/security/remote-compute-threat-model.md"
+    "sourcePath": "documentation/security/REMOTE-COMPUTE-THREAT-MODEL.MD"
   },
   {
     "id": "documentation--setup--environment-config",
     "label": "ENVIRONMENT CONFIG",
     "section": "Setup",
-    "sourcePath": "documentation/setup/ENVIRONMENT-CONFIG.md"
+    "sourcePath": "documentation/setup/ENVIRONMENT-CONFIG.MD"
   },
   {
     "id": "documentation--styling--app-style-guidelines",
     "label": "APP STYLE GUIDELINES",
     "section": "Styling",
-    "sourcePath": "documentation/styling/APP_STYLE_GUIDELINES.md"
+    "sourcePath": "documentation/styling/APP_STYLE_GUIDELINES.MD"
   },
   {
     "id": "documentation--styling--readme",
     "label": "README",
     "section": "Styling",
-    "sourcePath": "documentation/styling/README.md"
+    "sourcePath": "documentation/styling/README.MD"
   },
   {
     "id": "documentation--testing--remote-compute-test-matrix",
-    "label": "Remote Compute Test Matrix",
+    "label": "REMOTE COMPUTE TEST MATRIX",
     "section": "Testing",
-    "sourcePath": "documentation/testing/remote-compute-test-matrix.md"
+    "sourcePath": "documentation/testing/REMOTE-COMPUTE-TEST-MATRIX.MD"
   },
   {
     "id": "readme",

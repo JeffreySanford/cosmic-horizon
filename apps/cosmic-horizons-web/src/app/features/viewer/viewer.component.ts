@@ -992,28 +992,36 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cursorLookupTimer = setTimeout(() => {
       this.viewerApi
         .getNearbyLabels(state.ra, state.dec, radius, 16)
-        .subscribe({
+          .subscribe({
           next: (labels) => {
             this.lastCursorLookupKey = key;
             this.ngZone.run(() => {
               const nearby = this.selectNearbyLabels(labels);
-              this.catalogLabels = nearby;
               // apply a tighter threshold for what counts as "under the cursor";
-              // reuse the same formula we use for center label matching.  if the
-              // nearest object sits outside this radius then treat the cursor as
-              // being over empty sky and clear the tooltip.
+              // reuse the same formula we use for center label matching.
+              const matchThresholdDeg = Math.max(
+                0.0015,
+                Math.min(0.03, state.fov * 0.06),
+              );
+
               if (nearby.length > 0) {
                 const nearest = nearby[0];
-                const matchThresholdDeg = Math.max(
-                  0.0015,
-                  Math.min(0.03, state.fov * 0.06),
-                );
+                // If the nearest object is close enough to be considered under the
+                // cursor, update the panel and tooltip. Otherwise leave the panel
+                // labels intact and only clear the tooltip.
                 if (nearest.angular_distance_deg <= matchThresholdDeg) {
+                  this.catalogLabels = nearby;
                   this.cursorLabel = nearest;
                 } else {
                   this.cursorLabel = null;
+                  // Treat returned labels outside the match threshold as an
+                  // effective "no labels under cursor" so developers can see
+                  // why the tooltip is empty.
+                  console.log('viewer: lookup returned 0 labels', { state, radius });
                 }
               } else {
+                // No nearby labels: clear panel and tooltip
+                this.catalogLabels = [];
                 this.cursorLabel = null;
                 // use log instead of debug so developers see the message when
                 // inspecting the console; false negatives are the common pain
@@ -1043,6 +1051,8 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.bootstrapData?.state) {
+      // record that bootstrap provided state (SSR); duration approx 0ms
+      this.ssrTelemetry.recordBootstrapDuration(0);
       this.recordBootstrapOutcome(true);
       this.resetLabelLookupGate();
       this.stateForm.patchValue(this.bootstrapData.state, { emitEvent: false });

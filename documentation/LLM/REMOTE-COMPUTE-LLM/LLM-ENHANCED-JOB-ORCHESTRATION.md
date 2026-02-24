@@ -162,7 +162,7 @@ What this cannot prove at TACC scale:
 - [x] Keep canonical status schema identical across modes *(validation logic & guards)*
 - [x] Keep contracts Tapis-shaped where practical *(mock adapters follow Tapis schema)*
 - [x] Run same e2e scenario in `local-llm` and later `live` mode *(local flow spec & existing live e2e)*
-- [x] Produce delta report of behavior differences before live demo *(see `mode-delta-report-local-llm-vs-live.md`)*
+- [x] Produce delta report of behavior differences before live demo *(see `MODE-DELTA-REPORT-LOCAL-LLM-VS-LIVE.MD`)*
 
 ## Open Decisions
 

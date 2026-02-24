@@ -23,8 +23,22 @@ const checks = [
       /comments?.*part of MVP/i,
     ],
   },
+  // Ensure the product charter and scope lock are present in docs
   {
-    file: 'documentation/architecture/ARCHITECTURE.md',
+    file: 'documentation/product/PRODUCT-CHARTER.md',
+    required: [],
+  },
+  {
+    file: 'SCOPE-LOCK.md',
+    required: [],
+  },
+  // Check that mermaid is available in the lockfile or package.json
+  {
+    file: 'pnpm-lock.yaml',
+    required: [/mermaid/i],
+  },
+  {
+    file: 'documentation/architecture/core/ARCHITECTURE.md',
     required: [/Canonical scope/i],
     banned: [/apps\/cosmic-horizons-go.*part of MVP/i, /Mode B.*part of MVP/i],
   },
@@ -66,10 +80,19 @@ const AFFILIATION_PATTERN = /not affiliated with VLA\/NRAO/i;
 for (const check of checks) {
   const content = readFileSync(check.file, 'utf8');
 
-  if (!AFFILIATION_PATTERN.test(content)) {
-    violations.push(
-      `${check.file}: missing standardized affiliation disclaimer ("not affiliated with VLA/NRAO")`,
-    );
+  // Only require affiliation disclaimer for documentation-like files (exclude product charter)
+  const shouldCheckAffiliation =
+    check.file === 'README.md' ||
+    check.file === 'TODO.md' ||
+    check.file === 'documentation/index/OVERVIEW-V2.md' ||
+    (check.file.startsWith('documentation/') && check.file !== 'documentation/product/PRODUCT-CHARTER.md');
+
+  if (shouldCheckAffiliation) {
+    if (!AFFILIATION_PATTERN.test(content)) {
+      violations.push(
+        `${check.file}: missing standardized affiliation disclaimer ("not affiliated with VLA/NRAO")`,
+      );
+    }
   }
 
   for (const pattern of check.required ?? []) {

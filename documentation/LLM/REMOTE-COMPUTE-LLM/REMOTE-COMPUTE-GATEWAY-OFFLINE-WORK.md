@@ -183,7 +183,7 @@ _This section tracks local-llm implementation status while live credentials are 
 - [x] Draft an OpenAPI/Swagger specification for the gateway endpoints that mirror
       Tapis (or SSH/slurm) operations. (`documentation/api/remote-compute-gateway.openapi.yaml` now exists.)
 - [x] Document the adapter interface and configuration strategy in a developer
-      guide (`documentation/guides/remote-compute-adapter.md` is now created).
+      guide (`documentation/guides/REMOTE-COMPUTE-ADAPTER.MD` is now created).
 - [ ] Capture the minimal and stretch demo goals in the access plan (already done)
       and reiterate the offline work plan here for clarity.
 - [ ] Maintain an FAQ section addressing common access questions and the three
@@ -193,10 +193,10 @@ _This section tracks local-llm implementation status while live credentials are 
 
 - [x] Add a one-page "Tapis vs Slurm decision record" (architecture decision
       record) and keep it versioned as an ADR.
-- [x] Draft documentation/guide for authentication design (`guides/auth-design.md`).
+- [x] Draft documentation/guide for authentication design (`guides/AUTH-DESIGN.MD`).
 - [x] Add a glossary: SU, allocation, tenant, system, app, queue, archive,
-      scratch, Ranch, etc. (see `documentation/guides/glossary.md`).
-- [x] Provide initial FAQ section (see `documentation/guides/faq.md`).
+      scratch, Ranch, etc. (see `documentation/guides/GLOSSARY.MD`).
+- [x] Provide initial FAQ section (see `documentation/guides/FAQ.MD`).
 
 ### Additional documentation to add
 

@@ -165,7 +165,7 @@ pnpm nx reset
 
 For more detailed information, see:
 
-- [Architecture Guide](../architecture/ARCHITECTURE.md)
+- [Architecture Guide](../architecture/core/ARCHITECTURE.md)
 - [Environment Configuration](../setup/ENVIRONMENT-CONFIG.md)
 - [Contributing Guidelines](../../CONTRIBUTING.md)
 - [GitHub Actions Monitoring](./GITHUB-ACTIONS-MONITORING.md)
@@ -178,4 +178,4 @@ For more detailed information, see:
 
 ---
 
-**Next Step**: Read the [Architecture Guide](../architecture/ARCHITECTURE.md) to understand the system design.
+**Next Step**: Read the [Architecture Guide](../architecture/core/ARCHITECTURE.md) to understand the system design.

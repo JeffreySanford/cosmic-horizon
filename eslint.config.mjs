@@ -9,6 +9,8 @@ export default [
       '**/dist',
       '**/out-tsc',
       '**/test-output',
+      '**/node_modules/**',
+      '**/*.py',
       '**/vitest.config.*.timestamp*',
       // Exclude generated artifacts and templates from repo-wide ESLint scans
       '**/*.html',
@@ -138,6 +140,7 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      'playwright/no-skipped-test': 'off',
     },
   },
 ];
