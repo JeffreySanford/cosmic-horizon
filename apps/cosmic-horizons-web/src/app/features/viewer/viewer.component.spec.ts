@@ -81,9 +81,6 @@ describe('ViewerComponent', () => {
     eventCallbacks = {};
     // intercept console.log so tests can assert on empty-lookups without
     // polluting output
-    // intercept console.log so tests can assert on empty-lookups without
-    // polluting output
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(console, 'log').mockImplementation(() => {
       // noop
     });

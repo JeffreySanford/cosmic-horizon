@@ -23,7 +23,7 @@ export class TelemetryEffects {
   // interval feels snappy for the views that actually display it, and we
   // only start the effect when a consuming service is instantiated.
   //
-  // The previous default of 5 s was chosen when telemetry was active
+  // The previous default of 5 s was chosen when telemetry was active
   // globally; we removed that initialization so we can crank the rate back
   // up without costing background noise.
   initialize$ = createEffect(() =>
