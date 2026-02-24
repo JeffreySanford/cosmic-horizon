@@ -102,6 +102,11 @@
           <mat-card-title>{{ result.target | titlecase }}</mat-card-title>
         </mat-card-header>
 
+        <!-- Debug: show raw result payload to confirm template binding -->
+        <div class="debug-json" *ngIf="result" aria-hidden="false">
+          <pre>{{ result | json }}</pre>
+        </div>
+
         <mat-card-content>
           <div class="results-layout">
             <div class="result-grid">
