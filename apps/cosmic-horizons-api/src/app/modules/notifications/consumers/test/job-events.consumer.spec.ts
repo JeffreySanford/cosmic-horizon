@@ -55,11 +55,14 @@ describe('JobEventsConsumer', () => {
     it('should send completion email and notifications on job.completed event', async () => {
       const mockEvent = {
         event_type: 'job.completed',
-        job_id: 'job-123',
         user_id: 'user-456',
-        result_url: 'https://example.com/results/job-123',
-        execution_time_seconds: 3600,
         timestamp: '2026-02-20T10:00:00Z',
+        correlation_id: 'corr-1',
+        payload: {
+          job_id: 'job-123',
+          result_url: 'https://example.com/results/job-123',
+          execution_time_seconds: 3600,
+        },
       };
 
       let handler: any;
@@ -106,11 +109,14 @@ describe('JobEventsConsumer', () => {
     it('should send failure notification on job.failed event', async () => {
       const mockEvent = {
         event_type: 'job.failed',
-        job_id: 'job-123',
         user_id: 'user-456',
-        error_message: 'Calibration failed',
-        error_code: 500,
         timestamp: '2026-02-20T10:01:00Z',
+        correlation_id: 'corr-2',
+        payload: {
+          job_id: 'job-123',
+          error_message: 'Calibration failed',
+          error_code: 500,
+        },
       };
 
       let handler: any;
@@ -150,9 +156,12 @@ describe('JobEventsConsumer', () => {
     it('should broadcast cancellation notification on job.cancelled event', async () => {
       const mockEvent = {
         event_type: 'job.cancelled',
-        job_id: 'job-123',
         user_id: 'user-456',
         timestamp: '2026-02-20T10:02:00Z',
+        correlation_id: 'corr-3',
+        payload: {
+          job_id: 'job-123',
+        },
       };
 
       let handler: any;

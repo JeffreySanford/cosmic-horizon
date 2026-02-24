@@ -7,12 +7,12 @@ import {
 import { EachMessagePayload } from 'kafkajs';
 import { KafkaService } from '../../events/kafka.service';
 import { NotificationService } from '../services/notification.service';
+import { EventBase } from '@cosmic-horizons/event-models';
 
-interface JobLifecycleEvent {
-  event_type: 'job.completed' | 'job.failed' | 'job.cancelled' | string;
+// helper type for the flattened job data we care about
+interface JobPayload {
   job_id: string;
   user_id: string;
-  timestamp?: string;
   result_url?: string;
   execution_time_seconds?: number;
   error_message?: string;
@@ -53,20 +53,34 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
    */
   private async handleJobEvent(payload: EachMessagePayload): Promise<void> {
     try {
-      const event = JSON.parse(
+      const raw = JSON.parse(
         payload.message.value?.toString() || '{}',
-      ) as JobLifecycleEvent;
+      ) as EventBase | Record<string, unknown>;
+
+      // normalize to a simple object with expected fields; support old shape too
+      const eventType = (raw as EventBase).event_type || (raw as any).event_type;
+      const timestamp = (raw as EventBase).timestamp || (raw as any).timestamp;
+      const userId = (raw as EventBase).user_id || (raw as any).user_id;
+      const payloadData =
+        (raw as EventBase).payload ?? (raw as any);
+      const jobEvent: JobPayload & { event_type: string; timestamp?: string } = {
+        ...(payloadData as any),
+        event_type: eventType,
+        user_id: userId,
+        timestamp,
+      } as any;
+
       this.logger.debug(
-        `Received job event: ${event.event_type} for job ${event.job_id}`,
+        `Received job event: ${jobEvent.event_type} for job ${jobEvent.job_id}`,
       );
 
       // Process terminal events only
-      if (event.event_type === 'job.completed') {
-        await this.handleJobCompletion(event);
-      } else if (event.event_type === 'job.failed') {
-        await this.handleJobFailure(event);
-      } else if (event.event_type === 'job.cancelled') {
-        await this.handleJobCancellation(event);
+      if (jobEvent.event_type === 'job.completed') {
+        await this.handleJobCompletion(jobEvent as any);
+      } else if (jobEvent.event_type === 'job.failed') {
+        await this.handleJobFailure(jobEvent as any);
+      } else if (jobEvent.event_type === 'job.cancelled') {
+        await this.handleJobCancellation(jobEvent as any);
       }
     } catch (error) {
       this.logger.warn(
