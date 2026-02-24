@@ -168,3 +168,4 @@ JWT_SECRET=openapi-dev-jwt-secret-32-chars-minimum \
 
 The test suite includes fixtures demonstrating token format.
 \nci: force fresh workflow run 2026-02-24T06:17:06Z
+\nci: extra trigger 2026-02-24T07:04:11Z
