@@ -118,6 +118,9 @@ export class EphemerisComponent implements OnInit, OnDestroy {
             response.sky_preview_url ||
             this.buildSkyPreviewUrl(response.ra, response.dec);
 
+          // debug visibility: ensure the result object is actually set
+          console.log('ephemeris: assigning result to component', this.result);
+
           this.logger.info('ephemeris', 'search_success', {
             target: this.result.target,
             ra: this.result.ra,
