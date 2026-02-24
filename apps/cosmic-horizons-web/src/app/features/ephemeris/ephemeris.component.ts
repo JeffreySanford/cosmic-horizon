@@ -132,7 +132,6 @@ export class EphemerisComponent implements OnInit, OnDestroy {
 
               // trigger change detection after the macrotask update
               this.cd.detectChanges();
-              this.appRef.tick();
               setTimeout(() => {
                 const hasCard = !!document.querySelector('.results-card');
                 console.log('ephemeris: results-card in DOM?', hasCard);
