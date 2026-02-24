@@ -904,7 +904,7 @@ describe('JobOrchestratorService', () => {
         );
 
         expect(submittedEvent).toBeDefined();
-        expect(submittedEvent?.[0].payload?.payload?.job_id).toBe('job-1');
+        expect(submittedEvent?.[0].payload?.job_id).toBe('job-1');
       });
 
       it('should preserve event ordering across multiple job submissions', async () => {
