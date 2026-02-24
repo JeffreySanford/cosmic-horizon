@@ -99,9 +99,9 @@ describe('JobDashboardComponent', () => {
     fixture = TestBed.createComponent(JobDashboardComponent);
     component = fixture.componentInstance;
 
-    // dashboard should kick off job initialization automatically
-    expect(jobService.initialize).toHaveBeenCalled();
-
+    // push initial jobs before any change detection so the component starts
+    // with a populated list; this prevents ExpressionChanged errors when the
+    // array is updated mid-cycle.
     emitJobs([
       {
         id: 'job-001',
@@ -124,7 +124,12 @@ describe('JobDashboardComponent', () => {
         progress: 45,
       },
     ]);
+
+    // run change detection to trigger ngOnInit where initialization occurs
     fixture.detectChanges();
+
+    // dashboard should kick off job initialization automatically
+    expect(jobService.initialize).toHaveBeenCalled();
   });
 
   it('should create and call ensureConnected', () => {
@@ -174,6 +179,8 @@ describe('JobDashboardComponent', () => {
     const dialogSpy = vi.spyOn(dialog, 'open');
     expect(row).toBeTruthy();
     row.click();
+    // clicking can trigger additional change detection; make sure we sync
+    fixture.detectChanges();
     expect(dialogSpy).toHaveBeenCalled();
   });
 

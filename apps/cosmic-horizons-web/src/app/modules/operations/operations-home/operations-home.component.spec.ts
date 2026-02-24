@@ -29,6 +29,8 @@ const perfStub = {
 
 const jobServiceStub = {
   getJobCount: () => of(1),
+  // component calls initialize during ngOnInit so provide a noop
+  initialize: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
 };
 
 describe('OperationsHomeComponent', () => {
