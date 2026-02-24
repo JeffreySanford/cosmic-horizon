@@ -69,11 +69,12 @@ export class JobOrchestratorService {
   ): Promise<void> {
     try {
       // make sure we have correlation id for headers (payload may include it)
+      const p = payload as Record<string, unknown>;
       const correlation =
-        (payload as any).correlation_id ||
-        (payload as any).correlationId ||
+        (p.correlation_id as string) ||
+        (p.correlationId as string) ||
         generateCorrelationId();
-      const user = (payload as any).user_id || (payload as any).userId || '';
+      const user = (p.user_id as string) || (p.userId as string) || '';
 
       const event: EventBase = {
         event_id: generateEventId(),

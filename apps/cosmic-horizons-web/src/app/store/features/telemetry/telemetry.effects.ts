@@ -19,7 +19,7 @@ export class TelemetryEffects {
   private readonly http = inject(HttpClient);
 
   // telemetry is a debugging feature; polling every second churns the
-  // network and GPU heatmap data even when the user isn't looking.  a 500 ms
+  // network and GPU heatmap data even when the user isn't looking.  a 500 ms
   // interval feels snappy for the views that actually display it, and we
   // only start the effect when a consuming service is instantiated.
   //

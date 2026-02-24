@@ -81,7 +81,12 @@ describe('ViewerComponent', () => {
     eventCallbacks = {};
     // intercept console.log so tests can assert on empty-lookups without
     // polluting output
-    vi.spyOn(console, 'log').mockImplementation(() => {});
+    // intercept console.log so tests can assert on empty-lookups without
+    // polluting output
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    vi.spyOn(console, 'log').mockImplementation(() => {
+      // noop
+    });
 
     mockAladinView = {
       gotoRaDec: vi.fn(),

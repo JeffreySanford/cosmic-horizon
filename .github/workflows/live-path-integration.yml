@@ -10,9 +10,10 @@ jobs:
         image: redis:7
         ports:
           - 6379:6379
-        options: >-
-          --save 60 1
-          --appendonly no
+        # disable custom redis flags; they were causing docker errors
+        #options: >-
+        #  --save 60 1
+        #  --appendonly no
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

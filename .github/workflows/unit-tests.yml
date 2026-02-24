@@ -16,9 +16,12 @@ jobs:
         image: redis:7
         ports:
           - 6379:6379
-        options: >-
-          --save 60 1
-          --appendonly no
+        # the redis command-line flags were mistakenly being passed to
+        # docker create and causing failures; omit them since default
+        # configuration is fine for unit tests.
+        # options: >-
+        #   --save 60 1
+        #   --appendonly no
     env:
       NX_DAEMON: 'false'
       RABBITMQ_HOST: 'cosmic-horizons-rabbitmq'

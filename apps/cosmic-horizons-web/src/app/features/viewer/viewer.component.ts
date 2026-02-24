@@ -317,7 +317,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.stateForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
+      .subscribe(() => {
         if (this.stateForm.valid) {
           this.syncAladinFromForm();
         }
