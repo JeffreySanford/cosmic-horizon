@@ -19,6 +19,13 @@ interface JobPayload {
   error_code?: number;
 }
 
+// internal shape after normalization (includes event metadata)
+type InternalJobEvent = JobPayload & {
+  event_type: string;
+  timestamp?: string;
+  user_id: string;
+};
+
 /**
  * JobEventsConsumer subscribes to job lifecycle events
  * Filters for terminal events (success/failed/cancelled) and sends notifications
@@ -58,30 +65,36 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
       ) as EventBase | Record<string, unknown>;
 
       // normalize to a simple object with expected fields; support old shape too
-      const eventType = (raw as EventBase).event_type || (raw as any).event_type;
-      const timestamp = (raw as EventBase).timestamp || (raw as any).timestamp;
-      const userId = (raw as EventBase).user_id || (raw as any).user_id;
-      const payloadData =
-        (raw as EventBase).payload ?? (raw as any);
-      const jobEvent: JobPayload & { event_type: string; timestamp?: string } = {
-        ...(payloadData as any),
-        event_type: eventType,
-        user_id: userId,
-        timestamp,
-      } as any;
+      let jobEvent: JobPayload & { event_type: string; timestamp?: string };
+
+      if ((raw as EventBase).payload) {
+        const typed = raw as EventBase;
+        const payloadData = typed.payload as JobPayload;
+        jobEvent = {
+          ...payloadData,
+          event_type: typed.event_type,
+          user_id: typed.user_id,
+          timestamp: typed.timestamp,
+        };
+      } else {
+        // legacy shape where fields are already top-level
+        jobEvent = raw as JobPayload & { event_type: string; timestamp?: string };
+      }
+      const { event_type: eventType, job_id: jobId } = jobEvent;
 
       this.logger.debug(
-        `Received job event: ${jobEvent.event_type} for job ${jobEvent.job_id}`,
+        `Received job event: ${eventType} for job ${jobId}`,
       );
 
       // Process terminal events only
       if (jobEvent.event_type === 'job.completed') {
-        await this.handleJobCompletion(jobEvent as any);
+        await this.handleJobCompletion(jobEvent);
       } else if (jobEvent.event_type === 'job.failed') {
-        await this.handleJobFailure(jobEvent as any);
+        await this.handleJobFailure(jobEvent);
       } else if (jobEvent.event_type === 'job.cancelled') {
-        await this.handleJobCancellation(jobEvent as any);
+        await this.handleJobCancellation(jobEvent);
       }
+
     } catch (error) {
       this.logger.warn(
         `Failed to process job event: ${error instanceof Error ? error.message : String(error)}`,
@@ -93,7 +106,7 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
   /**
    * Handle job completion event
    */
-  private async handleJobCompletion(event: JobLifecycleEvent): Promise<void> {
+  private async handleJobCompletion(event: InternalJobEvent): Promise<void> {
     const { job_id, user_id, result_url, execution_time_seconds } = event;
 
     await this.notificationService.sendJobCompletionEmail({
@@ -124,7 +137,7 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
   /**
    * Handle job failure event
    */
-  private async handleJobFailure(event: JobLifecycleEvent): Promise<void> {
+  private async handleJobFailure(event: InternalJobEvent): Promise<void> {
     const { job_id, user_id, error_message, error_code } = event;
 
     await this.notificationService.sendJobFailureNotification({
@@ -155,7 +168,7 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
   /**
    * Handle job cancellation event
    */
-  private async handleJobCancellation(event: JobLifecycleEvent): Promise<void> {
+  private async handleJobCancellation(event: InternalJobEvent): Promise<void> {
     const { job_id, user_id } = event;
 
     await this.notificationService.broadcastViaWebSocket({
