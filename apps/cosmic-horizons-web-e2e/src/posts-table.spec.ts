@@ -77,10 +77,8 @@ test('posts table shows all records with correct paginator and green-tinted shel
 
   const mineOnlyToggle = page.getByRole('checkbox', { name: 'My posts only' });
   // Normalize to "all posts" view regardless of default role state in store/session.
-  if (await mineOnlyToggle.isChecked()) {
-    await mineOnlyToggle.click();
-    await expect(mineOnlyToggle).not.toBeChecked();
-  }
+  await mineOnlyToggle.uncheck();
+  await expect(mineOnlyToggle).not.toBeChecked();
 
   await expect(page.locator('tr.mat-mdc-row')).toHaveCount(10, {
     timeout: 10_000,

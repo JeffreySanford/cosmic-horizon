@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, NgZone } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -29,6 +29,7 @@ export class EphemerisComponent implements OnInit, OnDestroy {
   private readonly authSessionService = inject(AuthSessionService);
   private readonly logger = inject(AppLoggerService);
   private readonly zone = inject(NgZone);
+  private readonly cd = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
   get user() {
@@ -131,6 +132,9 @@ export class EphemerisComponent implements OnInit, OnDestroy {
 
                 // debug visibility: ensure the result object is actually set
                 console.log('ephemeris: assigning result to component', this.result);
+
+                // ensure change detection picks up the new result
+                this.cd.markForCheck();
 
                 // schedule a DOM probe after the macrotask update
                 setTimeout(() => {

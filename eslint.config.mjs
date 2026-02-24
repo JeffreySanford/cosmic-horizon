@@ -15,6 +15,8 @@ export default [
       '**/.angular/**',
       '**/.lighthouseci/**',
       '**/coverage/**',
+      // ignore virtual environments and third‑party generated JS
+      '**/.venv/**',
     ],
   },
   {

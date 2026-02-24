@@ -5,12 +5,10 @@ import 'dotenv/config';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
-import { exec as execCb, execFile as execFileCb } from 'child_process';
+import { exec as execCb } from 'child_process';
 import { promisify } from 'util';
 
 const exec = promisify(execCb);
-const execFile = promisify(execFileCb);
 
 const baseUrl = process.env.API_URL || 'http://localhost:3000';
 const POLL_INTERVAL_MS = Number(process.env.POLL_INTERVAL_MS || 2000);

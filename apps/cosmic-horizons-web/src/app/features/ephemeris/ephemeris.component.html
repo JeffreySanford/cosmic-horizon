@@ -1,12 +1,14 @@
 <div class="ephemeris-container">
-    <mat-toolbar color="primary" class="app-toolbar">
+  <mat-toolbar color="primary" class="app-toolbar">
     <mat-icon class="brand-icon">satellite_alt</mat-icon>
     <span class="brand">Cosmic Horizon</span>
     <span class="spacer"></span>
-    <a *ngIf="user.username" mat-button routerLink="/profile">
-      <mat-icon>account_circle</mat-icon>
-      My Profile
-    </a>
+    @if (user.username) {
+      <a mat-button routerLink="/profile">
+        <mat-icon>account_circle</mat-icon>
+        My Profile
+      </a>
+    }
     <button mat-flat-button color="warn" (click)="logout()">
       <mat-icon>logout</mat-icon>
       Logout
@@ -28,21 +30,25 @@
       </mat-card-header>
 
       <mat-card-content>
-        <div *ngIf="error" class="alert error" role="alert" aria-live="polite">
-          <mat-icon>error</mat-icon>
-          <div>
-            <strong>Search Failed</strong>
-            <p>{{ error }}</p>
+        @if (error) {
+          <div class="alert error" role="alert" aria-live="polite">
+            <mat-icon>error</mat-icon>
+            <div>
+              <strong>Search Failed</strong>
+              <p>{{ error }}</p>
+            </div>
           </div>
-        </div>
+        }
 
-        <div *ngIf="noResultsMessage" class="alert warn" role="status" aria-live="polite">
-          <mat-icon>warning</mat-icon>
-          <div>
-            <strong>No Results</strong>
-            <p>{{ noResultsMessage }}</p>
+        @if (noResultsMessage) {
+          <div class="alert warn" role="status" aria-live="polite">
+            <mat-icon>warning</mat-icon>
+            <div>
+              <strong>No Results</strong>
+              <p>{{ noResultsMessage }}</p>
+            </div>
           </div>
-        </div>
+        }
 
         <form
           [formGroup]="searchForm"
@@ -58,9 +64,11 @@
                 placeholder="mars, jupiter, moon, ceres"
                 [attr.aria-invalid]="f['target'].invalid && submitted"
               />
-              <mat-error *ngIf="f['target'].invalid && submitted">
-                Target name is required (minimum 2 characters)
-              </mat-error>
+              @if (f['target'].invalid && submitted) {
+                <mat-error
+                  >Target name is required (minimum 2 characters)</mat-error
+                >
+              }
             </mat-form-field>
 
             <mat-form-field class="epoch-field" appearance="outline">
@@ -77,35 +85,35 @@
               type="submit"
               [disabled]="loading"
             >
-              <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
-              <mat-icon *ngIf="!loading">search</mat-icon>
+              @if (loading) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <mat-icon>search</mat-icon>
+              }
               <span>Resolve</span>
             </button>
 
-            <button
-              *ngIf="submitted && (result || error || noResultsMessage)"
-              mat-stroked-button
-              type="button"
-              (click)="clearSearch()"
-              [disabled]="loading"
-            >
-              <mat-icon>clear</mat-icon>
-              Reset
-            </button>
+            @if (submitted && (result || error || noResultsMessage)) {
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="clearSearch()"
+                [disabled]="loading"
+              >
+                <mat-icon>clear</mat-icon>
+                Reset
+              </button>
+            }
           </div>
         </form>
       </mat-card-content>
     </mat-card>
 
-    <mat-card *ngIf="result" class="panel results-card">
+    @if (result) {
+      <mat-card class="panel results-card">
         <mat-card-header>
           <mat-card-title>{{ result.target | titlecase }}</mat-card-title>
         </mat-card-header>
-
-        <!-- Debug: show raw result payload to confirm template binding -->
-        <div class="debug-json" *ngIf="result" aria-hidden="false">
-          <pre>{{ result | json }}</pre>
-        </div>
 
         <mat-card-content>
           <div class="results-layout">
@@ -144,16 +152,15 @@
 
             <div class="preview-card">
               <h3>Sky Preview</h3>
-              <ng-container *ngIf="previewImageUrl; else previewEmpty">
+              @if (previewImageUrl) {
                 <img
                   [src]="previewImageUrl"
                   [alt]="'Sky preview around ' + result.target"
                   loading="lazy"
                 />
-              </ng-container>
-              <ng-template #previewEmpty>
+              } @else {
                 <div class="preview-empty">Preview unavailable</div>
-              </ng-template>
+              }
               <div class="preview-actions">
                 <button
                   mat-stroked-button
@@ -163,22 +170,23 @@
                   <mat-icon>open_in_new</mat-icon>
                   Open In Viewer
                 </button>
-                <a
-                  *ngIf="result.aladin_url"
-                  mat-button
-                  [href]="result.aladin_url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <mat-icon>travel_explore</mat-icon>
-                  Open Aladin
-                </a>
+                @if (result.aladin_url) {
+                  <a
+                    mat-button
+                    [href]="result.aladin_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <mat-icon>travel_explore</mat-icon>
+                    Open Aladin
+                  </a>
+                }
               </div>
             </div>
           </div>
         </mat-card-content>
       </mat-card>
-
+    }
 
     <mat-card class="panel info-card">
       <mat-card-header>
