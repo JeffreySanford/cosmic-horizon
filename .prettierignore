@@ -4,3 +4,7 @@
 /.nx/cache
 /.nx/workspace-data
 .angular
+
+# Ignore CI-generated job test reports
+job-test/
+job-test/*.json
