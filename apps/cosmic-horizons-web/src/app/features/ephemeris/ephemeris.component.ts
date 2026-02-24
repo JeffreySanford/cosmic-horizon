@@ -1,4 +1,5 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, NgZone } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -28,6 +29,8 @@ export class EphemerisComponent implements OnInit, OnDestroy {
   private readonly ephemerisApiService = inject(EphemerisApiService);
   private readonly authSessionService = inject(AuthSessionService);
   private readonly logger = inject(AppLoggerService);
+  private readonly zone = inject(NgZone);
+  private readonly cd = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
   get user() {
@@ -110,27 +113,32 @@ export class EphemerisComponent implements OnInit, OnDestroy {
             return;
           }
 
-          this.result = {
-            ...response,
-            target: this.normalizeTarget(response.target || target),
-          };
-          this.previewImageUrl =
-            response.sky_preview_url ||
-            this.buildSkyPreviewUrl(response.ra, response.dec);
+          // assign inside Angular zone and force change detection so template
+          // updates immediately (prevents hydration/zone issues hiding the card)
+          this.zone.run(() => {
+            this.result = {
+              ...response,
+              target: this.normalizeTarget(response.target || target),
+            };
+            this.previewImageUrl =
+              response.sky_preview_url || this.buildSkyPreviewUrl(response.ra, response.dec);
 
-          // debug visibility: ensure the result object is actually set
-          console.log('ephemeris: assigning result to component', this.result);
-          // sanity check: ensure template element exists after change detection
-          setTimeout(() => {
-            const hasCard = !!document.querySelector('.results-card');
-            console.log('ephemeris: results-card in DOM?', hasCard);
-          });
+            // debug visibility: ensure the result object is actually set
+            console.log('ephemeris: assigning result to component', this.result);
 
-          this.logger.info('ephemeris', 'search_success', {
-            target: this.result.target,
-            ra: this.result.ra,
-            dec: this.result.dec,
-            source: this.result.source,
+            // force change detection and then check for the results card in DOM
+            this.cd.detectChanges();
+            setTimeout(() => {
+              const hasCard = !!document.querySelector('.results-card');
+              console.log('ephemeris: results-card in DOM?', hasCard);
+            });
+
+            this.logger.info('ephemeris', 'search_success', {
+              target: this.result.target,
+              ra: this.result.ra,
+              dec: this.result.dec,
+              source: this.result.source,
+            });
           });
         },
         error: (httpError: HttpErrorResponse) => {
