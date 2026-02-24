@@ -10,6 +10,60 @@ import {
   TaccIntegrationService,
 } from './tacc-integration.service';
 
+// Increase Jest timeout for potentially longer integration-style tests in this file
+jest.setTimeout(15000);
+
+// Provide an in-memory mock for ioredis so tests do not attempt real Redis connections
+class MockRedis {
+  private lists = new Map<string, string[]>();
+  private hashes = new Map<string, Record<string, string>>();
+  constructor(_url?: string) {}
+  async ping() { return 'PONG'; }
+  async llen(key: string) { return (this.lists.get(key) || []).length; }
+  async lpush(key: string, value: string) {
+    const arr = this.lists.get(key) || [];
+    arr.unshift(value);
+    this.lists.set(key, arr);
+    return arr.length;
+  }
+  async brpop(key: string, timeoutSec: number) {
+    const end = Date.now() + (timeoutSec || 1) * 1000;
+    while (Date.now() <= end) {
+      const arr = this.lists.get(key) || [];
+      if (arr.length > 0) {
+        const val = arr.pop() as string;
+        this.lists.set(key, arr);
+        return [key, val];
+      }
+      // small delay
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    return null;
+  }
+  async hset(key: string, ...pairs: string[]) {
+    const map = this.hashes.get(key) || {};
+    for (let i = 0; i < pairs.length; i += 2) {
+      map[pairs[i]] = pairs[i + 1];
+    }
+    this.hashes.set(key, map);
+    return Object.keys(map).length;
+  }
+  async hgetall(key: string) {
+    return this.hashes.get(key) || {};
+  }
+  async flushall() {
+    this.lists.clear();
+    this.hashes.clear();
+    return 'OK';
+  }
+}
+
+// Mock ioredis before any code that requires it runs
+jest.mock('ioredis', () => {
+  return jest.fn().mockImplementation((...args: unknown[]) => new MockRedis(args[0] as string));
+});
+
 interface MockConfig {
   REMOTE_COMPUTE_MODE?: string;
   TACC_LIVE?: string;
@@ -29,6 +83,7 @@ describe('Tacc adapter wiring', () => {
     configValues = {
       REMOTE_COMPUTE_MODE: 'demo',
       TACC_LIVE: 'false',
+      REDIS_URL: 'redis://fake',
       OLLAMA_BASE_URL: 'http://localhost:11435',
       OLLAMA_MODEL: 'qwen3:8b',
       OLLAMA_TIMEOUT_MS: 1000,

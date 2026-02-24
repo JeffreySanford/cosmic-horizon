@@ -51,6 +51,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps
+      - name: Start minimal infra (redis + brokers) for unit tests
+        run: |
+          set -euo pipefail
+          pnpm run start:infra:ci || true
       - uses: nrwl/nx-set-shas@v4
 
       - run: pnpm run security:audit
