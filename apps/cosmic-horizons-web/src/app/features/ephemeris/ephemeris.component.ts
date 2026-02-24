@@ -90,12 +90,15 @@ export class EphemerisComponent implements OnInit, OnDestroy {
       target,
       epoch: epoch ?? 'now',
     });
+    // developer console trace for quick debugging
+    console.log('ephemeris: initiating search', { target, epoch });
 
     this.ephemerisApiService
       .search({ target, epoch })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
+          console.log('ephemeris: search response', response);
           this.loading = false;
 
           if (!this.isValidResult(response)) {

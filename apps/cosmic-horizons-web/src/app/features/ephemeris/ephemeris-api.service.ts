@@ -33,8 +33,8 @@ export class EphemerisApiService {
     if (query.object_name) params.append('object_name', query.object_name);
     if (query.epoch) params.append('epoch', query.epoch);
 
-    return this.http.get<EphemerisResult>(
-      `${this.apiBaseUrl}/api/view/ephem/search?${params.toString()}`,
-    );
+    const url = `${this.apiBaseUrl}/api/view/ephem/search?${params.toString()}`;
+    console.log('ephemeris api: calling', url);
+    return this.http.get<EphemerisResult>(url);
   }
 }
