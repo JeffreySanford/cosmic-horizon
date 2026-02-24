@@ -471,9 +471,11 @@ describe('JobOrchestratorService', () => {
         expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledWith(
           expect.objectContaining({
             event_type: 'job.submitted',
-            job_id: 'job-1',
             user_id: 'user-1',
-            agent: 'AlphaCal',
+            payload: expect.objectContaining({
+              job_id: 'job-1',
+              agent: 'AlphaCal',
+            }),
           }),
           'job-1', // partition key
         );
@@ -491,7 +493,9 @@ describe('JobOrchestratorService', () => {
         expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledWith(
           expect.objectContaining({
             event_type: 'job.submitted',
-            gpu_count: 2,
+            payload: expect.objectContaining({
+              gpu_count: 2,
+            }),
           }),
           expect.any(String),
         );
@@ -529,8 +533,10 @@ describe('JobOrchestratorService', () => {
         expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledWith(
           expect.objectContaining({
             event_type: 'job.status.changed',
-            previous_status: 'QUEUED',
-            new_status: 'QUEUING',
+            payload: expect.objectContaining({
+              previous_status: 'QUEUED',
+              new_status: 'QUEUING',
+            }),
           }),
           'job-1',
         );
@@ -556,7 +562,9 @@ describe('JobOrchestratorService', () => {
         expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledWith(
           expect.objectContaining({
             event_type: 'job.failed',
-            error_message: 'TACC unavailable',
+            payload: expect.objectContaining({
+              error_message: 'TACC unavailable',
+            }),
           }),
           'job-1',
         );
@@ -575,8 +583,10 @@ describe('JobOrchestratorService', () => {
         expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledWith(
           expect.objectContaining({
             event_type: 'job.cancelled',
-            previous_status: 'RUNNING',
-            new_status: 'CANCELLED',
+            payload: expect.objectContaining({
+              previous_status: 'RUNNING',
+              new_status: 'CANCELLED',
+            }),
           }),
           'job-1',
         );
@@ -654,7 +664,9 @@ describe('JobOrchestratorService', () => {
         expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalledWith(
           expect.objectContaining({
             user_id: 'user-1',
-            job_id: 'job-1',
+            payload: expect.objectContaining({
+              job_id: 'job-1',
+            }),
           }),
           expect.any(String),
         );
@@ -805,10 +817,10 @@ describe('JobOrchestratorService', () => {
         // Verify Kafka event was published
         expect(kafkaService.publishJobLifecycleEvent).toHaveBeenCalled();
         const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0];
-        const event = kafkaCall[0];
+        const event: any = kafkaCall[0];
 
         expect(event.event_type).toBe('job.submitted');
-        expect(event.job_id).toBe('job-1');
+        expect(event.payload?.job_id).toBe('job-1');
         expect(event.timestamp).toBeDefined();
       });
 
@@ -825,9 +837,9 @@ describe('JobOrchestratorService', () => {
         const kafkaCall = kafkaService.publishJobLifecycleEvent.mock.calls[0];
         const event = kafkaCall[0];
 
-        expect(event.job_id).toBe('job-1');
+        expect(event.payload?.job_id).toBe('job-1');
         expect(event.user_id).toBe('user-1');
-        expect(event.project_id).toBe('VLASS2.1.sb38593457.eb38602345');
+        expect(event.payload?.project_id).toBe('VLASS2.1.sb38593457.eb38602345');
         expect(event.timestamp).toBeDefined();
       });
 
@@ -892,7 +904,7 @@ describe('JobOrchestratorService', () => {
         );
 
         expect(submittedEvent).toBeDefined();
-        expect(submittedEvent?.[0].job_id).toBe('job-1');
+        expect(submittedEvent?.[0].payload?.payload?.job_id).toBe('job-1');
       });
 
       it('should preserve event ordering across multiple job submissions', async () => {
