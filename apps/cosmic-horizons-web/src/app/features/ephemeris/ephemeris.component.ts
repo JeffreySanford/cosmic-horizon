@@ -117,7 +117,7 @@ export class EphemerisComponent implements OnInit, OnDestroy {
           // assign inside Angular zone but schedule mutations on the microtask
           // queue so they occur after the current change-detection cycle.
           this.zone.run(() => {
-            Promise.resolve().then(() => {
+            setTimeout(() => {
               this.loading = false;
 
               this.result = {
@@ -130,7 +130,7 @@ export class EphemerisComponent implements OnInit, OnDestroy {
               // debug visibility: ensure the result object is actually set
               console.log('ephemeris: assigning result to component', this.result);
 
-              // trigger change detection after the microtask update
+              // trigger change detection after the macrotask update
               this.cd.detectChanges();
               this.appRef.tick();
               setTimeout(() => {
@@ -144,7 +144,7 @@ export class EphemerisComponent implements OnInit, OnDestroy {
                 dec: this.result.dec,
                 source: this.result.source,
               });
-            });
+            }, 0);
           });
         },
         error: (httpError: HttpErrorResponse) => {
