@@ -119,6 +119,8 @@ export class EphemerisComponent implements OnInit, OnDestroy {
           // run the timer outside Angular so the mutation happens in a fresh
           // change-detection cycle; then re-enter the zone to apply updates.
           this.zone.runOutsideAngular(() => {
+            // use a short macrotask delay to ensure the update happens
+            // after Angular's current change-detection/hydration cycles
             setTimeout(() => {
               this.zone.run(() => {
                 this.loading = false;
@@ -146,7 +148,7 @@ export class EphemerisComponent implements OnInit, OnDestroy {
                   source: this.result.source,
                 });
               });
-            }, 0);
+            }, 50);
           });
         },
         error: (httpError: HttpErrorResponse) => {
