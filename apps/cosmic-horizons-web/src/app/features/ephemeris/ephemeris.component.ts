@@ -1,5 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, NgZone, ApplicationRef } from '@angular/core';
-import { ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -30,8 +29,6 @@ export class EphemerisComponent implements OnInit, OnDestroy {
   private readonly authSessionService = inject(AuthSessionService);
   private readonly logger = inject(AppLoggerService);
   private readonly zone = inject(NgZone);
-  private readonly cd = inject(ChangeDetectorRef);
-  private readonly appRef = inject(ApplicationRef);
   private readonly destroy$ = new Subject<void>();
 
   get user() {
