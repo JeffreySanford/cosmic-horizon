@@ -103,9 +103,9 @@ export class EphemerisComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           console.log('ephemeris: search response', response);
-          this.loading = false;
 
           if (!this.isValidResult(response)) {
+            this.loading = false;
             this.noResultsMessage = `No valid coordinates were returned for "${target}".`;
             this.logger.warn('ephemeris', 'search_invalid_payload', {
               target,
@@ -114,33 +114,36 @@ export class EphemerisComponent implements OnInit, OnDestroy {
             return;
           }
 
-          // assign inside Angular zone and force change detection so template
-          // updates immediately (prevents hydration/zone issues hiding the card)
+          // assign inside Angular zone but schedule mutations on the microtask
+          // queue so they occur after the current change-detection cycle.
           this.zone.run(() => {
-            this.result = {
-              ...response,
-              target: this.normalizeTarget(response.target || target),
-            };
-            this.previewImageUrl =
-              response.sky_preview_url || this.buildSkyPreviewUrl(response.ra, response.dec);
+            Promise.resolve().then(() => {
+              this.loading = false;
 
-            // debug visibility: ensure the result object is actually set
-            console.log('ephemeris: assigning result to component', this.result);
+              this.result = {
+                ...response,
+                target: this.normalizeTarget(response.target || target),
+              };
+              this.previewImageUrl =
+                response.sky_preview_url || this.buildSkyPreviewUrl(response.ra, response.dec);
 
-            // force change detection and run the application tick to ensure
-            // the hydration/SSR client updates the DOM
-            this.cd.detectChanges();
-            this.appRef.tick();
-            setTimeout(() => {
-              const hasCard = !!document.querySelector('.results-card');
-              console.log('ephemeris: results-card in DOM?', hasCard);
-            });
+              // debug visibility: ensure the result object is actually set
+              console.log('ephemeris: assigning result to component', this.result);
 
-            this.logger.info('ephemeris', 'search_success', {
-              target: this.result.target,
-              ra: this.result.ra,
-              dec: this.result.dec,
-              source: this.result.source,
+              // trigger change detection after the microtask update
+              this.cd.detectChanges();
+              this.appRef.tick();
+              setTimeout(() => {
+                const hasCard = !!document.querySelector('.results-card');
+                console.log('ephemeris: results-card in DOM?', hasCard);
+              });
+
+              this.logger.info('ephemeris', 'search_success', {
+                target: this.result.target,
+                ra: this.result.ra,
+                dec: this.result.dec,
+                source: this.result.source,
+              });
             });
           });
         },
