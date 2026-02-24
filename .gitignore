@@ -65,4 +65,6 @@ e2e-results.txt
 
 # astronomy dataset cache
 astronomy-data/
-# artifacts from jobs-smoke-test script\njob-test/
+# artifacts from jobs-smoke-test script
+job-test/
+job-test/*.json
