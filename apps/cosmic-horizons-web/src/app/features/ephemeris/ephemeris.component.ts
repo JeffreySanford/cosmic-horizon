@@ -116,32 +116,36 @@ export class EphemerisComponent implements OnInit, OnDestroy {
 
           // assign inside Angular zone but schedule mutations on the microtask
           // queue so they occur after the current change-detection cycle.
-          this.zone.run(() => {
+          // run the timer outside Angular so the mutation happens in a fresh
+          // change-detection cycle; then re-enter the zone to apply updates.
+          this.zone.runOutsideAngular(() => {
             setTimeout(() => {
-              this.loading = false;
+              this.zone.run(() => {
+                this.loading = false;
 
-              this.result = {
-                ...response,
-                target: this.normalizeTarget(response.target || target),
-              };
-              this.previewImageUrl =
-                response.sky_preview_url || this.buildSkyPreviewUrl(response.ra, response.dec);
+                this.result = {
+                  ...response,
+                  target: this.normalizeTarget(response.target || target),
+                };
+                this.previewImageUrl =
+                  response.sky_preview_url || this.buildSkyPreviewUrl(response.ra, response.dec);
 
-              // debug visibility: ensure the result object is actually set
-              console.log('ephemeris: assigning result to component', this.result);
+                // debug visibility: ensure the result object is actually set
+                console.log('ephemeris: assigning result to component', this.result);
 
-              // trigger change detection after the macrotask update
-              this.cd.detectChanges();
-              setTimeout(() => {
-                const hasCard = !!document.querySelector('.results-card');
-                console.log('ephemeris: results-card in DOM?', hasCard);
-              });
+                // trigger change detection after the macrotask update
+                this.cd.detectChanges();
+                setTimeout(() => {
+                  const hasCard = !!document.querySelector('.results-card');
+                  console.log('ephemeris: results-card in DOM?', hasCard);
+                });
 
-              this.logger.info('ephemeris', 'search_success', {
-                target: this.result.target,
-                ra: this.result.ra,
-                dec: this.result.dec,
-                source: this.result.source,
+                this.logger.info('ephemeris', 'search_success', {
+                  target: this.result.target,
+                  ra: this.result.ra,
+                  dec: this.result.dec,
+                  source: this.result.source,
+                });
               });
             }, 0);
           });
