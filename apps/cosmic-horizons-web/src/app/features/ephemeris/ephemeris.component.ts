@@ -120,6 +120,11 @@ export class EphemerisComponent implements OnInit, OnDestroy {
 
           // debug visibility: ensure the result object is actually set
           console.log('ephemeris: assigning result to component', this.result);
+          // sanity check: ensure template element exists after change detection
+          setTimeout(() => {
+            const hasCard = !!document.querySelector('.results-card');
+            console.log('ephemeris: results-card in DOM?', hasCard);
+          });
 
           this.logger.info('ephemeris', 'search_success', {
             target: this.result.target,
