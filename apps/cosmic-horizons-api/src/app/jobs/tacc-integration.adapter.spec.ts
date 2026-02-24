@@ -17,7 +17,6 @@ jest.setTimeout(15000);
 class MockRedis {
   private lists = new Map<string, string[]>();
   private hashes = new Map<string, Record<string, string>>();
-  constructor(_url?: string) {}
   async ping() { return 'PONG'; }
   async llen(key: string) { return (this.lists.get(key) || []).length; }
   async lpush(key: string, value: string) {
@@ -36,7 +35,6 @@ class MockRedis {
         return [key, val];
       }
       // small delay
-      // eslint-disable-next-line no-await-in-loop
       await new Promise((r) => setTimeout(r, 50));
     }
     return null;
