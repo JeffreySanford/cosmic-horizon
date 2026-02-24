@@ -56,6 +56,8 @@ jobs:
           set -euo pipefail
           pnpm run start:infra:ci || true
       - uses: nrwl/nx-set-shas@v4
+        with:
+          use-previous-merge-group-commit: false
 
       - run: pnpm run security:audit
       - run: pnpm nx run docs-policy:check
