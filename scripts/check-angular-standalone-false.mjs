@@ -1,6 +1,12 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import process from 'node:process';
+
+// Prevent spurious MaxListenersExceededWarning when this check is run as
+// part of a larger orchestrated pipeline that may attach many listeners.
+// Setting a higher limit here avoids noisy warnings while still allowing
+// Node to surface genuine leaks elsewhere.
+process.setMaxListeners(Math.max(50, process.getMaxListeners()));
 import ts from 'typescript';
 
 const root = process.cwd();
