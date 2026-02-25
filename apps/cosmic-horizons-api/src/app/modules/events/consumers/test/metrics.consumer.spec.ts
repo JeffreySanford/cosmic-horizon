@@ -156,6 +156,32 @@ describe('MetricsConsumer - Event Handling', () => {
       await expect(consumer.onModuleInit()).resolves.toBeUndefined();
       expect(metricsService.aggregateJobMetrics).toHaveBeenCalled();
     });
+
+    it('should skip malformed metric payloads without throwing', async () => {
+      // Override kafka subscribe to deliver malformed JSON
+      kafkaService.subscribe.mockImplementationOnce(
+        async (_groupId: string, _topics: string[], handler) => {
+          const badPayload: Partial<EachMessagePayload> = {
+            message: {
+              key: Buffer.from('job-1'),
+              value: Buffer.from('this-is-not-json'),
+              timestamp: Date.now().toString(),
+              size: 20,
+              attributes: 0,
+              offset: '0',
+              headers: undefined,
+            },
+            partition: 0,
+            topic: 'job-metrics',
+          };
+          await handler(badPayload as EachMessagePayload);
+        },
+      );
+
+      // Should not throw and should not call aggregate
+      await expect(consumer.onModuleInit()).resolves.toBeUndefined();
+      expect(metricsService.aggregateJobMetrics).not.toHaveBeenCalled();
+    });
   });
 
   describe('Consumer Monitoring', () => {

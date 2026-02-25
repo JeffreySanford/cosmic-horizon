@@ -1185,9 +1185,12 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     width: number,
     height: number,
   ): void {
-    this.logger.log(
-      `Cutout cache ${source === 'none' ? 'miss' : 'hit'} (source=${source}, provider=${provider}, survey=${survey}, size=${width}x${height}).`,
-    );
+    const msg = `Cutout cache ${source === 'none' ? 'miss' : 'hit'} (source=${source}, provider=${provider}, survey=${survey}, size=${width}x${height}).`;
+    if (this.isVerboseTelemetry()) {
+      this.logger.log(msg);
+    } else {
+      this.logger.debug(msg);
+    }
   }
 
   private logNearbyCacheEvent(
@@ -1196,9 +1199,12 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     limit: number,
     radiusDeg: number,
   ): void {
-    this.logger.log(
-      `Nearby-label cache ${result} (source=${source}, limit=${limit}, radius_deg=${radiusDeg}).`,
-    );
+    const msg = `Nearby-label cache ${result} (source=${source}, limit=${limit}, radius_deg=${radiusDeg}).`;
+    if (this.isVerboseTelemetry()) {
+      this.logger.log(msg);
+    } else {
+      this.logger.debug(msg);
+    }
   }
 
   private scheduleWarmupIfEnabled(): void {
@@ -1303,7 +1309,6 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
     if (!this.redisEnabled || !this.redisClient) {
       return null;
     }
-
     try {
       const raw = await this.redisClient.get(this.redisKey(rawKey));
       if (!raw) {
@@ -1311,7 +1316,17 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
         return null;
       }
       this.logRedis('redis_hit', { key: rawKey, bytes: raw.length });
-      return JSON.parse(raw) as T;
+      try {
+        return JSON.parse(raw) as T;
+      } catch (parseError) {
+        const msg =
+          parseError instanceof Error ? parseError.message : 'invalid-json';
+        this.logger.warn(
+          `Redis json parse failed for key ${rawKey}: ${msg}; ignoring key.`,
+        );
+        this.logRedis('redis_error', { key: rawKey, message: `parse: ${msg}` });
+        return null;
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'unknown redis error';
@@ -1361,13 +1376,24 @@ export class ViewerService implements OnModuleInit, OnModuleDestroy {
       correlation_id: this.ctx.getCorrelationId() ?? 'unknown',
       ...details,
     };
-    this.logger.log(JSON.stringify(payload));
+    if (this.isVerboseTelemetry()) {
+      this.logger.log(JSON.stringify(payload));
+    } else {
+      this.logger.debug(JSON.stringify(payload));
+    }
     void this.loggingService.add({
       type: 'redis',
       severity: event === 'redis_error' ? 'warn' : 'info',
       message: event,
       data: payload,
     });
+  }
+
+  private isVerboseTelemetry(): boolean {
+    return (
+      (process.env['VIEWER_VERBOSE_TELEMETRY'] ?? 'false').toLowerCase() ===
+      'true'
+    );
   }
 
   private markCutoutSuccess(provider: 'primary' | 'secondary'): void {

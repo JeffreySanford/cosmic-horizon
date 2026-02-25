@@ -318,7 +318,7 @@ describe('CacheService - Comprehensive Coverage', () => {
       const result = await service.get('key1');
 
       expect(result).toEqual({ data: 'value' });
-      expect(Logger.prototype.error).toHaveBeenCalled();
+      expect(Logger.prototype.warn).toHaveBeenCalled();
     });
 
     it('should return null for non-existent key when Redis fails', async () => {
@@ -427,7 +427,7 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       await service.set('key1', { data: 'value' }, 300);
 
-      expect(Logger.prototype.error).toHaveBeenCalled();
+      expect(Logger.prototype.warn).toHaveBeenCalled();
     });
 
     it('should still set value in memory cache when Redis fails', async () => {
@@ -437,7 +437,7 @@ describe('CacheService - Comprehensive Coverage', () => {
       await service.set('key1', { data: 'value' }, 300);
 
       // Verify error was logged
-      expect(Logger.prototype.error).toHaveBeenCalled();
+      expect(Logger.prototype.warn).toHaveBeenCalled();
 
       // Note: Due to timing and async nature, the value might not be immediately
       // retrievable from memory in the same tick. The important thing is that
@@ -506,7 +506,7 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       await service.del('key1');
 
-      expect(Logger.prototype.error).toHaveBeenCalled();
+      expect(Logger.prototype.warn).toHaveBeenCalled();
     });
 
     it('should still delete from memory cache even if Redis fails', async () => {
@@ -923,7 +923,7 @@ describe('CacheService - Comprehensive Coverage', () => {
 
       const result = await service.get('key1');
       expect(result).toBeNull();
-      expect(Logger.prototype.error).toHaveBeenCalled();
+      expect(Logger.prototype.warn).toHaveBeenCalled();
     });
   });
 
@@ -996,7 +996,7 @@ describe('CacheService - Comprehensive Coverage', () => {
       await service.onModuleInit();
       await service.purge();
 
-      expect(Logger.prototype.error).toHaveBeenCalled();
+      expect(Logger.prototype.warn).toHaveBeenCalled();
     });
 
     it('should purge memory cache even if Redis disabled', async () => {

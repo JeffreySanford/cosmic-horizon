@@ -86,7 +86,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         const val = await this.redisClient.get(key);
         return val ? JSON.parse(val) : null;
       } catch (error) {
-        this.logger.error(`Error getting key ${key} from Redis`, error);
+        this.logger.warn(
+          `Error getting key ${key} from Redis: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
         // Fall through to memory cache if Redis fails
       }
     }
@@ -119,7 +123,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
           await this.redisClient.set(key, val);
         }
       } catch (error) {
-        this.logger.error(`Error setting key ${key} in Redis`, error);
+        this.logger.warn(
+          `Error setting key ${key} in Redis: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
       }
     }
   }
@@ -130,7 +138,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       try {
         await this.redisClient.del(key);
       } catch (error) {
-        this.logger.error(`Error deleting key ${key} from Redis`, error);
+        this.logger.warn(
+          `Error deleting key ${key} from Redis: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
       }
     }
   }
@@ -152,7 +164,8 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         await this.redisClient.flushdb();
         this.logger.log('Cache purged successfully');
       } catch (error) {
-        this.logger.error('Error purging Redis cache', error);
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn(`Error purging Redis cache: ${message}`);
       }
     }
   }
