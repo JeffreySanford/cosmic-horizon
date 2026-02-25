@@ -21,7 +21,9 @@ describe('DatasetsController', () => {
     }).compile();
 
     controller = module.get<DatasetsController>(DatasetsController);
-    catalog = module.get(DatasetCatalogService) as jest.Mocked<DatasetCatalogService>;
+    catalog = module.get(
+      DatasetCatalogService,
+    ) as jest.Mocked<DatasetCatalogService>;
   });
 
   it('should list datasets', async () => {

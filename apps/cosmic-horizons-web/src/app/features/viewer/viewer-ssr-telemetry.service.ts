@@ -127,7 +127,9 @@ export class ViewerSsrTelemetryService {
         transfer_state_misses: Number(parsed.transfer_state_misses ?? 0),
         bootstrap_hits: Number(parsed.bootstrap_hits ?? 0),
         bootstrap_misses: Number(parsed.bootstrap_misses ?? 0),
-        last_bootstrap_duration_ms: Number(parsed.last_bootstrap_duration_ms ?? 0),
+        last_bootstrap_duration_ms: Number(
+          parsed.last_bootstrap_duration_ms ?? 0,
+        ),
         updated_at:
           typeof parsed.updated_at === 'string'
             ? parsed.updated_at

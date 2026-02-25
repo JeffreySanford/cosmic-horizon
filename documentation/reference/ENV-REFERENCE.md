@@ -15,14 +15,14 @@ Complete reference of all environment variables used by Cosmic Horizons.
 
 ## Redis
 
-| Variable             | Type    | Default     | Required | Usage                                              |
-| -------------------- | ------- | ----------- | -------- | -------------------------------------------------- |
-| `REDIS_HOST`         | string  | `localhost` | Yes      | Redis hostname                                     |
-| `REDIS_PORT`         | number  | `6379`      | No       | Redis port                                         |
-| `REDIS_PASSWORD`     | string  | (empty)     | No       | Redis password (SENSITIVE)                         |
-| `REDIS_AUTH_ENABLED` | boolean | `false`     | No       | Enable Redis password auth in local/prod-like runs |
-| `REDIS_DB`           | number  | `0`         | No       | Redis database number                              |
-| `REDIS_CACHE_TTL`    | number  | `86400`     | No       | Default time‑to‑live (seconds) for cache entries   |
+| Variable             | Type    | Default     | Required | Usage                                                                             |
+| -------------------- | ------- | ----------- | -------- | --------------------------------------------------------------------------------- |
+| `REDIS_HOST`         | string  | `localhost` | Yes      | Redis hostname                                                                    |
+| `REDIS_PORT`         | number  | `6379`      | No       | Redis port                                                                        |
+| `REDIS_PASSWORD`     | string  | (empty)     | No       | Redis password (SENSITIVE)                                                        |
+| `REDIS_AUTH_ENABLED` | boolean | `false`     | No       | Enable Redis password auth in local/prod-like runs                                |
+| `REDIS_DB`           | number  | `0`         | No       | Redis database number                                                             |
+| `REDIS_CACHE_TTL`    | number  | `86400`     | No       | Default time‑to‑live (seconds) for cache entries                                  |
 | `CASA_QUEUE_LIMIT`   | number  | `10`        | No       | Maximum number of jobs allowed in the CASA queue before rejecting new submissions |
 
 ## Server

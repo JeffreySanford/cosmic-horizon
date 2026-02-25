@@ -8,7 +8,6 @@ import DOMPurify from 'dompurify';
 DOMPurify.addHook = DOMPurify.addHook || (() => {});
 DOMPurify.sanitize = DOMPurify.sanitize || ((s) => s);
 
-
 // Recursively collect markdown files
 function collectMd(dir, files = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

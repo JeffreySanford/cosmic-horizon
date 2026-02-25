@@ -25,7 +25,7 @@ Real-time pipelines operate on Hot/Warm data; periodic reprocessing reads from C
 
 ### Tier Details
 
-1. **Hot Tier** – NVMe SSDs colocated with ingest services for <1‑month buffering and low-latency queries (<10 ms).  Assumed size: 5 PB per site.
+1. **Hot Tier** – NVMe SSDs colocated with ingest services for <1‑month buffering and low-latency queries (<10 ms). Assumed size: 5 PB per site.
 2. **Warm Tier** – Dense HDD server clusters (RAID/NVMe cache) holding 1‑6 month window (~30 PB/site). Used for serving recent reprocessing jobs.
 3. **Cold Tier** – Object storage (Ceph, S3) or large SATA arrays; retains 6‑24 months (~120 PB/site). Data accessible via search indexes.
 4. **Archive** – LTO/S3 Glacier Deep Archive style tape libraries or cold object buckets; cost‑optimized for infrequent (<1 yr) access. Automatic lifecycle transitions.
@@ -33,20 +33,20 @@ Real-time pipelines operate on Hot/Warm data; periodic reprocessing reads from C
 
 ## Cost Estimates (2026 prices)
 
-| Provider | Storage Class | $/TB‑month | 240 PB/yr Cost |
-|----------|--------------|------------|----------------|
-| Local HDD cluster | disk shelf | ≈ $20 | $4.8M |
-| Local Tape (LTO‑9) | tape| ≈ $3 | $720k |
-| AWS S3 Standard | object | $23 | $5.5M |
-| AWS Glacier DA | archive | $1 | $240k |
-| GCP Standard | object | $20 | $4.8M |
-| GCP Coldline | archive | $1.3 | $312k |
-| Azure Blob Hot | object | $22 | $5.3M |
-| Azure Archive | archive | $1 | $240k |
+| Provider           | Storage Class | $/TB‑month | 240 PB/yr Cost |
+| ------------------ | ------------- | ---------- | -------------- |
+| Local HDD cluster  | disk shelf    | ≈ $20      | $4.8M          |
+| Local Tape (LTO‑9) | tape          | ≈ $3       | $720k          |
+| AWS S3 Standard    | object        | $23        | $5.5M          |
+| AWS Glacier DA     | archive       | $1         | $240k          |
+| GCP Standard       | object        | $20        | $4.8M          |
+| GCP Coldline       | archive       | $1.3       | $312k          |
+| Azure Blob Hot     | object        | $22        | $5.3M          |
+| Azure Archive      | archive       | $1         | $240k          |
 
-*Note: cloud costs exclude egress/requests.  Multi‑cloud pricing negotiable.*
+_Note: cloud costs exclude egress/requests. Multi‑cloud pricing negotiable._
 
-Local storage has higher capital expense but eliminates egress; tape offers lowest ongoing cost but slower retrieval (hours‑days).  Combined model uses local disk for hot/warm tiers and cloud/archive for cold/deep archive.
+Local storage has higher capital expense but eliminates egress; tape offers lowest ongoing cost but slower retrieval (hours‑days). Combined model uses local disk for hot/warm tiers and cloud/archive for cold/deep archive.
 
 ## Data Lake & Search
 
@@ -72,7 +72,7 @@ flowchart LR
     T -->|recall job| O2
 ```
 
-Automated *recall jobs* ship requested chunks back to cold tier; compute can be scheduled on incoming data.
+Automated _recall jobs_ ship requested chunks back to cold tier; compute can be scheduled on incoming data.
 
 ## Deep Freeze & Durability
 

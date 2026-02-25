@@ -51,4 +51,5 @@ Troubleshooting
 - If CI still reports an older NX_HEAD, the run may have been created from a previous merge-group snapshot. Re-run or push a fresh commit after confirming `use-previous-merge-group-commit: false` is in the committed workflow.
 
 ---
+
 Last updated: 2026-02-24

@@ -19,14 +19,18 @@ describe('EphemerisComponent', () => {
     sky_preview_url: '',
     object_type: 'planet',
     source: 'astronomy-engine',
-    aladin_url: ''
+    aladin_url: '',
   } as any;
 
   const mockEphemerisService = {
     search: () => of(mockResponse),
   };
 
-  const mockLogger = { info: () => undefined, warn: () => undefined, error: () => undefined };
+  const mockLogger = {
+    info: () => undefined,
+    warn: () => undefined,
+    error: () => undefined,
+  };
   const mockAuth = { getUser: () => ({ username: 'tester' }) };
 
   beforeEach(() => {

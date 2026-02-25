@@ -839,7 +839,9 @@ describe('JobOrchestratorService', () => {
 
         expect(event.payload?.job_id).toBe('job-1');
         expect(event.user_id).toBe('user-1');
-        expect(event.payload?.project_id).toBe('VLASS2.1.sb38593457.eb38602345');
+        expect(event.payload?.project_id).toBe(
+          'VLASS2.1.sb38593457.eb38602345',
+        );
         expect(event.timestamp).toBeDefined();
       });
 

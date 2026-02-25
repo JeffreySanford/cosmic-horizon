@@ -21,7 +21,9 @@ function checkTcp(host, port, timeoutMs = 3000) {
     const onFail = () => {
       if (done) return;
       done = true;
-      try { sock.destroy(); } catch (e) {}
+      try {
+        sock.destroy();
+      } catch (e) {}
       resolve(false);
     };
     sock.setTimeout(timeoutMs);
@@ -36,7 +38,10 @@ async function checkKafkaWithKafkajs() {
   try {
     const { Kafka } = await import('kafkajs');
     console.log('kafkajs available — attempting admin metadata request');
-    const kafka = new Kafka({ brokers: [`${KAFKA_HOST}:${KAFKA_PORT}`], clientId: 'ch-check-messaging' });
+    const kafka = new Kafka({
+      brokers: [`${KAFKA_HOST}:${KAFKA_PORT}`],
+      clientId: 'ch-check-messaging',
+    });
     const admin = kafka.admin();
     await admin.connect();
     const topics = await admin.listTopics();
@@ -67,7 +72,8 @@ async function checkPulsarAdmin() {
   }
 }
 
-const REQUIRED_KAFKA_TOPICS = (process.env.REQUIRED_KAFKA_TOPICS && process.env.REQUIRED_KAFKA_TOPICS.split(',')) || [
+const REQUIRED_KAFKA_TOPICS = (process.env.REQUIRED_KAFKA_TOPICS &&
+  process.env.REQUIRED_KAFKA_TOPICS.split(',')) || [
   'job-metrics',
   'job-lifecycle',
   'audit-trail',
@@ -92,7 +98,10 @@ async function main() {
   if (kafkaDeep) {
     try {
       const { Kafka } = await import('kafkajs');
-      const kafka = new Kafka({ brokers: [`${KAFKA_HOST}:${KAFKA_PORT}`], clientId: 'ch-check-messaging-enforcer' });
+      const kafka = new Kafka({
+        brokers: [`${KAFKA_HOST}:${KAFKA_PORT}`],
+        clientId: 'ch-check-messaging-enforcer',
+      });
       const admin = kafka.admin();
       await admin.connect();
       const topics = await admin.listTopics();
@@ -109,7 +118,9 @@ async function main() {
       console.warn('Unable to enforce required Kafka topics:', e.message || e);
     }
   } else {
-    console.warn('Skipping required-topic enforcement because kafkajs metadata check was not successful.');
+    console.warn(
+      'Skipping required-topic enforcement because kafkajs metadata check was not successful.',
+    );
   }
 
   console.log(`Checking Pulsar TCP ${PULSAR_HOST}:${PULSAR_PORT}...`);
@@ -126,15 +137,21 @@ async function main() {
   }
 
   if (!kafkaTcp && !pulsarTcp) {
-    console.error('Neither Kafka nor Pulsar appears reachable — messaging check failed');
+    console.error(
+      'Neither Kafka nor Pulsar appears reachable — messaging check failed',
+    );
     process.exit(1);
   }
 
   if (kafkaTcp && !kafkaDeep) {
-    console.warn('Kafka reachable on TCP but deeper metadata check failed or kafkajs not installed — consider installing kafkajs for richer checks');
+    console.warn(
+      'Kafka reachable on TCP but deeper metadata check failed or kafkajs not installed — consider installing kafkajs for richer checks',
+    );
   }
   if (pulsarTcp && !pulsarAdminOk) {
-    console.warn('Pulsar reachable on TCP but admin REST check failed — check Pulsar admin URL or install node-fetch');
+    console.warn(
+      'Pulsar reachable on TCP but admin REST check failed — check Pulsar admin URL or install node-fetch',
+    );
   }
 
   console.log('Messaging checks completed.');

@@ -53,7 +53,7 @@
     "stop:infra": "docker compose -f docker-compose.yml -f docker-compose.events.yml down",
     "monitor:messaging": "node scripts/monitor-messaging.mjs",
     "start": "pnpm start:web",
-    "test": "pnpm standalone:check && pnpm nx run-many --target=test --all --",
+    "test": "pnpm standalone:check && pnpm nx run-many --target=test --all",
     "test:web": "pnpm nx test cosmic-horizons-web",
     "test:api": "pnpm nx test cosmic-horizons-api",
     "test:coverage": "pnpm nx run-many --target=test --all --coverage --watch=false",
@@ -85,6 +85,7 @@
     "docs:view:build": "node scripts/build-docs-view-catalog.mjs",
     "docs:check": "node scripts/check-doc-consistency.mjs",
     "env:check": "node scripts/check-env-consistency.mjs",
+    "quality:stage": "pnpm nx run mvp-gates:quality",
     "quality:ci": "pnpm run python:test && pnpm nx run docs-policy:check && pnpm format:check:changed && pnpm openapi:check && pnpm standalone:check && pnpm run env:check && pnpm nx run-many --target=test --all && pnpm nx run mvp-gates:e2e"
   },
   "private": true,

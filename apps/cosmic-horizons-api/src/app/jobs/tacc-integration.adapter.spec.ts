@@ -17,8 +17,12 @@ jest.setTimeout(15000);
 class MockRedis {
   private lists = new Map<string, string[]>();
   private hashes = new Map<string, Record<string, string>>();
-  async ping() { return 'PONG'; }
-  async llen(key: string) { return (this.lists.get(key) || []).length; }
+  async ping() {
+    return 'PONG';
+  }
+  async llen(key: string) {
+    return (this.lists.get(key) || []).length;
+  }
   async lpush(key: string, value: string) {
     const arr = this.lists.get(key) || [];
     arr.unshift(value);
@@ -59,7 +63,11 @@ class MockRedis {
 
 // Mock ioredis before any code that requires it runs
 jest.mock('ioredis', () => {
-  return jest.fn().mockImplementation((...args: unknown[]) => new MockRedis(args[0] as string));
+  return jest
+    .fn()
+    .mockImplementation(
+      (...args: unknown[]) => new MockRedis(args[0] as string),
+    );
 });
 
 interface MockConfig {
@@ -177,9 +185,8 @@ describe('Tacc adapter wiring', () => {
       TaccIntegrationService,
     );
     // direct access to underlying adapter to manipulate redis state
-    const adapter = (
-      service as unknown as { resolvedAdapter: CasaTaccAdapter }
-    ).resolvedAdapter as CasaTaccAdapter;
+    const adapter = (service as unknown as { resolvedAdapter: CasaTaccAdapter })
+      .resolvedAdapter as CasaTaccAdapter;
     // clear any existing keys
     await adapter['redis'].flushall();
     // push a dummy job to hit the limit
@@ -197,9 +204,8 @@ describe('Tacc adapter wiring', () => {
     const service = moduleRef.get<TaccIntegrationService>(
       TaccIntegrationService,
     );
-    const adapter = (
-      service as unknown as { resolvedAdapter: CasaTaccAdapter }
-    ).resolvedAdapter as CasaTaccAdapter;
+    const adapter = (service as unknown as { resolvedAdapter: CasaTaccAdapter })
+      .resolvedAdapter as CasaTaccAdapter;
 
     await adapter['redis'].flushall();
     // start worker process with simulation flag

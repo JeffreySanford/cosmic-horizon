@@ -162,6 +162,18 @@
     "sourcePath": "documentation/ci/CI_PLAYBOOK.MD"
   },
   {
+    "id": "documentation--ci--nx-cloud-setup",
+    "label": "Nx Cloud Setup",
+    "section": "Ci",
+    "sourcePath": "documentation/ci/nx-cloud-setup.md"
+  },
+  {
+    "id": "documentation--ci--nx-flaky-tasks",
+    "label": "Nx Flaky Tasks",
+    "section": "Ci",
+    "sourcePath": "documentation/ci/nx-flaky-tasks.md"
+  },
+  {
     "id": "documentation--database--data-dictionary",
     "label": "DATA DICTIONARY",
     "section": "Database",
@@ -370,6 +382,12 @@
     "label": "LOCAL BROKER INSPECT",
     "section": "Operations",
     "sourcePath": "documentation/operations/LOCAL-BROKER-INSPECT.MD"
+  },
+  {
+    "id": "documentation--operations--messaging-checks",
+    "label": "MESSAGING CHECKS",
+    "section": "Operations",
+    "sourcePath": "documentation/operations/MESSAGING-CHECKS.MD"
   },
   {
     "id": "documentation--operations--quick-start",

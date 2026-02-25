@@ -71,7 +71,8 @@ export class JobsConsoleComponent implements OnInit {
   selectedAgent = 'AlphaCal';
   // datasets come from backend; initially none
   datasets: Array<{ id: string; label: string; lastUpdated?: string }> = [];
-  selectedDataset: { id: string; label: string; lastUpdated?: string } | null = null;
+  selectedDataset: { id: string; label: string; lastUpdated?: string } | null =
+    null;
   // id of the chosen dataset (sent to API)
   datasetId = '';
   targetName = 'M87 Core Field';
@@ -165,9 +166,10 @@ export class JobsConsoleComponent implements OnInit {
     const datasetPart = this.selectedDataset
       ? ` on ${this.selectedDataset.label}`
       : '';
-    const datePart = this.selectedDataset && this.selectedDataset.lastUpdated
-      ? ` (updated ${new Date(this.selectedDataset.lastUpdated).toLocaleDateString()})`
-      : '';
+    const datePart =
+      this.selectedDataset && this.selectedDataset.lastUpdated
+        ? ` (updated ${new Date(this.selectedDataset.lastUpdated).toLocaleDateString()})`
+        : '';
 
     return [
       `${this.selectedAgent}: ${this.selectedAgentSummary.objective}${datasetPart}${datePart}`,
@@ -210,34 +212,41 @@ export class JobsConsoleComponent implements OnInit {
           });
         }),
       )
-      .subscribe((list) => {
-        this.datasets = list;
-        if (list.length) {
-          this.selectedDataset = list[0];
-          this.datasetId = list[0].id;
-          queueMicrotask(() => {
-            this.snackBar.open(`Loaded ${list.length} dataset${list.length === 1 ? '' : 's'}.`, 'Close', {
-              duration: 2500,
+      .subscribe(
+        (list) => {
+          this.datasets = list;
+          if (list.length) {
+            this.selectedDataset = list[0];
+            this.datasetId = list[0].id;
+            queueMicrotask(() => {
+              this.snackBar.open(
+                `Loaded ${list.length} dataset${list.length === 1 ? '' : 's'}.`,
+                'Close',
+                {
+                  duration: 2500,
+                },
+              );
             });
-          });
-          return;
-        }
+            return;
+          }
 
-        this.selectedDataset = null;
-        this.datasetId = '';
-        queueMicrotask(() => {
-          this.snackBar.open(
-            'No datasets found. Add one or more dataset folders under astronomy-data/ and click refresh.',
-            'Close',
-            {
-              duration: 6000,
-              panelClass: ['toast-warn'],
-            },
-          );
-        });
-      }, (error: HttpErrorResponse) => {
-        this.handleDatasetLoadError(error, true);
-      });
+          this.selectedDataset = null;
+          this.datasetId = '';
+          queueMicrotask(() => {
+            this.snackBar.open(
+              'No datasets found. Add one or more dataset folders under astronomy-data/ and click refresh.',
+              'Close',
+              {
+                duration: 6000,
+                panelClass: ['toast-warn'],
+              },
+            );
+          });
+        },
+        (error: HttpErrorResponse) => {
+          this.handleDatasetLoadError(error, true);
+        },
+      );
   }
 
   get queuedJobs(): number {
@@ -260,22 +269,20 @@ export class JobsConsoleComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadJobs();
-    this.http
-      .get<Record<string, boolean>>('/api/jobs/capabilities')
-      .subscribe({
-        next: (caps) => {
-          this.capabilities = caps;
-        },
-        error: () => {
-          this.capabilities = {};
-        },
-      });
+    this.http.get<Record<string, boolean>>('/api/jobs/capabilities').subscribe({
+      next: (caps) => {
+        this.capabilities = caps;
+      },
+      error: () => {
+        this.capabilities = {};
+      },
+    });
 
     // fetch available datasets
     this.http
-      .get<Array<{ id: string; label: string; lastUpdated?: string }>>(
-        '/api/datasets',
-      )
+      .get<
+        Array<{ id: string; label: string; lastUpdated?: string }>
+      >('/api/datasets')
       .subscribe({
         next: (list) => {
           this.datasets = list;
@@ -302,7 +309,7 @@ export class JobsConsoleComponent implements OnInit {
     const backendMessage =
       typeof error.error === 'string'
         ? error.error
-        : (error.error?.message as string | undefined) ?? error.message;
+        : ((error.error?.message as string | undefined) ?? error.message);
     const reason = this.classifyHttpFailure(error, backendMessage);
     console.error('[JobsConsole] dataset request failed', {
       status: error.status,
@@ -399,17 +406,17 @@ export class JobsConsoleComponent implements OnInit {
           this.isLoading = false;
           this.cdr.markForCheck();
         },
-      error: (err) => {
-        const details = this.describeHttpError(err);
-        console.error('[JobsConsole] submitJob failed', details);
-        this.snackBar.open('Failed to submit job', 'Close', {
-          duration: 5000,
-          panelClass: ['toast-warn'],
-        });
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-    });
+        error: (err) => {
+          const details = this.describeHttpError(err);
+          console.error('[JobsConsole] submitJob failed', details);
+          this.snackBar.open('Failed to submit job', 'Close', {
+            duration: 5000,
+            panelClass: ['toast-warn'],
+          });
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   pollStatus(jobId: string) {
@@ -449,7 +456,10 @@ export class JobsConsoleComponent implements OnInit {
         });
       },
       error: (error: HttpErrorResponse) => {
-        console.error('[JobsConsole] pollStatus failed', this.describeHttpError(error));
+        console.error(
+          '[JobsConsole] pollStatus failed',
+          this.describeHttpError(error),
+        );
       },
     });
   }
@@ -667,7 +677,7 @@ export class JobsConsoleComponent implements OnInit {
     const message =
       typeof error.error === 'string'
         ? error.error
-        : (error.error?.message as string | undefined) ?? error.message;
+        : ((error.error?.message as string | undefined) ?? error.message);
     return {
       status: error.status ?? 0,
       statusText: error.statusText || 'Unknown Error',

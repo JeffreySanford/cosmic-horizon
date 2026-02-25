@@ -15,6 +15,8 @@ This checklist explains how to handle generated artifacts (job-test outputs, rep
 
      ```bash
 
+     ```
+
    git rm -r --cached job-test || true
    git commit -m "chore(ci): untrack generated job-test artifacts"
 
@@ -41,4 +43,5 @@ This checklist explains how to handle generated artifacts (job-test outputs, rep
 9. Keep this checklist up-to-date in `documentation/ci/ARTIFACTS_CHECKLIST.md` when CI or formatting tooling changes.
 
 ---
+
 Last updated: 2026-02-24

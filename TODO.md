@@ -50,11 +50,11 @@ This file is the active execution checklist and near-term operating journal.
 ## Deferred / Awaiting credentials
 
 - **Remote Compute Gateway Sprint 2 (live connectivity)**
-  - Replace simulated orchestration path with real TACC Slurm/Tapis adapter.  
-  - Data staging realism features (progress, errors, packaging) in demo mode.  
-  - Add secure credential/header handling and audit-safe redaction.  
-  - Persist end-to-end job provenance chain (submission -> status -> viewer/explainable artifact).  
-  - Add feature-flagged live-mode rollout plan with explicit env gating.  
+  - Replace simulated orchestration path with real TACC Slurm/Tapis adapter.
+  - Data staging realism features (progress, errors, packaging) in demo mode.
+  - Add secure credential/header handling and audit-safe redaction.
+  - Persist end-to-end job provenance chain (submission -> status -> viewer/explainable artifact).
+  - Add feature-flagged live-mode rollout plan with explicit env gating.
   - Continue smaller offline tasks as listed previously (refactor, mocks, tests, outreach materials).
   - Reach out to UT/CosmicAI stakeholders to obtain credentials or a sandbox endpoint; track contact in planning notes.
 

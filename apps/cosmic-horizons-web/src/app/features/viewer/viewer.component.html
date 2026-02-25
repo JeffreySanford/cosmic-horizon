@@ -33,8 +33,12 @@
           aria-label="Aladin sky viewer"
         ></div>
         <!-- tooltip that follows cursor when a catalog object is found -->
-        <div class="cursor-label" *ngIf="cursorLabel"
-             [style.left.px]="cursorX" [style.top.px]="cursorY">
+        <div
+          class="cursor-label"
+          *ngIf="cursorLabel"
+          [style.left.px]="cursorX"
+          [style.top.px]="cursorY"
+        >
           {{ cursorLabel.name }} ({{ cursorLabel.object_type }})
         </div>
         <div class="center-indicator" aria-hidden="true">
@@ -63,13 +67,16 @@
             Labels
           </mat-slide-toggle>
           <mat-form-field appearance="outline" class="survey-select">
-          <mat-label>Survey</mat-label>
-          <mat-select [formControl]="surveyControl">
-            <mat-option *ngFor="let option of surveyOptions" [value]="option.value">
-              {{ option.label }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+            <mat-label>Survey</mat-label>
+            <mat-select [formControl]="surveyControl">
+              <mat-option
+                *ngFor="let option of surveyOptions"
+                [value]="option.value"
+              >
+                {{ option.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
       @if (nativeResolutionHint) {

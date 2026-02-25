@@ -42,14 +42,20 @@ test.describe('color contrast lint checks', () => {
     await expect(page).toHaveURL(/\/auth\/login$/);
   });
 
-  test('landing page passes color contrast checks', async ({ page, request }) => {
+  test('landing page passes color contrast checks', async ({
+    page,
+    request,
+  }) => {
     await primeAuthenticatedSession(page, request);
 
     await expectNoContrastViolations('/landing', 'landing', page);
     await expect(page).toHaveURL(/\/landing$/);
   });
 
-  test('jobs console page passes color contrast checks', async ({ page, request }) => {
+  test('jobs console page passes color contrast checks', async ({
+    page,
+    request,
+  }) => {
     await primeAuthenticatedSession(page, request);
 
     await expectNoContrastViolations('/jobs', 'jobs', page);

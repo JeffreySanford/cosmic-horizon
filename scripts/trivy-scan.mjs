@@ -11,7 +11,8 @@ function findComposeFiles() {
   try {
     const entries = fs.readdirSync(dockerDir);
     for (const e of entries) {
-      if (e.endsWith('.yml') || e.endsWith('.yaml')) files.push(path.join(dockerDir, e));
+      if (e.endsWith('.yml') || e.endsWith('.yaml'))
+        files.push(path.join(dockerDir, e));
     }
   } catch (e) {
     // ignore
@@ -27,7 +28,10 @@ function extractImages(file) {
   while ((m = re.exec(txt))) {
     let im = m[1].trim();
     // strip quotes
-    if ((im.startsWith("'") && im.endsWith("'")) || (im.startsWith('"') && im.endsWith('"'))) {
+    if (
+      (im.startsWith("'") && im.endsWith("'")) ||
+      (im.startsWith('"') && im.endsWith('"'))
+    ) {
       im = im.slice(1, -1);
     }
     images.add(im);
@@ -42,7 +46,15 @@ function runTrivyOnImage(image) {
     return 0;
   }
   console.log(`Scanning image ${image} with trivy...`);
-  const args = ['image', '--no-progress', '--severity', 'HIGH,CRITICAL', '--exit-code', '1', image];
+  const args = [
+    'image',
+    '--no-progress',
+    '--severity',
+    'HIGH,CRITICAL',
+    '--exit-code',
+    '1',
+    image,
+  ];
   const res = spawnSync('trivy', args, { stdio: 'inherit' });
   return res.status || 0;
 }

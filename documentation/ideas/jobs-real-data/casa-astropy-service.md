@@ -4,14 +4,14 @@ Status date: 2026-02-22
 
 The goal of this document is to sketch the design for a dedicated
 microservice that performs the actual astronomical image creation for the
-`astronomy`/`CASA` job mode.  We already have a working queue/adapter
+`astronomy`/`CASA` job mode. We already have a working queue/adapter
 architecture; the service will act as the worker component, consuming jobs
 from Redis, running CASA (and any ancillary Python processing with
 astropy), and updating job state.
 
 This service is embodied by a separate Docker container that can be run
 inside the existing `docker-compose.astronomy.yml` profile or independently
-in CI.  The container is based on the same CASA image used elsewhere but
+in CI. The container is based on the same CASA image used elsewhere but
 adds a lightweight HTTP server (FastAPI) and Python dependencies (astropy,
 numpy, etc.).
 
@@ -28,10 +28,10 @@ numpy, etc.).
   service without touching the API code.
 
 If the number of moving parts is a concern, the alternative is to embed the
-service logic directly in the existing Node worker process.  That would
+service logic directly in the existing Node worker process. That would
 avoid adding a new container, but it would entangle Node with CASA's
 Python ecosystem and make it harder to reproduce the compute environment in
-CI.  The microservice approach trades a little orchestration complexity for
+CI. The microservice approach trades a little orchestration complexity for
 cleaner boundaries and a more robust build/test pipeline.
 
 ## High-level architecture
@@ -59,7 +59,7 @@ Endpoints exposed by the microservice:
 
 Internally the service also consumes from `casa:queue` and performs the
 same state updates as the current `worker.ts` script; the HTTP layer is a
-convenience for direct testing and eventual alternative clients.  The
+convenience for direct testing and eventual alternative clients. The
 existing Node worker may be replaced entirely by the service or may simply
 remain as an alternate consumer (depending on deployment preference).
 
@@ -88,17 +88,17 @@ worker; the CI will build it and tag it `astronomy-worker:latest`.
    application) that implements the endpoints and the queue consumer.
 3. Update `docker-compose.astronomy.yml` to include the new service and
    remove or optionally keep the existing Node `cosmic-horizons-worker`.
-4. Adapt `worker.ts` or retire it in favour of the Python service.  For now
+4. Adapt `worker.ts` or retire it in favour of the Python service. For now
    both can coexist, with the Python service being the preferred path.
 5. Add e2e tests:
    - HTTP client tests against the service container (`pnpm nx test …` or a
      separate Pytest suite).
    - CI workflow step that builds the service image, brings up compose
      profile, submits a job via the Nest API, waits on `/jobs/{id}/status`,
-     and verifies a FITS file appears.  Use `SIMULATE_CASA` flag to run a
+     and verifies a FITS file appears. Use `SIMULATE_CASA` flag to run a
      quick variant when Docker is slow.
 6. Populate the service’s `run-image.py` with a simple CASA script that
-   actually invokes `tclean` or equivalent on `/data/sample.ms`.  Use
+   actually invokes `tclean` or equivalent on `/data/sample.ms`. Use
    astropy inside the service for any metadata extraction or FITS post‑proc.
 7. Document the service in architecture docs and add environment variables
    to `ENV-REFERENCE.md` (e.g. `ASTRO_SERVICE_URL`).
@@ -115,8 +115,8 @@ The Phase 3 TODO will be updated to reflect this new microservice task:
 
 A dedicated FastAPI microservice built on the CASA base image offers a
 clean, testable, and extensible way to run real astronomical imaging as
-part of the `astronomy` job mode.  It fits naturally inside the existing
-Docker profile, and only one extra container is required.  The service
+part of the `astronomy` job mode. It fits naturally inside the existing
+Docker profile, and only one extra container is required. The service
 will strike a balance between minimal extra moving parts and architectural
 clarity; it can later be scaled, monitored, or swapped for a remote
 compute backend without touching the Nest API.

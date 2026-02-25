@@ -9,7 +9,9 @@ function checkAndRun() {
   }
   console.log('Running detect-secrets scan (this may be noisy)...');
   // Run a scan and output to stdout; do not fail the entire flow by default.
-  const res = spawnSync('detect-secrets', ['scan', '--all-files'], { stdio: 'inherit' });
+  const res = spawnSync('detect-secrets', ['scan', '--all-files'], {
+    stdio: 'inherit',
+  });
   process.exit(res.status || 0);
 }
 

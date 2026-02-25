@@ -3,7 +3,9 @@ import { spawn } from 'node:child_process';
 
 const args = process.argv.slice(2);
 if (args.length === 0) {
-  console.error('Usage: node scripts/typeorm-cli.mjs <typeorm-command> [...args]');
+  console.error(
+    'Usage: node scripts/typeorm-cli.mjs <typeorm-command> [...args]',
+  );
   process.exit(1);
 }
 

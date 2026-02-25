@@ -57,7 +57,7 @@ pnpm build
 
 ## Commands (Nx-first with pnpm wrappers)
 
-```bash
+````bash
 pnpm start:web      # nx serve cosmic-horizons-web
 pnpm start:api      # nx serve cosmic-horizons-api
 pnpm start:all      # free ports + start infra (no teardown) + web/api serve
@@ -99,7 +99,7 @@ pnpm lint           # nx run-many --target=lint --all
 
 > **Scripts housekeeping**: Infrequently-used generation/benchmarking/debugging helpers have been moved into `scripts/archived/` to shrink the top-level directory. If you need one of those tools (e.g. websocket-load-test, benchmark-pulsar-vs-rabbitmq, debug-profile-playwright, mock-kafka-metrics) feel free to run it from the archived folder or restore it temporarily.
 
-```
+````
 
 ## Projects
 

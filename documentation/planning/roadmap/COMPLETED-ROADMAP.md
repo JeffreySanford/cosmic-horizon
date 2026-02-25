@@ -19,7 +19,7 @@ Tasks have been removed from `ROADMAP.md` and are preserved here for reference.
 
 ## Priority 1: Remote Compute Gateway (v1.2)
 
-- Continue polishing data staging realism features in demo mode (upload progress, missing inputs, error codes, artifact packaging).  _(demo service now supports these conditions and file manifest modeling)_
+- Continue polishing data staging realism features in demo mode (upload progress, missing inputs, error codes, artifact packaging). _(demo service now supports these conditions and file manifest modeling)_
 
 ## Priority 1A: Local LLM Orchestration Completion (v1.2 offline track)
 

@@ -60,9 +60,9 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
    */
   private async handleJobEvent(payload: EachMessagePayload): Promise<void> {
     try {
-      const raw = JSON.parse(
-        payload.message.value?.toString() || '{}',
-      ) as EventBase | Record<string, unknown>;
+      const raw = JSON.parse(payload.message.value?.toString() || '{}') as
+        | EventBase
+        | Record<string, unknown>;
 
       // normalize to a simple object with expected fields; support old shape too
       let jobEvent: JobPayload & { event_type: string; timestamp?: string };
@@ -78,13 +78,14 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
         };
       } else {
         // legacy shape where fields are already top-level
-        jobEvent = raw as JobPayload & { event_type: string; timestamp?: string };
+        jobEvent = raw as JobPayload & {
+          event_type: string;
+          timestamp?: string;
+        };
       }
       const { event_type: eventType, job_id: jobId } = jobEvent;
 
-      this.logger.debug(
-        `Received job event: ${eventType} for job ${jobId}`,
-      );
+      this.logger.debug(`Received job event: ${eventType} for job ${jobId}`);
 
       // Process terminal events only
       if (jobEvent.event_type === 'job.completed') {
@@ -94,7 +95,6 @@ export class JobEventsConsumer implements OnModuleInit, OnModuleDestroy {
       } else if (jobEvent.event_type === 'job.cancelled') {
         await this.handleJobCancellation(jobEvent);
       }
-
     } catch (error) {
       this.logger.warn(
         `Failed to process job event: ${error instanceof Error ? error.message : String(error)}`,

@@ -227,20 +227,20 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Dataset</mat-label>
-            <mat-select
-              [(value)]="selectedDataset"
-              (selectionChange)="datasetId = selectedDataset?.id || ''"
-              matTooltip="Select a dataset for processing"
-            >
-              <mat-option *ngFor="let ds of datasets" [value]="ds">
-                {{ ds.label }}
-                <span class="dataset-meta" *ngIf="ds.lastUpdated">
-                  (updated {{ ds.lastUpdated | date:'shortDate' }})
-                </span>
-              </mat-option>
-            </mat-select>
-            </mat-form-field>
+          <mat-label>Dataset</mat-label>
+          <mat-select
+            [(value)]="selectedDataset"
+            (selectionChange)="datasetId = selectedDataset?.id || ''"
+            matTooltip="Select a dataset for processing"
+          >
+            <mat-option *ngFor="let ds of datasets" [value]="ds">
+              {{ ds.label }}
+              <span class="dataset-meta" *ngIf="ds.lastUpdated">
+                (updated {{ ds.lastUpdated | date: 'shortDate' }})
+              </span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Science Target Label</mat-label>

@@ -64,7 +64,9 @@ export class DatasetCatalogService {
         return this.repo.find();
       }
 
-      this.logger.warn(`No datasets found in ${dir}. Add dataset folders and refresh.`);
+      this.logger.warn(
+        `No datasets found in ${dir}. Add dataset folders and refresh.`,
+      );
       return this.repo.find();
     }
 
@@ -104,7 +106,10 @@ export class DatasetCatalogService {
       }
 
       // Common local-dev case: `/data` works in Docker but not on host Windows/macOS.
-      if ((normalized === '/data' || normalized === '\\data') && fs.existsSync(localFallback)) {
+      if (
+        (normalized === '/data' || normalized === '\\data') &&
+        fs.existsSync(localFallback)
+      ) {
         this.logger.warn(
           `ASTRO_DATA_DIR=${normalized} is unavailable on host. Falling back to ${localFallback}`,
         );

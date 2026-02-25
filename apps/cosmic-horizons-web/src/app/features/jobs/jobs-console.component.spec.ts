@@ -125,7 +125,10 @@ describe('JobsConsoleComponent', () => {
   });
 
   it('should update datasetId when selection changes', () => {
-    component.datasets = [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }];
+    component.datasets = [
+      { id: 'a', label: 'A' },
+      { id: 'b', label: 'B' },
+    ];
     component.selectedDataset = component.datasets[0];
     component.datasetId = component.selectedDataset.id;
 

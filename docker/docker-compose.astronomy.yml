@@ -7,15 +7,15 @@ services:
     image: rxastro/casa6:latest
     container_name: cosmic-horizons-casa
     ports:
-      - "8080:8080"   # expose web GUI if needed
-      - "8081:8081"
+      - '8080:8080' # expose web GUI if needed
+      - '8081:8081'
     volumes:
       - ./astronomy-data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     # the upstream image has no CMD/ENTRYPOINT, so supply a harmless
     # command to keep the container alive; real CASA calls will exec
     # into it using `docker exec`.
-    command: ["tail", "-f", "/dev/null"]
+    command: ['tail', '-f', '/dev/null']
     networks:
       - cosmic-horizons-network
     restart: unless-stopped
@@ -59,7 +59,7 @@ services:
       - cosmic-horizons-redis
       - cosmic-horizons-casa
     ports:
-      - "8090:8080"
+      - '8090:8080'
     networks:
       - cosmic-horizons-network
     restart: unless-stopped

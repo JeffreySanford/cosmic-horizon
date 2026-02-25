@@ -32,12 +32,12 @@
           options,
         ) {
           // make wheel and touch actions passive to quiet Chrome warnings; we
-        // additionally wrap touch handlers so that calls to preventDefault()
-        // won't trigger "Unable to preventDefault inside passive event listener"
-        // messages.  As long as the page can tolerate a bit of scrolling when
-        // Aladin drags, this trade‑off is acceptable compared to the endless
-        // console noise we were seeing.
-        var passiveEvents = ['wheel', 'touchstart', 'touchmove'];
+          // additionally wrap touch handlers so that calls to preventDefault()
+          // won't trigger "Unable to preventDefault inside passive event listener"
+          // messages.  As long as the page can tolerate a bit of scrolling when
+          // Aladin drags, this trade‑off is acceptable compared to the endless
+          // console noise we were seeing.
+          var passiveEvents = ['wheel', 'touchstart', 'touchmove'];
           if (passiveEvents.indexOf(type) !== -1) {
             // for elements inside the aladin host we want to preserve the
             // original passive setting so that the viewer can zoom via wheel

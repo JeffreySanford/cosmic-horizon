@@ -5,7 +5,10 @@ import { describe, it, expect } from '@jest/globals';
 
 import { spawn } from 'child_process';
 
-function waitForProcessExit(proc: import('child_process').ChildProcess, timeoutMs = 5000): Promise<void> {
+function waitForProcessExit(
+  proc: import('child_process').ChildProcess,
+  timeoutMs = 5000,
+): Promise<void> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve(), timeoutMs);
     proc.once('exit', () => {
@@ -48,7 +51,11 @@ describe('worker lifecycle', () => {
     });
     const workerProc = spawn(
       process.execPath,
-      ['-r', 'ts-node/register', 'apps/cosmic-horizons-api/src/app/jobs/worker.ts'],
+      [
+        '-r',
+        'ts-node/register',
+        'apps/cosmic-horizons-api/src/app/jobs/worker.ts',
+      ],
       { shell: true },
     );
     // give the worker a moment to start

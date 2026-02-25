@@ -85,7 +85,8 @@ for (const check of checks) {
     check.file === 'README.md' ||
     check.file === 'TODO.md' ||
     check.file === 'documentation/index/OVERVIEW-V2.md' ||
-    (check.file.startsWith('documentation/') && check.file !== 'documentation/product/PRODUCT-CHARTER.md');
+    (check.file.startsWith('documentation/') &&
+      check.file !== 'documentation/product/PRODUCT-CHARTER.md');
 
   if (shouldCheckAffiliation) {
     if (!AFFILIATION_PATTERN.test(content)) {

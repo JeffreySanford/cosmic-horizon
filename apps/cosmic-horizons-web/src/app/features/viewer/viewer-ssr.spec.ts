@@ -20,11 +20,28 @@ describe('Viewer SSR', () => {
         error: null,
       },
       ui: { mockModeEnabled: true },
-      jobs: { ids: [], entities: {}, selectedJobId: null, loading: false, error: null },
+      jobs: {
+        ids: [],
+        entities: {},
+        selectedJobId: null,
+        loading: false,
+        error: null,
+      },
       alerts: { alerts: [], loading: false, error: null },
       logs: { entries: [] },
-      telemetry: { cpuHistory: [], gpuHistory: [], selectedIndex: 0, loading: false, error: null },
-      ephemeris: { calculating: false, lastResult: null, supportedObjects: [], error: null },
+      telemetry: {
+        cpuHistory: [],
+        gpuHistory: [],
+        selectedIndex: 0,
+        loading: false,
+        error: null,
+      },
+      ephemeris: {
+        calculating: false,
+        lastResult: null,
+        supportedObjects: [],
+        error: null,
+      },
       router: null,
     } as const;
 
@@ -38,7 +55,10 @@ describe('Viewer SSR', () => {
           useValue: {
             paramMap: { get: () => null },
             queryParamMap: { get: () => null },
-            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null } },
+            snapshot: {
+              paramMap: { get: () => null },
+              queryParamMap: { get: () => null },
+            },
           },
         },
       ],
@@ -52,7 +72,9 @@ describe('Viewer SSR', () => {
     const spy = vi.spyOn(telemetry, 'recordBootstrapDuration');
 
     // simulate hydrated bootstrap data
-    (comp as any).bootstrapData = { state: { ra: 1, dec: 2, fov: 1.5, survey: 'VLASS', labels: [] } };
+    (comp as any).bootstrapData = {
+      state: { ra: 1, dec: 2, fov: 1.5, survey: 'VLASS', labels: [] },
+    };
 
     // call hydrateStateFromRoute which should record a zero-duration bootstrap
     (comp as any).hydrateStateFromRoute();

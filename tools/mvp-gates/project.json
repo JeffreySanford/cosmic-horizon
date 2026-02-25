@@ -44,6 +44,22 @@
         "command": "echo mvp-gates e2e completed"
       }
     },
+    "quality": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "commands": [
+          "pnpm run python:test",
+          "pnpm nx run docs-policy:check",
+          "pnpm format:check:changed",
+          "pnpm openapi:check",
+          "pnpm standalone:check",
+          "pnpm run env:check",
+          "pnpm nx run-many --target=test --all"
+        ],
+        "parallel": false
+      }
+    },
     "perf": {
       "executor": "nx:run-commands",
       "cache": false,

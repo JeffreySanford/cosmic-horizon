@@ -8,7 +8,9 @@ function checkAndRun() {
     process.exit(0);
   }
   console.log('Running semgrep (this may take a while)...');
-  const res = spawnSync('semgrep', ['--config', 'auto', '--quiet', '.'], { stdio: 'inherit' });
+  const res = spawnSync('semgrep', ['--config', 'auto', '--quiet', '.'], {
+    stdio: 'inherit',
+  });
   process.exit(res.status || 0);
 }
 

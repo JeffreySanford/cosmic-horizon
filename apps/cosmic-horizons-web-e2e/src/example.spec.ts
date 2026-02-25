@@ -311,7 +311,10 @@ test('creates viewer permalink and snapshot from pillar 2 flow', async ({
   await expect(page.getByText(/M87 Core \(RA/)).toBeVisible();
 });
 
-test('creates a notebook post from pillar 3 flow', async ({ page, request }) => {
+test('creates a notebook post from pillar 3 flow', async ({
+  page,
+  request,
+}) => {
   await primeAuthenticatedSession(page, request);
 
   await page.route('**/api/posts**', async (route) => {

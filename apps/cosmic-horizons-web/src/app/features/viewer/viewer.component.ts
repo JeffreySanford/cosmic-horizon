@@ -347,7 +347,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
             if (host) {
               fromEvent<MouseEvent>(host, 'mousemove')
                 .pipe(
-                  throttleTime<MouseEvent>(200, undefined, { leading: true, trailing: true }),
+                  throttleTime<MouseEvent>(200, undefined, {
+                    leading: true,
+                    trailing: true,
+                  }),
                   takeUntilDestroyed(this.destroyRef),
                 )
                 .subscribe((e: MouseEvent) => this.onCanvasMouseMove(e));
@@ -858,7 +861,6 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.scheduleNearbyLabelLookup(this.currentState(), { force: true });
   }
 
-
   toggleControlPanel(): void {
     this.controlPanelCollapsed = !this.controlPanelCollapsed;
   }
@@ -992,7 +994,7 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cursorLookupTimer = setTimeout(() => {
       this.viewerApi
         .getNearbyLabels(state.ra, state.dec, radius, 16)
-          .subscribe({
+        .subscribe({
           next: (labels) => {
             this.lastCursorLookupKey = key;
             this.ngZone.run(() => {
@@ -1017,7 +1019,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
                   // Treat returned labels outside the match threshold as an
                   // effective "no labels under cursor" so developers can see
                   // why the tooltip is empty.
-                  console.log('viewer: lookup returned 0 labels', { state, radius });
+                  console.log('viewer: lookup returned 0 labels', {
+                    state,
+                    radius,
+                  });
                 }
               } else {
                 // No nearby labels: clear panel and tooltip
@@ -1026,7 +1031,10 @@ export class ViewerComponent implements OnInit, AfterViewInit, OnDestroy {
                 // use log instead of debug so developers see the message when
                 // inspecting the console; false negatives are the common pain
                 // point that triggered this issue.
-                console.log('viewer: lookup returned 0 labels', { state, radius });
+                console.log('viewer: lookup returned 0 labels', {
+                  state,
+                  radius,
+                });
               }
             });
           },

@@ -2,7 +2,13 @@ import axios, { AxiosError } from 'axios';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-type JobStatus = 'QUEUED' | 'QUEUING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+type JobStatus =
+  | 'QUEUED'
+  | 'QUEUING'
+  | 'RUNNING'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED';
 
 interface JobRecord {
   id: string;
@@ -34,7 +40,11 @@ interface LoginResponse {
   };
 }
 
-const TERMINAL_STATUSES = new Set<JobStatus>(['COMPLETED', 'FAILED', 'CANCELLED']);
+const TERMINAL_STATUSES = new Set<JobStatus>([
+  'COMPLETED',
+  'FAILED',
+  'CANCELLED',
+]);
 jest.setTimeout(40000);
 
 async function loginSeededUser(): Promise<string> {
@@ -53,9 +63,12 @@ async function waitForTerminalJobStatus(
   delayMs = 250,
 ): Promise<JobRecord> {
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    const statusResponse = await axios.get<JobRecord>(`/api/jobs/${jobId}/status`, {
-      headers: authHeader,
-    });
+    const statusResponse = await axios.get<JobRecord>(
+      `/api/jobs/${jobId}/status`,
+      {
+        headers: authHeader,
+      },
+    );
     expect(statusResponse.status).toBe(200);
 
     const job = statusResponse.data;
@@ -66,7 +79,9 @@ async function waitForTerminalJobStatus(
     await new Promise((resolveDelay) => setTimeout(resolveDelay, delayMs));
   }
 
-  throw new Error(`Job ${jobId} did not reach terminal status within ${maxAttempts} polls`);
+  throw new Error(
+    `Job ${jobId} did not reach terminal status within ${maxAttempts} polls`,
+  );
 }
 
 describe('jobs path e2e', () => {
@@ -88,11 +103,17 @@ describe('jobs path e2e', () => {
       'utf8',
     );
 
-    const refreshResponse = await axios.post<DatasetRecord[]>('/api/datasets/refresh', undefined, {
-      headers: authHeader,
-    });
+    const refreshResponse = await axios.post<DatasetRecord[]>(
+      '/api/datasets/refresh',
+      undefined,
+      {
+        headers: authHeader,
+      },
+    );
     expect(refreshResponse.status).toBe(201);
-    expect(refreshResponse.data.some((dataset) => dataset.id === datasetId)).toBe(true);
+    expect(
+      refreshResponse.data.some((dataset) => dataset.id === datasetId),
+    ).toBe(true);
 
     const submitResponse = await axios.post<JobRecord>(
       '/api/jobs/submit',
@@ -111,7 +132,10 @@ describe('jobs path e2e', () => {
     expect(submitResponse.status).toBe(201);
     expect(submitResponse.data.id).toBeTruthy();
 
-    const terminalJob = await waitForTerminalJobStatus(submitResponse.data.id, authHeader);
+    const terminalJob = await waitForTerminalJobStatus(
+      submitResponse.data.id,
+      authHeader,
+    );
     expect(terminalJob.status).toBe('COMPLETED');
     expect(terminalJob.result?.output_url).toEqual(expect.any(String));
   });
@@ -144,12 +168,14 @@ describe('jobs path e2e', () => {
 
     let failedJob: JobRecord | undefined;
     for (let attempt = 1; attempt <= 20; attempt += 1) {
-      const historyResponse = await axios.get<{ jobs: JobRecord[]; total: number }>(
-        '/api/jobs/history/list?limit=100&offset=0',
-        { headers: authHeader },
-      );
+      const historyResponse = await axios.get<{
+        jobs: JobRecord[];
+        total: number;
+      }>('/api/jobs/history/list?limit=100&offset=0', { headers: authHeader });
       expect(historyResponse.status).toBe(200);
-      failedJob = historyResponse.data.jobs.find((job) => job.dataset_id === failingDatasetId);
+      failedJob = historyResponse.data.jobs.find(
+        (job) => job.dataset_id === failingDatasetId,
+      );
       if (failedJob) {
         break;
       }
@@ -160,8 +186,13 @@ describe('jobs path e2e', () => {
     if (!failedJob) {
       throw new Error('Expected failed job record to exist in history');
     }
-    const terminalJob = await waitForTerminalJobStatus(failedJob.id, authHeader);
+    const terminalJob = await waitForTerminalJobStatus(
+      failedJob.id,
+      authHeader,
+    );
     expect(terminalJob.status).toBe('FAILED');
-    expect(terminalJob.result?.error_message).toContain('Queue is full / quota exceeded');
+    expect(terminalJob.result?.error_message).toContain(
+      'Queue is full / quota exceeded',
+    );
   });
 });

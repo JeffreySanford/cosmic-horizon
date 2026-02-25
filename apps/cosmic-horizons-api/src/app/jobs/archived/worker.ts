@@ -30,7 +30,11 @@ async function processJob(jobId: string) {
       const resp = await fetch(serviceUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agent: 'unknown', dataset_id: jobId, params: {} }),
+        body: JSON.stringify({
+          agent: 'unknown',
+          dataset_id: jobId,
+          params: {},
+        }),
       });
       if (!resp.ok) {
         throw new Error(`astro service error ${resp.status}`);

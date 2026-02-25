@@ -1,5 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   catchError,
@@ -97,7 +101,10 @@ export class JobsEffects {
           ),
           catchError((error: HttpErrorResponse) => {
             const details = this.describeHttpError(error);
-            console.error('[JobsEffects] jobCancelledRequested failed', details);
+            console.error(
+              '[JobsEffects] jobCancelledRequested failed',
+              details,
+            );
             return of(
               JobsActions.jobCancelledFailed({
                 error: `Unable to cancel job (${details.summary})`,
@@ -122,7 +129,10 @@ export class JobsEffects {
           ),
           catchError((error: HttpErrorResponse) => {
             const details = this.describeHttpError(error);
-            console.error('[JobsEffects] jobSubmittedRequested failed', details);
+            console.error(
+              '[JobsEffects] jobSubmittedRequested failed',
+              details,
+            );
             return of(
               JobsActions.jobSubmittedFailed({
                 error: `Unable to submit job (${details.summary})`,
@@ -159,12 +169,13 @@ export class JobsEffects {
     summary: string;
     reason: string;
   } {
-    const headers = error.headers instanceof HttpHeaders ? error.headers : undefined;
+    const headers =
+      error.headers instanceof HttpHeaders ? error.headers : undefined;
     const correlationId = headers?.get('x-correlation-id') ?? null;
     const backendMessage =
       typeof error.error === 'string'
         ? error.error
-        : (error.error?.message as string | undefined) ?? error.message;
+        : ((error.error?.message as string | undefined) ?? error.message);
     const status = error.status ?? 0;
     const statusText = error.statusText || 'Unknown Error';
     const url = error.url ?? 'unknown-url';

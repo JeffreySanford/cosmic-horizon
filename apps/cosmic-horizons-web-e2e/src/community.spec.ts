@@ -212,11 +212,13 @@ test('approve/hide endpoints return 401 unauthenticated and 403 for normal user'
   // unauthenticated -> 401
   const unauthApprove = await request.patch(
     `${apiBase}/api/community/posts/${created.id}/approve`,
+    { headers: {} },
   );
   expect(unauthApprove.status()).toBe(401);
 
   const unauthHide = await request.patch(
     `${apiBase}/api/community/posts/${created.id}/hide`,
+    { headers: {} },
   );
   expect(unauthHide.status()).toBe(401);
 

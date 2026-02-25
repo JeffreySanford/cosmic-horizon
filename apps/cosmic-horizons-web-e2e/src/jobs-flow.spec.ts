@@ -104,7 +104,10 @@ test('can submit a job and see status card', async ({ page, request }) => {
   await expect(page.locator('.tips-card li')).toHaveCount(2);
 });
 
-test('can open summary panel and get pre-run QA answer', async ({ page, request }) => {
+test('can open summary panel and get pre-run QA answer', async ({
+  page,
+  request,
+}) => {
   await loginAsTestUser(page, request);
 
   await page.route('**/api/jobs/capabilities', async (route) => {

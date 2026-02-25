@@ -322,7 +322,11 @@ export class JobOrchestratorService {
 
       // Update local record
       if (nextStatus === 'RUNNING' || nextStatus === 'QUEUING') {
-        await this.jobRepository.updateStatus(jobId, nextStatus, taccStatus.progress);
+        await this.jobRepository.updateStatus(
+          jobId,
+          nextStatus,
+          taccStatus.progress,
+        );
       } else {
         await this.jobRepository.updateProgress(jobId, taccStatus.progress);
       }

@@ -4,7 +4,7 @@ Status date: 2026-02-07
 
 ## Documentation Categories
 
-To help navigate this folder, the architecture documentation is grouped into the following high‑level categories.  Each category contains one or more markdown files focused on a particular aspect of the system.
+To help navigate this folder, the architecture documentation is grouped into the following high‑level categories. Each category contains one or more markdown files focused on a particular aspect of the system.
 
 1. **Core Application** – general overview and boundary definitions.
    - `ARCHITECTURE.md` (this file)
@@ -24,7 +24,7 @@ To help navigate this folder, the architecture documentation is grouped into the
 4. **Governance & Audit** – sitewide rules and auditing strategies.
    - `../governance/AUDIT-STRATEGY-SITEWIDE.md`
 
-This categorical view helps readers quickly find documents relevant to their topic of interest.  Additional files may be added to these groups as the architecture evolves.
+This categorical view helps readers quickly find documents relevant to their topic of interest. Additional files may be added to these groups as the architecture evolves.
 
 Canonical scope is defined by:
 
@@ -50,7 +50,7 @@ Affiliation note:
 
 - Backend: `apps/cosmic-horizons-api` (NestJS + Postgres/Redis)
 
-- Event streaming and message brokers – deployed as containers for Kafka, RabbitMQ or Pulsar depending on workload.  See the dedicated documents:
+- Event streaming and message brokers – deployed as containers for Kafka, RabbitMQ or Pulsar depending on workload. See the dedicated documents:
   - [Messaging Brokers](../brokers/MESSAGE-BROKERS.md)
 
 - Remote Compute Gateway (Phase 4): `JobsModule` integration with TACC/CosmicAI exascale compute fabric.
@@ -97,7 +97,7 @@ Frontend runtime note:
 
 ## Event Streaming & Messaging
 
-The backend ecosystem relies on a pluggable event streaming layer. During development the tri-broker pattern is used to evaluate performance and protocol requirements, with Kafka as the primary high-throughput engine, RabbitMQ for AMQP-legacy compatibility, and Pulsar for multi-tenant, storage-decoupled pipelines.  The [NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md](../brokers/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md) document expands on this operating pattern.
+The backend ecosystem relies on a pluggable event streaming layer. During development the tri-broker pattern is used to evaluate performance and protocol requirements, with Kafka as the primary high-throughput engine, RabbitMQ for AMQP-legacy compatibility, and Pulsar for multi-tenant, storage-decoupled pipelines. The [NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md](../brokers/NGVLA-TRI-BROKER-REFERENCE-ARCHITECTURE.md) document expands on this operating pattern.
 
 ```mermaid
 flowchart LR
@@ -117,13 +117,13 @@ flowchart LR
 
 Typical performance targets driving broker selection:
 
-| Broker | Role | Throughput | Latency | Retention | Notes |
-|--------|------|------------|---------|-----------|-------|
-| Kafka | Telemetry, status, high-volume streams | up to 8 GB/s cluster-wide | <100 ms | days–weeks | Backbone for ngVLA data ingress |
-| RabbitMQ | Control messages, job dispatch, AMQP interoperability | 100 k msgs/sec per node | <500 ms | minutes–hours | Useful for heterogeneous clients |
-| Pulsar | Multi-tenant science pipelines, serverless compute | 20 GB/s ingest | sub-100 ms | months with BookKeeper | Schema registry & functions |
+| Broker   | Role                                                  | Throughput                | Latency    | Retention              | Notes                            |
+| -------- | ----------------------------------------------------- | ------------------------- | ---------- | ---------------------- | -------------------------------- |
+| Kafka    | Telemetry, status, high-volume streams                | up to 8 GB/s cluster-wide | <100 ms    | days–weeks             | Backbone for ngVLA data ingress  |
+| RabbitMQ | Control messages, job dispatch, AMQP interoperability | 100 k msgs/sec per node   | <500 ms    | minutes–hours          | Useful for heterogeneous clients |
+| Pulsar   | Multi-tenant science pipelines, serverless compute    | 20 GB/s ingest            | sub-100 ms | months with BookKeeper | Schema registry & functions      |
 
-> The ngVLA is expected to generate around 240 PB/year.  Event brokers must sustain tens of millions of messages per second with cross-site replication, hence the emphasis on horizontal scaling and tiered archiving.
+> The ngVLA is expected to generate around 240 PB/year. Event brokers must sustain tens of millions of messages per second with cross-site replication, hence the emphasis on horizontal scaling and tiered archiving.
 
 The choice of broker is abstracted by a messaging facade in the backend; modules can be configured at startup to bind to any supported system.
 

@@ -17,7 +17,11 @@ async function main() {
   const resp = await fetch(`${API_URL}/jobs/submit`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ agent: 'phase3-test', dataset_id: 'sample', params: {} }),
+    body: JSON.stringify({
+      agent: 'phase3-test',
+      dataset_id: 'sample',
+      params: {},
+    }),
   });
   const json = await resp.json();
   const jobId = json.jobId;
@@ -28,7 +32,7 @@ async function main() {
     const sresp = await fetch(`${API_URL}/jobs/status/${jobId}`);
     status = await sresp.json();
     console.log('status', status.status);
-    if (['COMPLETED','FAILED','CANCELED'].includes(status.status)) break;
+    if (['COMPLETED', 'FAILED', 'CANCELED'].includes(status.status)) break;
     await delay(1000);
   }
 

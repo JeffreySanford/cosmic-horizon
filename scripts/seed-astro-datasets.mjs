@@ -45,7 +45,10 @@ async function ensureDataset(seed) {
     note: 'Demo dataset placeholder for local orchestration flows.',
   };
 
-  await writeFile(join(dir, 'metadata.json'), JSON.stringify(metadata, null, 2));
+  await writeFile(
+    join(dir, 'metadata.json'),
+    JSON.stringify(metadata, null, 2),
+  );
   await writeFile(
     join(dir, 'README.txt'),
     `Dataset: ${seed.id}\nSurvey: ${seed.survey}\nTarget: ${seed.target}\nBand: ${seed.band}\n`,

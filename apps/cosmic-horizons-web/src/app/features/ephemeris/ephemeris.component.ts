@@ -1,4 +1,11 @@
-import { Component, inject, OnDestroy, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  NgZone,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -128,10 +135,14 @@ export class EphemerisComponent implements OnInit, OnDestroy {
                   target: this.normalizeTarget(response.target || target),
                 };
                 this.previewImageUrl =
-                  response.sky_preview_url || this.buildSkyPreviewUrl(response.ra, response.dec);
+                  response.sky_preview_url ||
+                  this.buildSkyPreviewUrl(response.ra, response.dec);
 
                 // debug visibility: ensure the result object is actually set
-                console.log('ephemeris: assigning result to component', this.result);
+                console.log(
+                  'ephemeris: assigning result to component',
+                  this.result,
+                );
 
                 // ensure change detection picks up the new result
                 this.cd.markForCheck();

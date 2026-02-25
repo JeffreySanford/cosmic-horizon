@@ -37,13 +37,11 @@ describe('Remote compute contract', () => {
   });
 
   it('status contract returns status payload', async () => {
-    orchestrator.getJobStatus = jest
-      .fn()
-      .mockResolvedValue({
-        id: 'job-1',
-        status: 'RUNNING',
-        progress: 0.4,
-      } as any);
+    orchestrator.getJobStatus = jest.fn().mockResolvedValue({
+      id: 'job-1',
+      status: 'RUNNING',
+      progress: 0.4,
+    } as any);
 
     const result = await controller.getJobStatus('job-1');
 

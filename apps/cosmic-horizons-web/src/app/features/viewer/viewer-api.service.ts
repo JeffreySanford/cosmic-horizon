@@ -110,10 +110,9 @@ export class ViewerApiService {
 
     // request full response so we can inspect headers for diagnostic warnings
     return this.http
-      .get<NearbyCatalogLabelModel[]>(
-        `${this.apiBaseUrl}/api/view/labels/nearby?${params.toString()}`,
-        { observe: 'response' },
-      )
+      .get<
+        NearbyCatalogLabelModel[]
+      >(`${this.apiBaseUrl}/api/view/labels/nearby?${params.toString()}`, { observe: 'response' })
       .pipe(
         tap((resp) => {
           const warn = resp.headers.get('X-Viewer-Simbad-Warn');

@@ -219,7 +219,7 @@ services:
       - cosmic-horizons-redis
       - cosmic-horizons-casa
     ports:
-      - "8090:8080"
+      - '8090:8080'
     networks:
       - cosmic-horizons-network
     restart: unless-stopped

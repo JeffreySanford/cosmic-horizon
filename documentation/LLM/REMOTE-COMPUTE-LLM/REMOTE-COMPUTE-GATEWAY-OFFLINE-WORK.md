@@ -112,7 +112,7 @@ they are cleared.)_
 - [x] Introduce data-staging realism features (large upload progress, missing
       inputs 404, permission 403, outputs-delayed) and artifact packaging (zip with
       checksum) in demo mode.  
-      _(service now simulates these conditions plus delayed outputs via special ids)_
+       _(service now simulates these conditions plus delayed outputs via special ids)_
 - [x] Model files as first-class entities (inputManifest, outputManifest,
       artifactRefs). _(DatasetInfo and StagingStatus interfaces extended; tests added)_
 
@@ -203,7 +203,7 @@ _This section tracks local-llm implementation status while live credentials are 
 - [x] `documentation/adr/ADR-remote-compute-tapis-vs-slurm.md`
 - [x] `documentation/api/remote-compute-gateway.openapi.yaml`
 - [x] `documentation/runbooks/remote-compute-live-cutover.md` created with cutover steps.
-- [x] `documentation/security/remote-compute-threat-model.md`  
+- [x] `documentation/security/remote-compute-threat-model.md`
 - [x] `documentation/testing/remote-compute-test-matrix.md`
 
 (These documents were published as of 2026-02-22; checklist entries remain here for traceability but the core content now lives in the security and testing folders.)

@@ -2,7 +2,7 @@
 
 Status date: 2026-02-22
 
-*(Completed items have been moved to `COMPLETED-ROADMAP.md`.)*
+_(Completed items have been moved to `COMPLETED-ROADMAP.md`.)_
 
 Canonical scope: `documentation/product/PRODUCT-CHARTER.md` and `SCOPE-LOCK.md`.
 Tracking rule: this document is forward-looking only; completed implementation history belongs in `TODO.md`.
@@ -16,7 +16,7 @@ Tracking rule: this document is forward-looking only; completed implementation h
 
 ## Priority 0: Real‑Data Jobs Integration (astronomy mode) **(completed)**
 
-Work completed: dataset staging, CASA compose profile, adapter stub, metadata extraction, prompt enrichment, and reference architecture diagrams.  See `COMPLETED-ROADMAP.md` and `COMPLETE-TODO.md` for details.
+Work completed: dataset staging, CASA compose profile, adapter stub, metadata extraction, prompt enrichment, and reference architecture diagrams. See `COMPLETED-ROADMAP.md` and `COMPLETE-TODO.md` for details.
 
 Exit criteria met:
 
@@ -32,14 +32,14 @@ Exit criteria met:
 ### Sprint 2 (Live Connectivity)
 
 Objective: move from simulation to real remote orchestration while preserving auditability and release safety.  
-*(demo/simulated pathway and UI already in place; this sprint focuses on the live adapter and gating.)*
+_(demo/simulated pathway and UI already in place; this sprint focuses on the live adapter and gating.)_
 
 - Implement TACC Slurm/Tapis live adapter and request/response mapping.
 - Add secure secret/header handling with redaction and operational guardrails.
 - Persist durable job provenance and outcome records in PostgreSQL.
 - Maintain feature-flagged runtime mode split (demo/mock vs live).
 - Complete contract fixtures and parser assertions for Tapis job operations (submit/status/list/files).
-(completed – see `COMPLETED-ROADMAP.md`)
+  (completed – see `COMPLETED-ROADMAP.md`)
 
 Exit criteria:
 
@@ -51,7 +51,7 @@ Exit criteria:
 ## Priority 1A: Local LLM Orchestration Completion (v1.2 offline track)
 
 Objective: finish the local-LLM execution path so UI, API, and orchestration behavior are production-shaped before TACC live cutover.  
-*(simulation baseline already implemented; remaining work focuses on guardrails and validation.)*
+_(simulation baseline already implemented; remaining work focuses on guardrails and validation.)_
 
 - Complete reliability/security controls:
   - (reliability/security controls completed – see `COMPLETED-ROADMAP.md`)
@@ -95,4 +95,4 @@ Exit criteria:
 
 ---
 
-*Independent portal using public VLASS data; not affiliated with VLA/NRAO.*
+_Independent portal using public VLASS data; not affiliated with VLA/NRAO._

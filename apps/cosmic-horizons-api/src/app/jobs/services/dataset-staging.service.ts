@@ -38,8 +38,7 @@ export interface StagingStatus {
   artifact_refs?: ArtifactRef[];
   output_manifest?: string[]; // list of output files
   error_code?: string; // human-readable error identifier
-}   
-
+}
 
 /**
  * Manages dataset preparation and staging for TACC processing
