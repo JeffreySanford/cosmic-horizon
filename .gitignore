@@ -68,3 +68,4 @@ astronomy-data/
 # artifacts from jobs-smoke-test script
 job-test/
 job-test/*.json
+.mypy_cache/
