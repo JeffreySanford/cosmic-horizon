@@ -88,6 +88,10 @@ async function bootstrap() {
       );
       await app.close();
       Logger.log(`OpenAPI spec generated at ${outputPath}`);
+      // Ensure the one-shot OpenAPI generation process terminates even if
+      // some background handles remain open. Schedule a clean exit so
+      // CI and wrappers don't hang waiting for the event loop to drain.
+      setImmediate(() => process.exit(0));
       return;
     }
     SwaggerModule.setup(`${globalPrefix}/docs`, app, openApiDocument);
