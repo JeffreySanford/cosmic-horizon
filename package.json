@@ -87,7 +87,9 @@
     "docs:check": "node scripts/check-doc-consistency.mjs",
     "env:check": "node scripts/check-env-consistency.mjs",
     "quality:stage": "pnpm nx run mvp-gates:quality",
-    "quality:ci": "pnpm run python:test && pnpm nx run docs-policy:check && pnpm format:check:changed && pnpm openapi:check && pnpm standalone:check && pnpm run env:check && pnpm nx run-many --target=test --all && pnpm nx run mvp-gates:e2e"
+    "quality:ci": "pnpm run python:test && pnpm nx run docs-policy:check && pnpm format:check:changed && pnpm openapi:check && pnpm standalone:check && pnpm run env:check && pnpm nx run-many --target=test --all && pnpm nx run mvp-gates:e2e",
+    "test:all:timed": "node scripts/run-with-timeout.mjs --timeout=7200000 --idle-ms=600000 -- pnpm run quality:stage && pnpm run lint && pnpm test && pnpm nx run mvp-gates:e2e && pnpm run e2e:ci",
+    "test:all": "pnpm run test:all:timed"
   },
   "private": true,
   "devDependencies": {
