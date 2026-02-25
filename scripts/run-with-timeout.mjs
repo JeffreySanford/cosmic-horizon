@@ -33,7 +33,22 @@ console.log(`[run-with-timeout] Running command: ${cmd}`);
 console.log(`[run-with-timeout] Expected max duration: ${Math.round(timeout/1000)}s; idle watchdog: ${Math.round(idleMs/1000)}s`);
 const start = Date.now();
 
-const child = spawn(cmd, { shell: true, stdio: ['inherit', 'pipe', 'pipe'] });
+function tokenizeCommand(s) {
+  const parts = [];
+  const re = /"([^\"]*)"|'([^\']*)'|(\S+)/g;
+  let m;
+  while ((m = re.exec(s)) !== null) {
+    if (m[1] !== undefined) parts.push(m[1]);
+    else if (m[2] !== undefined) parts.push(m[2]);
+    else parts.push(m[3]);
+  }
+  return parts;
+}
+
+const parts = tokenizeCommand(cmd);
+const bin = parts[0];
+const args = parts.slice(1);
+const child = spawn(bin, args, { stdio: ['ignore', 'pipe', 'pipe'] });
 
 let timedOut = false;
 let idleTimedOut = false;
