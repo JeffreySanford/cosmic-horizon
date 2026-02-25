@@ -120,6 +120,20 @@ jobs:
             fi
             sleep 2
           done
+      - name: Run quality stage
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm run quality:stage > test-output/quality-stage.log 2>&1 || true
+
+      - name: Upload quality-stage log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-stage-log
+          path: test-output/quality-stage.log
+          if-no-files-found: ignore
+
       - name: Run e2e (with retry)
         shell: bash
         run: |
