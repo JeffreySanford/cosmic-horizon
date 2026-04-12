@@ -121,7 +121,7 @@
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/schedule": "^6.1.1",
     "astronomy-engine": "^2.1.19",
-    "axios": "^1.13.5",
+    "axios": "^1.15.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0",
